@@ -421,6 +421,7 @@ pub struct Agent {
     /// When MCP deferred loading is enabled, tools are activated via `tool_search`
     /// and stored here for lookup during tool execution.
     activated_tools: Option<Arc<std::sync::Mutex<crate::tools::ActivatedToolSet>>>,
+    app_registry: Option<Arc<std::sync::RwLock<crate::platform::app_registry::AppRegistry>>>,
     /// Pre-rendered MCP pinned-resource system-prompt section, read once at
     /// construction from each server's `pinned_resources` and provenance-wrapped
     /// (`trust="untrusted-external"`). Empty when no pins are configured or all
@@ -613,6 +614,7 @@ pub struct AgentBuilder {
     shell_profile: Option<clawcrew_api::runtime_traits::ShellProfile>,
     approval_route: Option<clawcrew_config::autonomy::ApprovalRoute>,
     activated_tools: Option<Arc<std::sync::Mutex<crate::tools::ActivatedToolSet>>>,
+    app_registry: Option<Arc<std::sync::RwLock<crate::platform::app_registry::AppRegistry>>>,
     mcp_pinned_section: Option<String>,
     mcp_deferred_section: Option<String>,
     hook_runner: Option<Arc<crate::hooks::HookRunner>>,
@@ -668,6 +670,7 @@ impl AgentBuilder {
             shell_profile: None,
             approval_route: None,
             activated_tools: None,
+            app_registry: None,
             mcp_pinned_section: None,
             mcp_deferred_section: None,
             hook_runner: None,
@@ -895,6 +898,14 @@ impl AgentBuilder {
         self
     }
 
+    pub fn app_registry(
+        mut self,
+        app_registry: Option<Arc<std::sync::RwLock<crate::platform::app_registry::AppRegistry>>>,
+    ) -> Self {
+        self.app_registry = app_registry;
+        self
+    }
+
     pub fn mcp_pinned_section(mut self, section: Option<String>) -> Self {
         self.mcp_pinned_section = section;
         self
@@ -1099,6 +1110,7 @@ impl AgentBuilder {
             inject_memory: !exclude_memory,
             shell_profile: self.shell_profile,
             activated_tools: self.activated_tools,
+            app_registry: self.app_registry,
             mcp_pinned_section: self.mcp_pinned_section.unwrap_or_default(),
             mcp_deferred_section: self.mcp_deferred_section.unwrap_or_default(),
             hook_runner: self.hook_runner,
@@ -3187,6 +3199,7 @@ impl Agent {
                                     .and_then(|c| c.config.as_deref()),
                                 hooks: self.hook_runner.as_deref(),
                                 activated_tools: self.activated_tools.as_ref(),
+                                app_registry: self.app_registry.as_ref(),
                                 model_switch_callback: None,
                                 receipt_generator: receipt_scope
                                     .as_ref()
@@ -3739,6 +3752,7 @@ impl Agent {
                                     temperature: self.temperature,
                                 },
                                 crate::agent::loop_::ResolvedIo {
+    app_registry: None,
                                     tools_registry: &self.tools,
                                     observer: self.observer.as_ref(),
                                     silent: true,

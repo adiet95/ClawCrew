@@ -61,12 +61,14 @@ import {
   objectArrayElementProps,
   patchConfig,
   resolveAliasSource,
+  getSections,
   type AgentOptionsResponse,
   type ConfigApiError,
   type DriftEntry,
   type ListResponseEntry,
   type ObjectArrayPropMeta,
   type PatchOp,
+  type SectionInfo,
 } from "../../lib/api";
 import { useConfigDraft } from "../../lib/draftStore";
 import { fuzzyFilter } from "../../lib/fuzzy";
@@ -972,6 +974,7 @@ const FieldForm = forwardRef<FieldFormHandle, FieldFormProps>(
     const [schema, setSchema] = useState<Record<string, unknown> | undefined>(
       undefined,
     );
+    const [sections, setSections] = useState<SectionInfo[] | null>(null);
     const [filter, setFilter] = useState("");
 
     // When this form edits a channel block (`channels.<type>.<alias>`), its
@@ -1030,7 +1033,11 @@ const FieldForm = forwardRef<FieldFormHandle, FieldFormProps>(
       setLoading(true);
       setTopError(null);
       try {
-        const resp = await listProps(prefix);
+        const [resp, secResp] = await Promise.all([
+          listProps(prefix),
+          !sections ? getSections() : Promise.resolve({ sections })
+        ]);
+        setSections(secResp.sections);
         setEntries(resp.entries);
         const seed: Record<string, string> = {};
         const commentSeed: Record<string, string> = {};
@@ -2158,12 +2165,32 @@ function FieldRow({
             isOptional={isOptionalArray(entry.type_hint)}
           />
         ) : renderer === "object-array" ? (
-          <ObjectArrayEditor
-            inputId={entry.path}
-            value={value}
-            onChange={onChange}
-            elementProps={elementProps ?? null}
-          />
+          (() => {
+            const section = sections?.find((s) => s.key === entry.path);
+            if (section?.shape === "one_tier_alias_map") {
+              return (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-pc-text-secondary">
+                    {t("cfg.field.managed_in_section") || "Managed in its own section"}
+                  </span>
+                  <Link
+                    to={`/config/${encodeURIComponent(entry.path)}`}
+                    className="btn-secondary text-xs px-2 py-1"
+                  >
+                    {t("common.manage") || "Manage"}
+                  </Link>
+                </div>
+              );
+            }
+            return (
+              <ObjectArrayEditor
+                inputId={entry.path}
+                value={value}
+                onChange={onChange}
+                elementProps={elementProps ?? null}
+              />
+            );
+          })()
         ) : renderer === "number" ? (
           <input
             id={entry.path}

@@ -8,6 +8,7 @@ import {
   AgentsList,
   Apps,
   Instances,
+  Metrics,
   Recovery,
   Approvals,
   Audit,
@@ -64,6 +65,7 @@ export const Router = () => (
                 <Route path="/apps" element={<Apps />} />
         <Route path="/instances" element={<Instances />} />
         <Route path="/recovery" element={<Recovery />} />
+        <Route path="/metrics" element={<Metrics />} />
         <Route path="/tasks" element={<TaskBoard />} />
         <Route path="/approvals" element={<Approvals />} />
         <Route path="/providers" element={<ProvidersHealth />} />

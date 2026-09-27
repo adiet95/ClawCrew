@@ -13,7 +13,7 @@ use super::task_registry::{TaskKind, TaskRecord, TaskRegistry, TaskStatus};
 /// Workflow/PeerInbox have their own producers and are rejected here.
 pub fn validate_producer_kind(kind: TaskKind) -> anyhow::Result<()> {
     anyhow::ensure!(
-        matches!(kind, TaskKind::Cron | TaskKind::Sop | TaskKind::A2a),
+        matches!(kind, TaskKind::Cron | TaskKind::Sop | TaskKind::A2a | TaskKind::RemoteTurn),
         "kind {kind:?} is not a registerable producer kind"
     );
     Ok(())
@@ -151,10 +151,11 @@ mod tests {
     }
 
     #[test]
-    fn validate_accepts_only_cron_sop_a2a() {
+    fn validate_accepts_only_cron_sop_a2a_remoteturn() {
         assert!(validate_producer_kind(TaskKind::Cron).is_ok());
         assert!(validate_producer_kind(TaskKind::Sop).is_ok());
         assert!(validate_producer_kind(TaskKind::A2a).is_ok());
+        assert!(validate_producer_kind(TaskKind::RemoteTurn).is_ok());
         assert!(validate_producer_kind(TaskKind::Delegate).is_err());
         assert!(validate_producer_kind(TaskKind::Workflow).is_err());
     }

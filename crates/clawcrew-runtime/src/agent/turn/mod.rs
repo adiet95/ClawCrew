@@ -1045,6 +1045,7 @@ pub async fn run_tool_call_loop(mut p: ToolLoop<'_>) -> Result<String> {
         excluded_tools,
         dedup_exempt_tools,
         activated_tools,
+        app_registry,
         model_switch_callback,
         pacing,
         strict_tool_parsing,
@@ -2267,6 +2268,7 @@ pub async fn run_tool_call_loop(mut p: ToolLoop<'_>) -> Result<String> {
                     let dispatch = ToolDispatchContext {
                         tools_registry,
                         activated_tools,
+                        app_registry,
                         excluded_tools,
                         model_switch_callback: model_switch_callback.as_ref(),
                     };
@@ -2285,6 +2287,7 @@ pub async fn run_tool_call_loop(mut p: ToolLoop<'_>) -> Result<String> {
                     let dispatch = ToolDispatchContext {
                         tools_registry,
                         activated_tools,
+                        app_registry,
                         excluded_tools,
                         model_switch_callback: model_switch_callback.as_ref(),
                     };
@@ -3252,6 +3255,7 @@ async fn drive_live_sop_actions(
                                             temperature: eff_temperature,
                                         },
                                         ResolvedIo {
+    app_registry: None,
                                             tools_registry: eff_registry,
                                             observer,
                                             silent,
@@ -5224,6 +5228,7 @@ vision_model_provider = "custom.vision"
                     temperature: None,
                 },
                 ResolvedIo {
+    app_registry: None,
                     tools_registry: &tools_registry,
                     observer: &observer,
                     silent: true,

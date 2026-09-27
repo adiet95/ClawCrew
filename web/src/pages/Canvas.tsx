@@ -184,6 +184,20 @@ export default function Canvas() {
       return `<!DOCTYPE html><html><head>${noScriptCsp}<style>body{margin:1rem;font-family:${fontMono};color:${textPrimary};background:${bgBase};white-space:pre-wrap;}</style></head><body>${escaped}</body></html>`;
     }
 
+    if (currentFrame.content_type === 'diff') {
+      const escaped = currentFrame.content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const lines = escaped.split('\n').map((line: string) => {
+        if (line.startsWith('+')) return `<span style="color:#4ade80;background:rgba(74,222,128,0.08)">${line}</span>`;
+        if (line.startsWith('-')) return `<span style="color:#f87171;background:rgba(248,113,113,0.08)">${line}</span>`;
+        if (line.startsWith('@@')) return `<span style="color:#60a5fa">${line}</span>`;
+        return `<span style="color:${textSecondary}">${line}</span>`;
+      }).join('\n');
+      return `<!DOCTYPE html><html><head>${noScriptCsp}<style>body{margin:1rem;font-family:${fontMono};background:${bgBase};line-height:1.6;font-size:13px;}pre{white-space:pre-wrap;word-wrap:break-word;}</style></head><body><pre>${lines}</pre></body></html>`;
+    }
+
     if (currentFrame.content_type === 'html') {
       // Scripts allowed but still sandboxed (no same-origin).
       return currentFrame.content;
