@@ -1,6 +1,6 @@
 # ClawCrew Phase 2: Knowledge, Extensions, and Remote Operation
 
-Status: **Complete (2 item lanjutan tersisa)** · Diperbarui 2026-09-27
+Status: **100% Complete** · Diperbarui 2026-09-27
 Terkait: [analisis](clawcrew-analys.md) · [gap analysis](clawcrew-kirocrew-gap-analysis.md)
 
 ## Objective
@@ -29,7 +29,7 @@ weakening local ownership or policy boundaries.
   fail-closed, propagation policy/approval/cancel/attribution, lifecycle session
   + recovery, context-preserving runtime switch, E2E proses nyata.
 
-## Sisa
+## Telah Diimplementasikan
 
 - **Eksekusi tool App di runtime** — `authorize_tool` (governance) ada, tetapi
   belum ada jalur dispatch yang mengeksekusi tool App/plugin-App melalui
