@@ -1602,6 +1602,7 @@ mod tests {
                 key: key.to_string(),
                 content: content.to_string(),
                 category,
+                scope: Default::default(),
                 timestamp: now_iso8601(),
                 session_id: session_id.map(str::to_string),
                 score: None,

@@ -353,6 +353,7 @@ pub enum TaskState {
     TaskStateAuthRequired,
 }
 
+
 impl<'de> serde::Deserialize<'de> for TaskState {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         #[derive(Deserialize)]

@@ -44,6 +44,7 @@ mod tests {
             key: "favorite_language".into(),
             content: "Rust".into(),
             category: MemoryCategory::Core,
+            scope: MemoryScope::Workspace,
             timestamp: "2026-02-16T00:00:00Z".into(),
             session_id: Some("session-abc".into()),
             score: Some(0.98),

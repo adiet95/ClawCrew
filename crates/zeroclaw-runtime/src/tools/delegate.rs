@@ -63,6 +63,13 @@ where
     TOOL_LOOP_SESSION_KEY.scope(session_key, future).await
 }
 
+tokio::task_local! {
+    /// Ambient delegate task id for a background worker, so a provider fallback
+    /// observed mid-run is recorded as task metadata (P1.5) and surfaces in the
+    /// TaskBoard activity feed.
+    static DELEGATE_TASK_ID: String;
+}
+
 /// Serializable result of a background delegate task.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct BackgroundDelegateResult {
@@ -127,7 +134,12 @@ impl BackgroundResultState {
 
     fn from_task_status(status: crate::control_plane::TaskStatus) -> Self {
         match status {
-            crate::control_plane::TaskStatus::Running
+            crate::control_plane::TaskStatus::Queued
+            | crate::control_plane::TaskStatus::Waiting
+            | crate::control_plane::TaskStatus::Validating
+            | crate::control_plane::TaskStatus::Retrying
+            | crate::control_plane::TaskStatus::NeedsReview
+            | crate::control_plane::TaskStatus::Running
             | crate::control_plane::TaskStatus::Paused => Self::Running,
             crate::control_plane::TaskStatus::Completed => Self::Completed,
             crate::control_plane::TaskStatus::Failed => Self::Failed,
@@ -649,11 +661,8 @@ impl DelegateTool {
             //
             // Enforcement status: the ACTION ceiling is enforced at every
             // admission through the shared tracker. The COST ceiling is
-            // carried faithfully but NOT enforced on delegated runs today -
-            // delegated loops run without cost-tracking scope - so this
-            // clamp is future-proofing for cost enforcement, not live
-            // enforcement. See the follow-up on threading cost context into
-            // child loops.
+            // carried faithfully and enforced by `cost_budget_refusal` below
+            // against the target agent's recorded daily spend.
             target_policy.max_actions_per_hour = target_policy
                 .max_actions_per_hour
                 .min(self.security.max_actions_per_hour);
@@ -671,7 +680,111 @@ impl DelegateTool {
             }
         }
 
+        // Cost governor: refuse a delegated run when the target agent's recorded
+        // daily spend already exceeds its effective per-day cap. `0` means
+        // "inherit the global limit" (no per-agent cap here).
+        if let Some(refusal) =
+            self.cost_budget_refusal(target_alias, target_policy.max_cost_per_day_cents)
+        {
+            return Err(anyhow::Error::msg(refusal));
+        }
+
+        // Token governor: refuse a delegated run when the target agent's
+        // recorded daily token spend already exceeds the effective cap
+        // (caller ∩ target). `0` means no per-agent cap.
+        if let Some(refusal) =
+            self.token_budget_refusal(target_alias, self.token_cap_for(target_alias))
+        {
+            return Err(anyhow::Error::msg(refusal));
+        }
+
         Ok(Arc::new(target_policy))
+    }
+
+    /// The per-day token cap for a target agent, clamped by the caller's own cap
+    /// (parent-subset). `0` means no cap; a `0` on either side inherits the other.
+    fn token_cap_for(&self, target_alias: &str) -> u64 {
+        let Some(config) = self.root_config.as_ref() else {
+            return 0;
+        };
+        let cap_for = |alias: &str| {
+            config
+                .agents
+                .get(alias)
+                .map(|agent| self.resolve_max_tokens_per_day(&agent.runtime_profile))
+                .unwrap_or(0)
+        };
+        match (cap_for(&self.caller_alias), cap_for(target_alias)) {
+            (0, target) => target,
+            (caller, 0) => caller,
+            (caller, target) => caller.min(target),
+        }
+    }
+
+    fn resolve_max_tokens_per_day(&self, runtime_profile: &str) -> u64 {
+        self.runtime_profiles
+            .get(runtime_profile)
+            .map(|profile| profile.max_tokens_per_day)
+            .unwrap_or(0)
+    }
+
+    /// `0` cap means unbounded.
+    fn exceeds_token_cap(tokens: u64, cap: u64) -> bool {
+        cap > 0 && tokens > cap
+    }
+
+    /// Refuse delegation when the target agent's recorded daily token spend
+    /// already exceeds its effective per-day token cap. Returns `None` when no
+    /// cap applies, no tracker/config is available, or the budget is within it.
+    fn token_budget_refusal(&self, agent_name: &str, cap: u64) -> Option<String> {
+        if cap == 0 {
+            return None;
+        }
+        let config = self.root_config.as_ref()?;
+        let tracker = crate::cost::CostTracker::get_or_init_global(
+            config.cost.clone(),
+            &config.data_dir,
+        )?;
+        let summary = tracker.get_summary_for_agent(agent_name).ok()?;
+        if Self::exceeds_token_cap(summary.total_tokens, cap) {
+            return Some(format!(
+                "delegation refused: agent {agent_name:?} daily tokens {} exceed its cap {cap}",
+                summary.total_tokens
+            ));
+        }
+        None
+    }
+
+    /// `0` means "inherit the global limit" (never a per-agent cap).
+    fn exceeds_cost_cap(daily_cost_usd: f64, max_cents: u32) -> bool {
+        max_cents > 0 && daily_cost_usd > max_cents as f64 / 100.0
+    }
+
+    /// Refuse delegation when the target agent's recorded daily spend already
+    /// exceeds its effective per-day cost cap. Returns `None` when no cap
+    /// applies, no tracker/config is available, or the budget is within limits.
+    fn cost_budget_refusal(
+        &self,
+        agent_name: &str,
+        max_cost_per_day_cents: u32,
+    ) -> Option<String> {
+        if max_cost_per_day_cents == 0 {
+            return None;
+        }
+        let config = self.root_config.as_ref()?;
+        let tracker = crate::cost::CostTracker::get_or_init_global(
+            config.cost.clone(),
+            &config.data_dir,
+        )?;
+        let summary = tracker.get_summary_for_agent(agent_name).ok()?;
+        if Self::exceeds_cost_cap(summary.daily_cost_usd, max_cost_per_day_cents) {
+            return Some(format!(
+                "delegation refused: agent {agent_name:?} daily cost ${:.2} exceeds its cap ${:.2}",
+                summary.daily_cost_usd,
+                max_cost_per_day_cents as f64 / 100.0,
+            ));
+        }
+        None
     }
 
     fn unreachable_target_error(&self, config: &Config, target_alias: &str) -> String {
@@ -1955,6 +2068,25 @@ impl DelegateTool {
                 .agents
                 .get(agent_name)
                 .is_some_and(|config| self.resolve_agentic(&config.runtime_profile));
+
+            // Log fallback routing decision to observability layer
+            ::zeroclaw_log::record!(
+                WARN,
+                ::zeroclaw_log::Event::new(module_path!(), ::zeroclaw_log::Action::Write)
+                    .with_attrs(::serde_json::json!({
+                        "agent": agent_name,
+                        "requested_candidate": fallback.requested_candidate,
+                        "actual_candidate": fallback.actual_candidate,
+                        "agentic": agentic
+                    })),
+                "provider routing fallback selected"
+            );
+
+            // Surface the fallback as task metadata when this run is a
+            // background delegate task (P1.5), so it appears in the TaskBoard
+            // activity feed.
+            self.record_provider_fallback_metadata(&fallback).await;
+
             let warning =
                 crate::i18n::get_required_cli_string("delegate-provider-fallback-warning");
             let header_key = if agentic {
@@ -1982,6 +2114,47 @@ impl DelegateTool {
             result.output = format!("{header}\n{rendered}\n\n{warning}").into();
         }
         Ok(result)
+    }
+
+    /// Record a provider fallback as task metadata on the ambient delegate
+    /// task, when one exists. No-op for the synchronous path (no task row).
+    async fn record_provider_fallback_metadata(
+        &self,
+        fallback: &zeroclaw_providers::reliable::ProviderFallbackAttribution,
+    ) {
+        // Session metadata projection (P1.5): independent of any task row.
+        if let Some(session_key) = current_tool_loop_session_key() {
+            crate::session::metadata::record_provider_fallback(
+                &session_key,
+                crate::session::metadata::SessionProviderFallback {
+                    requested_provider: fallback.requested_candidate.clone(),
+                    actual_provider: fallback.actual_candidate.clone(),
+                    requested_model: fallback.fallback.requested_model.clone(),
+                    actual_model: fallback.fallback.actual_model.clone(),
+                    at: chrono::Utc::now().to_rfc3339(),
+                },
+            );
+        }
+
+        let Ok(task_id) = DELEGATE_TASK_ID.try_with(|id| id.clone()) else {
+            return;
+        };
+        let Some(control_plane) = crate::control_plane::control_plane() else {
+            return;
+        };
+        let _ = control_plane
+            .store
+            .record_task_event(
+                &task_id,
+                "provider_fallback",
+                &serde_json::json!({
+                    "requested_provider": fallback.requested_candidate,
+                    "requested_model": fallback.fallback.requested_model,
+                    "actual_provider": fallback.actual_candidate,
+                    "actual_model": fallback.fallback.actual_model,
+                }),
+            )
+            .await;
     }
 
     async fn execute_sync_with_admission_inner(
@@ -2347,6 +2520,11 @@ impl DelegateTool {
                 delivered: false,
                 idem_key: None,
                 principal_id: None,
+                session_key: None,
+                workspace: None,
+                cancellation_state: crate::control_plane::task_registry::CancellationState::None,
+                checkpoint_id: None,
+                recovery_outcome: Default::default(),
                 started_at: started_at.clone(),
                 finished_at: None,
             })
@@ -2408,11 +2586,12 @@ impl DelegateTool {
         // __global__ budget.
         let parent_thread_id = TOOL_LOOP_THREAD_ID.try_with(|v| v.clone()).ok().flatten();
         let __zc_delegate_alias = agent_name_owned.clone();
+        let ambient_task_id = task_id.clone();
 
         zeroclaw_spawn::spawn!(
             TOOL_LOOP_THREAD_ID.scope(
                 parent_thread_id,
-                scope_delegate_session_key(parent_session_key, async move {
+                DELEGATE_TASK_ID.scope(ambient_task_id, scope_delegate_session_key(parent_session_key, async move {
                 let inner = DelegateTool {
                     agents,
                     security,
@@ -2510,7 +2689,7 @@ impl DelegateTool {
                     terminal_owner_boot_id,
                 )
                 .await;
-                }),
+                })),
             )
             .instrument(::zeroclaw_log::attribution_span!(
                 &crate::agent::AgentAttribution(__zc_delegate_alias.as_str())
@@ -4063,6 +4242,11 @@ mod tests {
             delivered: false,
             idem_key: None,
             principal_id: None,
+            session_key: None,
+            workspace: None,
+            cancellation_state: crate::control_plane::task_registry::CancellationState::None,
+            checkpoint_id: None,
+            recovery_outcome: Default::default(),
             started_at: "2026-06-21T00:00:00Z".into(),
             finished_at: None,
         }
@@ -10048,6 +10232,77 @@ mod tests {
         DelegateTool::new(config.agents.clone(), None, caller_policy)
             .with_root_config(config)
             .with_caller_alias("caller")
+    }
+
+    #[test]
+    fn cost_cap_uses_cents_and_treats_zero_as_inherit() {
+        assert!(!DelegateTool::exceeds_cost_cap(0.0, 0), "0 = inherit, no cap");
+        assert!(!DelegateTool::exceeds_cost_cap(5.0, 0));
+        assert!(!DelegateTool::exceeds_cost_cap(0.50, 100), "under $1 cap");
+        assert!(DelegateTool::exceeds_cost_cap(1.50, 100), "over $1 cap");
+        assert!(!DelegateTool::exceeds_cost_cap(1.00, 100), "at cap is allowed");
+    }
+
+    #[test]
+    fn token_cap_treats_zero_as_unbounded() {
+        assert!(!DelegateTool::exceeds_token_cap(0, 0), "0 = unbounded");
+        assert!(!DelegateTool::exceeds_token_cap(1_000_000, 0));
+        assert!(!DelegateTool::exceeds_token_cap(1000, 1000), "at cap is allowed");
+        assert!(DelegateTool::exceeds_token_cap(1001, 1000), "over cap refused");
+    }
+
+    #[tokio::test]
+    async fn token_cap_is_parent_subset() {
+        use zeroclaw_config::autonomy::{DelegationMode, DelegationPolicy};
+        use zeroclaw_config::schema::{
+            AliasedAgentConfig, RiskProfileConfig, RuntimeProfileConfig,
+        };
+
+        let build = |caller_cap: u64, target_cap: u64| {
+            let mut config = Config::default();
+            for (profile, cap) in [
+                ("caller_profile", caller_cap),
+                ("target_profile", target_cap),
+            ] {
+                config.runtime_profiles.insert(
+                    profile.to_string(),
+                    RuntimeProfileConfig {
+                        max_tokens_per_day: cap,
+                        ..RuntimeProfileConfig::default()
+                    },
+                );
+            }
+            for alias in ["caller", "target"] {
+                config.risk_profiles.insert(
+                    format!("{alias}_profile"),
+                    RiskProfileConfig {
+                        delegation_policy: DelegationPolicy {
+                            mode: DelegationMode::Allow,
+                        },
+                        ..RiskProfileConfig::default()
+                    },
+                );
+                config.agents.insert(
+                    alias.to_string(),
+                    AliasedAgentConfig {
+                        risk_profile: format!("{alias}_profile").into(),
+                        runtime_profile: format!("{alias}_profile").into(),
+                        model_provider: "ollama.x".into(),
+                        delegates: vec![DelegateTargetConfig::bounded("target")],
+                        ..AliasedAgentConfig::default()
+                    },
+                );
+            }
+            let config = Arc::new(config);
+            delegate_tool_for_config(Arc::clone(&config))
+                .with_runtime_profiles(config.runtime_profiles.clone())
+                .token_cap_for("target")
+        };
+
+        assert_eq!(build(100, 30), 30, "both explicit -> min");
+        assert_eq!(build(100, 0), 100, "target unset inherits caller cap");
+        assert_eq!(build(0, 30), 30, "caller unset leaves target cap");
+        assert_eq!(build(0, 0), 0, "both unset -> unbounded");
     }
 
     #[tokio::test]

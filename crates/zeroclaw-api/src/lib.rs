@@ -1,14 +1,18 @@
 //! ZeroClaw API layer — trait definitions and shared types.
 
+pub mod a2a_observer;
 pub mod a2a_wire;
 pub mod agent;
+pub mod app_manifest;
 pub mod attribution;
 pub mod channel;
 pub mod elicitation;
 pub mod grants;
 pub mod hook;
 pub mod ingress;
+pub mod instance;
 pub mod jsonrpc;
+pub mod knowledge;
 pub mod lifecycle;
 pub mod media;
 pub mod memory_traits;
@@ -45,3 +49,5 @@ tokio::task_local! {
     /// functions and read by `run_tool_call_loop` when building `ChatRequest`.
     pub static NATIVE_THINKING_OVERRIDE: Option<crate::model_provider::NativeThinkingParams>;
 }
+
+pub mod dashboard;

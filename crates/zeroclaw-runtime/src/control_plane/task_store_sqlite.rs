@@ -8,12 +8,16 @@ use rusqlite::{Connection, OptionalExtension, params};
 
 use super::authority::is_authoritative;
 use super::task_registry::{
-    TaskKind, TaskRecord, TaskRegistry, TaskSnapshot, TaskStatus, TerminalSettlementIntent,
+    RecoveryOutcome, TaskEvent, TaskKind, TaskRecord, TaskRegistry, TaskSnapshot, TaskStatus,
+    TerminalSettlementIntent,
 };
 
 mod goal;
+mod task_runner;
 
-const CONTROL_PLANE_SCHEMA_VERSION: i64 = 8;
+pub const CONTROL_PLANE_SCHEMA_VERSION: i64 = 12;
+const MAX_STORED_TASK_EVENTS: i64 = 1_000;
+const MAX_TASK_EVENT_PAYLOAD_BYTES: usize = 16 * 1024;
 
 pub struct SqliteTaskStore {
     conn: Mutex<Connection>,
@@ -151,6 +155,83 @@ fn migrate_schema(conn: &Connection) -> Result<()> {
         )
         .context("apply control-plane schema v8")?;
     }
+    if version < 9 {
+        add_column_if_missing(
+            conn,
+            "tasks",
+            "session_key",
+            "ALTER TABLE tasks ADD COLUMN session_key TEXT;",
+        )?;
+        add_column_if_missing(
+            conn,
+            "tasks",
+            "workspace",
+            "ALTER TABLE tasks ADD COLUMN workspace TEXT;",
+        )?;
+        add_column_if_missing(
+            conn,
+            "tasks",
+            "cancellation_state",
+            "ALTER TABLE tasks ADD COLUMN cancellation_state TEXT NOT NULL DEFAULT 'none';",
+        )?;
+        conn.execute_batch(
+            "CREATE TABLE IF NOT EXISTS task_events (
+                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                 task_id         TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+                 event_type      TEXT NOT NULL,
+                 payload         TEXT NOT NULL,
+                 timestamp       TEXT NOT NULL
+             );
+             CREATE INDEX IF NOT EXISTS idx_task_events_task_id ON task_events(task_id);
+             PRAGMA user_version = 9;",
+        )
+        .context("apply control-plane schema v9")?;
+    }
+    if version < 10 {
+        conn.execute_batch(
+            "CREATE TABLE IF NOT EXISTS task_runner_specs (
+                 task_id         TEXT PRIMARY KEY REFERENCES tasks(id) ON DELETE CASCADE,
+                 spec_payload    TEXT NOT NULL
+             );
+             CREATE TABLE IF NOT EXISTS task_runner_ledger (
+                 task_id         TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+                 step_id         TEXT NOT NULL,
+                 timestamp       TEXT NOT NULL,
+                 action          TEXT NOT NULL,
+                 details         TEXT NOT NULL,
+                 UNIQUE(task_id, step_id, action, timestamp)
+             );
+             CREATE INDEX IF NOT EXISTS idx_task_runner_ledger_task_id ON task_runner_ledger(task_id);
+             PRAGMA user_version = 10;",
+        )
+        .context("apply control-plane schema v10")?;
+    }
+    if version < 11 {
+        add_column_if_missing(
+            conn,
+            "tasks",
+            "checkpoint_id",
+            "ALTER TABLE tasks ADD COLUMN checkpoint_id TEXT;",
+        )?;
+        add_column_if_missing(
+            conn,
+            "tasks",
+            "recovery_outcome",
+            "ALTER TABLE tasks ADD COLUMN recovery_outcome TEXT NOT NULL DEFAULT 'fresh';",
+        )?;
+        conn.execute_batch("PRAGMA user_version = 11;")
+            .context("apply control-plane schema v11")?;
+    }
+    if version < 12 {
+        add_column_if_missing(
+            conn,
+            "task_runner_ledger",
+            "correlation_id",
+            "ALTER TABLE task_runner_ledger ADD COLUMN correlation_id TEXT;",
+        )?;
+        conn.execute_batch("PRAGMA user_version = 12;")
+            .context("apply control-plane schema v12")?;
+    }
     if version > CONTROL_PLANE_SCHEMA_VERSION {
         ::zeroclaw_log::record!(
             WARN,
@@ -212,6 +293,30 @@ fn status_from_db(s: &str) -> Result<TaskStatus> {
         .with_context(|| format!("unknown task status {s:?}"))
 }
 
+fn cancellation_state_to_db(c: super::task_registry::CancellationState) -> String {
+    serde_json::to_value(c)
+        .ok()
+        .and_then(|v| v.as_str().map(str::to_owned))
+        .unwrap_or_else(|| "none".into())
+}
+
+fn cancellation_state_from_db(s: &str) -> Result<super::task_registry::CancellationState> {
+    serde_json::from_value(serde_json::Value::String(s.to_owned()))
+        .with_context(|| format!("unknown cancellation state {s:?}"))
+}
+
+fn recovery_outcome_to_db(outcome: RecoveryOutcome) -> String {
+    serde_json::to_value(outcome)
+        .ok()
+        .and_then(|v| v.as_str().map(str::to_owned))
+        .unwrap_or_else(|| "fresh".into())
+}
+
+fn recovery_outcome_from_db(s: &str) -> Result<RecoveryOutcome> {
+    serde_json::from_value(serde_json::Value::String(s.to_owned()))
+        .with_context(|| format!("unknown recovery outcome {s:?}"))
+}
+
 fn row_to_record(row: &rusqlite::Row<'_>) -> rusqlite::Result<TaskRecord> {
     let kind_s: String = row.get("kind")?;
     let status_s: String = row.get("status")?;
@@ -225,6 +330,16 @@ fn row_to_record(row: &rusqlite::Row<'_>) -> rusqlite::Result<TaskRecord> {
     let status = status_from_db(&status_s).map_err(|e| {
         rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, e.into())
     })?;
+    let cancellation_state_s: String = row
+        .get("cancellation_state")
+        .unwrap_or_else(|_| "none".to_string());
+    let cancellation_state = cancellation_state_from_db(&cancellation_state_s)
+        .unwrap_or(super::task_registry::CancellationState::None);
+    let recovery_outcome_s: String = row
+        .get("recovery_outcome")
+        .unwrap_or_else(|_| "fresh".to_string());
+    let recovery_outcome =
+        recovery_outcome_from_db(&recovery_outcome_s).unwrap_or(RecoveryOutcome::Fresh);
     Ok(TaskRecord {
         id: row.get("id")?,
         kind,
@@ -239,6 +354,11 @@ fn row_to_record(row: &rusqlite::Row<'_>) -> rusqlite::Result<TaskRecord> {
         delivered: row.get::<_, i64>("delivered")? != 0,
         idem_key: row.get("idem_key")?,
         principal_id: row.get("principal_id")?,
+        session_key: row.get("session_key").unwrap_or(None),
+        workspace: row.get("workspace").unwrap_or(None),
+        cancellation_state,
+        checkpoint_id: row.get("checkpoint_id").unwrap_or(None),
+        recovery_outcome,
         started_at: row.get("started_at")?,
         finished_at: row.get("finished_at")?,
     })
@@ -429,6 +549,10 @@ fn promote_settlement_record(
                 SET status = ?1,
                     output = ?2,
                     error = ?3,
+                    recovery_outcome = CASE
+                        WHEN ?3 IS NOT NULL THEN 'needs_review'
+                        ELSE recovery_outcome
+                    END,
                     finished_at = ?4
               WHERE id = ?5
                 AND owner_pid = ?6
@@ -521,7 +645,74 @@ fn log_unreadable_terminal_settlement_intent(error: rusqlite::Error) {
     );
 }
 
+fn redact_task_event_value(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Object(object) => serde_json::Value::Object(
+            object
+                .into_iter()
+                .map(|(key, value)| {
+                    let lower = key.to_ascii_lowercase();
+                    let sensitive = [
+                        "token",
+                        "secret",
+                        "password",
+                        "api_key",
+                        "authorization",
+                        "credential",
+                        "prompt",
+                        "argument",
+                        "args",
+                    ]
+                    .iter()
+                    .any(|part| lower.contains(part));
+                    (
+                        key,
+                        if sensitive {
+                            serde_json::Value::String("[REDACTED]".into())
+                        } else {
+                            redact_task_event_value(value)
+                        },
+                    )
+                })
+                .collect(),
+        ),
+        serde_json::Value::Array(values) => {
+            serde_json::Value::Array(values.into_iter().map(redact_task_event_value).collect())
+        }
+        other => other,
+    }
+}
+
+fn bounded_task_event_payload(payload: &serde_json::Value) -> serde_json::Value {
+    let redacted = redact_task_event_value(payload.clone());
+    if serde_json::to_vec(&redacted)
+        .map(|bytes| bytes.len() <= MAX_TASK_EVENT_PAYLOAD_BYTES)
+        .unwrap_or(false)
+    {
+        redacted
+    } else {
+        serde_json::json!({
+            "redacted": true,
+            "reason": "event payload exceeds control-plane limit"
+        })
+    }
+}
+
 fn insert_task_record(conn: &Connection, rec: TaskRecord) -> Result<()> {
+    if let Some(idem) = &rec.idem_key {
+        let exists: bool = conn
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM tasks WHERE idem_key = ?1 AND principal_id = ?2 AND session_key = ?3)",
+                params![idem, rec.principal_id, rec.session_key],
+                |row| row.get(0),
+            )
+            .unwrap_or(false);
+        anyhow::ensure!(
+            !exists,
+            "duplicate task side effect prevented by idempotency key: {}",
+            idem
+        );
+    }
     // ON CONFLICT DO NOTHING, NOT INSERT OR REPLACE: re-registering an existing id
     // must be a true no-op, never clobber an already-recorded output/error/terminal
     // status back to NULL/running (review finding— the documented idempotency).
@@ -529,8 +720,9 @@ fn insert_task_record(conn: &Connection, rec: TaskRecord) -> Result<()> {
         "INSERT INTO tasks
             (id, kind, agent, status, owner_pid, owner_boot_id, heartbeat_at, depth,
              parent_id, originator_route, delivered, idem_key, principal_id,
-             started_at, finished_at)
-         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15)
+             session_key, workspace, cancellation_state, checkpoint_id,
+             recovery_outcome, started_at, finished_at)
+         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20)
          ON CONFLICT(id) DO NOTHING",
         params![
             rec.id,
@@ -546,6 +738,11 @@ fn insert_task_record(conn: &Connection, rec: TaskRecord) -> Result<()> {
             rec.delivered as i64,
             rec.idem_key,
             rec.principal_id,
+            rec.session_key,
+            rec.workspace,
+            cancellation_state_to_db(rec.cancellation_state),
+            rec.checkpoint_id,
+            recovery_outcome_to_db(rec.recovery_outcome),
             rec.started_at,
             rec.finished_at,
         ],
@@ -683,12 +880,44 @@ fn claim_task_owner_record(
         "UPDATE tasks
             SET owner_pid = ?1,
                 owner_boot_id = ?2,
-                heartbeat_at = NULL
+                heartbeat_at = NULL,
+                recovery_outcome = 'resumed'
           WHERE id = ?3
             AND status NOT IN ('completed','failed','cancelled','lost','timed_out')",
         params![owner_pid as i64, owner_boot_id, id],
     )
     .context("claim task owner")
+}
+
+fn request_task_cancellation_record(conn: &Connection, id: &str) -> Result<usize> {
+    conn.execute(
+        "UPDATE tasks
+            SET cancellation_state = 'requested'
+          WHERE id = ?1
+            AND status NOT IN ('completed','failed','cancelled','lost','timed_out')
+            AND cancellation_state = 'none'",
+        params![id],
+    )
+    .context("request task cancellation")
+}
+
+fn acknowledge_task_cancellation_record(
+    conn: &Connection,
+    id: &str,
+    owner_pid: u32,
+    owner_boot_id: &str,
+) -> Result<usize> {
+    conn.execute(
+        "UPDATE tasks
+            SET cancellation_state = 'acknowledged'
+          WHERE id = ?1
+            AND owner_pid = ?2
+            AND owner_boot_id = ?3
+            AND status NOT IN ('completed','failed','cancelled','lost','timed_out')
+            AND cancellation_state = 'requested'",
+        params![id, owner_pid as i64, owner_boot_id],
+    )
+    .context("acknowledge task cancellation")
 }
 
 #[async_trait::async_trait]
@@ -710,6 +939,24 @@ impl TaskRegistry for SqliteTaskStore {
             params![now, id, owner_boot_id],
         )
         .context("heartbeat task")?;
+        Ok(())
+    }
+
+    async fn update_checkpoint(
+        &self,
+        id: &str,
+        owner_boot_id: &str,
+        checkpoint_id: Option<String>,
+    ) -> Result<()> {
+        let conn = self.conn.lock();
+        conn.execute(
+            "UPDATE tasks SET checkpoint_id = ?1
+             WHERE id = ?2
+               AND owner_boot_id = ?3
+               AND status NOT IN ('completed','failed','cancelled','lost','timed_out')",
+            params![checkpoint_id, id, owner_boot_id],
+        )
+        .context("update task checkpoint")?;
         Ok(())
     }
 
@@ -757,6 +1004,243 @@ impl TaskRegistry for SqliteTaskStore {
         )? == 1)
     }
 
+    async fn claim(&self, id: &str, owner_pid: u32, owner_boot_id: &str) -> Result<bool> {
+        let conn = self.conn.lock();
+        Ok(claim_task_owner_record(&conn, id, owner_pid, owner_boot_id)? == 1)
+    }
+
+    async fn transfer_ownership(
+        &self,
+        id: &str,
+        new_owner_pid: u32,
+        new_owner_boot_id: &str,
+        auth_token: &str,
+    ) -> Result<()> {
+        let mut conn = self.conn.lock();
+        let tx = conn.transaction().context("begin ownership transfer")?;
+
+        let timestamp = chrono::Utc::now().to_rfc3339();
+        let payload = serde_json::json!({
+            "new_owner_pid": new_owner_pid,
+            "new_owner_boot_id": new_owner_boot_id,
+            "auth_token": auth_token,
+        });
+
+        let payload_str = serde_json::to_string(&bounded_task_event_payload(&payload)).unwrap();
+        tx.execute(
+            "INSERT INTO task_events (task_id, event_type, payload, timestamp) VALUES (?1, ?2, ?3, ?4)",
+            params![id, "ownership_transferred", payload_str, timestamp],
+        ).context("insert ownership transfer event")?;
+
+        let changed = tx
+            .execute(
+                "UPDATE tasks
+                SET owner_pid = ?1,
+                    owner_boot_id = ?2,
+                    heartbeat_at = NULL,
+                    recovery_outcome = 'resumed'
+              WHERE id = ?3
+                AND status NOT IN ('completed','failed','cancelled','lost','timed_out')",
+                params![new_owner_pid as i64, new_owner_boot_id, id],
+            )
+            .context("transfer task ownership")?;
+
+        if changed == 0 {
+            anyhow::bail!("task cannot be transferred (terminal or missing)");
+        }
+
+        tx.execute(
+            "DELETE FROM terminal_settlement_intents WHERE task_id = ?1",
+            params![id],
+        )
+        .context("delete prior-owner terminal settlement intent")?;
+
+        tx.commit().context("commit ownership transfer")?;
+        Ok(())
+    }
+
+    async fn aggregate_child_result(
+        &self,
+        parent_id: &str,
+        child_id: &str,
+        child_status: TaskStatus,
+        child_output: Option<String>,
+    ) -> Result<bool> {
+        let mut conn = self.conn.lock();
+        let tx = conn.transaction().context("begin aggregate child result")?;
+
+        let delivered = tx
+            .query_row(
+                "SELECT delivered FROM tasks WHERE id = ?1 AND parent_id = ?2",
+                params![child_id, parent_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .optional()
+            .context("check child delivery status")?;
+
+        let Some(delivered) = delivered else {
+            return Ok(false);
+        };
+        if delivered != 0 {
+            return Ok(false);
+        }
+
+        tx.execute(
+            "UPDATE tasks SET delivered = 1 WHERE id = ?1",
+            params![child_id],
+        )
+        .context("mark child delivered")?;
+
+        let timestamp = chrono::Utc::now().to_rfc3339();
+        let payload = serde_json::json!({
+            "child_id": child_id,
+            "child_status": status_to_db(child_status),
+            "child_output": child_output,
+        });
+        let payload_str = serde_json::to_string(&bounded_task_event_payload(&payload)).unwrap();
+        tx.execute(
+            "INSERT INTO task_events (task_id, event_type, payload, timestamp) VALUES (?1, ?2, ?3, ?4)",
+            params![parent_id, "child_aggregated", payload_str, timestamp],
+        ).context("insert aggregation event")?;
+
+        tx.commit().context("commit child aggregation")?;
+        Ok(true)
+    }
+
+    async fn request_cancellation(&self, id: &str) -> Result<bool> {
+        let conn = self.conn.lock();
+        Ok(request_task_cancellation_record(&conn, id)? == 1)
+    }
+
+    async fn acknowledge_cancellation(
+        &self,
+        id: &str,
+        owner_pid: u32,
+        owner_boot_id: &str,
+    ) -> Result<bool> {
+        let conn = self.conn.lock();
+        Ok(acknowledge_task_cancellation_record(&conn, id, owner_pid, owner_boot_id)? == 1)
+    }
+
+    async fn cascade_cancellation(&self, parent_id: &str) -> Result<()> {
+        let conn = self.conn.lock();
+        conn.execute(
+            "WITH RECURSIVE
+               descendants(id) AS (
+                 SELECT id FROM tasks WHERE parent_id = ?1
+                 UNION ALL
+                 SELECT t.id FROM tasks t JOIN descendants d ON t.parent_id = d.id
+               )
+             UPDATE tasks
+             SET cancellation_state = 'requested'
+                         WHERE id IN descendants
+                             AND status NOT IN ('completed','failed','cancelled','lost','timed_out')
+                             AND cancellation_state = 'none'",
+            params![parent_id],
+        )?;
+        Ok(())
+    }
+
+    async fn get_child_tasks(&self, parent_id: &str) -> Result<Vec<TaskRecord>> {
+        let conn = self.conn.lock();
+        let mut stmt = conn.prepare("SELECT * FROM tasks WHERE parent_id = ?1")?;
+        let mut rows = stmt.query(params![parent_id])?;
+        let mut out = Vec::new();
+        while let Some(row) = rows.next()? {
+            out.push(row_to_record(row)?);
+        }
+        Ok(out)
+    }
+
+    async fn list_descendants(&self, root_id: &str) -> Result<Vec<TaskRecord>> {
+        let conn = self.conn.lock();
+        let mut stmt = conn
+            .prepare(
+                "WITH RECURSIVE descendants(id) AS (
+                     SELECT id FROM tasks WHERE parent_id = ?1
+                     UNION
+                     SELECT t.id FROM tasks t JOIN descendants d ON t.parent_id = d.id
+                 )
+                 SELECT * FROM tasks WHERE id IN descendants",
+            )
+            .context("prepare list_descendants")?;
+        let rows = stmt
+            .query_map(params![root_id], row_to_record)
+            .context("query list_descendants")?;
+        Ok(collect_skipping_bad_rows(rows))
+    }
+
+    async fn record_task_event(
+        &self,
+        task_id: &str,
+        event_type: &str,
+        payload: &serde_json::Value,
+    ) -> Result<()> {
+        let conn = self.conn.lock();
+        let payload_str = serde_json::to_string(&bounded_task_event_payload(payload))
+            .context("serialize redacted task event")?;
+        let timestamp = chrono::Utc::now().to_rfc3339();
+        conn.execute(
+            "INSERT INTO task_events (task_id, event_type, payload, timestamp)
+             VALUES (?1, ?2, ?3, ?4)",
+            params![task_id, event_type, payload_str, timestamp],
+        )
+        .context("insert task event")?;
+        conn.execute(
+            "DELETE FROM task_events
+             WHERE task_id = ?1
+               AND id NOT IN (
+                   SELECT id FROM task_events
+                   WHERE task_id = ?1
+                   ORDER BY id DESC
+                   LIMIT ?2
+               )",
+            params![task_id, MAX_STORED_TASK_EVENTS],
+        )
+        .context("prune task event history")?;
+        Ok(())
+    }
+
+    async fn list_task_events(
+        &self,
+        task_id: &str,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<TaskEvent>> {
+        let limit = i64::from(limit.clamp(1, 100));
+        let offset = i64::from(offset);
+        let conn = self.conn.lock();
+        let mut stmt = conn
+            .prepare(
+                "SELECT id, task_id, event_type, payload, timestamp
+                 FROM task_events
+                 WHERE task_id = ?1
+                 ORDER BY id DESC
+                 LIMIT ?2 OFFSET ?3",
+            )
+            .context("prepare list task events")?;
+        let rows = stmt.query_map(params![task_id, limit, offset], |row| {
+            let payload_text: String = row.get(3)?;
+            Ok(TaskEvent {
+                id: row.get(0)?,
+                task_id: row.get(1)?,
+                event_type: row.get(2)?,
+                payload: serde_json::from_str(&payload_text).unwrap_or(serde_json::Value::Null),
+                timestamp: row.get(4)?,
+            })
+        })?;
+        rows.collect::<rusqlite::Result<Vec<_>>>()
+            .context("read task events")
+    }
+
+    async fn list_task_ledger(
+        &self,
+        task_id: &str,
+    ) -> Result<Vec<crate::control_plane::task_runner::LedgerEntry>> {
+        self.get_ledger_entries(task_id)
+            .context("read task ledger for projection")
+    }
+
     async fn persist_terminal_settlement_intent(
         &self,
         intent: TerminalSettlementIntent,
@@ -796,6 +1280,47 @@ impl TaskRegistry for SqliteTaskStore {
     ) -> Result<bool> {
         let conn = self.conn.lock();
         Ok(delete_settlement_intent_record(&conn, intent)? == 1)
+    }
+
+    async fn reopen_for_operator(&self, id: &str) -> Result<bool> {
+        let mut conn = self.conn.lock();
+        let tx = conn.transaction().context("begin operator reopen")?;
+        let finished_at_reset = tx
+            .execute(
+                "UPDATE tasks
+                    SET status = 'running',
+                        recovery_outcome = 'resumed',
+                        finished_at = NULL,
+                        error = NULL
+                  WHERE id = ?1
+                    AND status IN ('paused','needs_review','failed')",
+                params![id],
+            )
+            .context("operator reopen task")?;
+        if finished_at_reset == 1 {
+            let payload = serde_json::to_string(&bounded_task_event_payload(
+                &serde_json::json!({ "by": "operator" }),
+            ))
+            .context("serialize reopen event")?;
+            tx.execute(
+                "INSERT INTO task_events (task_id, event_type, payload, timestamp)
+                 VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    id,
+                    "operator_reopened",
+                    payload,
+                    chrono::Utc::now().to_rfc3339()
+                ],
+            )
+            .context("insert operator reopen event")?;
+            tx.execute(
+                "DELETE FROM terminal_settlement_intents WHERE task_id = ?1",
+                params![id],
+            )
+            .context("delete stale settlement intent on reopen")?;
+        }
+        tx.commit().context("commit operator reopen")?;
+        Ok(finished_at_reset == 1)
     }
 
     async fn claim_owner(&self, id: &str, owner_pid: u32, owner_boot_id: &str) -> Result<()> {
@@ -848,6 +1373,17 @@ impl TaskRegistry for SqliteTaskStore {
         Ok(collect_skipping_bad_rows(rows))
     }
 
+    async fn list_all(&self) -> Result<Vec<TaskRecord>> {
+        let conn = self.conn.lock();
+        let mut stmt = conn
+            .prepare("SELECT * FROM tasks ORDER BY started_at DESC")
+            .context("prepare list_all")?;
+        let rows = stmt
+            .query_map([], row_to_record)
+            .context("query list_all")?;
+        Ok(collect_skipping_bad_rows(rows))
+    }
+
     async fn list_by_agent(&self, agent: &str) -> Result<Vec<TaskRecord>> {
         let conn = self.conn.lock();
         let mut stmt = conn
@@ -884,6 +1420,7 @@ impl TaskRegistry for SqliteTaskStore {
             .execute(
                 "UPDATE tasks
                     SET status = 'lost',
+                        recovery_outcome = 'lost',
                         error = COALESCE(error, 'task owner is no longer available'),
                         finished_at = ?1
                   WHERE id = ?2
@@ -920,6 +1457,7 @@ impl TaskRegistry for SqliteTaskStore {
             .execute(
                 "UPDATE tasks
                     SET status = 'timed_out',
+                        recovery_outcome = 'needs_review',
                         error = COALESCE(error, 'heartbeat timeout'),
                         finished_at = ?1
                   WHERE id = ?2
@@ -946,6 +1484,7 @@ impl TaskRegistry for SqliteTaskStore {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::control_plane::task_registry::CancellationState;
 
     fn rec(id: &str, agent: &str, owner_pid: u32, boot: &str) -> TaskRecord {
         TaskRecord {
@@ -962,9 +1501,98 @@ mod tests {
             delivered: false,
             idem_key: None,
             principal_id: None,
+            session_key: None,
+            workspace: None,
+            cancellation_state: crate::control_plane::task_registry::CancellationState::None,
+            checkpoint_id: None,
+            recovery_outcome: Default::default(),
             started_at: "2026-06-18T00:00:00Z".into(),
             finished_at: None,
         }
+    }
+
+    #[tokio::test]
+    async fn list_descendants_returns_whole_subtree() {
+        let s = SqliteTaskStore::new_in_memory().unwrap();
+        s.create(rec("root", "main", 1, "b")).await.unwrap();
+        let mut a = rec("a", "main", 1, "b");
+        a.parent_id = Some("root".into());
+        let mut b = rec("b", "main", 1, "b");
+        b.parent_id = Some("a".into());
+        let mut c = rec("c", "main", 1, "b");
+        c.parent_id = Some("root".into());
+        s.create(a).await.unwrap();
+        s.create(b).await.unwrap();
+        s.create(c).await.unwrap();
+
+        let mut ids: Vec<String> = s
+            .list_descendants("root")
+            .await
+            .unwrap()
+            .into_iter()
+            .map(|t| t.id)
+            .collect();
+        ids.sort();
+        assert_eq!(ids, vec!["a", "b", "c"]);
+        // Direct children only sees the first hop.
+        let direct = s.get_child_tasks("root").await.unwrap();
+        assert_eq!(direct.len(), 2, "direct children are a and c");
+        // A leaf has no descendants.
+        assert!(s.list_descendants("b").await.unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn operator_reopen_only_from_reopenable_states() {
+        let s = SqliteTaskStore::new_in_memory().unwrap();
+        for (id, status) in [
+            ("p", TaskStatus::Paused),
+            ("nr", TaskStatus::NeedsReview),
+            ("f", TaskStatus::Failed),
+            ("c", TaskStatus::Completed),
+            ("x", TaskStatus::Cancelled),
+        ] {
+            s.create(rec(id, "main", 1, "b")).await.unwrap();
+            s.update_status(id, status, None, None).await.unwrap();
+        }
+
+        assert!(s.reopen_for_operator("p").await.unwrap());
+        assert_eq!(s.get("p").await.unwrap().unwrap().status, TaskStatus::Running);
+        // A running task is not reopenable.
+        assert!(!s.reopen_for_operator("p").await.unwrap());
+        assert!(s.reopen_for_operator("nr").await.unwrap());
+        assert!(s.reopen_for_operator("f").await.unwrap());
+        // Terminal success/cancel are never reopened.
+        assert!(!s.reopen_for_operator("c").await.unwrap());
+        assert!(!s.reopen_for_operator("x").await.unwrap());
+
+        let events = s.list_task_events("p", 10, 0).await.unwrap();
+        assert!(events.iter().any(|e| e.event_type == "operator_reopened"));
+    }
+
+    #[tokio::test]
+    async fn list_task_ledger_projects_ordered_entries() {
+        use crate::control_plane::task_runner::{LedgerAction, LedgerEntry};
+        let s = SqliteTaskStore::new_in_memory().unwrap();
+        s.create(rec("t", "main", 1, "b")).await.unwrap();
+        for (ts, action) in [
+            ("2026-01-01T00:00:00Z", LedgerAction::Started),
+            ("2026-01-01T00:00:01Z", LedgerAction::Completed),
+        ] {
+            s.append_ledger_entry(&LedgerEntry {
+                task_id: "t".into(),
+                step_id: "step-1".into(),
+                timestamp: ts.into(),
+                action,
+                details: "evidence".into(),
+                correlation_id: Some("corr-1".into()),
+            })
+            .unwrap();
+        }
+        let entries = s.list_task_ledger("t").await.unwrap();
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].timestamp, "2026-01-01T00:00:00Z");
+        assert_eq!(entries[0].correlation_id.as_deref(), Some("corr-1"));
+        assert!(s.list_task_ledger("missing").await.unwrap().is_empty());
     }
 
     #[tokio::test]
@@ -975,6 +1603,14 @@ mod tests {
         assert_eq!(got.id, "a");
         assert_eq!(got.kind, TaskKind::Delegate);
         assert_eq!(got.status, TaskStatus::Running);
+        assert_eq!(got.recovery_outcome, RecoveryOutcome::Fresh);
+        s.update_checkpoint("a", "boot-1", Some("step-1".into()))
+            .await
+            .unwrap();
+        assert_eq!(
+            s.get("a").await.unwrap().unwrap().checkpoint_id.as_deref(),
+            Some("step-1")
+        );
         assert!(s.get("missing").await.unwrap().is_none());
     }
 
@@ -1170,6 +1806,14 @@ mod tests {
             s.get("timeout-race").await.unwrap().unwrap().status,
             TaskStatus::TimedOut
         );
+        assert_eq!(
+            s.get("timeout-race")
+                .await
+                .unwrap()
+                .unwrap()
+                .recovery_outcome,
+            RecoveryOutcome::NeedsReview
+        );
     }
 
     #[tokio::test]
@@ -1187,6 +1831,71 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn cancellation_is_idempotent_and_cascades_to_owned_children() {
+        let s = SqliteTaskStore::new_in_memory().unwrap();
+        s.create(rec("parent", "main", 1, "boot-1")).await.unwrap();
+
+        let mut child = rec("child", "main", 1, "boot-1");
+        child.parent_id = Some("parent".into());
+        s.create(child).await.unwrap();
+
+        let mut grandchild = rec("grandchild", "main", 1, "boot-1");
+        grandchild.parent_id = Some("child".into());
+        s.create(grandchild).await.unwrap();
+
+        let mut terminal_child = rec("terminal-child", "main", 1, "boot-1");
+        terminal_child.parent_id = Some("parent".into());
+        s.create(terminal_child).await.unwrap();
+        s.update_status("terminal-child", TaskStatus::Completed, None, None)
+            .await
+            .unwrap();
+
+        assert!(s.request_cancellation("parent").await.unwrap());
+        assert!(!s.request_cancellation("parent").await.unwrap());
+        s.cascade_cancellation("parent").await.unwrap();
+
+        assert_eq!(
+            s.get("parent").await.unwrap().unwrap().cancellation_state,
+            CancellationState::Requested
+        );
+        for id in ["child", "grandchild"] {
+            assert_eq!(
+                s.get(id).await.unwrap().unwrap().cancellation_state,
+                CancellationState::Requested
+            );
+        }
+        let terminal = s.get("terminal-child").await.unwrap().unwrap();
+        assert_eq!(terminal.status, TaskStatus::Completed);
+        assert_eq!(terminal.cancellation_state, CancellationState::None);
+    }
+
+    #[tokio::test]
+    async fn task_events_are_redacted_and_paginated() {
+        let s = SqliteTaskStore::new_in_memory().unwrap();
+        s.create(rec("events", "main", 1, "boot-1")).await.unwrap();
+        s.record_task_event(
+            "events",
+            "tool_call",
+            &serde_json::json!({
+                "prompt": "private instruction",
+                "nested": {"api_key": "secret-value"},
+                "arguments": {"command": "cat private.txt"},
+                "visible": "kept"
+            }),
+        )
+        .await
+        .unwrap();
+
+        let events = s.list_task_events("events", 1, 0).await.unwrap();
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].payload["prompt"], "[REDACTED]");
+        assert_eq!(events[0].payload["nested"]["api_key"], "[REDACTED]");
+        assert_eq!(events[0].payload["arguments"], "[REDACTED]");
+        assert_eq!(events[0].payload["visible"], "kept");
+        assert!(s.list_task_events("events", 1, 1).await.unwrap().is_empty());
+    }
+
+    #[tokio::test]
     async fn reconcile_lost_only_when_authoritative() {
         let s = SqliteTaskStore::new_in_memory().unwrap();
         // prior-boot orphan ⇒ reclaimable
@@ -1197,6 +1906,10 @@ mod tests {
         assert_eq!(
             s.get("orphan").await.unwrap().unwrap().status,
             TaskStatus::Lost
+        );
+        assert_eq!(
+            s.get("orphan").await.unwrap().unwrap().recovery_outcome,
+            RecoveryOutcome::Lost
         );
 
         // live same-boot owner ⇒ NOT reclaimable (split-brain guard)
@@ -1236,6 +1949,7 @@ mod tests {
         let got = s.get("a").await.unwrap().unwrap();
         assert_eq!(got.owner_pid, 42);
         assert_eq!(got.owner_boot_id, "boot-new");
+        assert_eq!(got.recovery_outcome, RecoveryOutcome::Resumed);
         assert!(got.heartbeat_at.is_none());
     }
 

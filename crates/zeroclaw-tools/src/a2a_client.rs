@@ -1984,6 +1984,15 @@ impl Tool for A2aDiscoverTool {
     }
 }
 
+/// Emit an outbound A2A run event to the observer seam (no-op when unset).
+fn emit_a2a_run_event(peer: &str, task: &zeroclaw_api::a2a_wire::Task) {
+    zeroclaw_api::a2a_observer::emit_a2a_run_event(&zeroclaw_api::a2a_observer::A2aRunEvent {
+        peer: peer.to_string(),
+        remote_task_id: task.id.clone(),
+        state: task.status.state.clone(),
+    });
+}
+
 const A2A_SEND_KEY: &str = "tool-a2a-send";
 static A2A_SEND_DESC: OnceLock<String> = OnceLock::new();
 
@@ -2050,6 +2059,7 @@ impl Tool for A2aSendTool {
                 return_immediately,
             )
             .await?;
+        emit_a2a_run_event(&peer, &task);
         Ok(task_to_output(&task, was_task_branch, &agent))
     }
 }
@@ -2097,6 +2107,7 @@ impl Tool for A2aGetTaskTool {
             .client
             .get_task(&peer, &task_id, args.get("agent").and_then(|v| v.as_str()))
             .await?;
+        emit_a2a_run_event(&peer, &task);
         Ok(task_to_output(&task, true, agent))
     }
 }
@@ -2144,6 +2155,7 @@ impl Tool for A2aCancelTool {
             .client
             .cancel(&peer, &task_id, args.get("agent").and_then(|v| v.as_str()))
             .await?;
+        emit_a2a_run_event(&peer, &task);
         Ok(task_to_output(&task, true, agent))
     }
 }

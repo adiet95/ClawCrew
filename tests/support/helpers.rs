@@ -159,6 +159,7 @@ impl zeroclaw::memory::Memory for StaticRecallMemory {
                 key: k.clone(),
                 content: v.clone(),
                 category: zeroclaw::memory::MemoryCategory::Core,
+                scope: zeroclaw::memory::traits::MemoryScope::Workspace,
                 timestamp: chrono::Utc::now().to_rfc3339(),
                 session_id: None,
                 score: None,

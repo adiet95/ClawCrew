@@ -37,13 +37,14 @@ function statusBadge(status: Integration['status']) {
 }
 
 // Display labels for the integration `category` enum, keyed by the stable
-// enum-variant value the API emits (Chat / AiModel / ToolsAutomation /
+// enum-variant value the API emits (Chat / AiModel / AiRouter / ToolsAutomation /
 // Platform). Routed through t() at the call site so the label localizes;
 // unknown/future variants fall back to the API's derived display label, then
 // the raw key. Values mirror the backend IntegrationCategory::label().
 const CATEGORY_LABEL_KEYS: Record<string, string> = {
   Chat: 'integrations.cat_chat',
   AiModel: 'integrations.cat_ai_model',
+  AiRouter: 'integrations.cat_ai_router',
   ToolsAutomation: 'integrations.cat_tools_automation',
   Platform: 'integrations.cat_platform',
 };

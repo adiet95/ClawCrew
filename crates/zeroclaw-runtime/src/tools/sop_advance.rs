@@ -217,6 +217,12 @@ impl Tool for SopAdvanceTool {
             );
         }
 
+        // P0.1: project the SOP run lifecycle onto the canonical control plane
+        // (best-effort; no-op when no control plane is initialized).
+        if let Ok(ref action) = action {
+            crate::sop::producer::project_sop_action(action, "sop").await;
+        }
+
         match action {
             Ok(action) => {
                 let result_output = match action {

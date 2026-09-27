@@ -211,6 +211,12 @@ impl Tool for SpawnSubagentTool {
                     delivered: false,
                     idem_key: None,
                     principal_id: None,
+                    session_key: None,
+                    workspace: None,
+                    cancellation_state:
+                        crate::control_plane::task_registry::CancellationState::None,
+                    checkpoint_id: None,
+                    recovery_outcome: Default::default(),
                     started_at: chrono::Utc::now().to_rfc3339(),
                     finished_at: None,
                 })

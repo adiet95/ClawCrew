@@ -172,6 +172,7 @@ impl QdrantMemory {
                 };
 
                 Some(MemoryEntry {
+                    scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                     id,
                     key: payload.key,
                     content: payload.content,
@@ -298,6 +299,7 @@ impl QdrantMemory {
                 }
 
                 entries.push(MemoryEntry {
+                    scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                     id,
                     key: payload.key,
                     content: payload.content,
@@ -575,6 +577,7 @@ impl QdrantMemory {
                 _ => return None,
             };
             Some(MemoryEntry {
+                scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                 id,
                 key: payload.key,
                 content: payload.content,
@@ -784,6 +787,7 @@ impl Memory for QdrantMemory {
                 };
 
                 Some(MemoryEntry {
+                    scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                     id,
                     key: payload.key,
                     content: payload.content,
@@ -871,6 +875,7 @@ impl Memory for QdrantMemory {
                 };
 
                 Some(MemoryEntry {
+                    scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                     id,
                     key: payload.key,
                     content: payload.content,
@@ -1173,6 +1178,7 @@ impl Memory for QdrantMemory {
                 };
 
                 Some(MemoryEntry {
+                    scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                     id,
                     key: payload.key,
                     content: payload.content,

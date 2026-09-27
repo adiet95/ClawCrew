@@ -10,6 +10,7 @@ pub mod executor;
 pub mod graph;
 pub mod metrics;
 pub mod procedural_memory;
+pub mod producer;
 pub mod route;
 pub mod rundata;
 pub mod schema;

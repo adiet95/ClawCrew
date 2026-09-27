@@ -6,6 +6,31 @@
 
 use serde::{Deserialize, Serialize};
 
+pub const SESSION_LIFECYCLE_CONTRACT_VERSION: u16 = 1;
+
+/// Canonical durable session lifecycle vocabulary.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SessionLifecycleState {
+    Active,
+    Paused,
+    Idle,
+    Closing,
+    Closed,
+}
+
+impl SessionLifecycleState {
+    pub const fn can_transition_to(self, next: Self) -> bool {
+        matches!(
+            (self, next),
+            (Self::Active, Self::Paused | Self::Idle | Self::Closing)
+                | (Self::Paused, Self::Active | Self::Closing)
+                | (Self::Idle, Self::Active | Self::Closing)
+                | (Self::Closing, Self::Closed)
+        )
+    }
+}
+
 /// Canonical externally observable state of an agent session or turn.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -97,5 +122,13 @@ mod tests {
             serde_json::to_value(LifecycleActivity::Finished).unwrap(),
             "finished"
         );
+    }
+
+    #[test]
+    fn session_lifecycle_contract_is_versioned_and_fail_closed() {
+        assert_eq!(SESSION_LIFECYCLE_CONTRACT_VERSION, 1);
+        assert!(SessionLifecycleState::Active.can_transition_to(SessionLifecycleState::Idle));
+        assert!(SessionLifecycleState::Closing.can_transition_to(SessionLifecycleState::Closed));
+        assert!(!SessionLifecycleState::Closed.can_transition_to(SessionLifecycleState::Active));
     }
 }

@@ -811,6 +811,7 @@ fn render_model_provider_catalog_table() -> String {
         C::ModelHosting => "Model hosting platforms",
         C::ChineseAi => "Chinese AI",
         C::CloudEndpoint => "Cloud AI endpoints",
+        C::AiRouter => "AI Model Routers",
     };
     let providers = zeroclaw_providers::list_model_providers();
     let mut out = String::new();
@@ -843,6 +844,7 @@ fn render_model_provider_fields() -> String {
         C::ModelHosting => "Model hosting platforms",
         C::ChineseAi => "Chinese AI",
         C::CloudEndpoint => "Cloud AI endpoints",
+        C::AiRouter => "AI Model Routers",
     };
     let providers = zeroclaw_providers::list_model_providers();
     let schema = schemars::schema_for!(zeroclaw_config::schema::Config);

@@ -753,6 +753,17 @@ async fn execute_and_persist_job(
     warn_if_high_frequency_agent_job(job);
 
     let started_at = Utc::now();
+
+    // P0.1: project this cron run's lifecycle onto the canonical control plane
+    // when one is initialized. Non-fatal: a missing/failed control plane never
+    // blocks the job (the trigger store remains authoritative for scheduling).
+    let producer_task = project_cron_task_start(
+        crate::control_plane::control_plane(),
+        agent_alias,
+        &job.id,
+    )
+    .await;
+
     let span = zeroclaw_log::attribution_span!(job);
     let (success, output) = Box::pin(execute_job_with_retry(
         config,
@@ -775,6 +786,9 @@ async fn execute_and_persist_job(
     ))
     .await;
 
+    // Settle the producer task through the canonical owner-checked transition.
+    project_cron_task_settle(producer_task, success, &output).await;
+
     // Release the in-flight lock claimed during selection (`claim_due_jobs`) now
     // that the run (and its reschedule/disable/delete in `persist_job_result`) is
     // done. A deleted one-shot row simply releases nothing. If this fails the lock
@@ -790,6 +804,82 @@ async fn execute_and_persist_job(
     }
 
     (job.id.clone(), success, output)
+}
+
+/// Register a cron run as a canonical `Cron` producer task. Returns `None`
+/// (never an error) when there is no control plane or registration fails, so
+/// cron scheduling is never blocked by the projection.
+async fn project_cron_task_start(
+    control_plane: Option<&crate::control_plane::ControlPlaneHandle>,
+    agent_alias: &str,
+    job_id: &str,
+) -> Option<(crate::control_plane::ControlPlaneHandle, String)> {
+    let control_plane = control_plane?;
+    let task_id = format!("cron:{job_id}:{}", uuid::Uuid::new_v4());
+    match crate::control_plane::producer::register_producer_task(
+        control_plane.store.as_ref(),
+        &control_plane.boot_id,
+        crate::control_plane::TaskKind::Cron,
+        agent_alias,
+        &task_id,
+        None,
+    )
+    .await
+    {
+        Ok(()) => Some((control_plane.clone(), task_id)),
+        Err(error) => {
+            ::zeroclaw_log::record!(
+                WARN,
+                ::zeroclaw_log::Event::new(module_path!(), ::zeroclaw_log::Action::Note)
+                    .with_outcome(::zeroclaw_log::EventOutcome::Unknown)
+                    .with_attrs(::serde_json::json!({
+                        "job_id": job_id,
+                        "error": format!("{error}"),
+                    })),
+                "Cron job: failed to register control-plane producer task"
+            );
+            None
+        }
+    }
+}
+
+/// Settle a cron run's producer task through the canonical owner-checked
+/// transition. A no-op when nothing was registered.
+async fn project_cron_task_settle(
+    producer: Option<(crate::control_plane::ControlPlaneHandle, String)>,
+    success: bool,
+    output: &str,
+) {
+    let Some((control_plane, task_id)) = producer else {
+        return;
+    };
+    let status = if success {
+        crate::control_plane::TaskStatus::Completed
+    } else {
+        crate::control_plane::TaskStatus::Failed
+    };
+    if let Err(error) = crate::control_plane::producer::settle_producer_task(
+        control_plane.store.as_ref(),
+        &task_id,
+        std::process::id(),
+        &control_plane.boot_id,
+        status,
+        Some(output.to_string()),
+        (!success).then(|| output.to_string()),
+    )
+    .await
+    {
+        ::zeroclaw_log::record!(
+            WARN,
+            ::zeroclaw_log::Event::new(module_path!(), ::zeroclaw_log::Action::Note)
+                .with_outcome(::zeroclaw_log::EventOutcome::Unknown)
+                .with_attrs(::serde_json::json!({
+                    "task_id": task_id,
+                    "error": format!("{error}"),
+                })),
+            "Cron job: failed to settle control-plane producer task"
+        );
+    }
 }
 
 async fn run_agent_job(
@@ -2414,6 +2504,46 @@ mod tests {
         let snapshot = crate::health::snapshot_json();
         let entry = &snapshot["components"][component.as_str()];
         assert_eq!(entry["status"], "ok");
+    }
+
+    #[tokio::test]
+    async fn cron_run_projects_lifecycle_onto_control_plane() {
+        let dir = tempfile::tempdir().unwrap();
+        let control_plane =
+            crate::control_plane::ControlPlaneHandle::open(dir.path()).unwrap();
+
+        // No control plane -> no-op, no panic.
+        assert!(
+            project_cron_task_start(None, "main", "job-1").await.is_none()
+        );
+        project_cron_task_settle(None, true, "ignored").await;
+
+        // With a control plane, a cron run becomes a queued Cron task...
+        let producer = project_cron_task_start(Some(&control_plane), "main", "job-1")
+            .await
+            .expect("registered");
+        let task_id = producer.1.clone();
+        let rec = control_plane
+            .store
+            .get(&task_id)
+            .await
+            .unwrap()
+            .expect("task row");
+        assert_eq!(rec.kind, crate::control_plane::TaskKind::Cron);
+        assert_eq!(rec.status, crate::control_plane::TaskStatus::Queued);
+
+        // ...and settles Completed through the owner-checked transition.
+        project_cron_task_settle(Some(producer), true, "ok").await;
+        assert_eq!(
+            control_plane
+                .store
+                .get(&task_id)
+                .await
+                .unwrap()
+                .unwrap()
+                .status,
+            crate::control_plane::TaskStatus::Completed
+        );
     }
 
     #[tokio::test]

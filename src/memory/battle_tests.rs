@@ -9,7 +9,7 @@ mod tests {
     use crate::memory::policy::{PolicyEnforcer, PolicyViolation};
     use crate::memory::retrieval::{RetrievalConfig, RetrievalPipeline};
     use crate::memory::sqlite::SqliteMemory;
-    use crate::memory::traits::{Memory, MemoryCategory, MemoryEntry};
+    use crate::memory::traits::{Memory, MemoryCategory, MemoryEntry, MemoryScope};
     use std::sync::Arc;
     use tempfile::TempDir;
 
@@ -392,6 +392,7 @@ mod tests {
             key: "daily1".into(),
             content: "User prefers Rust".into(),
             category: MemoryCategory::Daily,
+            scope: MemoryScope::Workspace,
             timestamp: "now".into(),
             session_id: None,
             score: None,
@@ -419,6 +420,7 @@ mod tests {
             key: "old_pref".into(),
             content: "User prefers Rust for systems work".into(),
             category: MemoryCategory::Core,
+            scope: MemoryScope::Workspace,
             timestamp: "now".into(),
             session_id: None,
             score: None,
@@ -447,6 +449,7 @@ mod tests {
             key: "pref".into(),
             content: "User prefers Rust".into(),
             category: MemoryCategory::Core,
+            scope: MemoryScope::Workspace,
             timestamp: "now".into(),
             session_id: None,
             score: None,
@@ -1058,6 +1061,7 @@ mod tests {
             key: "test-key".into(),
             content: "test content".into(),
             category: MemoryCategory::Core,
+            scope: MemoryScope::Workspace,
             timestamp: "2026-03-21T00:00:00Z".into(),
             session_id: Some("sess-1".into()),
             score: Some(0.85),

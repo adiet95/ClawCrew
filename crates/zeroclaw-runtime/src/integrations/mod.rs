@@ -18,6 +18,7 @@ pub enum IntegrationStatus {
 pub enum IntegrationCategory {
     Chat,
     AiModel,
+    AiRouter,
     ToolsAutomation,
     Platform,
 }
@@ -27,6 +28,7 @@ impl IntegrationCategory {
         match self {
             Self::Chat => "Chat Providers",
             Self::AiModel => "AI Models",
+            Self::AiRouter => "AI Router",
             Self::ToolsAutomation => "Tools & Automation",
             Self::Platform => "Platforms",
         }
@@ -36,6 +38,7 @@ impl IntegrationCategory {
         &[
             Self::Chat,
             Self::AiModel,
+            Self::AiRouter,
             Self::ToolsAutomation,
             Self::Platform,
         ]
@@ -222,6 +225,7 @@ fn localized_integration_category(category: IntegrationCategory) -> String {
     let key = match category {
         IntegrationCategory::Chat => "cli-integrations-category-chat",
         IntegrationCategory::AiModel => "cli-integrations-category-ai-model",
+        IntegrationCategory::AiRouter => "cli-integrations-category-ai-router",
         IntegrationCategory::ToolsAutomation => "cli-integrations-category-tools-automation",
         IntegrationCategory::Platform => "cli-integrations-category-platform",
     };
@@ -243,11 +247,12 @@ mod tests {
     #[test]
     fn integration_category_all_includes_every_variant_once() {
         let all = IntegrationCategory::all();
-        assert_eq!(all.len(), 4);
+        assert_eq!(all.len(), 5);
 
         let labels: Vec<&str> = all.iter().map(|cat| cat.label()).collect();
         assert!(labels.contains(&"Chat Providers"));
         assert!(labels.contains(&"AI Models"));
+        assert!(labels.contains(&"AI Router"));
         assert!(labels.contains(&"Tools & Automation"));
         assert!(labels.contains(&"Platforms"));
     }

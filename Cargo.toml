@@ -393,6 +393,8 @@ ci-all = [
 [profile.dev]
 incremental = true
 opt-level = 0
+debug = 1
+split-debuginfo = "unpacked"
 
 [profile.release]
 opt-level = "z"      # Optimize for size

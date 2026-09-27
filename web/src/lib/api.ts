@@ -462,6 +462,168 @@ export function getTuis(): Promise<TuiEntry[]> {
   );
 }
 
+// ── Durable task projections (api_tasks.rs) ──────────────────────────
+
+/** One task row from the `/tree` projection: a flat descendant of a root. */
+export interface TaskTreeRecord {
+  id: string;
+  kind: string;
+  agent: string;
+  status: string;
+  parent_id: string | null;
+  depth: number;
+  started_at: string;
+  finished_at: string | null;
+}
+
+/** GET /api/dashboard/tasks/:id/tree — every descendant of a root task. */
+export function getTaskTree(taskId: string): Promise<TaskTreeRecord[]> {
+  return apiFetch<TaskTreeRecord[]>(
+    `/api/dashboard/tasks/${encodeURIComponent(taskId)}/tree`,
+  );
+}
+
+/** One entry in the ordered TaskRunner work ledger (checkpoint timeline). */
+export interface TaskLedgerEntry {
+  task_id: string;
+  step_id: string;
+  timestamp: string;
+  action: string;
+  details: string;
+  correlation_id?: string | null;
+}
+
+/** GET /api/dashboard/tasks/:id/timeline — the ordered work ledger. */
+export function getTaskTimeline(
+  taskId: string,
+): Promise<{ entries: TaskLedgerEntry[] }> {
+  return apiFetch<{ entries: TaskLedgerEntry[] }>(
+    `/api/dashboard/tasks/${encodeURIComponent(taskId)}/timeline`,
+  );
+}
+
+/** POST /api/dashboard/tasks/:id/cancel — request + cascade cancellation. */
+export function cancelTask(taskId: string): Promise<{ cancelled: boolean }> {
+  return apiFetch<{ cancelled: boolean }>(
+    `/api/dashboard/tasks/${encodeURIComponent(taskId)}/cancel`,
+    { method: "POST" },
+  );
+}
+
+/** POST /api/dashboard/tasks/:id/reopen — operator resume/retry/review. */
+export function reopenTask(taskId: string): Promise<{ reopened: boolean }> {
+  return apiFetch<{ reopened: boolean }>(
+    `/api/dashboard/tasks/${encodeURIComponent(taskId)}/reopen`,
+    { method: "POST" },
+  );
+}
+
+// ── Approval queue (api_sop.rs) ──────────────────────────────────────
+
+/** A run parked on a human decision (`WaitingApproval` / `PausedCheckpoint`). */
+export interface PendingApproval {
+  run_id: string;
+  sop_name: string;
+  step: number;
+  total_steps: number;
+  waiting_since?: string | null;
+  kind: string;
+}
+
+/** GET /admin/sop/pending — runs parked on a human decision. */
+export function getPendingApprovals(): Promise<{ pending: PendingApproval[] }> {
+  return apiFetch<{ pending: PendingApproval[] }>("/admin/sop/pending");
+}
+
+/** POST /admin/sop/approve — clear a waiting gate out-of-band. */
+export function approveSopRun(runId: string): Promise<{ outcome: string }> {
+  return apiFetch<{ outcome: string }>("/admin/sop/approve", {
+    method: "POST",
+    body: JSON.stringify({ run_id: runId }),
+  });
+}
+
+/** POST /admin/sop/deny — deny (cancel) a waiting run out-of-band. */
+export function denySopRun(runId: string, reason?: string): Promise<{ outcome: string }> {
+  return apiFetch<{ outcome: string }>("/admin/sop/deny", {
+    method: "POST",
+    body: JSON.stringify({ run_id: runId, reason }),
+  });
+}
+
+// ── Provider health (api_providers.rs) ───────────────────────────────
+
+/** One agent's resolved provider + health-registry status. */
+export interface ProviderHealthRow {
+  agent: string;
+  provider: string | null;
+  model: string;
+  status: string;
+  last_ok?: string | null;
+  last_error?: string | null;
+  restart_count: number;
+  avg_latency_ms?: number | null;
+}
+
+/** GET /api/providers/health — per-agent provider health projection. */
+export function getProvidersHealth(): Promise<{ providers: ProviderHealthRow[] }> {
+  return apiFetch<{ providers: ProviderHealthRow[] }>("/api/providers/health");
+}
+
+// ── Audit feed (api_audit.rs) ───────────────────────────────────────
+
+/** Bounded, redaction-aware view of the tamper-evident audit log. */
+export interface AuditFeed {
+  enabled: boolean;
+  /** Merkle-chain verification result for the whole log file. */
+  verified: boolean;
+  entries: Array<Record<string, unknown>>;
+}
+
+export function getAuditFeed(limit = 100): Promise<AuditFeed> {
+  return apiFetch<AuditFeed>(`/api/audit?limit=${limit}`);
+}
+
+// ── Running sessions (api.rs) ───────────────────────────────────────
+
+export interface RunningSession {
+  session_id: string;
+  created_at: string;
+  last_activity: string;
+  message_count: number;
+  /** Provider fallbacks recorded for this session (P1.5 session metadata). */
+  provider_fallbacks?: number;
+  /** Context compactions (history trims) recorded for this session. */
+  compactions?: number;
+  last_fallback?: {
+    requested_provider: string;
+    actual_provider: string;
+    requested_model: string;
+    actual_model: string;
+    at: string;
+  } | null;
+}
+
+export function getRunningSessions(): Promise<{ sessions: RunningSession[] }> {
+  return apiFetch<{ sessions: RunningSession[] }>("/api/sessions/running");
+}
+
+// ── Task/agent performance (api_tasks.rs) ───────────────────────────
+
+/** Per-agent task outcome + average duration rollup. */
+export interface TaskAgentStat {
+  agent: string;
+  total: number;
+  active: number;
+  completed: number;
+  failed: number;
+  avg_duration_ms?: number | null;
+}
+
+export function getTaskStats(): Promise<{ agents: TaskAgentStat[] }> {
+  return apiFetch<{ agents: TaskAgentStat[] }>("/api/dashboard/tasks/stats");
+}
+
 // ---------------------------------------------------------------------------
 // Config — per-property CRUD (issue #6175). Whole-file getConfig/putConfig
 // removed; the gateway no longer exposes those endpoints.

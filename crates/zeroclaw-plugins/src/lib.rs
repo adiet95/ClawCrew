@@ -19,6 +19,7 @@ pub mod event;
 pub mod host;
 pub mod instance;
 pub mod registry;
+pub mod scaffold;
 #[cfg(feature = "plugins-wasmtime")]
 pub mod runtime;
 #[cfg(feature = "plugins-wasmtime")]

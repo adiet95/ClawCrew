@@ -3,17 +3,19 @@ import { basePath } from '../../lib/basePath';
 import { findActiveNavPath } from './sidebarNav';
 import { railAsideStyle, railLinkClassName, railNavClassName } from './sidebarRail';
 import { SidebarNavLink } from './SidebarNavLink';
-import {
-  Activity,
+import { Activity, AppWindow, Network, LifeBuoy,
   ArrowDownToLine,
   Bot,
   Clock,
+  HeartPulse,
   LayoutDashboard,
   ListChecks,
-  MessageSquare,
   Monitor,
   Puzzle,
+  ScrollText,
+  Server,
   Settings,
+  ShieldCheck,
   Smartphone,
   Sparkles,
   Stethoscope,
@@ -46,23 +48,26 @@ interface NavGroup {
 // boundaries become thin divider rules (no text headings); the mobile drawer
 // still renders the headings as full labels.
 const navGroups: NavGroup[] = [
-  {
+    {
     headingKey: 'nav.group.home',
-    items: [{ to: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' }],
+    items: [
+      { to: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+      { to: '/apps', icon: AppWindow, labelKey: 'nav.apps' },
+    ],
   },
   {
     headingKey: 'nav.group.chat',
-    items: [{ to: '/agents', icon: MessageSquare, labelKey: 'nav.agents' }],
+    items: [{ to: '/agents', icon: Bot, labelKey: 'nav.agent' }],
   },
   {
     headingKey: 'nav.group.configure',
     items: [
-      { to: '/config', icon: Settings, labelKey: 'nav.config' },
-      { to: '/config/agents', icon: Bot, labelKey: 'nav.agent' },
       { to: '/tools', icon: Wrench, labelKey: 'nav.tools' },
       { to: '/skills', icon: Sparkles, labelKey: 'nav.skills' },
       { to: '/sops', icon: Workflow, labelKey: 'nav.sops' },
       { to: '/runs', icon: ListChecks, labelKey: 'nav.runs' },
+      { to: '/tasks', icon: ListChecks, labelKey: 'nav.task_board' },
+      { to: '/approvals', icon: ShieldCheck, labelKey: 'nav.approvals' },
       { to: '/integrations', icon: Puzzle, labelKey: 'nav.integrations' },
       { to: '/cron', icon: Clock, labelKey: 'nav.cron' },
     ],
@@ -71,10 +76,16 @@ const navGroups: NavGroup[] = [
     headingKey: 'nav.group.operations',
     items: [
       { to: '/logs', icon: Activity, labelKey: 'nav.logs' },
+      { to: '/providers', icon: Server, labelKey: 'nav.providers' },
+      { to: '/sessions', icon: HeartPulse, labelKey: 'nav.sessions' },
+      { to: '/instances', icon: Network, labelKey: 'nav.instances' },
+      { to: '/recovery', icon: LifeBuoy, labelKey: 'nav.recovery' },
+      { to: '/audit', icon: ScrollText, labelKey: 'nav.audit' },
       { to: '/pairing', icon: Smartphone, labelKey: 'nav.pairing' },
       { to: '/doctor', icon: Stethoscope, labelKey: 'nav.doctor' },
       { to: '/canvas', icon: Monitor, labelKey: 'nav.canvas' },
       { to: '/acp-console', icon: Terminal, labelKey: 'nav.acp' },
+      { to: '/config', icon: Settings, labelKey: 'nav.config' },
     ],
   },
 ];
@@ -175,7 +186,11 @@ function RailNavItem({
         to={to}
         activePath={activePath}
         ref={linkRef}
-        onClick={onClick}
+        onClick={() => {
+          setHovered(false);
+          setFocused(false);
+          onClick();
+        }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onFocus={() => setFocused(true)}
@@ -203,11 +218,10 @@ function RailNavItem({
               />
             )}
             <Icon
-              className={`h-[22px] w-[22px] shrink-0 transition-colors ${
-                isActive
-                  ? 'text-pc-accent'
-                  : 'group-hover:text-pc-text-secondary'
-              }`}
+              className={`h-[22px] w-[22px] shrink-0 transition-colors ${isActive
+                ? 'text-pc-accent'
+                : 'group-hover:text-pc-text-secondary'
+                }`}
             />
           </>
         )}
@@ -274,9 +288,8 @@ function DrawerNavItem({
             />
           )}
           <Icon
-            className={`h-[22px] w-[22px] shrink-0 transition-colors ${
-              isActive ? 'text-pc-accent' : 'group-hover:text-pc-text-secondary'
-            }`}
+            className={`h-[22px] w-[22px] shrink-0 transition-colors ${isActive ? 'text-pc-accent' : 'group-hover:text-pc-text-secondary'
+              }`}
           />
           <span className="whitespace-nowrap">{text}</span>
         </>

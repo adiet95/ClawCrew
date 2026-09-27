@@ -1498,6 +1498,18 @@ Examples:
         memory_command: MemoryCommands,
     },
 
+    /// Backup and Restore (P3.2)
+    Backup {
+        #[command(subcommand)]
+        backup_command: BackupCommands,
+    },
+
+    /// Manage Ecosystem Apps (P3.3)
+    App {
+        #[command(subcommand)]
+        app_command: AppCommands,
+    },
+
     /// Manage configuration
     // i18n-exempt: clap derive help — framework requires a compile-time literal
     #[command(long_about = "\
@@ -4303,6 +4315,24 @@ enum DoctorCommands {
         #[arg(long)]
         dry_run: bool,
     },
+}
+
+#[derive(Subcommand, Debug)]
+enum BackupCommands {
+    Create {
+        #[arg(long, default_value = ".zeroclaw/backups/latest.tar.gz")]
+        dest: String,
+    },
+    Restore {
+        #[arg(long)]
+        source: String,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum AppCommands {
+    Install { url: String },
+    Remove { name: String },
 }
 
 #[derive(Subcommand, Debug)]
@@ -7390,6 +7420,22 @@ Add pricing to the active provider profile or supply a catalog entry."
 
         Commands::Memory { memory_command } => {
             memory::cli::handle_command(memory_command, &config).await
+        }
+        Commands::Backup { backup_command } => {
+            match backup_command {
+                BackupCommands::Create { dest } => println!("Mock: Backup created at {}", dest),
+                BackupCommands::Restore { source } => {
+                    println!("Mock: Backup restored from {}", source)
+                }
+            };
+            Ok(())
+        }
+        Commands::App { app_command } => {
+            match app_command {
+                AppCommands::Install { url } => println!("Mock: App installed from {}", url),
+                AppCommands::Remove { name } => println!("Mock: App removed {}", name),
+            };
+            Ok(())
         }
 
         Commands::Auth { auth_command } => handle_auth_command(auth_command, &config).await,

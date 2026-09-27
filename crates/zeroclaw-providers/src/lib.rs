@@ -2200,6 +2200,8 @@ pub struct ModelProviderInfo {
 pub enum ModelProviderCategory {
     /// First-party / flagship vendor APIs.
     Primary,
+    /// Model routers and gateways that aggregate multiple model backends.
+    AiRouter,
     /// OpenAI-compatible HTTP endpoints, each with its own canonical slot.
     OpenAiCompatible,
     /// Low-latency inference endpoints.
@@ -2220,6 +2222,7 @@ impl ModelProviderCategory {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Primary => "Primary",
+            Self::AiRouter => "AiRouter",
             Self::OpenAiCompatible => "OpenAiCompatible",
             Self::FastInference => "FastInference",
             Self::ModelHosting => "ModelHosting",
@@ -2234,6 +2237,7 @@ impl ModelProviderCategory {
     pub fn all() -> &'static [ModelProviderCategory] {
         &[
             Self::Primary,
+            Self::AiRouter,
             Self::OpenAiCompatible,
             Self::FastInference,
             Self::ModelHosting,
@@ -2299,11 +2303,20 @@ pub fn list_model_providers() -> Vec<ModelProviderInfo> {
     let mut out: Vec<ModelProviderInfo> = Vec::new();
     push_family(
         &mut out,
-        ModelProviderCategory::Primary,
+        ModelProviderCategory::AiRouter,
         &[
             ("openrouter", "OpenRouter", false),
-            ("anthropic", "Anthropic", false),
             ("openai", "OpenAI", false),
+            ("opencode", "OpenCode", false),
+            ("zerorouter", "ZeroRouter", false),
+            ("nine_router", "9Router", true),
+        ],
+    );
+    push_family(
+        &mut out,
+        ModelProviderCategory::Primary,
+        &[
+            ("anthropic", "Anthropic", false),
             ("telnyx", "Telnyx", false),
             ("azure", "Azure OpenAI", false),
             ("ollama", "Ollama", true),
@@ -2322,7 +2335,6 @@ pub fn list_model_providers() -> Vec<ModelProviderInfo> {
             ("atlascloud", "Atlas Cloud", false),
             ("moonshot", "Moonshot", false),
             ("synthetic", "Synthetic", false),
-            ("opencode", "OpenCode", false),
             ("zai", "Z.AI", false),
             ("glm", "GLM (Zhipu)", false),
             ("minimax", "MiniMax", false),
@@ -2345,7 +2357,6 @@ pub fn list_model_providers() -> Vec<ModelProviderInfo> {
             ("grok_cli", "Grok Build CLI", true),
             ("kilocli", "KiloCLI", true),
             ("kilo", "Kilo", false),
-            ("zerorouter", "ZeroRouter", false),
             ("lmstudio", "LM Studio", true),
             ("llamacpp", "llama.cpp server", true),
             ("sglang", "SGLang", true),
@@ -2355,7 +2366,6 @@ pub fn list_model_providers() -> Vec<ModelProviderInfo> {
             ("siliconflow", "SiliconFlow", false),
             ("aihubmix", "AiHubMix", false),
             ("litellm", "LiteLLM", false),
-            ("nine_router", "9Router", true),
             ("atomic_chat", "Atomic Chat", true),
             ("astrai", "Astrai", false),
             ("deepmyst", "DeepMyst", false),

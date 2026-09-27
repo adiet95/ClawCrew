@@ -1051,6 +1051,49 @@ impl SessionStore {
         Some(history[from.min(history.len())..].to_vec())
     }
 
+    pub async fn reset(&self, id: &str) -> anyhow::Result<()> {
+        if self
+            .cancel_tokens
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .contains_key(id)
+        {
+            anyhow::bail!("Cannot reset session while owned turns or child tasks are active");
+        }
+        if let Some(session) = self.sessions.lock().await.get_mut(id) {
+            session.agent.lock().await.clear_history();
+            session.plan.clear();
+            Ok(())
+        } else {
+            anyhow::bail!("Session not found");
+        }
+    }
+
+    pub async fn destroy(&self, id: &str) -> anyhow::Result<()> {
+        if self
+            .cancel_tokens
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .contains_key(id)
+        {
+            anyhow::bail!("Cannot destroy session while owned turns or child tasks are active");
+        }
+        let (removed, pending) = self
+            .sessions
+            .lock()
+            .await
+            .remove(id)
+            .map_or((false, None), |session| (true, session.pending_generation));
+        if let Some(notify) = pending {
+            notify.notify_waiters();
+        }
+        if removed {
+            Ok(())
+        } else {
+            anyhow::bail!("Session not found");
+        }
+    }
+
     pub async fn remove(&self, id: &str) -> bool {
         if let Some((_, token)) = self
             .cancel_tokens

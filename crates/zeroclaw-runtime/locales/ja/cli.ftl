@@ -19,6 +19,7 @@ cli-integrations-unknown = 不明なインテグレーション: {$name}。対�
 cli-integrations-category-heading = カテゴリ
 cli-integrations-category-chat = チャットプロバイダー
 cli-integrations-category-ai-model = AIモデル
+cli-integrations-category-ai-router = AIルーター
 cli-integrations-category-tools-automation = ツールと自動化
 cli-integrations-category-platform = プラットフォーム
 cli-integrations-status-heading = 状態

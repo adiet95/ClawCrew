@@ -17,6 +17,49 @@ pub struct SqliteSessionBackend {
     conn: Mutex<Connection>,
 }
 
+/// Additive `session_metadata` column migrations, applied create-if-missing.
+/// [`SESSION_SQLITE_SCHEMA_VERSION`] is derived from this list, so adding a
+/// column bump the version automatically.
+pub const SESSION_METADATA_COLUMN_MIGRATIONS: &[(&str, &str)] = &[
+    ("name", "ALTER TABLE session_metadata ADD COLUMN name TEXT"),
+    (
+        "state",
+        "ALTER TABLE session_metadata ADD COLUMN state TEXT NOT NULL DEFAULT 'idle'",
+    ),
+    (
+        "turn_id",
+        "ALTER TABLE session_metadata ADD COLUMN turn_id TEXT",
+    ),
+    (
+        "turn_started_at",
+        "ALTER TABLE session_metadata ADD COLUMN turn_started_at TEXT",
+    ),
+    (
+        "agent_alias",
+        "ALTER TABLE session_metadata ADD COLUMN agent_alias TEXT",
+    ),
+    (
+        "channel_id",
+        "ALTER TABLE session_metadata ADD COLUMN channel_id TEXT",
+    ),
+    (
+        "room_id",
+        "ALTER TABLE session_metadata ADD COLUMN room_id TEXT",
+    ),
+    (
+        "sender_id",
+        "ALTER TABLE session_metadata ADD COLUMN sender_id TEXT",
+    ),
+    (
+        "trim_breadcrumb",
+        "ALTER TABLE session_metadata ADD COLUMN trim_breadcrumb INTEGER",
+    ),
+];
+
+/// Structural session-store schema version: base schema plus each additive
+/// column migration.
+pub const SESSION_SQLITE_SCHEMA_VERSION: u64 = 1 + SESSION_METADATA_COLUMN_MIGRATIONS.len() as u64;
+
 fn committed_jsonl_import_receipts_exist(conn: &Connection) -> Result<bool> {
     conn.query_row(
         "SELECT EXISTS(SELECT 1 FROM jsonl_import_receipts LIMIT 1)",
@@ -119,41 +162,7 @@ impl SqliteSessionBackend {
         )
         .context("Failed to initialize session schema")?;
 
-        for (column, ddl) in [
-            ("name", "ALTER TABLE session_metadata ADD COLUMN name TEXT"),
-            (
-                "state",
-                "ALTER TABLE session_metadata ADD COLUMN state TEXT NOT NULL DEFAULT 'idle'",
-            ),
-            (
-                "turn_id",
-                "ALTER TABLE session_metadata ADD COLUMN turn_id TEXT",
-            ),
-            (
-                "turn_started_at",
-                "ALTER TABLE session_metadata ADD COLUMN turn_started_at TEXT",
-            ),
-            (
-                "agent_alias",
-                "ALTER TABLE session_metadata ADD COLUMN agent_alias TEXT",
-            ),
-            (
-                "channel_id",
-                "ALTER TABLE session_metadata ADD COLUMN channel_id TEXT",
-            ),
-            (
-                "room_id",
-                "ALTER TABLE session_metadata ADD COLUMN room_id TEXT",
-            ),
-            (
-                "sender_id",
-                "ALTER TABLE session_metadata ADD COLUMN sender_id TEXT",
-            ),
-            (
-                "trim_breadcrumb",
-                "ALTER TABLE session_metadata ADD COLUMN trim_breadcrumb INTEGER",
-            ),
-        ] {
+        for (column, ddl) in SESSION_METADATA_COLUMN_MIGRATIONS {
             Self::ensure_metadata_column(&conn, column, ddl)?;
         }
         for (index, ddl) in [

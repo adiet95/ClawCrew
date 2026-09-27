@@ -4,6 +4,30 @@ use std::process::Child;
 use std::sync::{Arc, Mutex};
 use tokio::sync::RwLock;
 
+/// Loopback port the desktop app expects the gateway/daemon on by default.
+pub const DEFAULT_GATEWAY_PORT: u16 = 42617;
+/// Default gateway base URL when no override is provided.
+pub const DEFAULT_GATEWAY_URL: &str = "http://127.0.0.1:42617";
+
+/// Sources the gateway base URL from the environment, falling back to the single
+/// canonical default. Every code path (daemon spawn, tray "Show Browser",
+/// dashboard open, health polling) reads the resolved URL from shared state so
+/// the port is defined in exactly one place.
+pub fn resolve_gateway_url() -> String {
+    std::env::var("ZEROCLAW_GATEWAY_URL")
+        .ok()
+        .filter(|url| !url.trim().is_empty())
+        .unwrap_or_else(|| DEFAULT_GATEWAY_URL.to_string())
+}
+
+/// Derive the gateway port from a base URL, defaulting to [`DEFAULT_GATEWAY_PORT`].
+pub fn gateway_port_from_url(url: &str) -> u16 {
+    tauri::Url::parse(url)
+        .ok()
+        .and_then(|u| u.port())
+        .unwrap_or(DEFAULT_GATEWAY_PORT)
+}
+
 /// Agent status as reported by the gateway.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -22,17 +46,19 @@ pub struct AppState {
     pub agent_status: AgentStatus,
     pub service_enabled: bool,
     pub owned_daemon: Arc<Mutex<Option<Child>>>,
+    pub daemon_spawn_lock: Arc<tokio::sync::Mutex<()>>,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            gateway_url: "http://127.0.0.1:42617".to_string(),
+            gateway_url: resolve_gateway_url(),
             token: None,
             connected: false,
             agent_status: AgentStatus::Idle,
             service_enabled: true,
             owned_daemon: Arc::new(Mutex::new(None)),
+            daemon_spawn_lock: Arc::new(tokio::sync::Mutex::new(())),
         }
     }
 }
@@ -52,7 +78,7 @@ mod tests {
     #[test]
     fn default_state() {
         let state = AppState::default();
-        assert_eq!(state.gateway_url, "http://127.0.0.1:42617");
+        assert_eq!(state.gateway_url, resolve_gateway_url());
         assert!(state.token.is_none());
         assert!(!state.connected);
         assert_eq!(state.agent_status, AgentStatus::Idle);
@@ -101,5 +127,16 @@ mod tests {
             serde_json::to_string(&AgentStatus::Error).unwrap(),
             "\"error\""
         );
+    }
+
+    #[test]
+    fn gateway_port_derives_from_url_and_defaults() {
+        assert_eq!(gateway_port_from_url("http://127.0.0.1:42617"), 42617);
+        assert_eq!(gateway_port_from_url("http://localhost:8080/"), 8080);
+        assert_eq!(
+            gateway_port_from_url("not a url"),
+            DEFAULT_GATEWAY_PORT
+        );
+        assert_eq!(DEFAULT_GATEWAY_URL, "http://127.0.0.1:42617");
     }
 }

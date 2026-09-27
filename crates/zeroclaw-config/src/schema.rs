@@ -14305,6 +14305,9 @@ pub struct RuntimeProfileConfig {
     /// Maximum cost per day in cents. `0` inherits the global limit.
     /// Parent-subset enforced for subagents.
     pub max_cost_per_day_cents: u32,
+    /// Maximum tokens per day for this profile's agent. `0` means no per-agent
+    /// token cap (unbounded/inherit). Parent-subset enforced at delegation.
+    pub max_tokens_per_day: u64,
     /// Shell subprocess timeout in seconds. `0` inherits the global timeout.
     /// Parent-subset enforced for subagents.
     pub shell_timeout_secs: u64,
@@ -14377,6 +14380,7 @@ impl Default for RuntimeProfileConfig {
             max_tool_iterations: 0,
             max_actions_per_hour: 20,
             max_cost_per_day_cents: 500,
+            max_tokens_per_day: 0,
             shell_timeout_secs: 60,
             max_delegation_depth: 0,
             delegation_timeout_secs: None,

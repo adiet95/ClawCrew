@@ -1,3 +1,7 @@
+pub mod app_registry;
+pub mod backup;
+pub mod compat;
+
 pub use zeroclaw_config::platform::*;
 
 #[cfg(test)]
@@ -47,3 +51,4 @@ mod tests {
         assert_eq!(empty.kind, RuntimeKind::Native);
     }
 }
+pub mod remote_gateway;

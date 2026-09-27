@@ -138,11 +138,14 @@ export class SSEClient {
 
   private parseEvent(raw: string): void {
     let eventType = 'message';
+    let lastEventId: string | undefined;
     const dataLines: string[] = [];
 
     for (const line of raw.split('\n')) {
       if (line.startsWith('event:')) {
         eventType = line.slice(6).trim();
+      } else if (line.startsWith('id:')) {
+        lastEventId = line.slice(3).trim();
       } else if (line.startsWith('data:')) {
         dataLines.push(line.slice(5).trim());
       }
@@ -159,6 +162,12 @@ export class SSEClient {
       parsed.type = parsed.type ?? eventType;
     } catch {
       parsed = { type: eventType, data: dataStr };
+    }
+
+    // Surface the SSE `id:` cursor when the server set one and the payload did
+    // not already carry it, so consumers can dedupe on reconnect/resync.
+    if (lastEventId !== undefined && parsed.id === undefined) {
+      parsed.id = lastEventId;
     }
 
     this.onEvent?.(parsed);

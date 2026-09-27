@@ -128,6 +128,7 @@ fn from_wit_entry(e: WitMemoryEntry) -> MemoryEntry {
         key: e.key,
         content: e.content,
         category: from_wit_category(e.category),
+        scope: Default::default(),
         timestamp: e.timestamp,
         session_id: e.session_id,
         score: e.score,

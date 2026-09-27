@@ -22,3 +22,12 @@ export const SopEditor = lazy(() =>
 );
 export const Runs = lazy(() => import('../pages/Runs'));
 export const RunDetail = lazy(() => import('../pages/RunDetail'));
+export const TaskBoard = lazy(() => import('../pages/TaskBoard'));
+export const Approvals = lazy(() => import('../pages/Approvals'));
+export const ProvidersHealth = lazy(() => import('../pages/ProvidersHealth'));
+export const Audit = lazy(() => import('../pages/Audit'));
+export const SessionsHealth = lazy(() => import('../pages/SessionsHealth'));
+
+export const Apps = lazy(() => import('../pages/Apps'));
+export const Instances = lazy(() => import('../pages/Instances'));
+export const Recovery = lazy(() => import('../pages/Recovery'));

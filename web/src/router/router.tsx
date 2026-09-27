@@ -6,6 +6,11 @@ import {
   AgentChat,
   AgentWorkspaceExplorer,
   AgentsList,
+  Apps,
+  Instances,
+  Recovery,
+  Approvals,
+  Audit,
   Canvas,
   Config,
   Cron,
@@ -14,13 +19,16 @@ import {
   Integrations,
   Logs,
   Pairing,
+  ProvidersHealth,
   Quickstart,
   RunDetail,
   Runs,
+  SessionsHealth,
   Skills,
   SopEditor,
   SopView,
   SopsList,
+  TaskBoard,
   Tools,
 } from './lazyPages';
 
@@ -53,6 +61,14 @@ export const Router = () => (
         <Route path="/sops/:name/edit" element={<SopEditor />} />
         <Route path="/runs" element={<Runs />} />
         <Route path="/runs/:sop/:runId" element={<RunDetail />} />
+                <Route path="/apps" element={<Apps />} />
+        <Route path="/instances" element={<Instances />} />
+        <Route path="/recovery" element={<Recovery />} />
+        <Route path="/tasks" element={<TaskBoard />} />
+        <Route path="/approvals" element={<Approvals />} />
+        <Route path="/providers" element={<ProvidersHealth />} />
+        <Route path="/audit" element={<Audit />} />
+        <Route path="/sessions" element={<SessionsHealth />} />
         <Route path="/integrations" element={<Integrations />} />
         <Route path="/memory" element={<Navigate to="/?tab=memories" replace />} />
         <Route path="/config" element={<Config />} />

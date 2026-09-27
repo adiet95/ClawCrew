@@ -10,7 +10,7 @@ pub fn create_tray_menu<R: Runtime>(app: &App<R>) -> Result<Menu<R>, tauri::Erro
     let browser = MenuItemBuilder::with_id("browser", "Show Browser").build(app)?;
     let chat = MenuItemBuilder::with_id("chat", "Agent Chat").build(app)?;
     let sep1 = PredefinedMenuItem::separator(app)?;
-    let service = MenuItemBuilder::with_id("service-toggle", "Toggle Service").build(app)?;
+    let service = MenuItemBuilder::with_id("service-toggle", "Stop Service").build(app)?;
     let status = MenuItemBuilder::with_id("status", "Status: Checking...")
         .enabled(false)
         .build(app)?;
@@ -19,6 +19,8 @@ pub fn create_tray_menu<R: Runtime>(app: &App<R>) -> Result<Menu<R>, tauri::Erro
 
     Menu::with_items(
         app,
-        &[&show, &browser, &chat, &sep1, &service, &status, &sep2, &quit],
+        &[
+            &show, &browser, &chat, &sep1, &service, &status, &sep2, &quit,
+        ],
     )
 }

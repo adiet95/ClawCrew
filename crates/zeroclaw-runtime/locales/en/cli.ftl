@@ -20,6 +20,7 @@ cli-integrations-unknown = Unknown integration: {$name}. Check README for suppor
 cli-integrations-category-heading = Category
 cli-integrations-category-chat = Chat Providers
 cli-integrations-category-ai-model = AI Models
+cli-integrations-category-ai-router = AI Router
 cli-integrations-category-tools-automation = Tools & Automation
 cli-integrations-category-platform = Platforms
 cli-integrations-status-heading = Status

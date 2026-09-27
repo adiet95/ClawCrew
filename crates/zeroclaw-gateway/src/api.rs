@@ -5,10 +5,12 @@ use super::{AppState, GW_SESSION_PREFIX, gateway_cancel_key, gateway_session_key
 use axum::{
     extract::{Path, Query, State},
     http::{HeaderMap, StatusCode, header},
-    response::{IntoResponse, Json},
+    response::{IntoResponse, Json, sse::{Event, KeepAlive, Sse}},
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::convert::Infallible;
+use std::time::Duration;
 use zeroclaw_config::schema::{ChannelAliasInfo, Config};
 use zeroclaw_memory::MemoryEntry;
 
@@ -2060,16 +2062,72 @@ pub async fn handle_api_sessions_running(
         .into_iter()
         .filter_map(|meta| {
             let session_id = meta.key.strip_prefix("gw_")?;
+            // Session metadata projection (P1.5): observable provider fallbacks.
+            let session_meta = zeroclaw_runtime::session::metadata::session_metadata(&meta.key);
             Some(serde_json::json!({
                 "session_id": session_id,
                 "created_at": meta.created_at.to_rfc3339(),
                 "last_activity": meta.last_activity.to_rfc3339(),
                 "message_count": meta.message_count,
+                "provider_fallbacks": session_meta.provider_fallbacks.len(),
+                "last_fallback": session_meta.provider_fallbacks.last(),
+                "compactions": session_meta.compactions,
             }))
         })
         .collect();
 
     Json(serde_json::json!({ "sessions": sessions })).into_response()
+}
+
+/// GET /api/sessions/stream — authenticated bounded session-activity stream.
+///
+/// Emits a `sessions` event only when the running-session snapshot changes
+/// (bounded, no duplicate frames), so the dashboard tracks live session
+/// activity without polling.
+pub async fn handle_api_sessions_stream(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if let Err(e) = require_auth(&state, &headers) {
+        return e.into_response();
+    }
+    let backend = state.session_backend.clone();
+    let stream = futures_util::stream::unfold(
+        (backend, String::new()),
+        |(backend, last)| async move {
+            tokio::time::sleep(Duration::from_secs(1)).await;
+            let Some(backend) = backend else {
+                let event = Event::default().event("disabled").data("{}");
+                return Some((Ok::<Event, Infallible>(event), (None, last)));
+            };
+            let sessions: Vec<serde_json::Value> = backend
+                .list_running_sessions()
+                .into_iter()
+                .filter_map(|meta| {
+                    let session_id = meta.key.strip_prefix(GW_SESSION_PREFIX)?;
+                    let session_meta =
+                        zeroclaw_runtime::session::metadata::session_metadata(&meta.key);
+                    Some(serde_json::json!({
+                        "session_id": session_id,
+                        "last_activity": meta.last_activity.to_rfc3339(),
+                        "message_count": meta.message_count,
+                        "provider_fallbacks": session_meta.provider_fallbacks.len(),
+                        "compactions": session_meta.compactions,
+                    }))
+                })
+                .collect();
+            let payload = serde_json::json!({ "sessions": sessions }).to_string();
+            if payload == last {
+                let comment = Event::default().comment("no session change");
+                return Some((Ok::<Event, Infallible>(comment), (Some(backend), last)));
+            }
+            let event = Event::default().event("sessions").data(payload.clone());
+            Some((Ok::<Event, Infallible>(event), (Some(backend), payload)))
+        },
+    );
+    Sse::new(stream)
+        .keep_alive(KeepAlive::default())
+        .into_response()
 }
 
 /// GET /api/sessions/{id}/state — get session state
@@ -2598,6 +2656,7 @@ pub(crate) mod tests {
             key: "huge-memory".into(),
             content,
             category: MemoryCategory::Conversation,
+            scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
             timestamp: "2026-04-06T00:00:00Z".into(),
             session_id: None,
             score: None,

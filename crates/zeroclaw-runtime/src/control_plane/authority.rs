@@ -190,6 +190,11 @@ mod tests {
             delivered: false,
             idem_key: None,
             principal_id: None,
+            session_key: None,
+            workspace: None,
+            cancellation_state: crate::control_plane::task_registry::CancellationState::None,
+            checkpoint_id: None,
+            recovery_outcome: Default::default(),
             started_at: "2026-06-18T00:00:00Z".into(),
             finished_at: None,
         }

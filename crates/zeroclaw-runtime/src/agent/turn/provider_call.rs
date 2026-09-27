@@ -163,6 +163,7 @@ pub(crate) async fn call_provider(
     let mut streamed_live_deltas = false;
     let mut streamed_protocol_suppressed = false;
     let mut streamed_visible_text = String::new();
+    let provider_call_started = Instant::now();
 
     let (chat_result, accounting) = if should_consume_provider_stream {
         // The stream is lazily consumed inside this call-scoped owner. Its
@@ -404,6 +405,14 @@ pub(crate) async fn call_provider(
         (result, scope.take())
     };
     let (attempts, _, accepted_route) = accounting.into_attempts_and_parts();
+
+    // Feed the live provider health registry at the real call boundary so the
+    // provider health view reports true status/latency (P1.5/#5).
+    crate::agent::reliability::record_provider_outcome(
+        active_model_provider_name,
+        chat_result.is_ok(),
+        provider_call_started.elapsed().as_millis() as u64,
+    );
 
     Ok(ProviderCallOutcome {
         chat_result,

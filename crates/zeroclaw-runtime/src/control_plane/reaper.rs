@@ -253,6 +253,11 @@ mod tests {
             delivered: false,
             idem_key: None,
             principal_id: None,
+            session_key: None,
+            workspace: None,
+            cancellation_state: crate::control_plane::task_registry::CancellationState::None,
+            checkpoint_id: None,
+            recovery_outcome: Default::default(),
             started_at: Utc::now().to_rfc3339(),
             finished_at: None,
         }
@@ -375,6 +380,10 @@ mod tests {
         assert_eq!(recovery_pass(&s, "boot-NEW").await.unwrap(), 1);
         let snapshot = s.get_snapshot(task_id).await.unwrap().unwrap();
         assert_eq!(snapshot.task.status, TaskStatus::Failed);
+        assert_eq!(
+            snapshot.task.recovery_outcome,
+            crate::control_plane::task_registry::RecoveryOutcome::NeedsReview
+        );
         assert_ne!(snapshot.task.status, TaskStatus::Completed);
         assert!(
             snapshot
@@ -400,6 +409,10 @@ mod tests {
         assert_eq!(recovery_pass(&s, "boot-NEW").await.unwrap(), 1);
         let snapshot = s.get_snapshot(task_id).await.unwrap().unwrap();
         assert_eq!(snapshot.task.status, TaskStatus::Failed);
+        assert_eq!(
+            snapshot.task.recovery_outcome,
+            crate::control_plane::task_registry::RecoveryOutcome::NeedsReview
+        );
         assert!(
             snapshot
                 .error

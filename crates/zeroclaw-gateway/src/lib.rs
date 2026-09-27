@@ -22,6 +22,7 @@ pub mod api_skills;
 pub mod api_sop;
 pub mod api_sop_author;
 mod api_sop_webhook;
+pub mod api_tasks;
 pub mod api_upload;
 #[cfg(feature = "webauthn")]
 pub mod api_webauthn;
@@ -53,6 +54,8 @@ pub mod voice_duplex;
     feature = "channel-whatsapp-cloud"
 ))]
 mod webhook_ingress;
+pub mod api_audit;
+pub mod api_providers;
 pub mod ws;
 pub mod ws_approval;
 pub mod ws_sop_runs;
@@ -1907,6 +1910,16 @@ pub async fn run_gateway_with_plugin_webhooks(
             get(version::handle_version_upgrade_status),
         )
         .route("/api/logs", get(api_logs::handle_api_logs))
+        .route("/api/dashboard/tasks", get(api_tasks::handle_tasks))
+        .route("/api/dashboard/tasks/stats", get(api_tasks::handle_task_stats))
+        .route("/api/dashboard/tasks/{task_id}", get(api_tasks::handle_task))
+        .route("/api/dashboard/tasks/{task_id}/children", get(api_tasks::handle_task_children))
+        .route("/api/dashboard/tasks/{task_id}/tree", get(api_tasks::handle_task_tree))
+        .route("/api/dashboard/tasks/{task_id}/timeline", get(api_tasks::handle_task_timeline))
+        .route("/api/dashboard/tasks/{task_id}/cancel", post(api_tasks::handle_task_cancel))
+        .route("/api/dashboard/tasks/{task_id}/reopen", post(api_tasks::handle_task_reopen))
+        .route("/api/dashboard/tasks/{task_id}/events", get(api_tasks::handle_task_events))
+        .route("/api/dashboard/tasks/{task_id}/stream", get(api_tasks::handle_task_events_stream))
         .route(
             "/api/config",
             get(api_config::handle_config_get)
@@ -2128,9 +2141,19 @@ pub async fn run_gateway_with_plugin_webhooks(
             post(api::handle_api_channel_relink),
         )
         .route("/api/health", get(api::handle_api_health))
+        .route(
+            "/api/providers/health",
+            get(api_providers::handle_providers_health),
+        )
+        .route(
+            "/api/providers/capabilities.md",
+            get(api_providers::handle_provider_capabilities),
+        )
+        .route("/api/audit", get(api_audit::handle_api_audit))
         .route("/api/tuis", get(api::handle_api_tuis))
         .route("/api/sessions", get(api::handle_api_sessions_list))
         .route("/api/sessions/running", get(api::handle_api_sessions_running))
+        .route("/api/sessions/stream", get(api::handle_api_sessions_stream))
         .route(
             "/api/sessions/{id}/messages",
             get(api::handle_api_session_messages).post(api::handle_api_session_message_post),

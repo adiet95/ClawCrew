@@ -617,6 +617,8 @@ pub async fn run(
             crate::control_plane::reaper::DEFAULT_MAX_RUNTIME_SECS,
             channels_cancel.clone(),
         );
+        // P0.1: project outbound A2A run events onto the canonical control plane.
+        crate::control_plane::a2a_projection::install();
         crate::health::mark_component_ok("control-plane");
     }
 

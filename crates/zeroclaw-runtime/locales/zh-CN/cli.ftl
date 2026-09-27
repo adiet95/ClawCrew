@@ -19,6 +19,7 @@ cli-integrations-unknown = 未知的集成：{$name}。请查看 README 了解�
 cli-integrations-category-heading = 类别
 cli-integrations-category-chat = 聊天提供商
 cli-integrations-category-ai-model = AI 模型
+cli-integrations-category-ai-router = AI 路由器
 cli-integrations-category-tools-automation = 工具与自动化
 cli-integrations-category-platform = 平台
 cli-integrations-status-heading = 状态

@@ -11892,6 +11892,7 @@ mod tests {
                     key: "deploy".into(),
                     content: self.content.clone(),
                     category: MemoryCategory::Core,
+                    scope: Default::default(),
                     timestamp: chrono::Utc::now().to_rfc3339(),
                     session_id: None,
                     score: None,

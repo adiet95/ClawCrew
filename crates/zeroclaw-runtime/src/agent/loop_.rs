@@ -2723,6 +2723,12 @@ pub async fn run(
                                         crumb_present_before_recovery,
                                     );
                                 if result.trimmed {
+                                    // P0.3/#7: surface the compaction as session health.
+                                    if let Ok(Some(session_key)) =
+                                        TOOL_LOOP_SESSION_KEY.try_with(Clone::clone)
+                                    {
+                                        crate::session::metadata::record_compaction(&session_key);
+                                    }
                                     let mut trimmed = result.history;
                                     // Owner-aware insertion: does not stack a
                                     // second marker when the existing
@@ -6525,6 +6531,7 @@ mod tests {
                 key: "remembered".into(),
                 content: "the server is prod-3".into(),
                 category: MemoryCategory::Core,
+                scope: Default::default(),
                 timestamp: chrono::Utc::now().to_rfc3339(),
                 session_id: None,
                 score: None,

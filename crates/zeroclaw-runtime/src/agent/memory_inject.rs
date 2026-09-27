@@ -423,6 +423,7 @@ mod tests {
             key: key.to_string(),
             content: content.to_string(),
             category,
+            scope: Default::default(),
             // A current timestamp keeps time decay a no-op in tests.
             timestamp: chrono::Utc::now().to_rfc3339(),
             session_id: None,

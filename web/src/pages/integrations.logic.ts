@@ -39,7 +39,7 @@ export function configHref(
   // Compile-time OS facts (macOS/Linux/Windows) — nothing to configure.
   if (c === 'platform') return null;
 
-  if (c.includes('model')) {
+  if (c.includes('model') || c.includes('router')) {
     return key ? `/config/providers.models/${key}` : '/config/providers.models';
   }
   if (c.includes('chat') || c.includes('channel')) {

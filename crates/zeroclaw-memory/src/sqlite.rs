@@ -327,6 +327,11 @@ impl SqliteMemory {
             "tenant_id",
             "ALTER TABLE memories ADD COLUMN tenant_id TEXT;",
         )?;
+        add_memories_column_if_missing(
+            conn,
+            "scope",
+            "ALTER TABLE memories ADD COLUMN scope TEXT DEFAULT 'workspace';",
+        )?;
         execute_batch_retry(
             conn,
             "CREATE INDEX IF NOT EXISTS idx_memories_namespace_category ON memories(namespace, category);",
@@ -420,12 +425,12 @@ impl SqliteMemory {
             conn.execute(
                 "INSERT INTO memories (
                     id, key, content, category, embedding, created_at, updated_at,
-                    session_id, namespace, importance, agent_id, kind, pinned, tenant_id
+                    session_id, namespace, importance, agent_id, kind, pinned, tenant_id, scope
                  )
                  VALUES (
                     ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,
                     COALESCE(?11, (SELECT id FROM agents WHERE alias = 'default' LIMIT 1)),
-                    ?12, ?13, ?14
+                    ?12, ?13, ?14, ?15
                  )
                  ON CONFLICT(agent_id, key) DO UPDATE SET
                     content = excluded.content,
@@ -437,7 +442,8 @@ impl SqliteMemory {
                     importance = excluded.importance,
                     kind = excluded.kind,
                     pinned = excluded.pinned,
-                    tenant_id = excluded.tenant_id",
+                    tenant_id = excluded.tenant_id,
+                    scope = excluded.scope",
                 params![
                     id,
                     key,
@@ -452,7 +458,8 @@ impl SqliteMemory {
                     aid,
                     kind,
                     pinned,
-                    tenant_id
+                    tenant_id,
+                    "workspace"
                 ],
             )?;
             Ok(())
@@ -475,6 +482,16 @@ impl SqliteMemory {
             "daily" => MemoryCategory::Daily,
             "conversation" => MemoryCategory::Conversation,
             other => MemoryCategory::Custom(other.to_string()),
+        }
+    }
+
+    fn str_to_scope(s: &str) -> zeroclaw_api::memory_traits::MemoryScope {
+        match s {
+            "user" => zeroclaw_api::memory_traits::MemoryScope::User,
+            "agent" => zeroclaw_api::memory_traits::MemoryScope::Agent,
+            "project" => zeroclaw_api::memory_traits::MemoryScope::Project,
+            "workspace" => zeroclaw_api::memory_traits::MemoryScope::Workspace,
+            _ => zeroclaw_api::memory_traits::MemoryScope::Workspace,
         }
     }
 
@@ -955,7 +972,7 @@ impl SqliteMemory {
             let until_ref = until_owned.as_deref();
 
             let mut sql =
-                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id \
+                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope \
                  FROM memories m LEFT JOIN agents a ON a.id = m.agent_id \
                  WHERE m.superseded_by IS NULL AND 1=1"
                     .to_string();
@@ -1000,7 +1017,7 @@ impl SqliteMemory {
                     pinned: row.get::<_, i64>(10)? != 0,
                     tenant_id: row.get(13)?,
                     agent_alias: row.get(11)?,
-                    agent_id: row.get(12)?,
+                    agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                 })
             })?;
 
@@ -1167,7 +1184,7 @@ impl SqliteMemory {
                     .collect::<Vec<_>>()
                     .join(", ");
                 let sql = format!(
-                    "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id \
+                    "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope \
                      FROM memories m LEFT JOIN agents a ON a.id = m.agent_id \
                      WHERE m.superseded_by IS NULL AND m.id IN ({placeholders})"
                 );
@@ -1264,7 +1281,7 @@ impl SqliteMemory {
                             pinned,
                             tenant_id: tenant,
                             agent_alias: alias,
-                            agent_id: aid,
+                            agent_id: aid, scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                         };
                         // Session filter for the hybrid stage. With a live
                         // vector stage, durable global rows are exempt so
@@ -1339,7 +1356,7 @@ impl SqliteMemory {
                         param_idx += agent_filter.len();
                     }
                     let sql = format!(
-                        "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id
+                        "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope
                          FROM memories m LEFT JOIN agents a ON a.id = m.agent_id
                          WHERE m.superseded_by IS NULL AND ({where_clause}){time_conditions}{agent_conditions}
                          ORDER BY m.updated_at DESC
@@ -1382,7 +1399,7 @@ impl SqliteMemory {
                             pinned: row.get::<_, i64>(10)? != 0,
                             tenant_id: row.get(13)?,
                             agent_alias: row.get(11)?,
-                            agent_id: row.get(12)?,
+                            agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                         })
                     })?;
                     for row in rows {
@@ -1504,7 +1521,7 @@ impl Memory for SqliteMemory {
         tokio::task::spawn_blocking(move || -> anyhow::Result<Option<MemoryEntry>> {
             let conn = conn.lock();
             let mut stmt = conn.prepare(
-                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id \
+                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope \
                  FROM memories m LEFT JOIN agents a ON a.id = m.agent_id \
                  WHERE m.key = ?1",
             )?;
@@ -1525,7 +1542,7 @@ impl Memory for SqliteMemory {
                     pinned: row.get::<_, i64>(10)? != 0,
                     tenant_id: row.get(13)?,
                     agent_alias: row.get(11)?,
-                    agent_id: row.get(12)?,
+                    agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                 })
             })?;
 
@@ -1549,7 +1566,7 @@ impl Memory for SqliteMemory {
         tokio::task::spawn_blocking(move || -> anyhow::Result<Option<MemoryEntry>> {
             let conn = conn.lock();
             let mut stmt = conn.prepare(
-                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id \
+                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope \
                  FROM memories m LEFT JOIN agents a ON a.id = m.agent_id \
                  WHERE m.key = ?1 AND m.agent_id = ?2",
             )?;
@@ -1570,7 +1587,7 @@ impl Memory for SqliteMemory {
                     pinned: row.get::<_, i64>(10)? != 0,
                     tenant_id: row.get(13)?,
                     agent_alias: row.get(11)?,
-                    agent_id: row.get(12)?,
+                    agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                 })
             })?;
 
@@ -1614,14 +1631,14 @@ impl Memory for SqliteMemory {
                     pinned: row.get::<_, i64>(10)? != 0,
                     tenant_id: row.get(13)?,
                     agent_alias: row.get(11)?,
-                    agent_id: row.get(12)?,
+                    agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                 })
             };
 
             if let Some(ref cat) = category {
                 let cat_str = Self::category_to_str(cat);
                 let mut stmt = conn.prepare(
-                    "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id
+                    "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope
                      FROM memories m LEFT JOIN agents a ON a.id = m.agent_id
                      WHERE m.superseded_by IS NULL AND m.category = ?1 ORDER BY m.updated_at DESC LIMIT ?2",
                 )?;
@@ -1636,7 +1653,7 @@ impl Memory for SqliteMemory {
                 }
             } else {
                 let mut stmt = conn.prepare(
-                    "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id
+                    "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope
                      FROM memories m LEFT JOIN agents a ON a.id = m.agent_id
                      WHERE m.superseded_by IS NULL ORDER BY m.updated_at DESC LIMIT ?1",
                 )?;
@@ -1894,7 +1911,7 @@ impl Memory for SqliteMemory {
         tokio::task::spawn_blocking(move || -> anyhow::Result<Vec<MemoryEntry>> {
             let conn = conn.lock();
             let mut sql =
-                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id \
+                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope \
                  FROM memories m LEFT JOIN agents a ON a.id = m.agent_id \
                  WHERE 1=1"
                     .to_string();
@@ -1947,7 +1964,7 @@ impl Memory for SqliteMemory {
                     pinned: row.get::<_, i64>(10)? != 0,
                     tenant_id: row.get(13)?,
                     agent_alias: row.get(11)?,
-                    agent_id: row.get(12)?,
+                    agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                 })
             })?;
 
@@ -1967,7 +1984,7 @@ impl Memory for SqliteMemory {
         tokio::task::spawn_blocking(move || -> anyhow::Result<Vec<MemoryEntry>> {
             let conn = conn.lock();
             let mut stmt = conn.prepare(
-                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id \
+                "SELECT m.id, m.key, m.content, m.category, m.created_at, m.session_id, m.namespace, m.importance, m.superseded_by, m.kind, m.pinned, a.alias, m.agent_id, m.tenant_id, m.scope \
                  FROM memories m LEFT JOIN agents a ON a.id = m.agent_id \
                  WHERE m.agent_id = (SELECT id FROM agents WHERE alias = ?1 LIMIT 1) \
                  ORDER BY m.created_at ASC",
@@ -1988,7 +2005,7 @@ impl Memory for SqliteMemory {
                     pinned: row.get::<_, i64>(10)? != 0,
                     tenant_id: row.get(13)?,
                     agent_alias: row.get(11)?,
-                    agent_id: row.get(12)?,
+                    agent_id: row.get(12)?, scope: Self::str_to_scope(&row.get::<_, String>(14)?),
                 })
             })?;
             let mut results = Vec::new();

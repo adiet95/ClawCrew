@@ -2,17 +2,28 @@
 
 use tauri::{AppHandle, Manager, Runtime, menu::MenuEvent};
 
-const GATEWAY_URL: &str = "http://127.0.0.1:42617/";
-
 pub fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     match event.id().as_ref() {
         "show" => show_main_window(app, None),
-        "browser" => open_browser(),
+        "browser" => {
+            let state = app.state::<crate::state::SharedState>().inner().clone();
+            tauri::async_runtime::spawn(async move {
+                let url = state.read().await.gateway_url.clone();
+                open_browser(&url);
+            });
+        }
         "chat" => show_main_window(app, Some("/agent")),
         "service-toggle" => {
             let state = app.state::<crate::state::SharedState>().inner().clone();
             let app = app.clone();
-            tauri::async_runtime::spawn(crate::toggle_service(app, state));
+            tauri::async_runtime::spawn(async move {
+                crate::toggle_service(app.clone(), state.clone()).await;
+                let (service_enabled, connected) = {
+                    let s = state.read().await;
+                    (s.service_enabled, s.connected)
+                };
+                crate::tray::sync_service_menu(service_enabled, connected);
+            });
         }
         "quit" => {
             app.exit(0);
@@ -21,7 +32,7 @@ pub fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     }
 }
 
-fn open_browser() {
+fn open_browser(url: &str) {
     let mut command = std::process::Command::new(if cfg!(windows) {
         "explorer.exe"
     } else if cfg!(target_os = "macos") {
@@ -29,7 +40,7 @@ fn open_browser() {
     } else {
         "xdg-open"
     });
-    command.arg(GATEWAY_URL);
+    command.arg(url);
     command.stdin(std::process::Stdio::null());
     command.stdout(std::process::Stdio::null());
     command.stderr(std::process::Stdio::null());

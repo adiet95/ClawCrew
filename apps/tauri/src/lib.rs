@@ -13,10 +13,6 @@ use gateway_client::GatewayClient;
 use state::shared_state;
 use tauri::{Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
-/// Loopback port the desktop app expects the gateway/daemon on. Matches the
-/// port baked into [`state::AppState::default`]'s `gateway_url`.
-const GATEWAY_PORT: u16 = 42617;
-
 /// Status the splash listens for (`zeroclaw://splash-status`). Drives the
 /// splash copy when we're starting our own daemon or hit a problem; the happy
 /// path is covered by the splash's own health polling, so a missed event is
@@ -32,6 +28,19 @@ struct SplashStatus {
 /// otherwise launch a fresh `zeroclaw daemon`. The splash window's health
 /// polling takes over once the daemon is up and opens the dashboard.
 async fn ensure_daemon<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: state::SharedState) {
+    // Serialize daemon lifecycle transitions behind a single lock so a rapid
+    // double-toggle or a concurrent single-instance re-launch can't spawn two
+    // daemons (or race a stop against a start).
+    let spawn_lock = state.read().await.daemon_spawn_lock.clone();
+    let _guard = spawn_lock.lock().await;
+    ensure_daemon_locked(app, state).await;
+}
+
+/// Body of [`ensure_daemon`] that assumes the daemon spawn lock is already held.
+async fn ensure_daemon_locked<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    state: state::SharedState,
+) {
     if !state.read().await.service_enabled {
         return;
     }
@@ -60,7 +69,8 @@ async fn ensure_daemon<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: state
                     message: "Starting the ZeroClaw daemon…".to_string(),
                 },
             );
-            match daemon::spawn_daemon(&bin, GATEWAY_PORT) {
+            let port = state::gateway_port_from_url(&url);
+            match daemon::spawn_daemon(&bin, port) {
                 Ok(child) => {
                     let mut child = Some(child);
                     let should_stop = {
@@ -111,6 +121,12 @@ pub(crate) async fn toggle_service<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
     state: state::SharedState,
 ) {
+    // Hold the daemon spawn lock for the whole flip + (optional) start/stop so a
+    // rapid double-toggle can't interleave `ensure_daemon` and spawn two daemons
+    // or stop the wrong one.
+    let spawn_lock = state.read().await.daemon_spawn_lock.clone();
+    let _guard = spawn_lock.lock().await;
+
     let (service_enabled, daemon_to_stop) = {
         let mut current = state.write().await;
         current.service_enabled = !current.service_enabled;
@@ -130,7 +146,7 @@ pub(crate) async fn toggle_service<R: tauri::Runtime>(
         let _ = daemon::stop_daemon(&mut child);
     }
     if service_enabled {
-        ensure_daemon(app, state).await;
+        ensure_daemon_locked(app, state).await;
     }
 }
 
@@ -292,6 +308,10 @@ pub fn run() {
 
             // Set up the system tray.
             let _ = tray::setup_tray(app);
+
+            // Reflect the initial service state on the tray menu (enabled by
+            // default) before the health poller takes over.
+            tray::sync_service_menu(true, false);
 
             // Show the splash window on launch. It polls the gateway for
             // readiness and then asks the backend to open the dashboard

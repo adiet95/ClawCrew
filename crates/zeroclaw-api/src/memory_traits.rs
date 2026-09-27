@@ -20,6 +20,8 @@ pub struct MemoryEntry {
     pub key: String,
     pub content: String,
     pub category: MemoryCategory,
+    #[serde(default)]
+    pub scope: MemoryScope,
     pub timestamp: String,
     pub session_id: Option<String>,
     pub score: Option<f64>,
@@ -137,6 +139,26 @@ impl<'de> serde::Deserialize<'de> for MemoryCategory {
             "conversation" => Self::Conversation,
             _ => Self::Custom(s),
         })
+    }
+}
+
+/// Defines the ownership and isolation boundary for a memory entry.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MemoryScope {
+    /// Global memory belonging to the user across all contexts.
+    User,
+    /// Memory isolated to a specific agent persona.
+    Agent,
+    /// Memory isolated to a particular project or repository.
+    Project,
+    /// Memory isolated to an active workspace/session.
+    Workspace,
+}
+
+impl Default for MemoryScope {
+    fn default() -> Self {
+        Self::Workspace
     }
 }
 
@@ -747,6 +769,7 @@ mod tests {
             key: "favorite_language".into(),
             content: "Rust".into(),
             category: MemoryCategory::Core,
+            scope: MemoryScope::Workspace,
             timestamp: "2026-02-16T00:00:00Z".into(),
             session_id: Some("session-abc".into()),
             score: Some(0.98),
@@ -803,6 +826,7 @@ mod tests {
             key: "deployment_decision".into(),
             content: "Use staged rollout".into(),
             category: MemoryCategory::Core,
+            scope: MemoryScope::Workspace,
             timestamp: "2026-02-16T00:00:00Z".into(),
             session_id: None,
             score: None,

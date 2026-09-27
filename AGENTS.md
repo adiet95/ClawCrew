@@ -35,6 +35,16 @@ Prefer borrowed config, getters, resolver closures over live config, on-demand m
 
 Subagents must set their working directory to the repository root before shell or filesystem work. Do not assume an inherited working directory.
 
+## Codebase Navigation
+
+Follow `.gemini/steering.md` for all codebase queries. The resolution order is:
+
+1. **Graphify** (`graphify-out/`) — query the knowledge graph first.
+2. **Grep** — targeted search only after graphify identifies the file(s).
+3. **Direct file read** — open specific files identified by steps 1–2.
+
+Do not start with broad recursive grep or directory walks. If `graphify-out/` does not exist, generate the graph with `graphify .` before proceeding.
+
 ## User-Facing Text
 
 - User-facing runtime CLI, tool, and onboarding text uses Fluent keys through `zeroclaw_runtime::i18n::{get_required_cli_string, get_required_cli_string_with_args}` rather than bare literals; see `crates/zeroclaw-runtime/src/i18n.rs`.

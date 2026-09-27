@@ -1731,6 +1731,7 @@ mod tests {
             "cli-integrations-category-heading",
             "cli-integrations-category-chat",
             "cli-integrations-category-ai-model",
+            "cli-integrations-category-ai-router",
             "cli-integrations-category-tools-automation",
             "cli-integrations-category-platform",
             "cli-integrations-status-heading",

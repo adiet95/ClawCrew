@@ -19,6 +19,7 @@ cli-integrations-unknown = Intégration inconnue : {$name}. Consultez le README 
 cli-integrations-category-heading = Catégorie
 cli-integrations-category-chat = Fournisseurs de chat
 cli-integrations-category-ai-model = Modèles d’IA
+cli-integrations-category-ai-router = Routeurs IA
 cli-integrations-category-tools-automation = Outils et automatisation
 cli-integrations-category-platform = Plateformes
 cli-integrations-status-heading = Statut

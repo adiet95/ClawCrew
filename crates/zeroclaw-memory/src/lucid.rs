@@ -212,6 +212,7 @@ impl LucidMemory {
 
             let rank = entries.len();
             entries.push(MemoryEntry {
+                scope: zeroclaw_api::memory_traits::MemoryScope::Workspace,
                 id: format!("lucid:{rank}"),
                 key: format!("lucid_{rank}"),
                 content: content.to_string(),

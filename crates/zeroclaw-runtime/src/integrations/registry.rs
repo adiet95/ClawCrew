@@ -20,6 +20,7 @@ fn parse_category(label: &str) -> IntegrationCategory {
     match label {
         "Chat" => IntegrationCategory::Chat,
         "AiModel" => IntegrationCategory::AiModel,
+        "AiRouter" => IntegrationCategory::AiRouter,
         "ToolsAutomation" => IntegrationCategory::ToolsAutomation,
         "Platform" => IntegrationCategory::Platform,
         // Defensive default; the schema's `#[integration(category = ...)]`
@@ -68,10 +69,16 @@ pub fn all_integrations(config: &Config) -> Vec<IntegrationEntry> {
         .into_iter()
         .map(|info| {
             let status = evaluate_model_provider_activation(config, &info);
+            let category = match info.category {
+                zeroclaw_providers::ModelProviderCategory::AiRouter => {
+                    IntegrationCategory::AiRouter
+                }
+                _ => IntegrationCategory::AiModel,
+            };
             IntegrationEntry {
                 name: info.display_name.to_string(),
                 description: String::new(),
-                category: IntegrationCategory::AiModel,
+                category,
                 status,
                 key: Some(info.name.to_string()),
             }
@@ -196,7 +203,9 @@ mod tests {
         for entry in all_integrations(&config).iter().filter(|entry| {
             matches!(
                 entry.category,
-                IntegrationCategory::Chat | IntegrationCategory::AiModel
+                IntegrationCategory::Chat
+                    | IntegrationCategory::AiModel
+                    | IntegrationCategory::AiRouter
             )
         }) {
             let key = entry
@@ -206,6 +215,7 @@ mod tests {
             let path = match entry.category {
                 IntegrationCategory::Chat => format!("channels.{key}"),
                 IntegrationCategory::AiModel => format!("providers.models.{key}"),
+                IntegrationCategory::AiRouter => format!("providers.models.{key}"),
                 _ => unreachable!(),
             };
             assert!(
@@ -223,7 +233,12 @@ mod tests {
         for info in zeroclaw_providers::list_model_providers() {
             let entry = entries
                 .iter()
-                .find(|e| e.category == IntegrationCategory::AiModel && e.name == info.display_name)
+                .find(|e| {
+                    matches!(
+                        e.category,
+                        IntegrationCategory::AiModel | IntegrationCategory::AiRouter
+                    ) && e.name == info.display_name
+                })
                 .unwrap_or_else(|| {
                     panic!(
                         "AI-model entry for {:?} (display {:?}) must exist",
@@ -247,7 +262,12 @@ mod tests {
         let entries = all_integrations(&config);
         let zai = entries
             .iter()
-            .find(|e| e.category == IntegrationCategory::AiModel && e.key.as_deref() == Some("zai"))
+            .find(|e| {
+                matches!(
+                    e.category,
+                    IntegrationCategory::AiModel | IntegrationCategory::AiRouter
+                ) && e.key.as_deref() == Some("zai")
+            })
             .expect("Z.AI registry entry with family key `zai`");
         assert_eq!(zai.name, "Z.AI");
     }
