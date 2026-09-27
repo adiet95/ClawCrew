@@ -3,14 +3,14 @@
      maintainers/docs-and-translations. -->
 ## Translation catalogues (git submodule)
 
-The translated `.po` catalogues live in the `zeroclaw-labs/zeroclaw-docs-translations` submodule mounted at `docs/book/po`. The Rust dev loop (`cargo build`, `cargo test`, `cargo clippy`) does not need it, but **building or syncing the docs does**. Initialise it once:
+The translated `.po` catalogues live in the `clawcrew-labs/clawcrew-docs-translations` submodule mounted at `docs/book/po`. The Rust dev loop (`cargo build`, `cargo test`, `cargo clippy`) does not need it, but **building or syncing the docs does**. Initialise it once:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-git clone --recurse-submodules https://github.com/zeroclaw-labs/zeroclaw   # fresh clone
+git clone --recurse-submodules https://github.com/clawcrew-labs/clawcrew   # fresh clone
 git submodule update --init docs/book/po                                   # existing clone
 ```
 
@@ -66,6 +66,6 @@ Cargo resolves the compatible 0.5.x preprocessor used by mdBook 0.5.4.
 | `docs/book/src/reference/cli.md` | (same path; **gitignored**) | `cargo mdbook refs` |
 | `docs/book/src/reference/config.md` | (same path; **gitignored**) | `cargo mdbook refs` |
 | Marked PR-review policy zones | Tracked skill and handbook regions | `cargo generate review-docs` |
-| `target/doc/` (rustdoc) | `docs/book/book/api/` | `cargo doc --no-deps --workspace --exclude zeroclaw-desktop` |
+| `target/doc/` (rustdoc) | `docs/book/book/api/` | `cargo doc --no-deps --workspace --exclude clawcrew-desktop` |
 
 The two `reference/*.md` files are generated from the actual `clap` derives and JSON schema in the code, never edit them by hand. Edit the `///` doc comments on the relevant Rust types instead.

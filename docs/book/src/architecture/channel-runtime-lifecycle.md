@@ -1,6 +1,6 @@
 # Channel runtime lifecycle
 
-Channels sit at the edge of ZeroClaw. They talk to chat platforms,
+Channels sit at the edge of ClawCrew. They talk to chat platforms,
 webhooks, editors, and event sources, then hand normalized work to the
 agent runtime.
 
@@ -18,7 +18,7 @@ The target boundary is simple:
 - Gateway webhook handlers own generic HTTP transport details, then enter the
   same channel turn lifecycle as long-running listeners.
 
-The current code is still in transition. `zeroclaw-channels` contains a
+The current code is still in transition. `clawcrew-channels` contains a
 large `orchestrator` module with `ChannelRuntimeContext`,
 `run_message_dispatch_loop`, and `process_channel_message`. That code
 currently performs runtime-sized work: message routing, hooks, self-loop
@@ -37,7 +37,7 @@ mini-orchestrator.
 | --- | --- | --- |
 | Platform listener or channel inbound adapter | Channel module or channel plugin | Keep signature checks, payload decoding, platform retries, provider verification, challenge handling, and `ChannelMessage` construction local to the transport adapter. |
 | Gateway webhook route | Gateway handler | Keep route hosting, proxying, timeout behavior, fast acknowledgement, and generic HTTP response policy local to the gateway. Do not grow new platform-specific parsing there except as documented transition debt. |
-| Normalized inbound message | `ChannelMessage` from `zeroclaw-api` | Preserve sender, reply target, channel, alias, thread, attachments, subject, passive context, and conversation scope. Add structured metadata rather than hiding routing signals in user-visible text. |
+| Normalized inbound message | `ChannelMessage` from `clawcrew-api` | Preserve sender, reply target, channel, alias, thread, attachments, subject, passive context, and conversation scope. Add structured metadata rather than hiding routing signals in user-visible text. |
 | Agent ownership for a channel alias | `start_channels` / `AgentRouter` and active channel bindings | Resolve the owning agent from configured bindings. Do not silently fall back to an unrelated agent when a channel is unowned or disabled. |
 | Message dispatch and cancellation | Shared channel dispatch loop | Reuse in-flight tracking, `/stop`, sender/thread cancellation, max in-flight limits, and worker concurrency. |
 | Turn processing | Shared runtime/channel lifecycle | Hooks, self-loop guard, passive context, media/link enrichment, runtime commands, model routing, autosave, memory recall, reply intent, tool execution, receipts, cost, and delivery should live in one path. |
@@ -251,11 +251,11 @@ Canonical docs:
 
 Key code entry points:
 
-- Channel trait and message shape: `crates/zeroclaw-api/src/channel.rs`
-- Ingress context ABI: `crates/zeroclaw-api/src/ingress.rs`
+- Channel trait and message shape: `crates/clawcrew-api/src/channel.rs`
+- Ingress context ABI: `crates/clawcrew-api/src/ingress.rs`
 - Channel dispatch and turn lifecycle:
-  `crates/zeroclaw-channels/src/orchestrator/mod.rs`
-- Runtime turn loop: `crates/zeroclaw-runtime/src/agent/turn/`
+  `crates/clawcrew-channels/src/orchestrator/mod.rs`
+- Runtime turn loop: `crates/clawcrew-runtime/src/agent/turn/`
 - Runtime generic process entry point:
-  `crates/zeroclaw-runtime/src/agent/loop_.rs`
-- Gateway webhook/chat path: `crates/zeroclaw-gateway/src/lib.rs`
+  `crates/clawcrew-runtime/src/agent/loop_.rs`
+- Gateway webhook/chat path: `crates/clawcrew-gateway/src/lib.rs`

@@ -4,22 +4,22 @@ title: Master key acquisition uses one configured key-source authority
 date: 2026-07-25
 status: proposed
 relates-to:
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/9127
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9194
+  - https://github.com/clawcrew-labs/clawcrew/issues/9127
+  - https://github.com/clawcrew-labs/clawcrew/pull/9194
   - docs/book/src/security/model.md
   - docs/book/src/architecture/config-lifecycle.md
-  - crates/zeroclaw-config/src/secrets.rs
+  - crates/clawcrew-config/src/secrets.rs
 ---
 
 # ADR-013: Master Key Acquisition Uses One Configured Key-Source Authority
 
 ## Context
 
-When secrets encryption is enabled, ZeroClaw normally persists non-empty `#[secret]` values in the `enc2:` format with one master key per configuration root. The current implementation obtains that key from `.secret_key`, a plaintext hex file protected by filesystem permissions. That default is practical for local development and deployments that mount protected key material, but it cannot express operating-system keychains, passphrase-derived keys, or external secret systems.
+When secrets encryption is enabled, ClawCrew normally persists non-empty `#[secret]` values in the `enc2:` format with one master key per configuration root. The current implementation obtains that key from `.secret_key`, a plaintext hex file protected by filesystem permissions. That default is practical for local development and deployments that mount protected key material, but it cannot express operating-system keychains, passphrase-derived keys, or external secret systems.
 
 The key location is only one part of the contract. Every production consumer must agree on which source owns the key, how first-use provisioning differs from temporary unavailability, and what happens when a configured source cannot provide the expected key. A direct `.secret_key` read outside the canonical secrets boundary, an implicit fallback to another source, or an unsafe backend switch can make existing ciphertext unreadable or weaken the deployment's intended protection.
 
-RFC [#9127](https://github.com/zeroclaw-labs/zeroclaw/issues/9127) defines a phased key-source architecture. Initial implementation [#9194](https://github.com/zeroclaw-labs/zeroclaw/pull/9194) extracts the file source and hardens atomic, no-replace, no-follow key-file publication while preserving configuration and ciphertext semantics. That hardening may require target-specific low-level dependencies; [#9460](https://github.com/zeroclaw-labs/zeroclaw/issues/9460) tracks the remaining Windows ACL-at-creation boundary. This record captures the durable target without claiming that configured non-file sources or migration support have shipped.
+RFC [#9127](https://github.com/clawcrew-labs/clawcrew/issues/9127) defines a phased key-source architecture. Initial implementation [#9194](https://github.com/clawcrew-labs/clawcrew/pull/9194) extracts the file source and hardens atomic, no-replace, no-follow key-file publication while preserving configuration and ciphertext semantics. That hardening may require target-specific low-level dependencies; [#9460](https://github.com/clawcrew-labs/clawcrew/issues/9460) tracks the remaining Windows ACL-at-creation boundary. This record captures the durable target without claiming that configured non-file sources or migration support have shipped.
 
 ## Decision
 
@@ -51,11 +51,11 @@ Initialization creates new key material only for a source that explicitly suppor
 
 ### Fail closed without changing authority
 
-When an enabled feature requires the configured key and the source cannot provide it, that feature's startup or credential operation fails with safe source-specific diagnostics. ZeroClaw must not silently fall back to `.secret_key`, generate replacement material, or try another backend. Raw key bytes and helper output that may contain them must not appear in logs or returned errors.
+When an enabled feature requires the configured key and the source cannot provide it, that feature's startup or credential operation fails with safe source-specific diagnostics. ClawCrew must not silently fall back to `.secret_key`, generate replacement material, or try another backend. Raw key bytes and helper output that may contain them must not appear in logs or returned errors.
 
 Configured-source acquisition failure must not implicitly select unsigned TUI identity. If unsigned TUI identity remains supported, it must be an explicit operator-selected policy with its own threat model, diagnostics, and tests. When signed identity is configured, failure to acquire its key fails the affected startup or connection. Whether TUI signing receives scoped source access or derives a purpose-specific key remains a separate security decision.
 
-Source implementations must state their threat model and operational dependencies. An operating-system keychain does not protect a compromised ZeroClaw process; a passphrase source depends on user interaction and password strength; an external helper depends on its executable, environment, transport, and upstream secret system. A backend name alone is not a security guarantee.
+Source implementations must state their threat model and operational dependencies. An operating-system keychain does not protect a compromised ClawCrew process; a passphrase source depends on user interaction and password strength; an external helper depends on its executable, environment, transport, and upstream secret system. A backend name alone is not a security guarantee.
 
 External helpers, when implemented, run an explicitly configured absolute executable without a shell intermediary. The initial contract accepts no arguments; later argument support requires separate review and must represent values separately rather than parsing a shell command. Execution is bounded by a timeout, and the implementation retains and reaps the child on timeout or exit. The helper returns exactly one 32-byte key as 64 lowercase hexadecimal characters; raw stdout and stderr never enter logs or returned errors. The initial contract inherits the process environment and must document that exposure. Retries and caches are bounded, expired key material is cleared, and refresh failure remains fail-closed.
 
@@ -63,9 +63,9 @@ External helpers, when implemented, run an explicitly configured absolute execut
 
 Moving the same master key to another source is migration. Generating a new key and re-encrypting every protected value is rotation. They have different failure and rollback rules and must not be represented as one generic backend change.
 
-Changing the configured source while encrypted values exist requires a verified migration path. Until migration tooling ships, ZeroClaw must reject a source change that cannot prove access to the key that decrypts the existing `enc2:` values. Migration must preserve the old source until the new source has been written and read back successfully. Rotation must retain the old key and original configuration until every value has been re-encrypted and the new configuration is committed atomically.
+Changing the configured source while encrypted values exist requires a verified migration path. Until migration tooling ships, ClawCrew must reject a source change that cannot prove access to the key that decrypts the existing `enc2:` values. Migration must preserve the old source until the new source has been written and read back successfully. Rotation must retain the old key and original configuration until every value has been re-encrypted and the new configuration is committed atomically.
 
-`zeroclaw secrets migrate` must ship in or before the change that makes the first non-file source selectable. Each later source must have a supported transition path before operators can select it. A source that cannot import the existing master key, such as a purely passphrase-derived source, requires the separately reviewed rotation path rather than pretending that same-key migration is possible.
+`clawcrew secrets migrate` must ship in or before the change that makes the first non-file source selectable. Each later source must have a supported transition path before operators can select it. A source that cannot import the existing master key, such as a purely passphrase-derived source, requires the separately reviewed rotation path rather than pretending that same-key migration is possible.
 
 Migration and rotation must inventory every persistent owner of `SecretStore` ciphertext. The initial inventory includes configuration TOML and generated or migrated configuration output, `<install>/auth-profiles.json`, `<install>/auth-<provider>-pending.json`, `<install>/otp-secret`, and `<data>/webauthn_credentials.json`. Future durable stores that write `enc2:` values enter the same inventory. Constructing a store without adding a persistent ciphertext format does not create another migration owner.
 
@@ -82,7 +82,7 @@ This ADR remains proposed until all of these conditions are met:
 - configuration selects exactly one source, defaults compatibly to the file source, and fails closed without fallback or replacement-key generation;
 - configured-source failure cannot implicitly enable unsigned TUI identity; any retained unsigned mode is explicit operator policy with its own threat model, diagnostics, and tests;
 - provisioning probes distinguish absent material from inspection failure, and successful `with_key` access invokes its callback exactly once, with boundary tests covering zero or multiple callback invocation and permission or transient inspection failures;
-- `zeroclaw secrets migrate` is available before the first non-file source becomes selectable, and each later source has a verified migration or rotation path before enablement;
+- `clawcrew secrets migrate` is available before the first non-file source becomes selectable, and each later source has a verified migration or rotation path before enablement;
 - at least one supported non-file source proves that the boundary works beyond the file implementation; and
 - source switching is rejected unless the complete persistent-ciphertext inventory can be decrypted or a documented, atomic, rollback-capable migration completes successfully.
 
@@ -104,10 +104,10 @@ Negative consequences:
 
 ## References
 
-- [RFC #9127: Key-source abstraction and deployment classification](https://github.com/zeroclaw-labs/zeroclaw/issues/9127)
-- [PR #9194: File-backed key-source extraction](https://github.com/zeroclaw-labs/zeroclaw/pull/9194)
-- [Issue #9460: Windows key-file ACL hardening at creation](https://github.com/zeroclaw-labs/zeroclaw/issues/9460)
+- [RFC #9127: Key-source abstraction and deployment classification](https://github.com/clawcrew-labs/clawcrew/issues/9127)
+- [PR #9194: File-backed key-source extraction](https://github.com/clawcrew-labs/clawcrew/pull/9194)
+- [Issue #9460: Windows key-file ACL hardening at creation](https://github.com/clawcrew-labs/clawcrew/issues/9460)
 - [Security model](../../security/model.md)
 - [Config lifecycle](../config-lifecycle.md)
-- `crates/zeroclaw-config/src/secrets.rs`
-- `crates/zeroclaw-runtime/src/rpc/tui_identity.rs`
+- `crates/clawcrew-config/src/secrets.rs`
+- `crates/clawcrew-runtime/src/rpc/tui_identity.rs`

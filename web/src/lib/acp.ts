@@ -83,7 +83,7 @@ interface PendingRequest {
   timeout: ReturnType<typeof setTimeout>;
 }
 
-const ACP_PROTOCOL = 'zeroclaw.acp.v1';
+const ACP_PROTOCOL = 'clawcrew.acp.v1';
 const DEFAULT_REQUEST_TIMEOUT_MS = 120_000;
 
 function acpWebSocketBaseUrl(): string {

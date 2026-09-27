@@ -1,8 +1,8 @@
 # ACP: Agent Client Protocol
 
-**ACP** is a JSON-RPC 2.0 protocol over stdio that lets editors and IDEs drive a running ZeroClaw agent as a session host. Newline-delimited JSON, lightweight, streamable, easy to wire to a subprocess.
+**ACP** is a JSON-RPC 2.0 protocol over stdio that lets editors and IDEs drive a running ClawCrew agent as a session host. Newline-delimited JSON, lightweight, streamable, easy to wire to a subprocess.
 
-Think of it as "LSP for agents": the editor launches `zeroclaw acp`, sends prompts over stdin, and receives session updates on stdout.
+Think of it as "LSP for agents": the editor launches `clawcrew acp`, sends prompts over stdin, and receives session updates on stdout.
 
 ## What you'd use it for
 
@@ -13,7 +13,7 @@ Think of it as "LSP for agents": the editor launches `zeroclaw acp`, sends promp
 
 ## Protocol shape: v1
 
-All messages are JSON-RPC 2.0 (newline-delimited). ZeroClaw implements **protocol version 1**.
+All messages are JSON-RPC 2.0 (newline-delimited). ClawCrew implements **protocol version 1**.
 
 ### `initialize`
 
@@ -30,13 +30,13 @@ Handshake. Returns server capabilities.
       "sessionCapabilities": {"resume": {}, "close": {}}
     },
     "agentInfo": {
-      "name": "zeroclaw-acp",
-      "title": "ZeroClaw ACP",
+      "name": "clawcrew-acp",
+      "title": "ClawCrew ACP",
       "version": "0.7.x"
     },
     "authMethods": [],
     "_meta": {
-      "zeroclaw": {
+      "clawcrew": {
         "defaultModel": "anthropic/claude-sonnet-4.6",
         "maxSessions": 10,
         "sessionTimeoutSecs": 3600
@@ -47,7 +47,7 @@ Handshake. Returns server capabilities.
 
 `loadSession: true` and `sessionCapabilities: {"resume": {}, "close": {}}` indicate that session persistence is active. If the SQLite store could not be opened at startup, all three are absent or false and `session/load`, `session/resume`, and `session/close` will return `SESSION_NOT_FOUND` errors.
 
-`_meta.zeroclaw` carries ZeroClaw-specific extension fields not in the base ACP spec. Clients that only implement the base spec can ignore this object.
+`_meta.clawcrew` carries ClawCrew-specific extension fields not in the base ACP spec. Clients that only implement the base spec can ignore this object.
 
 `promptCapabilities.embeddedContext: true` means clients may send embedded `resource` blocks with a base64 `blob` in `session/prompt` (see below). `image` and `audio` remain `false` for now. Native ACP Image/Audio ContentBlocks are not advertised yet.
 
@@ -95,7 +95,7 @@ The `prompt` parameter accepts either a plain string or an array of content part
 - **String:** `"prompt": "Summarise the changes in the last commit."`
 - **Array:** each element is a text part `{"text": "..."}` or an ACP resource block:
   - **Text resource:** `{"type": "resource", "resource": {"uri": "file:///path/to/file.rs", "text": "<file contents>"}}`. Editor `@`-notation attachments with inline text.
-  - **Blob resource:** `{"type": "resource", "resource": {"uri": "file:///path/to/report.pdf", "mimeType": "application/pdf", "blob": "<base64>"}}`. Binary embeds (PDF, DOCX, images, etc.). ZeroClaw decodes the blob, writes it under `{session.workspaceDir}/uploads/` (SHA-named), and surfaces a marker in the agent prompt (`[Document: …]` or `[IMAGE: …]` for `image/*`). Maximum decoded size is **10 MB**; invalid base64 or oversize blobs return `INVALID_PARAMS`.
+  - **Blob resource:** `{"type": "resource", "resource": {"uri": "file:///path/to/report.pdf", "mimeType": "application/pdf", "blob": "<base64>"}}`. Binary embeds (PDF, DOCX, images, etc.). ClawCrew decodes the blob, writes it under `{session.workspaceDir}/uploads/` (SHA-named), and surfaces a marker in the agent prompt (`[Document: …]` or `[IMAGE: …]` for `image/*`). Maximum decoded size is **10 MB**; invalid base64 or oversize blobs return `INVALID_PARAMS`.
 
 Parts are joined with double newlines in the order they appear. Blob intake is store-agnostic (it does not call RPC `file/attach`). The same materialization helper is used when MCP tool results contain `resource`+`blob` content (see [MCP embedded resource blobs](../tools/mcp.md#embedded-resource-blobs-in-tool-results)).
 
@@ -125,7 +125,7 @@ Parts are joined with double newlines in the order they appear. Blob intake is s
   }}
 ```
 
-`stopReason` is `"end_turn"` on normal completion and `"cancelled"` when the turn was interrupted by `session/cancel`. The ACP completion signal is `stopReason`; ZeroClaw also includes the current final `content` string for existing clients.
+`stopReason` is `"end_turn"` on normal completion and `"cancelled"` when the turn was interrupted by `session/cancel`. The ACP completion signal is `stopReason`; ClawCrew also includes the current final `content` string for existing clients.
 
 Errors:
 
@@ -138,7 +138,7 @@ Errors:
 
 ### `session/update` notifications (agent → client)
 
-ZeroClaw sends four kinds of `session/update` notification during a prompt turn. The discriminant is the `sessionUpdate` field inside `update`:
+ClawCrew sends four kinds of `session/update` notification during a prompt turn. The discriminant is the `sessionUpdate` field inside `update`:
 
 | `sessionUpdate` value | When emitted | Key fields |
 |---|---|---|
@@ -149,11 +149,11 @@ ZeroClaw sends four kinds of `session/update` notification during a prompt turn.
 
 `toolCallId` on `tool_call` and `tool_call_update` are stable and correlated, the update completing a call carries the same `toolCallId` as the one that opened it.
 
-The `name` field on `tool_call_update` is a ZeroClaw extension (not required by the base ACP spec). Clients can use it for display; it's safe to ignore.
+The `name` field on `tool_call_update` is a ClawCrew extension (not required by the base ACP spec). Clients can use it for display; it's safe to ignore.
 
 #### Delivering files to the client (`deliver_file`)
 
-When the agent should hand a workspace file back for download or preview, it calls the **`deliver_file`** tool (`path`, optional `mimeType`, optional `title`). On completion, ZeroClaw emits a normal `tool_call_update` whose `rawOutput` / `body` stay small (a short human summary, **no** base64 dump and **no** machine trailer; every delivery field travels structurally on the typed tool artifact). The standard `tool_call_update.title` carries a human-readable chat label: the caller's `title` (any prose, e.g. `"Quarterly report"`) or the filename by default. The `content` array additionally includes a standard ACP embedded resource:
+When the agent should hand a workspace file back for download or preview, it calls the **`deliver_file`** tool (`path`, optional `mimeType`, optional `title`). On completion, ClawCrew emits a normal `tool_call_update` whose `rawOutput` / `body` stay small (a short human summary, **no** base64 dump and **no** machine trailer; every delivery field travels structurally on the typed tool artifact). The standard `tool_call_update.title` carries a human-readable chat label: the caller's `title` (any prose, e.g. `"Quarterly report"`) or the filename by default. The `content` array additionally includes a standard ACP embedded resource:
 
 ```json
 {
@@ -175,7 +175,7 @@ The file must stay inside the session workspace (same jail as `file_read`); over
 
 ### `session/request_permission` (agent → client, outbound request)
 
-When a tool requires user approval (via `always_ask` in the autonomy config, or the `ask_user`/`escalate_to_human` tools), ZeroClaw issues a **JSON-RPC request** from agent to client. The client must reply with a result before the tool call proceeds.
+When a tool requires user approval (via `always_ask` in the autonomy config, or the `ask_user`/`escalate_to_human` tools), ClawCrew issues a **JSON-RPC request** from agent to client. The client must reply with a result before the tool call proceeds.
 
 ```json
 ← {"jsonrpc":"2.0","id":"zc-out-0","method":"session/request_permission","params":{
@@ -212,11 +212,11 @@ If the client never replies (crash, network drop, user closes IDE), the request 
 
 `ask_user` uses the same `session/request_permission` mechanism, mapping the question's `choices` to permission options. Free-form (no-choices) `ask_user` is not supported until the [ACP elicitation RFD](https://github.com/zed-industries/agent-client-protocol/blob/main/docs/rfds/elicitation.mdx) lands. Calling `ask_user` without `choices` on an ACP session fast-fails with a clear error.
 
-### `session/cancel` _(ZeroClaw extension)_
+### `session/cancel` _(ClawCrew extension)_
 
-Abort an in-flight `session/prompt` turn. This method is a ZeroClaw extension,
+Abort an in-flight `session/prompt` turn. This method is a ClawCrew extension,
 not part of the base ACP spec. If ACP later standardizes a conflicting
-`session/cancel`, ZeroClaw will move its extension to `_meta/session/cancel`.
+`session/cancel`, ClawCrew will move its extension to `_meta/session/cancel`.
 
 **Cancel vs. stop:** `session/cancel` aborts an in-flight prompt turn and returns `stopReason: "cancelled"` with any streamed text accumulated up to the interrupt point. `session/stop` gracefully ends the session after the current turn completes, it waits for the turn to finish rather than interrupting it.
 
@@ -237,33 +237,33 @@ The canonical parameter is `sessionId`; `session_id` is accepted as a compatibil
 
 If no turn is active for the session, the cancel is a noop, it succeeds silently without error. This follows ACP notification semantics: notifications must not produce errors.
 
-### `session/stop` _(ZeroClaw extension)_
+### `session/stop` _(ClawCrew extension)_
 
-Cleanly end a session. Not in the base ACP spec: ZeroClaw-specific. If a future ACP spec revision adds `session/stop` with different semantics, this will be renamed `_meta/session/stop`.
+Cleanly end a session. Not in the base ACP spec: ClawCrew-specific. If a future ACP spec revision adds `session/stop` with different semantics, this will be renamed `_meta/session/stop`.
 
 ```json
 → {"jsonrpc":"2.0","id":4,"method":"session/stop","params":{"sessionId":"s-ab12cd"}}
 ← {"jsonrpc":"2.0","id":4,"result":{"sessionId": "s-ab12cd", "stopped":true}}
 ```
 
-### `session/update` (client → server) _(ZeroClaw extension)_
+### `session/update` (client → server) _(ClawCrew extension)_
 
-ZeroClaw also accepts inbound `session/update` (and the legacy `session/event` alias) notifications from the client for custom event injection. Not in the base ACP spec: ZeroClaw-specific. If the ACP spec later defines an inbound `session/update` with different semantics, this will be renamed `_meta/session/update`.
+ClawCrew also accepts inbound `session/update` (and the legacy `session/event` alias) notifications from the client for custom event injection. Not in the base ACP spec: ClawCrew-specific. If the ACP spec later defines an inbound `session/update` with different semantics, this will be renamed `_meta/session/update`.
 
 ## Session persistence
 
-ZeroClaw automatically persists ACP sessions to SQLite. No configuration is required, the store opens at `<workspace_dir>/sessions/acp-sessions.db` whenever `zeroclaw acp` starts or a gateway WebSocket ACP connection is accepted. If the file cannot be created (read-only filesystem, bad permissions), the server falls back to in-memory-only sessions and `loadSession` reports `false` in the `initialize` response.
+ClawCrew automatically persists ACP sessions to SQLite. No configuration is required, the store opens at `<workspace_dir>/sessions/acp-sessions.db` whenever `clawcrew acp` starts or a gateway WebSocket ACP connection is accepted. If the file cannot be created (read-only filesystem, bad permissions), the server falls back to in-memory-only sessions and `loadSession` reports `false` in the `initialize` response.
 
 What is persisted:
 
 - Session metadata: `sessionId`, `workspaceDir`, `created_at`, `last_activity`
 - Full conversation history: every `ConversationMessage` written after each completed `session/prompt` turn, in one atomic transaction per turn
 
-Sessions survive process restarts. A session created in one `zeroclaw acp` invocation can be loaded or resumed in a later one, as long as the same `workspace_dir` is in use (and therefore the same `acp-sessions.db` file).
+Sessions survive process restarts. A session created in one `clawcrew acp` invocation can be loaded or resumed in a later one, as long as the same `workspace_dir` is in use (and therefore the same `acp-sessions.db` file).
 
 Sessions are not automatically deleted. Use `session/close` to deactivate a session without deleting it, then `session/load` or `session/resume` to bring it back.
 
-### `session/load` _(ZeroClaw extension)_
+### `session/load` _(ClawCrew extension)_
 
 Restore a previously persisted session with **full history replay**. The server seeds the agent with the stored conversation history, then streams that history back to the client as a sequence of `session/update` notifications before returning. The client receives the same update stream it would have seen had the session never ended.
 
@@ -292,7 +292,7 @@ Errors:
 | `-32602` `INVALID_PARAMS` | Session is already active, call `session/close` first |
 | `-32603` `INTERNAL_ERROR` | SQLite read failure |
 
-### `session/resume` _(ZeroClaw extension)_
+### `session/resume` _(ClawCrew extension)_
 
 Restore a previously persisted session **without history replay**. The agent is seeded with the stored conversation history so it has full context for the next turn, but no `session/update` notifications are emitted. Use this when the client already has the history from a previous connection and only needs the agent state restored.
 
@@ -305,7 +305,7 @@ After `session/resume` returns, the session is active and ready to accept `sessi
 
 **Load vs. resume:** use `session/load` when reconnecting after an unexpected disconnect and the client needs to rebuild its UI from the stored history. Use `session/resume` when the client already has the history (e.g., it stored it locally) and only needs the server-side agent state restored.
 
-### `session/close` _(ZeroClaw extension)_
+### `session/close` _(ClawCrew extension)_
 
 Deactivate an active session: cancels any in-flight turn, removes the session from the in-memory active set, and unregisters the ACP back-channel. The session record in the SQLite store is **not deleted**, the session can still be restored with `session/load` or `session/resume` later.
 
@@ -326,7 +326,7 @@ Returns `SESSION_NOT_FOUND` (`-32000`) if the session is not currently active (i
 
 `default_agent` is consulted when `session/new` omits `agentAlias` and more than one agent is configured; if it is absent and exactly one `[agents.<alias>]` entry exists, that agent is auto-selected.
 
-When running `zeroclaw acp` as a subprocess, the command starts the server unconditionally. Add `--agent <alias>` when a launcher entry should default alias-less new sessions to one configured agent without modifying `[acp].default_agent`. When running as a daemon, the gateway exposes ACP over WebSocket at `/acp` with no additional config required. Gateway clients may append `?agent=<alias>` to that URL so each configured agent can be addressed from a spec-vanilla one-agent-per-endpoint client; authentication (`Authorization`, `Sec-WebSocket-Protocol`, or `?token=`) is enforced before the connection is upgraded, and the query parameter grants no access beyond selecting among already-configured agents.
+When running `clawcrew acp` as a subprocess, the command starts the server unconditionally. Add `--agent <alias>` when a launcher entry should default alias-less new sessions to one configured agent without modifying `[acp].default_agent`. When running as a daemon, the gateway exposes ACP over WebSocket at `/acp` with no additional config required. Gateway clients may append `?agent=<alias>` to that URL so each configured agent can be addressed from a spec-vanilla one-agent-per-endpoint client; authentication (`Authorization`, `Sec-WebSocket-Protocol`, or `?token=`) is enforced before the connection is upgraded, and the query parameter grants no access beyond selecting among already-configured agents.
 
 ## Running
 
@@ -337,10 +337,10 @@ When running `zeroclaw acp` as a subprocess, the command starts the server uncon
 #### sh
 
 ```sh
-zeroclaw acp
+clawcrew acp
 
 # Default alias-less new sessions to one agent for this process only.
-zeroclaw acp --agent fable
+clawcrew acp --agent fable
 ```
 
 </div>
@@ -349,33 +349,33 @@ The binary reads stdin, writes stdout, exits on EOF.
 
 **Via the daemon gateway (remote or same-host):**
 
-Start the daemon normally. The gateway always exposes ACP over WebSocket at `/acp`, no extra config flag is required. Clients connect directly: for multi-agent installs, use a URL such as `ws://127.0.0.1:8080/acp?agent=myagent` so `session/new` can omit `agentAlias`, or through `zeroclaw-acp-bridge`, which bridges the stdio ACP protocol to the gateway WebSocket:
+Start the daemon normally. The gateway always exposes ACP over WebSocket at `/acp`, no extra config flag is required. Clients connect directly: for multi-agent installs, use a URL such as `ws://127.0.0.1:8080/acp?agent=myagent` so `session/new` can omit `agentAlias`, or through `clawcrew-acp-bridge`, which bridges the stdio ACP protocol to the gateway WebSocket:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw-acp-bridge
+clawcrew-acp-bridge
 ```
 
 </div>
 
-The bridge reads the gateway address and auth token from the same config as the daemon. When the daemon runs with a non-default config directory (e.g. `--config-dir /tmp/zeroclaw`), point the bridge at the same directory:
+The bridge reads the gateway address and auth token from the same config as the daemon. When the daemon runs with a non-default config directory (e.g. `--config-dir /tmp/clawcrew`), point the bridge at the same directory:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw-acp-bridge --config-dir /tmp/zeroclaw
+clawcrew-acp-bridge --config-dir /tmp/clawcrew
 # or equivalently:
-zeroclaw-acp-bridge --config-dir=/tmp/zeroclaw
+clawcrew-acp-bridge --config-dir=/tmp/clawcrew
 ```
 
 </div>
 
-You can also supply the bearer token directly via `ZEROCLAW_ACP_BRIDGE_TOKEN` if you prefer not to rely on the cached token file.
+You can also supply the bearer token directly via `CLAWCREW_ACP_BRIDGE_TOKEN` if you prefer not to rely on the cached token file.
 
 ## Version compatibility
 
@@ -412,12 +412,12 @@ This separation ensures that ephemeral coding-assist conversations do not pollut
 
 ## Code reference
 
-- ACP server: `crates/zeroclaw-channels/src/orchestrator/acp_server.rs`
-- ACP back-channel: `crates/zeroclaw-channels/src/acp_channel.rs`
-- Session store (SQLite): `crates/zeroclaw-infra/src/acp_session_store.rs`
-- Gateway ACP-over-WebSocket endpoint: `crates/zeroclaw-gateway/src/acp.rs`
-- Per-session path enforcement: `crates/zeroclaw-config/src/policy.rs` (`SecurityPolicy::from_config`), `crates/zeroclaw-runtime/src/agent/agent.rs` (`from_config_with_session_cwd_and_mcp`)
-- OS-level sandbox detection/backends: `crates/zeroclaw-runtime/src/security/detect.rs`, `landlock.rs`, `bubblewrap.rs`, `seatbelt.rs`
+- ACP server: `crates/clawcrew-channels/src/orchestrator/acp_server.rs`
+- ACP back-channel: `crates/clawcrew-channels/src/acp_channel.rs`
+- Session store (SQLite): `crates/clawcrew-infra/src/acp_session_store.rs`
+- Gateway ACP-over-WebSocket endpoint: `crates/clawcrew-gateway/src/acp.rs`
+- Per-session path enforcement: `crates/clawcrew-config/src/policy.rs` (`SecurityPolicy::from_config`), `crates/clawcrew-runtime/src/agent/agent.rs` (`from_config_with_session_cwd_and_mcp`)
+- OS-level sandbox detection/backends: `crates/clawcrew-runtime/src/security/detect.rs`, `landlock.rs`, `bubblewrap.rs`, `seatbelt.rs`
 
 ## See also
 

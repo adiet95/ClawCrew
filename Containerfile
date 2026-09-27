@@ -10,7 +10,7 @@ FROM docker.io/stagex/pallet-rust@sha256:abe9b95c93a5afa271f69fcd5eb18c8cd405fe5
 # so operators get a working config on first run without migration overhead.
 RUN <<-EOF
     set -e
-    mkdir -p /rootfs/zeroclaw-data/.zeroclaw /rootfs/zeroclaw-data/data
+    mkdir -p /rootfs/clawcrew-data/.clawcrew /rootfs/clawcrew-data/data
     # allow_public_bind: bind to [::] (all interfaces). Inside a container this
     # is safe — the runtime sandboxes network access. The port is only reachable
     # when the operator explicitly publishes it via -p/--publish.
@@ -24,7 +24,7 @@ RUN <<-EOF
         'port = 42617' \
         'host = "[::]"' \
         'allow_public_bind = true' \
-        'web_dist_dir = "/usr/share/zeroclawlabs/web/dist"' \
+        'web_dist_dir = "/usr/share/clawcrewlabs/web/dist"' \
         '' \
         '[providers.models.custom.opencode]' \
         'uri = "https://api.opencode.ai/v1"' \
@@ -34,7 +34,7 @@ RUN <<-EOF
         '[risk_profiles.default]' \
         'level = "supervised"' \
         'auto_approve = ["file_read", "file_write", "file_edit", "memory_recall", "memory_store", "web_search_tool", "web_fetch", "calculator", "glob_search", "content_search", "image_info", "weather", "git_operations"]' \
-        > /rootfs/zeroclaw-data/.zeroclaw/config.toml
+        > /rootfs/clawcrew-data/.clawcrew/config.toml
 EOF
 
 # ── Stage: nodejs (reference for Node.js toolchain) ──────────
@@ -121,14 +121,14 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
     touch web/dist/.gitkeep
     cargo fmt --all -- --check
     # --features ci-all matches CI's Lint job — validates all feature-gated code.
-    # --exclude zeroclaw-desktop: needs GTK/WebKit (not in StageX).
+    # --exclude clawcrew-desktop: needs GTK/WebKit (not in StageX).
     # --exclude zerocode: inkjet/tree-sitter needs C++ compiler (not in StageX).
-    cargo clippy --workspace --exclude zeroclaw-desktop --exclude zerocode --all-targets --features ci-all --locked -- -D warnings
+    cargo clippy --workspace --exclude clawcrew-desktop --exclude zerocode --all-targets --features ci-all --locked -- -D warnings
 EOF
 
 # Test (needs loopback for wiremock — no --network=none)
 # --offline prevents cargo from fetching even if network is available.
-# --exclude zeroclaw-desktop: requires GTK/GLib (tauri + tray-icon), not in StageX.
+# --exclude clawcrew-desktop: requires GTK/GLib (tauri + tray-icon), not in StageX.
 # --exclude zerocode: tree-sitter/inkjet inject -lstdc++ and need real C++ runtime
 #   symbols (operator new/delete, __cxa_throw, etc.) for YAML scanner code.
 #   The build stage succeeds because it uses -static + libstdc++.a stub, but test
@@ -136,7 +136,7 @@ EOF
 # --exclude xtask: its doc-gen gates read docs/ and .github/ paths that
 #   .dockerignore keeps out of the build context; those gates run in the
 #   standard CI Test job against the full tree.
-# --exclude zeroclaw-tools: content_search/git_operations tests shell out to
+# --exclude clawcrew-tools: content_search/git_operations tests shell out to
 #   GNU rg/grep/git, which the minimal StageX image does not ship (busybox grep
 #   lacks the GNU flags); they run in the standard CI Test job.
 # --lib --bins --tests selects unit and integration tests only: doctests are
@@ -148,10 +148,10 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
     <<-EOF
     set -e
     export RUSTFLAGS="-C target-feature=-crt-static"
-    cargo test --workspace --lib --bins --tests --exclude zeroclaw-desktop --exclude zerocode --exclude xtask --exclude zeroclaw-tools --offline --locked
+    cargo test --workspace --lib --bins --tests --exclude clawcrew-desktop --exclude zerocode --exclude xtask --exclude clawcrew-tools --offline --locked
 EOF
 
-# ── Stage: build (zeroclaw + zerocode, default channels) ────
+# ── Stage: build (clawcrew + zerocode, default channels) ────
 FROM docker.io/stagex/pallet-rust@sha256:abe9b95c93a5afa271f69fcd5eb18c8cd405fe5df6491a63c9418e3a170573dc AS build
 
 WORKDIR /src
@@ -182,9 +182,9 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
     # Build combined libstdc++.a from libc++.a + libc++abi.a (stagex ships LLVM libc++, not GCC libstdc++)
     (mkdir -p /tmp/libwrap/cxx /tmp/libwrap/cxxabi && cd /tmp/libwrap/cxx && ar x /usr/lib/libc++.a && cd /tmp/libwrap/cxxabi && ar x /usr/lib/libc++abi.a && ar rcs /usr/lib/libstdc++.a /tmp/libwrap/cxx/*.o /tmp/libwrap/cxxabi/*.o && rm -rf /tmp/libwrap)
 
-    # Release build — zeroclaw (daemon)
+    # Release build — clawcrew (daemon)
     # >>> generated:container-standard by `cargo generate installers` - do not edit <<<
-    ZEROCLAW_FEATURES="acp-bridge,agent-runtime,channel-acp-server,channel-discord,channel-email,channel-filesystem,channel-git,channel-lark,channel-matrix,channel-telegram,channel-webhook,gateway,observability-prometheus,schema-export,whatsapp-web"
+    CLAWCREW_FEATURES="acp-bridge,agent-runtime,channel-acp-server,channel-discord,channel-email,channel-filesystem,channel-git,channel-lark,channel-matrix,channel-telegram,channel-webhook,gateway,observability-prometheus,schema-export,whatsapp-web"
 # >>> end generated:container-standard <<<
     CARGO_TARGET_DIR=/target \
     cargo build \
@@ -192,8 +192,8 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
         --release \
         --target "$TARGET" \
         --no-default-features \
-        --features "${ZEROCLAW_FEATURES}" \
-        -p zeroclaw
+        --features "${CLAWCREW_FEATURES}" \
+        -p clawcrew
 
     # Release build — zerocode (TUI config manager)
     CARGO_TARGET_DIR=/target \
@@ -203,8 +203,8 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
         --target "$TARGET" \
         -p zerocode
 
-    mkdir -p /rootfs/usr/bin /rootfs/usr/share/zeroclawlabs/web/dist
-    cp /target/${TARGET}/release/zeroclaw /rootfs/usr/bin/zeroclaw
+    mkdir -p /rootfs/usr/bin /rootfs/usr/share/clawcrewlabs/web/dist
+    cp /target/${TARGET}/release/clawcrew /rootfs/usr/bin/clawcrew
     cp /target/${TARGET}/release/zerocode /rootfs/usr/bin/zerocode
 EOF
 
@@ -212,31 +212,31 @@ EOF
 COPY --from=config-gen /rootfs/ /rootfs/
 
 # Copy web dashboard dist
-COPY --from=web-build /src/web/dist /rootfs/usr/share/zeroclawlabs/web/dist
+COPY --from=web-build /src/web/dist /rootfs/usr/share/clawcrewlabs/web/dist
 
 # ── Stage: package (minimal runtime) ─────────────────────────
 FROM docker.io/stagex/core-filesystem@sha256:da28831927652291b0fa573092fd41c8c96ca181ea224df7bff40e1833c3db13 AS package
 
 # Copy binaries, web dist, and default config; set data dir ownership to nobody(65534)
 COPY --from=build /rootfs/ /
-COPY --from=build --chown=65534:65534 /rootfs/zeroclaw-data /zeroclaw-data
+COPY --from=build --chown=65534:65534 /rootfs/clawcrew-data /clawcrew-data
 COPY --from=docker.io/stagex/core-ca-certificates@sha256:7773dae6630aa3bdcc82cfec6c9265c0c501aaf0af67cc73631b09e1cff1b094 / /
 
-ENV ZEROCLAW_DATA_DIR=/zeroclaw-data/data
-ENV HOME=/zeroclaw-data
-ENV ZEROCLAW_gateway__port=42617
+ENV CLAWCREW_DATA_DIR=/clawcrew-data/data
+ENV HOME=/clawcrew-data
+ENV CLAWCREW_gateway__port=42617
 
-WORKDIR /zeroclaw-data
+WORKDIR /clawcrew-data
 USER 65534:65534
 EXPOSE 42617
 
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 --start-period=10s \
-    CMD ["zeroclaw", "status", "--format=exit-code"]
+    CMD ["clawcrew", "status", "--format=exit-code"]
 
-ENTRYPOINT ["/usr/bin/zeroclaw"]
+ENTRYPOINT ["/usr/bin/clawcrew"]
 CMD ["daemon"]
 
-# ── Stage: build-fat (zeroclaw + zerocode, all channels) ────
+# ── Stage: build-fat (clawcrew + zerocode, all channels) ────
 FROM docker.io/stagex/pallet-rust@sha256:abe9b95c93a5afa271f69fcd5eb18c8cd405fe5df6491a63c9418e3a170573dc AS build-fat
 
 WORKDIR /src
@@ -268,9 +268,9 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
     # Build combined libstdc++.a from libc++.a + libc++abi.a (stagex ships LLVM libc++, not GCC libstdc++)
     (mkdir -p /tmp/libwrap/cxx /tmp/libwrap/cxxabi && cd /tmp/libwrap/cxx && ar x /usr/lib/libc++.a && cd /tmp/libwrap/cxxabi && ar x /usr/lib/libc++abi.a && ar rcs /usr/lib/libstdc++.a /tmp/libwrap/cxx/*.o /tmp/libwrap/cxxabi/*.o && rm -rf /tmp/libwrap)
 
-    # Release build — zeroclaw (all channels)
+    # Release build — clawcrew (all channels)
     # >>> generated:container-fat by `cargo generate installers` - do not edit <<<
-    ZEROCLAW_FEATURES="acp-bridge,agent-runtime,browser-native,channel-acp-server,channel-amqp,channel-bluesky,channel-clawdtalk,channel-dingtalk,channel-discord,channel-email,channel-feishu,channel-filesystem,channel-git,channel-imessage,channel-irc,channel-lark,channel-line,channel-linq,channel-matrix,channel-mattermost,channel-mochat,channel-mqtt,channel-nextcloud,channel-nostr,channel-notion,channel-qq,channel-reddit,channel-signal,channel-slack,channel-telegram,channel-twitch,channel-twitter,channel-voice-call,channel-webhook,channel-wechat,channel-wecom,channel-wecom-ws,channel-whatsapp-cloud,dev-sim,gateway,hardware,memory-postgres,observability-otel,observability-prometheus,peripheral-rpi,plugins-wasm,plugins-wasm-cranelift,plugins-wasm-pulley,plugins-wasm-runtime-only,probe,provider-gitea,provider-github,sandbox-bubblewrap,sandbox-landlock,schema-export,webauthn,whatsapp-web"
+    CLAWCREW_FEATURES="acp-bridge,agent-runtime,browser-native,channel-acp-server,channel-amqp,channel-bluesky,channel-clawdtalk,channel-dingtalk,channel-discord,channel-email,channel-feishu,channel-filesystem,channel-git,channel-imessage,channel-irc,channel-lark,channel-line,channel-linq,channel-matrix,channel-mattermost,channel-mochat,channel-mqtt,channel-nextcloud,channel-nostr,channel-notion,channel-qq,channel-reddit,channel-signal,channel-slack,channel-telegram,channel-twitch,channel-twitter,channel-voice-call,channel-webhook,channel-wechat,channel-wecom,channel-wecom-ws,channel-whatsapp-cloud,dev-sim,gateway,hardware,memory-postgres,observability-otel,observability-prometheus,peripheral-rpi,plugins-wasm,plugins-wasm-cranelift,plugins-wasm-pulley,plugins-wasm-runtime-only,probe,provider-gitea,provider-github,sandbox-bubblewrap,sandbox-landlock,schema-export,webauthn,whatsapp-web"
 # >>> end generated:container-fat <<<
     CARGO_TARGET_DIR=/target \
     cargo build \
@@ -278,8 +278,8 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
         --release \
         --target "$TARGET" \
         --no-default-features \
-        --features "${ZEROCLAW_FEATURES}" \
-        -p zeroclaw
+        --features "${CLAWCREW_FEATURES}" \
+        -p clawcrew
 
     # Release build — zerocode (TUI config manager)
     CARGO_TARGET_DIR=/target \
@@ -289,8 +289,8 @@ RUN --mount=type=cache,target=/root/.cargo/registry,sharing=locked \
         --target "$TARGET" \
         -p zerocode
 
-    mkdir -p /rootfs/usr/bin /rootfs/usr/share/zeroclawlabs/web/dist
-    cp /target/${TARGET}/release/zeroclaw /rootfs/usr/bin/zeroclaw
+    mkdir -p /rootfs/usr/bin /rootfs/usr/share/clawcrewlabs/web/dist
+    cp /target/${TARGET}/release/clawcrew /rootfs/usr/bin/clawcrew
     cp /target/${TARGET}/release/zerocode /rootfs/usr/bin/zerocode
 EOF
 
@@ -298,26 +298,26 @@ EOF
 COPY --from=config-gen /rootfs/ /rootfs/
 
 # Copy web dashboard dist
-COPY --from=web-build /src/web/dist /rootfs/usr/share/zeroclawlabs/web/dist
+COPY --from=web-build /src/web/dist /rootfs/usr/share/clawcrewlabs/web/dist
 
 # ── Stage: package-fat (full-channel runtime) ────────────────
 FROM docker.io/stagex/core-filesystem@sha256:da28831927652291b0fa573092fd41c8c96ca181ea224df7bff40e1833c3db13 AS package-fat
 
 # Copy binaries, web dist, and default config; set data dir ownership to nobody(65534)
 COPY --from=build-fat /rootfs/ /
-COPY --from=build-fat --chown=65534:65534 /rootfs/zeroclaw-data /zeroclaw-data
+COPY --from=build-fat --chown=65534:65534 /rootfs/clawcrew-data /clawcrew-data
 COPY --from=docker.io/stagex/core-ca-certificates@sha256:7773dae6630aa3bdcc82cfec6c9265c0c501aaf0af67cc73631b09e1cff1b094 / /
 
-ENV ZEROCLAW_DATA_DIR=/zeroclaw-data/data
-ENV HOME=/zeroclaw-data
-ENV ZEROCLAW_gateway__port=42617
+ENV CLAWCREW_DATA_DIR=/clawcrew-data/data
+ENV HOME=/clawcrew-data
+ENV CLAWCREW_gateway__port=42617
 
-WORKDIR /zeroclaw-data
+WORKDIR /clawcrew-data
 USER 65534:65534
 EXPOSE 42617
 
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 --start-period=10s \
-    CMD ["zeroclaw", "status", "--format=exit-code"]
+    CMD ["clawcrew", "status", "--format=exit-code"]
 
-ENTRYPOINT ["/usr/bin/zeroclaw"]
+ENTRYPOINT ["/usr/bin/clawcrew"]
 CMD ["daemon"]

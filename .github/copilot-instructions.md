@@ -1,4 +1,4 @@
-# ZeroClaw Graph-First Navigation
+# ClawCrew Graph-First Navigation
 
 These instructions apply to VS Code Copilot Chat in this workspace.
 

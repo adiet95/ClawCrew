@@ -1,4 +1,4 @@
-//! The ZeroClaw nominated relay: a standalone **blind forwarder**, blind by
+//! The ClawCrew nominated relay: a standalone **blind forwarder**, blind by
 //! default.
 //!
 //! One documented exception, off unless an operator turns it on: the browser
@@ -11,7 +11,7 @@
 //! enrollment, which stay blind in every mode.
 //!
 //! Each party reaches the relay over an **outer** TLS + WebSocket session
-//! (`zeroclaw.relay.v1`). A daemon opens one persistent WS and registers a
+//! (`clawcrew.relay.v1`). A daemon opens one persistent WS and registers a
 //! `node_id` through a signed Ed25519 handshake; many client connections are then
 //! multiplexed over that single WS by `conn_id`. A client opens its own WS, names
 //! a target `node_id`, and once paired the relay shuttles binary `DATA` messages
@@ -27,7 +27,7 @@
 //! client at the daemon).
 //!
 //! `zerorelay` is a standalone networking app (not daemon-path code), so bare
-//! `tokio::spawn` is the right primitive here; the `zeroclaw_spawn::spawn!` rule
+//! `tokio::spawn` is the right primitive here; the `clawcrew_spawn::spawn!` rule
 //! is for in-daemon tasks. Mirrors the `apps/zerocode` exemption.
 #![allow(clippy::disallowed_methods)]
 
@@ -55,7 +55,7 @@ use tokio::sync::{Mutex, mpsc};
 use tokio_rustls::TlsAcceptor;
 use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::tungstenite::Message;
-use zeroclaw_relay_proto::{
+use clawcrew_relay_proto::{
     ConnWindow, Control, INITIAL_WINDOW, MAX_CONTROL_FRAME, MAX_DATA_PAYLOAD, PEER_HINT_ENROLL,
     TokenBucket, decode_data, encode_data,
 };
@@ -711,7 +711,7 @@ impl RelayServer {
                             .1
                             .peer_certificates()
                             .and_then(|c| c.first())
-                            .and_then(|c| zeroclaw_tls::client_cert_node_id(c.as_ref()))
+                            .and_then(|c| clawcrew_tls::client_cert_node_id(c.as_ref()))
                     } else {
                         None
                     };

@@ -1,10 +1,10 @@
 # Browser Automation
 
-This guide covers setting up browser automation capabilities in ZeroClaw, including both headless automation and GUI access via VNC.
+This guide covers setting up browser automation capabilities in ClawCrew, including both headless automation and GUI access via VNC.
 
 ## Overview
 
-ZeroClaw supports multiple browser access methods:
+ClawCrew supports multiple browser access methods:
 
 | Method | Use Case | Requirements |
 |--------|----------|--------------|
@@ -40,7 +40,7 @@ agent-browser install
 
 </div>
 
-### 2. Verify ZeroClaw Config
+### 2. Verify ClawCrew Config
 
 The `[browser]` section gates two separate tools:
 
@@ -54,7 +54,7 @@ Automation drives a browser that may already be logged into your accounts, so it
 When upgrading, an existing risk profile may retain `"browser"` in `auto_approve` from the previous forced merge into that list. Automation remains disabled until you set `automation_enabled = true`, but once enabled, that retained entry can suppress approval prompts. Remove `"browser"` from the profile's `auto_approve` list when prompting is required.
 
 Both tools share `allowed_domains`, which defaults to `["*"]`. Enable automation, restrict
-domains, or turn `browser_open` off via `zeroclaw config set`:
+domains, or turn `browser_open` off via `clawcrew config set`:
 
 <div class="os-tabs-src">
 
@@ -62,11 +62,11 @@ domains, or turn `browser_open` off via `zeroclaw config set`:
 
 ```sh
 # Opt into the full `browser` automation tool
-zeroclaw config set browser.automation_enabled true
+clawcrew config set browser.automation_enabled true
 # Narrow the shared allowlist from the default ["*"]
-zeroclaw config set browser.allowed_domains '["example.com", "docs.example.com"]'
+clawcrew config set browser.allowed_domains '["example.com", "docs.example.com"]'
 # Drop `browser_open` if the agent should not open URLs in the system browser
-zeroclaw config set browser.enabled false
+clawcrew config set browser.enabled false
 ```
 
 </div>
@@ -95,7 +95,7 @@ See the [Config reference](../reference/config.md) for all browser fields and de
 #### sh
 
 ```sh
-echo "Open https://example.com and tell me what it says" | zeroclaw agent -a assistant
+echo "Open https://example.com and tell me what it says" | clawcrew agent -a assistant
 ```
 
 </div>
@@ -231,7 +231,7 @@ agent-browser close
 
 </div>
 
-### ZeroClaw Integration Tests
+### ClawCrew Integration Tests
 
 <div class="os-tabs-src">
 
@@ -239,13 +239,13 @@ agent-browser close
 
 ```sh
 # Content extraction
-echo "Open https://example.com and summarize it" | zeroclaw agent -a assistant
+echo "Open https://example.com and summarize it" | clawcrew agent -a assistant
 
 # Navigation
-echo "Go to https://github.com/trending and list the top 3 repos" | zeroclaw agent -a assistant
+echo "Go to https://github.com/trending and list the top 3 repos" | clawcrew agent -a assistant
 
 # Form interaction
-echo "Go to Wikipedia, search for 'Rust programming language', and summarize" | zeroclaw agent -a assistant
+echo "Go to Wikipedia, search for 'Rust programming language', and summarize" | clawcrew agent -a assistant
 ```
 
 </div>

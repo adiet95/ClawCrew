@@ -1,15 +1,15 @@
 # FreeBSD
 
-ZeroClaw runs natively on FreeBSD (tested on FreeBSD 15.0-RELEASE, `amd64`). Two things differ from the Linux/macOS/Windows paths:
+ClawCrew runs natively on FreeBSD (tested on FreeBSD 15.0-RELEASE, `amd64`). Two things differ from the Linux/macOS/Windows paths:
 
 1. **No prebuilt binary and no `install.sh` support.** FreeBSD is not a target of the bootstrap installer, so you build from source with the system Rust toolchain.
-2. **No `zeroclaw service` backend.** The `zeroclaw service install` command knows systemd, OpenRC, launchd, and Windows Task Scheduler, not FreeBSD `rc.d`. You install a small `rc.d` script yourself. This page gives you a complete, tested one.
+2. **No `clawcrew service` backend.** The `clawcrew service install` command knows systemd, OpenRC, launchd, and Windows Task Scheduler, not FreeBSD `rc.d`. You install a small `rc.d` script yourself. This page gives you a complete, tested one.
 
 Everything else, config, providers, channels, the daemon, the gateway, is identical to any other platform.
 
-> **When to use FreeBSD.** FreeBSD deployments are common in network-appliance, embedded, and jail-based hosting where operators want the base system’s stability, ZFS + jail primitives, or need FreeBSD for policy/licensing reasons. Because there is no prebuilt binary and the `rc.d` setup is manual, this path suits operators comfortable with FreeBSD conventions. If you are only evaluating platforms with no specific FreeBSD requirement, Linux (systemd) or macOS (launchd) onboard faster via `install.sh` and `zeroclaw service install`.
+> **When to use FreeBSD.** FreeBSD deployments are common in network-appliance, embedded, and jail-based hosting where operators want the base system’s stability, ZFS + jail primitives, or need FreeBSD for policy/licensing reasons. Because there is no prebuilt binary and the `rc.d` setup is manual, this path suits operators comfortable with FreeBSD conventions. If you are only evaluating platforms with no specific FreeBSD requirement, Linux (systemd) or macOS (launchd) onboard faster via `install.sh` and `clawcrew service install`.
 >
-> **Grab the files instead of copy-pasting.** Every shell script and sample config shown below ships in [`dist/freebsd/`](https://github.com/zeroclaw-labs/zeroclaw/tree/master/dist/freebsd): copy them to your host directly. The walkthrough explains what each piece does and why.
+> **Grab the files instead of copy-pasting.** Every shell script and sample config shown below ships in [`dist/freebsd/`](https://github.com/clawcrew-labs/clawcrew/tree/master/dist/freebsd): copy them to your host directly. The walkthrough explains what each piece does and why.
 
 ## System dependencies
 
@@ -27,7 +27,7 @@ doas pkg install -y rust git
 
 | Package | Why |
 |---|---|
-| `rust` | Provides `cargo` and `rustc` to build the binary. ZeroClaw's workspace MSRV is Rust 1.96.0; the FreeBSD `rust` port tracks a newer stable, so `pkg install rust` satisfies it. |
+| `rust` | Provides `cargo` and `rustc` to build the binary. ClawCrew's workspace MSRV is Rust 1.96.0; the FreeBSD `rust` port tracks a newer stable, so `pkg install rust` satisfies it. |
 | `git` | Cloning the repo, and required at runtime if you use any git-backed tools. |
 
 > **`doas`, not `sudo`.** FreeBSD ships `doas` as the base privilege-escalation tool; `sudo` is an optional port. The examples here use `doas`. A minimal `/usr/local/etc/doas.conf` granting the `wheel` group passwordless escalation is:
@@ -43,14 +43,14 @@ doas pkg install -y rust git
 #### sh
 
 ```sh
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 cargo build --release
 ```
 
 </div>
 
-The release binary lands at `target/release/zeroclaw`. A clean build of the default feature set takes a while on modest hardware, this is expected; ZeroClaw is a large Rust workspace.
+The release binary lands at `target/release/clawcrew`. A clean build of the default feature set takes a while on modest hardware, this is expected; ClawCrew is a large Rust workspace.
 
 To trim the build, disable features you don't need (see `./install.sh --list-features` on a Linux box, or `Cargo.toml`):
 
@@ -73,13 +73,13 @@ Put it somewhere on `PATH`. `/usr/local/bin` is the conventional location for po
 #### sh
 
 ```sh
-doas install -m 755 target/release/zeroclaw /usr/local/bin/zeroclaw
-zeroclaw --version
+doas install -m 755 target/release/clawcrew /usr/local/bin/clawcrew
+clawcrew --version
 ```
 
 </div>
 
-(`~/.cargo/bin/zeroclaw` works just as well if you'd rather keep it per-user.)
+(`~/.cargo/bin/clawcrew` works just as well if you'd rather keep it per-user.)
 
 ## First-run configuration
 
@@ -88,28 +88,28 @@ zeroclaw --version
 #### sh
 
 ```sh
-zeroclaw quickstart
+clawcrew quickstart
 ```
 
 </div>
 
-This creates `~/.zeroclaw/` with a starter config and walks you through provider setup. Config layout and precedence are identical to every other platform: see [Reference → Config](../reference/config.md).
+This creates `~/.clawcrew/` with a starter config and walks you through provider setup. Config layout and precedence are identical to every other platform: see [Reference → Config](../reference/config.md).
 
 ## Provider authentication
 
-Provider auth is not FreeBSD-specific. API-key providers just need the key set through the gateway, zerocode, `zeroclaw config set`, or the environment. OAuth and subscription providers (e.g. an OpenAI/Codex ChatGPT subscription, Anthropic Claude Pro/Team) get their token from the vendor's own dashboard or login flow, which you then configure the same way you would an API key.
+Provider auth is not FreeBSD-specific. API-key providers just need the key set through the gateway, zerocode, `clawcrew config set`, or the environment. OAuth and subscription providers (e.g. an OpenAI/Codex ChatGPT subscription, Anthropic Claude Pro/Team) get their token from the vendor's own dashboard or login flow, which you then configure the same way you would an API key.
 
 For the full credential model (API keys, OAuth/subscription tokens, env overrides, and the secrets store), see [Provider Configuration → Credentials](../providers/configuration.md#credentials) and [OAuth and subscription auth](../providers/configuration.md#oauth-and-subscription-auth). That page is the source of truth for every platform.
 
 ## Running as a service (`rc.d`)
 
-Because `zeroclaw service install` has no FreeBSD backend, supervise the daemon with FreeBSD's native [`daemon(8)`](https://man.freebsd.org/cgi/man.cgi?daemon%288%29) under an `rc.d` script. This gives you `service zeroclaw start|stop|restart|status`, restart-on-crash, a pidfile, and boot-time startup.
+Because `clawcrew service install` has no FreeBSD backend, supervise the daemon with FreeBSD's native [`daemon(8)`](https://man.freebsd.org/cgi/man.cgi?daemon%288%29) under an `rc.d` script. This gives you `service clawcrew start|stop|restart|status`, restart-on-crash, a pidfile, and boot-time startup.
 
-> **Ready-to-install copies of every script below live in [`dist/freebsd/`](https://github.com/zeroclaw-labs/zeroclaw/tree/master/dist/freebsd)** (`zeroclaw-run.sh`, the basic `zeroclaw.rc`, and the hardened `zeroclaw-hardened.rc`). The two `rc.d` scripts carry a `@@ZEROCLAW_USER@@` placeholder you `sed` in on install, so you can grab the files instead of copy-pasting: see `dist/freebsd/README.md`. The walkthrough below explains what each piece does.
+> **Ready-to-install copies of every script below live in [`dist/freebsd/`](https://github.com/clawcrew-labs/clawcrew/tree/master/dist/freebsd)** (`clawcrew-run.sh`, the basic `clawcrew.rc`, and the hardened `clawcrew-hardened.rc`). The two `rc.d` scripts carry a `@@CLAWCREW_USER@@` placeholder you `sed` in on install, so you can grab the files instead of copy-pasting: see `dist/freebsd/README.md`. The walkthrough below explains what each piece does.
 
 ### 1. Launcher script
 
-`daemon(8)` starts the child with a minimal environment, so export a full `PATH` (FreeBSD puts `git`, `python3`, etc. under `/usr/local/bin`, which is *not* on the default service `PATH`). The `rc.d` script runs this through `daemon -u <user>`, which per `daemon(8)` sets `HOME`, `USER`, and `SHELL` from that account's passwd entry before exec, so `${HOME}` is already the service account's home (accounts whose home is elsewhere, and `rc.conf` run-as overrides, just work). Save as `/usr/local/libexec/zeroclaw-run.sh`:
+`daemon(8)` starts the child with a minimal environment, so export a full `PATH` (FreeBSD puts `git`, `python3`, etc. under `/usr/local/bin`, which is *not* on the default service `PATH`). The `rc.d` script runs this through `daemon -u <user>`, which per `daemon(8)` sets `HOME`, `USER`, and `SHELL` from that account's passwd entry before exec, so `${HOME}` is already the service account's home (accounts whose home is elsewhere, and `rc.conf` run-as overrides, just work). Save as `/usr/local/libexec/clawcrew-run.sh`:
 
 <div class="os-tabs-src">
 
@@ -119,7 +119,7 @@ Because `zeroclaw service install` has no FreeBSD backend, supervise the daemon 
 #!/bin/sh
 # daemon -u <user> has already set HOME from the account's passwd entry.
 export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:${HOME}/bin"
-exec /usr/local/bin/zeroclaw daemon --config-dir "${HOME}/.zeroclaw"
+exec /usr/local/bin/clawcrew daemon --config-dir "${HOME}/.clawcrew"
 ```
 
 </div>
@@ -129,14 +129,14 @@ exec /usr/local/bin/zeroclaw daemon --config-dir "${HOME}/.zeroclaw"
 #### sh
 
 ```sh
-doas install -m 755 zeroclaw-run.sh /usr/local/libexec/zeroclaw-run.sh
+doas install -m 755 clawcrew-run.sh /usr/local/libexec/clawcrew-run.sh
 ```
 
 </div>
 
 ### 2. `rc.d` script
 
-Save as `/usr/local/etc/rc.d/zeroclaw`:
+Save as `/usr/local/etc/rc.d/clawcrew`:
 
 <div class="os-tabs-src">
 
@@ -145,37 +145,37 @@ Save as `/usr/local/etc/rc.d/zeroclaw`:
 ```sh
 #!/bin/sh
 #
-# PROVIDE: zeroclaw
+# PROVIDE: clawcrew
 # REQUIRE: NETWORKING DAEMON
 # KEYWORD: shutdown
 
 . /etc/rc.subr
 
-name="zeroclaw"
-rcvar="zeroclaw_enable"
+name="clawcrew"
+rcvar="clawcrew_enable"
 
 load_rc_config $name
 
-: ${zeroclaw_enable:="NO"}
+: ${clawcrew_enable:="NO"}
 # Do NOT name this ${name}_user — rc.subr would then run its own su user-switch
 # and collide with daemon -u ("failed to set user environment").
-: ${zeroclaw_runas:="youruser"}
+: ${clawcrew_runas:="youruser"}
 
-rundir="/var/run/zeroclaw"
-pidfile="${rundir}/zeroclaw.pid"
+rundir="/var/run/clawcrew"
+pidfile="${rundir}/clawcrew.pid"
 logfile="/var/log/${name}.log"
-launcher="/usr/local/libexec/zeroclaw-run.sh"
+launcher="/usr/local/libexec/clawcrew-run.sh"
 
 command="/usr/sbin/daemon"
-command_args="-r -P ${pidfile} -o ${logfile} -u ${zeroclaw_runas} ${launcher}"
+command_args="-r -P ${pidfile} -o ${logfile} -u ${clawcrew_runas} ${launcher}"
 
-start_precmd="zeroclaw_precmd"
+start_precmd="clawcrew_precmd"
 
-zeroclaw_precmd()
+clawcrew_precmd()
 {
     # rundir + logfile stay root-owned: rc.d (root) writes the daemon -P pidfile
     # here and trusts it later, so the unprivileged service user must not be able
-    # to forge it. daemon -o opens the logfile before dropping to ${zeroclaw_runas}.
+    # to forge it. daemon -o opens the logfile before dropping to ${clawcrew_runas}.
     install -d -o root -g wheel -m 755 "${rundir}"
     install -o root -g wheel -m 640 /dev/null "${logfile}"
 }
@@ -190,7 +190,7 @@ run_rc_command "$1"
 #### sh
 
 ```sh
-doas install -m 755 zeroclaw /usr/local/etc/rc.d/zeroclaw
+doas install -m 755 clawcrew /usr/local/etc/rc.d/clawcrew
 ```
 
 </div>
@@ -198,11 +198,11 @@ doas install -m 755 zeroclaw /usr/local/etc/rc.d/zeroclaw
 What the flags do:
 
 - `-r`: supervise and restart the child if it exits (crash recovery).
-- `-P ${pidfile}`: write the *supervisor's* pid so `service zeroclaw stop` can signal it.
+- `-P ${pidfile}`: write the *supervisor's* pid so `service clawcrew stop` can signal it.
 - `-o ${logfile}`: redirect the child's stdout/stderr to a logfile.
-- `-u ${zeroclaw_runas}`: run zeroclaw as an unprivileged user, not root.
+- `-u ${clawcrew_runas}`: run clawcrew as an unprivileged user, not root.
 
-> **Why `daemon -u` and not `su -m`.** A common pattern is `daemon ... su -m user -c launcher`. Avoid it: `su(1)` does **not** forward `SIGTERM` to its child, so `service zeroclaw stop` kills the `daemon` supervisor but leaves an orphaned `zeroclaw` process behind, and the next `start` stacks a second copy. `daemon -u user` makes `daemon(8)` the direct parent of `zeroclaw`, so it forwards the stop signal and shuts down cleanly. (If you're stuck with a `su`-based script for other reasons, add a `pkill -f "zeroclaw daemon"` sweep to its stop path.)
+> **Why `daemon -u` and not `su -m`.** A common pattern is `daemon ... su -m user -c launcher`. Avoid it: `su(1)` does **not** forward `SIGTERM` to its child, so `service clawcrew stop` kills the `daemon` supervisor but leaves an orphaned `clawcrew` process behind, and the next `start` stacks a second copy. `daemon -u user` makes `daemon(8)` the direct parent of `clawcrew`, so it forwards the stop signal and shuts down cleanly. (If you're stuck with a `su`-based script for other reasons, add a `pkill -f "clawcrew daemon"` sweep to its stop path.)
 
 ### 3. Enable and start
 
@@ -211,40 +211,40 @@ What the flags do:
 #### sh
 
 ```sh
-doas sysrc zeroclaw_enable=YES
-doas sysrc zeroclaw_runas=youruser     # the account that owns ~/.zeroclaw
+doas sysrc clawcrew_enable=YES
+doas sysrc clawcrew_runas=youruser     # the account that owns ~/.clawcrew
 
-doas service zeroclaw start
-doas service zeroclaw status
+doas service clawcrew start
+doas service clawcrew status
 ```
 
 </div>
 
-`service zeroclaw stop` / `restart` work as expected. Because `zeroclaw_enable=YES` is in `/etc/rc.conf` (written by `sysrc`), the daemon also starts on boot.
+`service clawcrew stop` / `restart` work as expected. Because `clawcrew_enable=YES` is in `/etc/rc.conf` (written by `sysrc`), the daemon also starts on boot.
 
 ### 4. Hardening for unattended and remote operation
 
-The script above is correct for an interactive, single-instance install. Three `daemon(8)` behaviours will surprise you the moment you drive the service remotely (over `ssh`) or run more than one copy. All three bit a production deployment; the fixes are small. A complete script folding in every fix below ships as [`dist/freebsd/zeroclaw-hardened.rc`](https://github.com/zeroclaw-labs/zeroclaw/tree/master/dist/freebsd): install it in place of the basic `zeroclaw` script.
+The script above is correct for an interactive, single-instance install. Three `daemon(8)` behaviours will surprise you the moment you drive the service remotely (over `ssh`) or run more than one copy. All three bit a production deployment; the fixes are small. A complete script folding in every fix below ships as [`dist/freebsd/clawcrew-hardened.rc`](https://github.com/clawcrew-labs/clawcrew/tree/master/dist/freebsd): install it in place of the basic `clawcrew` script.
 
-**Remote `service ... start` hangs.** `daemon -r` inherits and holds open whatever stdin/stdout/stderr it was launched with. Run `ssh host 'service zeroclaw start'` and the supervisor keeps your `ssh` session's stdout fd open forever, so `ssh` never sees EOF and the command hangs even though the daemon started fine. Detach the supervisor's own descriptors: `-o ${logfile}` already routes the *child's* output, so nothing is lost:
+**Remote `service ... start` hangs.** `daemon -r` inherits and holds open whatever stdin/stdout/stderr it was launched with. Run `ssh host 'service clawcrew start'` and the supervisor keeps your `ssh` session's stdout fd open forever, so `ssh` never sees EOF and the command hangs even though the daemon started fine. Detach the supervisor's own descriptors: `-o ${logfile}` already routes the *child's* output, so nothing is lost:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-command_args="-r -P ${pidfile} -o ${logfile} -u ${zeroclaw_runas} ${launcher}"
+command_args="-r -P ${pidfile} -o ${logfile} -u ${clawcrew_runas} ${launcher}"
 # ...invoke daemon with its own std{in,out,err} sent to /dev/null:
 /usr/sbin/daemon ${command_args} </dev/null >/dev/null 2>&1
 ```
 
 </div>
 
-If you use the stock `command`/`command_args` form, wrap the start in a custom `start_cmd` so you control the redirection. This one change is what makes `service zeroclaw start` safe to call from `ssh`, CI, or a config-management push.
+If you use the stock `command`/`command_args` form, wrap the start in a custom `start_cmd` so you control the redirection. This one change is what makes `service clawcrew start` safe to call from `ssh`, CI, or a config-management push.
 
 **Repeated `start` stacks orphan supervisors.** A plain `start` does not check whether a supervisor is already running, so a second `start` (or a `start` after a crash that left a stale pidfile) launches another `daemon` that fights the first over the gateway port. Make `start` idempotent by refusing when a live supervisor already exists. Match the supervisor by the launcher path, **not** the pidfile alone (the pidfile can be stale). Two FreeBSD-specific traps when you do this:
 
-- `daemon(8)` *retitles its supervisor* to `daemon: /usr/local/libexec/zeroclaw-run.sh[<childpid>] (daemon)`. So `pgrep -f zeroclaw-run.sh` matches the supervisor, but a `pgrep -f` for the binary name does not. Bind on the literal `daemon:` prefix: that matches the supervisor and never the child, a hand-run of the launcher, or the rc shell itself. Bind the trailing `[` that opens daemon's `[<childpid>]` too, so a sibling launcher whose name merely *starts with* `zeroclaw-run.sh` can't match (this matters once you run a pool, see [Running a pool of instances](#4-hardening-for-unattended-and-remote-operation) below).
+- `daemon(8)` *retitles its supervisor* to `daemon: /usr/local/libexec/clawcrew-run.sh[<childpid>] (daemon)`. So `pgrep -f clawcrew-run.sh` matches the supervisor, but a `pgrep -f` for the binary name does not. Bind on the literal `daemon:` prefix: that matches the supervisor and never the child, a hand-run of the launcher, or the rc shell itself. Bind the trailing `[` that opens daemon's `[<childpid>]` too, so a sibling launcher whose name merely *starts with* `clawcrew-run.sh` can't match (this matters once you run a pool, see [Running a pool of instances](#4-hardening-for-unattended-and-remote-operation) below).
 - FreeBSD `pgrep -f` does **not** honour a leading `^` anchor against that retitle string: `pgrep -f '^daemon: ...'` matches nothing. Drop the `^`; rely on the `daemon:` prefix for specificity and escape the dot in `.sh` as `[.]` (and the bracket as `[[]`) so they are literal.
 
 <div class="os-tabs-src">
@@ -252,9 +252,9 @@ If you use the stock `command`/`command_args` form, wrap the start in a custom `
 #### sh
 
 ```sh
-launcher_pat="daemon: /usr/local/libexec/zeroclaw-run[.]sh[[]"
+launcher_pat="daemon: /usr/local/libexec/clawcrew-run[.]sh[[]"
 
-zeroclaw_running()
+clawcrew_running()
 {
     pgrep -f "${launcher_pat}" >/dev/null 2>&1
 }
@@ -282,9 +282,9 @@ esac
 
 ## Running in a jail
 
-[Jails](https://docs.freebsd.org/en/books/handbook/jails/) give ZeroClaw an isolated root with its own packages, service user, and optionally its own IP, useful if the host runs other services or you want to constrain the agent. **The service setup is identical to the host case; you just run it *inside* the jail.** This walks through a classic thick jail with base-system tooling (no jail manager required).
+[Jails](https://docs.freebsd.org/en/books/handbook/jails/) give ClawCrew an isolated root with its own packages, service user, and optionally its own IP, useful if the host runs other services or you want to constrain the agent. **The service setup is identical to the host case; you just run it *inside* the jail.** This walks through a classic thick jail with base-system tooling (no jail manager required).
 
-> **One-step option.** [`dist/freebsd/zeroclaw-jail-setup.sh`](https://github.com/zeroclaw-labs/zeroclaw/tree/master/dist/freebsd) automates steps 1–3 below: it creates the jail, extracts a matching base, adds the `/etc/jail.conf` entry, starts the jail, and installs the launcher + hardened `rc.d` script inside it (`doas sh zeroclaw-jail-setup.sh`, with `JAIL_NAME` / `JAIL_PATH` / `ZPOOL` / `ZEROCLAW_USER` overridable via env). The manual walkthrough below explains what it does.
+> **One-step option.** [`dist/freebsd/clawcrew-jail-setup.sh`](https://github.com/clawcrew-labs/clawcrew/tree/master/dist/freebsd) automates steps 1–3 below: it creates the jail, extracts a matching base, adds the `/etc/jail.conf` entry, starts the jail, and installs the launcher + hardened `rc.d` script inside it (`doas sh clawcrew-jail-setup.sh`, with `JAIL_NAME` / `JAIL_PATH` / `ZPOOL` / `CLAWCREW_USER` overridable via env). The manual walkthrough below explains what it does.
 
 ### 1. Create the jail
 
@@ -294,13 +294,13 @@ esac
 
 ```sh
 # ZFS dataset for the jail (use a plain directory if you're on UFS).
-doas zfs create -o mountpoint=/jails/zeroclaw zroot/jails/zeroclaw   # adjust pool
+doas zfs create -o mountpoint=/jails/clawcrew zroot/jails/clawcrew   # adjust pool
 
 # Extract a base matching the HOST's release into it.
 doas fetch -o /tmp/base.txz \
     "https://download.freebsd.org/releases/$(uname -m)/$(freebsd-version -u)/base.txz"
-doas tar -xpf /tmp/base.txz -C /jails/zeroclaw
-doas cp /etc/resolv.conf /jails/zeroclaw/etc/
+doas tar -xpf /tmp/base.txz -C /jails/clawcrew
+doas cp /etc/resolv.conf /jails/clawcrew/etc/
 ```
 
 </div>
@@ -310,9 +310,9 @@ doas cp /etc/resolv.conf /jails/zeroclaw/etc/
 Add a jail entry to `/etc/jail.conf` (host side). This example shares the host network; set `ip4.addr` instead if you give the jail a dedicated address.
 
 ```
-zeroclaw {
-    host.hostname = "zeroclaw";
-    path = "/jails/zeroclaw";
+clawcrew {
+    host.hostname = "clawcrew";
+    path = "/jails/clawcrew";
     exec.start = "/bin/sh /etc/rc";
     exec.stop  = "/bin/sh /etc/rc.shutdown";
     exec.clean;
@@ -327,52 +327,52 @@ zeroclaw {
 
 ```sh
 doas sysrc jail_enable=YES
-doas sysrc jail_list+=" zeroclaw"
-doas service jail start zeroclaw
+doas sysrc jail_list+=" clawcrew"
+doas service jail start clawcrew
 ```
 
 </div>
 
-### 3. Install ZeroClaw inside the jail
+### 3. Install ClawCrew inside the jail
 
-Everything from the sections above runs *inside* the jail: prefix commands with `doas jexec zeroclaw …`, or open a shell with `doas jexec zeroclaw /bin/sh`:
+Everything from the sections above runs *inside* the jail: prefix commands with `doas jexec clawcrew …`, or open a shell with `doas jexec clawcrew /bin/sh`:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-doas jexec zeroclaw pkg install -y rust git     # or copy a binary built on the host
-# build + install zeroclaw to /usr/local/bin/zeroclaw exactly as above, then:
-doas jexec zeroclaw pw useradd zeroclaw -m -s /usr/sbin/nologin
+doas jexec clawcrew pkg install -y rust git     # or copy a binary built on the host
+# build + install clawcrew to /usr/local/bin/clawcrew exactly as above, then:
+doas jexec clawcrew pw useradd clawcrew -m -s /usr/sbin/nologin
 ```
 
 </div>
 
-Install the launcher and `rc.d` script into the **jail's** filesystem (from the host, the jail root is prefixed: `/jails/zeroclaw/usr/local/libexec/…` and `/jails/zeroclaw/usr/local/etc/rc.d/…`). Then enable and start the service *inside* the jail:
+Install the launcher and `rc.d` script into the **jail's** filesystem (from the host, the jail root is prefixed: `/jails/clawcrew/usr/local/libexec/…` and `/jails/clawcrew/usr/local/etc/rc.d/…`). Then enable and start the service *inside* the jail:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-doas jexec zeroclaw sysrc zeroclaw_enable=YES
-doas jexec zeroclaw service zeroclaw start
-doas jexec zeroclaw service zeroclaw status
+doas jexec clawcrew sysrc clawcrew_enable=YES
+doas jexec clawcrew service clawcrew start
+doas jexec clawcrew service clawcrew status
 ```
 
 </div>
 
 ### Jail-specific notes
 
-- **Edit jail files from the host with `tee`, not `cp /dev/stdin`.** Pipe through `… | doas tee /jails/zeroclaw/usr/local/etc/rc.d/zeroclaw >/dev/null`; `doas cp /dev/stdin …` can fail mid-copy with `cp: /dev/stdin: File changed`.
-- **The gateway binds inside the jail.** The daemon listens on loopback by default: to reach it from the host or LAN, launch zeroclaw with `--host 0.0.0.0` (edit `zeroclaw-run.sh`) and give the jail a reachable address, or proxy from the host.
-- **Prefer the hardened `rc.d` script in a jail.** You'll typically drive `service` non-interactively via `jexec`/`ssh`, which is exactly where the basic script's `start` hang and orphan-stacking bite: see [Hardening](#4-hardening-for-unattended-and-remote-operation). It also keeps `/var/run/zeroclaw` root-owned inside the jail so the unprivileged service user can't forge the supervisor pidfile.
+- **Edit jail files from the host with `tee`, not `cp /dev/stdin`.** Pipe through `… | doas tee /jails/clawcrew/usr/local/etc/rc.d/clawcrew >/dev/null`; `doas cp /dev/stdin …` can fail mid-copy with `cp: /dev/stdin: File changed`.
+- **The gateway binds inside the jail.** The daemon listens on loopback by default: to reach it from the host or LAN, launch clawcrew with `--host 0.0.0.0` (edit `clawcrew-run.sh`) and give the jail a reachable address, or proxy from the host.
+- **Prefer the hardened `rc.d` script in a jail.** You'll typically drive `service` non-interactively via `jexec`/`ssh`, which is exactly where the basic script's `start` hang and orphan-stacking bite: see [Hardening](#4-hardening-for-unattended-and-remote-operation). It also keeps `/var/run/clawcrew` root-owned inside the jail so the unprivileged service user can't forge the supervisor pidfile.
 - **Running several daemons in one jail** (e.g. a worker pool) follows the pool note in the hardening section: one pidfile/logfile per instance and a `pgrep` bound to the launcher retitle, since the jail shares one process table.
 
 ## Running the Linux image under Podman + Linuxulator
 
-The native build above is the right path for ZeroClaw itself. But some Python-backed
+The native build above is the right path for ClawCrew itself. But some Python-backed
 tools and skills depend on **manylinux-only wheels**: `polars`, `pyarrow`, and
 `oracledb`, for example, publish no FreeBSD wheels, so a tool that imports them can't
 run under the native FreeBSD `python3`. FreeBSD's [Linuxulator](https://docs.freebsd.org/en/books/handbook/linuxemu/)
@@ -410,7 +410,7 @@ doas pkg install -y podman
 
 ### 2. Pull the image: force the Linux platform
 
-FreeBSD Podman defaults to `os=freebsd` when resolving a manifest list. ZeroClaw's
+FreeBSD Podman defaults to `os=freebsd` when resolving a manifest list. ClawCrew's
 images are published only for `linux/amd64` and `linux/arm64`, so a plain `podman pull`
 fails with `no image found in manifest list for architecture ..., OS freebsd`. Force
 the Linux platform explicitly:
@@ -420,7 +420,7 @@ the Linux platform explicitly:
 #### sh
 
 ```sh
-doas podman pull --os linux --arch amd64 ghcr.io/zeroclaw-labs/zeroclaw:debian
+doas podman pull --os linux --arch amd64 ghcr.io/clawcrew-labs/clawcrew:debian
 ```
 
 </div>
@@ -432,20 +432,20 @@ doas podman pull --os linux --arch amd64 ghcr.io/zeroclaw-labs/zeroclaw:debian
 ### 3. Run the container
 
 The Linux image behaves exactly as documented in [Docker & Containers](./container.md),
-it expects persistent state at `/zeroclaw-data` and bootstraps a config on first run:
+it expects persistent state at `/clawcrew-data` and bootstraps a config on first run:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-doas podman run -d --name zeroclaw --restart=always \
+doas podman run -d --name clawcrew --restart=always \
     --os linux --arch amd64 \
     -p 42617:42617 \
-    -v /var/db/zeroclaw:/zeroclaw-data \
-    ghcr.io/zeroclaw-labs/zeroclaw:debian
+    -v /var/db/clawcrew:/clawcrew-data \
+    ghcr.io/clawcrew-labs/clawcrew:debian
 
-doas podman exec -it zeroclaw zeroclaw quickstart
+doas podman exec -it clawcrew clawcrew quickstart
 ```
 
 </div>
@@ -464,7 +464,7 @@ doesn't re-resolve to the FreeBSD default.
   alternative: the container then shares the host's network stack directly.
 - **Not everything emulates cleanly.** Linuxulator covers the common syscall surface,
   but exotic binaries may hit unimplemented calls. If a tool misbehaves, check
-  `dmesg` for `linux:` warnings before assuming a ZeroClaw bug.
+  `dmesg` for `linux:` warnings before assuming a ClawCrew bug.
 
 ## Logs
 
@@ -473,7 +473,7 @@ doesn't re-resolve to the FreeBSD default.
 #### sh
 
 ```sh
-tail -f /var/log/zeroclaw.log
+tail -f /var/log/clawcrew.log
 ```
 
 </div>
@@ -487,8 +487,8 @@ Set the log level via the standard config / env knobs: see [Operations → Logs 
 #### sh
 
 ```sh
-zeroclaw --version
-service zeroclaw status
+clawcrew --version
+service clawcrew status
 # if the daemon exposes the local gateway (default 127.0.0.1:42617):
 fetch -qo - http://127.0.0.1:42617/health
 ```
@@ -504,11 +504,11 @@ A `"status":"ok"` health payload means the gateway is up; the response's `runtim
 #### sh
 
 ```sh
-doas service zeroclaw stop
-doas sysrc -x zeroclaw_enable
-doas rm /usr/local/etc/rc.d/zeroclaw /usr/local/libexec/zeroclaw-run.sh
-doas rm /usr/local/bin/zeroclaw
-rm -rf ~/.zeroclaw        # optional — deletes config + history
+doas service clawcrew stop
+doas sysrc -x clawcrew_enable
+doas rm /usr/local/etc/rc.d/clawcrew /usr/local/libexec/clawcrew-run.sh
+doas rm /usr/local/bin/clawcrew
+rm -rf ~/.clawcrew        # optional — deletes config + history
 ```
 
 </div>

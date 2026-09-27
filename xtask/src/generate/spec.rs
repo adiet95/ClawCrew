@@ -39,10 +39,10 @@ impl Invocation {
     pub fn command(self) -> Option<&'static str> {
         match self {
             Self::PipedScript => Some(
-                "curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh",
+                "curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh",
             ),
             Self::InteractiveScript => Some(
-                "git clone https://github.com/zeroclaw-labs/zeroclaw.git\ncd zeroclaw\n./install.sh",
+                "git clone https://github.com/clawcrew-labs/clawcrew.git\ncd clawcrew\n./install.sh",
             ),
             Self::ManualPrebuilt => None,
             Self::SourceScript => Some("./install.sh --source"),
@@ -116,7 +116,7 @@ pub enum QuickstartHandoff {
     RunExplicitly,
 }
 
-pub const QUICKSTART_COMMAND: &str = "zeroclaw quickstart";
+pub const QUICKSTART_COMMAND: &str = "clawcrew quickstart";
 pub const ZEROCODE_APP: &str = "zerocode";
 
 /// Platform-specific first-run semantics within one user-visible route.
@@ -390,7 +390,7 @@ pub enum Value {
     CargoFlags,
     /// Platform web/dist data dir (matches gateway auto-detect).
     WebDataDir,
-    /// Install bin dir (cargo bin on Unix, %USERPROFILE%\.zeroclaw\bin on Win).
+    /// Install bin dir (cargo bin on Unix, %USERPROFILE%\.clawcrew\bin on Win).
     BinDir,
     /// Literal text that is platform-invariant and not drift-prone.
     Lit(String),
@@ -566,19 +566,19 @@ pub fn dist_extra_features(pkg: &cargo_metadata::Package) -> anyhow::Result<Vec<
 pub fn dist_target_exclusions(
     pkg: &cargo_metadata::Package,
 ) -> anyhow::Result<std::collections::BTreeMap<String, Vec<String>>> {
-    parse_target_exclusions(pkg.metadata.get("zeroclaw"))
+    parse_target_exclusions(pkg.metadata.get("clawcrew"))
 }
 
 /// Features whose build needs system libraries/tooling absent from the minimal
 /// static container image, excluded from `Selection::All`. Read from
-/// `[package.metadata.zeroclaw] container_excluded_features`; never shadowed.
+/// `[package.metadata.clawcrew] container_excluded_features`; never shadowed.
 pub fn container_excluded_features(pkg: &cargo_metadata::Package) -> Vec<String> {
     read_registry_list(pkg, "container_excluded_features")
 }
 
 fn read_registry_list(pkg: &cargo_metadata::Package, key: &str) -> Vec<String> {
     pkg.metadata
-        .get("zeroclaw")
+        .get("clawcrew")
         .and_then(|z| z.get(key))
         .and_then(|v| v.as_array())
         .map(|a| {
@@ -590,7 +590,7 @@ fn read_registry_list(pkg: &cargo_metadata::Package, key: &str) -> Vec<String> {
 }
 
 fn required_registry_list(pkg: &cargo_metadata::Package, key: &str) -> anyhow::Result<Vec<String>> {
-    parse_required_registry_list(pkg.metadata.get("zeroclaw"), key)
+    parse_required_registry_list(pkg.metadata.get("clawcrew"), key)
 }
 
 fn parse_required_registry_list(
@@ -598,9 +598,9 @@ fn parse_required_registry_list(
     key: &str,
 ) -> anyhow::Result<Vec<String>> {
     let value = registry
-        .and_then(|zeroclaw| zeroclaw.get(key))
-        .ok_or_else(|| anyhow::Error::msg(format!("missing [package.metadata.zeroclaw] {key}")))?;
-    parse_nonempty_string_list(value, &format!("[package.metadata.zeroclaw] {key}"))
+        .and_then(|clawcrew| clawcrew.get(key))
+        .ok_or_else(|| anyhow::Error::msg(format!("missing [package.metadata.clawcrew] {key}")))?;
+    parse_nonempty_string_list(value, &format!("[package.metadata.clawcrew] {key}"))
 }
 
 fn parse_nonempty_string_list(
@@ -633,12 +633,12 @@ fn parse_target_exclusions(
     registry: Option<&serde_json::Value>,
 ) -> anyhow::Result<std::collections::BTreeMap<String, Vec<String>>> {
     let value = registry
-        .and_then(|zeroclaw| zeroclaw.get("dist_target_exclusions"))
+        .and_then(|clawcrew| clawcrew.get("dist_target_exclusions"))
         .ok_or_else(|| {
-            anyhow::Error::msg("missing [package.metadata.zeroclaw.dist_target_exclusions]")
+            anyhow::Error::msg("missing [package.metadata.clawcrew.dist_target_exclusions]")
         })?;
     let entries = value.as_object().ok_or_else(|| {
-        anyhow::Error::msg("[package.metadata.zeroclaw.dist_target_exclusions] must be a table")
+        anyhow::Error::msg("[package.metadata.clawcrew.dist_target_exclusions] must be a table")
     })?;
     anyhow::ensure!(
         !entries.is_empty(),
@@ -1160,8 +1160,8 @@ pub fn web_data_dir_expr(platform: Platform) -> &'static str {
     match platform {
         // Unix renderer's else-arm (Linux). The macOS arm is emitted by the
         // sh renderer's own case; both forms live in the renderer, not baked.
-        Platform::Unix => "${XDG_DATA_HOME:-${PREFIX}/.local/share}/zeroclaw/web/dist",
-        Platform::Windows => "%LOCALAPPDATA%\\zeroclaw\\web\\dist",
+        Platform::Unix => "${XDG_DATA_HOME:-${PREFIX}/.local/share}/clawcrew/web/dist",
+        Platform::Windows => "%LOCALAPPDATA%\\clawcrew\\web\\dist",
     }
 }
 
@@ -1709,14 +1709,14 @@ mod tests {
 
         let target_env = manual.find("- name: Configure target environment").unwrap();
         let release_step = manual.find("- name: Build release").unwrap();
-        let zeroclaw_upload = manual
-            .find("name: zeroclaw-manual-${{ inputs.distribution }}-${{ matrix.target }}")
+        let clawcrew_upload = manual
+            .find("name: clawcrew-manual-${{ inputs.distribution }}-${{ matrix.target }}")
             .unwrap();
         let companion = manual.find("- name: Build ZeroCode companion").unwrap();
         assert!(
             target_env < release_step
-                && release_step < zeroclaw_upload
-                && zeroclaw_upload < companion
+                && release_step < clawcrew_upload
+                && clawcrew_upload < companion
         );
         assert!(
             manual[target_env..release_step]
@@ -1772,8 +1772,8 @@ mod tests {
     #[test]
     fn web_data_dir_expr_matches_data_local_dir_semantics() {
         let win = web_data_dir_expr(Platform::Windows);
-        assert!(win.contains("LOCALAPPDATA") && win.ends_with("zeroclaw\\web\\dist"));
+        assert!(win.contains("LOCALAPPDATA") && win.ends_with("clawcrew\\web\\dist"));
         let unix = web_data_dir_expr(Platform::Unix);
-        assert!(unix.contains("XDG_DATA_HOME") && unix.ends_with("zeroclaw/web/dist"));
+        assert!(unix.contains("XDG_DATA_HOME") && unix.ends_with("clawcrew/web/dist"));
     }
 }

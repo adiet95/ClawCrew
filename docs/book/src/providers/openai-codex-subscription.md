@@ -2,7 +2,7 @@
 
 Run an agent on the `openai` slot, paid through a ChatGPT subscription instead
 of metered `OPENAI_API_KEY` billing. The agent is a GPT-5.x Codex model driving
-ZeroClaw's tools, authenticated by your Codex login rather than an API key.
+ClawCrew's tools, authenticated by your Codex login rather than an API key.
 Billing follows your ChatGPT plan: the usage included with your subscription is
 consumed first, and Codex usage beyond that included allowance draws on your
 account's flexible credits at OpenAI's per-model token rates. It is not a flat
@@ -18,20 +18,20 @@ see [Configuration](./configuration.md); for the one-line catalog entry see the
 Codex subscription auth lives on the `openai` slot. Set `wire_api = "responses"`
 to route through `POST /v1/responses` (the Codex backend, not the chat
 completions API) and `requires_openai_auth = true` to pull credentials from
-ZeroClaw's stored `openai-codex` auth profile instead of an `api_key` field:
+ClawCrew's stored `openai-codex` auth profile instead of an `api_key` field:
 
 ```bash
 # Reuse an existing Codex CLI login:
-zeroclaw auth login --model-provider openai-codex --import ~/.codex/auth.json
+clawcrew auth login --model-provider openai-codex --import ~/.codex/auth.json
 
-# Or start ZeroClaw's own OpenAI Codex login flow:
-zeroclaw auth login --model-provider openai-codex
+# Or start ClawCrew's own OpenAI Codex login flow:
+clawcrew auth login --model-provider openai-codex
 ```
 
 Quickstart can write the provider entry for you:
 
 ```bash
-zeroclaw quickstart --model-provider openai-codex --model gpt-5.4
+clawcrew quickstart --model-provider openai-codex --model gpt-5.4
 ```
 
 Manual config uses the same canonical OpenAI slot:
@@ -68,13 +68,13 @@ requires_openai_auth = true
 
 Keep `api_key` and `temperature` unset. `requires_openai_auth = true` selects
 the stored Codex login; it is not an alternative spelling for API-key auth.
-Use a reasoning level shared by the current ZeroClaw validator and the selected
+Use a reasoning level shared by the current ClawCrew validator and the selected
 backend, such as `low`, `medium`, `high`, or `xhigh`, and verify it with a real
 request. Follow the [Astra configuration checklist](./configuration.md#openai-astra-setup)
 for the distinct context, output, history, iteration, image-input, and pending
 capability boundaries.
 
-Record this route as verified only after `zeroclaw auth status` succeeds, the
+Record this route as verified only after `clawcrew auth status` succeeds, the
 live catalog contains the configured ID, and an agent request returns output.
 API-key verification and Codex-subscription verification are independent.
 
@@ -95,10 +95,10 @@ hardcoded list, including this one:
 # Field names match the live ~/.codex/auth.json (verify against the file itself;
 # the layout has shifted across Codex versions).
 AT=$(jq -r .tokens.access_token ~/.codex/auth.json)
-# account_id is OPTIONAL in auth.json; ZeroClaw falls back to the OAuth JWT when
+# account_id is OPTIONAL in auth.json; ClawCrew falls back to the OAuth JWT when
 # it is absent. `// empty` keeps jq from emitting the literal string "null", and
 # the header is sent only when the field is actually present. After an import you
-# can also read the resolved id from `zeroclaw auth status`.
+# can also read the resolved id from `clawcrew auth status`.
 ACC=$(jq -r '.tokens.account_id // empty' ~/.codex/auth.json)
 curl -s "https://chatgpt.com/backend-api/codex/models?client_version=1.0.0" \
   -H "Authorization: Bearer ${AT}" \
@@ -147,17 +147,17 @@ docs, which supersede any figure pinned here):
 The plan tiers below are therefore **usage-allowance multipliers**, not a
 guarantee of per-call zero cost.
 
-### ZeroClaw cost tracking
+### ClawCrew cost tracking
 
-ZeroClaw records this slot at `$0` per call. **That is a local accounting
-limitation, not an OpenAI billing fact:** ZeroClaw cannot see your ChatGPT plan's
+ClawCrew records this slot at `$0` per call. **That is a local accounting
+limitation, not an OpenAI billing fact:** ClawCrew cannot see your ChatGPT plan's
 included-usage meter or credit balance, so it cannot attribute per-call token
-cost to a subscription request. Read the `$0` as "not metered by ZeroClaw", and
+cost to a subscription request. Read the `$0` as "not metered by ClawCrew", and
 watch the real allowance / credit state in your OpenAI account. Keep subscription
 and metered (api-key) classes separate in accounting; see
 [Cost tracking](../ops/cost-tracking.md).
 
-| Class | ZeroClaw budget signal | Real billing |
+| Class | ClawCrew budget signal | Real billing |
 |---|---|---|
 | Subscription (`openai` slot, Codex auth) | rolling Codex usage allowance | included plan usage, then per-token flexible credits |
 | Metered (api-key providers) | running $ balance | per-token |
@@ -224,15 +224,15 @@ Import the existing Codex-CLI token non-interactively rather than starting a
 browser flow:
 
 ```bash
-zeroclaw auth login --model-provider openai-codex --import ~/.codex/auth.json
-zeroclaw auth status   # openai-codex:default kind=OAuth account=... expires=...
+clawcrew auth login --model-provider openai-codex --import ~/.codex/auth.json
+clawcrew auth status   # openai-codex:default kind=OAuth account=... expires=...
 ```
 
-(Interactive alternatives: `zeroclaw auth login` without `--import`, or
+(Interactive alternatives: `clawcrew auth login` without `--import`, or
 `--device-code`.)
 
-Run the daemon from the default config-dir (`~/.zeroclaw`). The auth profile is
-stored there natively and the `zeroclaw auth` commands default there; pointing
+Run the daemon from the default config-dir (`~/.clawcrew`). The auth profile is
+stored there natively and the `clawcrew auth` commands default there; pointing
 the daemon at a custom dir means the profile has to be placed there too, and
 because it is encrypted per-config-dir (below), that is where the pain starts.
 
@@ -249,8 +249,8 @@ If a foreign `auth-profiles.json` is already present, move it aside first or the
 import fails trying to load it:
 
 ```bash
-mv ~/.zeroclaw/auth-profiles.json ~/.zeroclaw/auth-profiles.json.foreign 2>/dev/null
-zeroclaw auth login --model-provider openai-codex --import ~/.codex/auth.json
+mv ~/.clawcrew/auth-profiles.json ~/.clawcrew/auth-profiles.json.foreign 2>/dev/null
+clawcrew auth login --model-provider openai-codex --import ~/.codex/auth.json
 ```
 
 **Refresh tokens rotate, one owner only.** Each successful refresh invalidates
@@ -291,7 +291,7 @@ encrypted channel.
 ## Verifying
 
 ```bash
-zeroclaw auth status   # present and unexpired
+clawcrew auth status   # present and unexpired
 # then drive the agent once against the local gateway
 ```
 
@@ -304,13 +304,13 @@ A healthy run returns model output with `exit_code=0`. Two failure signatures:
 ## New-host checklist
 
 1. `~/.codex/auth.json` present and current (pulled from the refresh owner).
-2. `zeroclaw auth login --model-provider openai-codex --import ~/.codex/auth.json`
+2. `clawcrew auth login --model-provider openai-codex --import ~/.codex/auth.json`
    (move aside any foreign `auth-profiles.json` first).
-3. `zeroclaw auth status` shows `openai-codex:default ... kind=OAuth ...
+3. `clawcrew auth status` shows `openai-codex:default ... kind=OAuth ...
    expires=<future>`.
 4. An `openai` entry with `wire_api = "responses"`, `requires_openai_auth =
    true`, and an exact served model ID.
-5. Daemon on `--config-dir ~/.zeroclaw` (the default).
+5. Daemon on `--config-dir ~/.clawcrew` (the default).
 6. Drive the agent once → `exit_code=0` with real output.
 7. Router maps roles to current served IDs (don't pin a version you will have
    to chase).

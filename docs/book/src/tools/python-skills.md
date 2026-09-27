@@ -1,6 +1,6 @@
 # Running Python Skills
 
-ZeroClaw can run Python skills, but realistic Python work usually needs one of two explicit deployment choices:
+ClawCrew can run Python skills, but realistic Python work usually needs one of two explicit deployment choices:
 
 - run the skill on a trusted host Python environment, or
 - run it inside a custom Docker runtime image that already contains Python and the packages the skill needs.
@@ -25,7 +25,7 @@ Prefer installing Python packages at image build time, in a reviewed local virtu
 
 ## What Stays Blocked
 
-ZeroClaw deliberately blocks inline interpreter execution such as:
+ClawCrew deliberately blocks inline interpreter execution such as:
 
 <div class="os-tabs-src">
 
@@ -60,7 +60,7 @@ Environment-variable prefixes such as `PYTHONPATH=... python3 script.py` are als
 
 Use native execution when the skills are trusted and you want them to use the host's Python installation, packages, filesystem permissions, and network.
 
-This is appropriate for local development, a single-user workstation, or a home lab where you wrote the skill. It removes OS-level sandboxing for tool runs under that profile, so normal user permissions and ZeroClaw policy checks are the remaining guardrails.
+This is appropriate for local development, a single-user workstation, or a home lab where you wrote the skill. It removes OS-level sandboxing for tool runs under that profile, so normal user permissions and ClawCrew policy checks are the remaining guardrails.
 
 Do not use this pattern for unreviewed third-party skills or multi-tenant deployments.
 
@@ -89,12 +89,12 @@ Build it:
 #### sh
 
 ```sh
-docker build -f Dockerfile.skill-exec -t zeroclaw-python-skills:local .
+docker build -f Dockerfile.skill-exec -t clawcrew-python-skills:local .
 ```
 
 </div>
 
-Point ZeroClaw at the image via `runtime.kind = "docker"`, which runs shell invocations in an ephemeral container. Docker-specific image, network, memory, CPU, read-only rootfs, and workspace mount settings live under `runtime.docker`.
+Point ClawCrew at the image via `runtime.kind = "docker"`, which runs shell invocations in an ephemeral container. Docker-specific image, network, memory, CPU, read-only rootfs, and workspace mount settings live under `runtime.docker`.
 
 Set `sandbox_backend = "none"` to avoid wrapping the Docker runtime in a second, separate sandbox container. In this pattern the Docker runtime is the execution boundary for built-in shell invocations, and `runtime.docker` is where the image and container limits are configured.
 
@@ -102,9 +102,9 @@ If a skill needs outbound HTTP, change `runtime.docker.network` deliberately. If
 
 ## Workspace Mounts
 
-When `runtime.docker.mount_workspace = true`, ZeroClaw mounts the configured workspace at `/workspace` in the container and sets the container workdir there. Skill scripts should use workspace-relative paths whenever possible.
+When `runtime.docker.mount_workspace = true`, ClawCrew mounts the configured workspace at `/workspace` in the container and sets the container workdir there. Skill scripts should use workspace-relative paths whenever possible.
 
-If your workspace path must be constrained further, configure the workspace allowlist. ZeroClaw validates the host workspace path against that allowlist before adding the Docker volume mount.
+If your workspace path must be constrained further, configure the workspace allowlist. ClawCrew validates the host workspace path against that allowlist before adding the Docker volume mount.
 
 Mount validation is fail closed. The workspace must exist and resolve to a canonical path even when the allowlist is empty. Every configured allowlist root must also exist and canonicalize; one stale or invalid entry rejects the command before Docker starts, even if another root matches. Remove stale entries or create the intended directories before upgrading.
 

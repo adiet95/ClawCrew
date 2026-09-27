@@ -74,8 +74,8 @@ test('a v2 workspace restores its panes, selection, and layout verbatim', () => 
 });
 
 test('a v1 workspace upgrades each stored alias into its own pane', () => {
-  storage.setItem('zeroclaw_active_session.ops', 'A');
-  storage.setItem('zeroclaw_active_session.coder', 'B');
+  storage.setItem('clawcrew_active_session.ops', 'A');
+  storage.setItem('clawcrew_active_session.coder', 'B');
   store({ openChats: ['ops', 'coder'], activeAlias: 'coder', layout: 'split', splitAliases: ['coder', 'ops'] });
 
   const restored = loadPersisted();
@@ -161,7 +161,7 @@ test('collision repair leaves every pane on a distinct conversation', () => {
 // ── Opening panes ──────────────────────────────────────────────────────────
 
 test('opening an agent that is already open mints a distinct conversation', () => {
-  storage.setItem('zeroclaw_active_session.ops', 'A');
+  storage.setItem('clawcrew_active_session.ops', 'A');
   const first = tabForOpenRequest([], 'ops');
   const second = tabForOpenRequest([first], 'ops');
 
@@ -174,8 +174,8 @@ test('opening an agent that is already open mints a distinct conversation', () =
 });
 
 test('opening a different agent resumes that alias, it does not fork a conversation', () => {
-  storage.setItem('zeroclaw_active_session.ops', 'A');
-  storage.setItem('zeroclaw_active_session.coder', 'B');
+  storage.setItem('clawcrew_active_session.ops', 'A');
+  storage.setItem('clawcrew_active_session.coder', 'B');
   const ops = tabForOpenRequest([], 'ops');
   const coder = tabForOpenRequest([ops], 'coder');
 

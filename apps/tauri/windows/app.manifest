@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-  <assemblyIdentity version="1.0.0.0" processorArchitecture="*" name="ZeroClaw" type="win32" />
-  <description>ZeroClaw Desktop</description>
+  <assemblyIdentity version="1.0.0.0" processorArchitecture="*" name="ClawCrew" type="win32" />
+  <description>ClawCrew Desktop</description>
 
   <!--
     TaskDialogIndirect is exported only by ComCtl32.dll version 6. Without this

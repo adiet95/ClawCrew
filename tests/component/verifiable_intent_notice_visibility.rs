@@ -4,7 +4,7 @@
 //! The runtime traces the notice at config load, and that trace reaches a sink
 //! only while log persistence is on, so an operator running with
 //! `log_persistence = "none"` was told nothing about why an enabled security
-//! capability is absent from the registry. `zeroclaw doctor` reads
+//! capability is absent from the registry. `clawcrew doctor` reads
 //! `Config::collect_warnings()` and prints to stdout, which does not involve
 //! the log writer, so it delivers the notice whatever the policy is.
 //!
@@ -14,7 +14,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use zeroclaw_config::schema::LogPersistence;
+use clawcrew_config::schema::LogPersistence;
 
 /// Every supported value of `observability.log_persistence`, walked through a
 /// `match` rather than typed out.
@@ -67,11 +67,11 @@ fn trace_path(dir: &Path) -> std::path::PathBuf {
 /// with it the trace file two of these tests measure. Silencing logs here would
 /// make the control below pass while proving nothing.
 fn doctor_stdout(dir: &Path) -> String {
-    let out = Command::new(env!("CARGO_BIN_EXE_zeroclaw"))
-        .env("ZEROCLAW_CONFIG_DIR", dir)
+    let out = Command::new(env!("CARGO_BIN_EXE_clawcrew"))
+        .env("CLAWCREW_CONFIG_DIR", dir)
         .arg("doctor")
         .output()
-        .expect("run zeroclaw doctor");
+        .expect("run clawcrew doctor");
     // The exit status is deliberately not asserted: `doctor` reports on whatever
     // else is unconfigured in a bare temp directory, and this test is about one
     // line of its output rather than the overall verdict.
@@ -104,7 +104,7 @@ fn withheld_notice_reaches_the_operator_under_every_log_persistence_policy() {
 /// An event with no category is stored as `internal`, and the dashboard Logs
 /// view hides that category by default, so an uncategorised posture notice is
 /// missing from the history an operator reads even when persistence is on.
-/// `hide_internal_drops_internal_category` in `zeroclaw-log` already pins the
+/// `hide_internal_drops_internal_category` in `clawcrew-log` already pins the
 /// filter behaviour; this pins the category the notice is actually written
 /// with, which is the half that lives in this repository's own call site.
 #[test]
@@ -204,11 +204,11 @@ fn the_withheld_notice_is_recorded_once_per_config_application() {
     let dir = tempfile::TempDir::new().expect("temp config dir");
     write_config(dir.path(), true, "rolling");
 
-    let out = Command::new(env!("CARGO_BIN_EXE_zeroclaw"))
-        .env("ZEROCLAW_CONFIG_DIR", dir.path())
+    let out = Command::new(env!("CARGO_BIN_EXE_clawcrew"))
+        .env("CLAWCREW_CONFIG_DIR", dir.path())
         .args(["peripheral", "add", "rpi-gpio", "native"])
         .output()
-        .expect("run zeroclaw peripheral add");
+        .expect("run clawcrew peripheral add");
     assert!(
         out.status.success(),
         "peripheral add must succeed, got {:?}\nstdout:\n{}\nstderr:\n{}",
@@ -295,12 +295,12 @@ fn enabling_the_section_through_config_patch_records_the_notice_once() {
     )
     .expect("write patch.json");
 
-    let out = Command::new(env!("CARGO_BIN_EXE_zeroclaw"))
-        .env("ZEROCLAW_CONFIG_DIR", dir.path())
+    let out = Command::new(env!("CARGO_BIN_EXE_clawcrew"))
+        .env("CLAWCREW_CONFIG_DIR", dir.path())
         .args(["config", "patch"])
         .arg(&patch)
         .output()
-        .expect("run zeroclaw config patch");
+        .expect("run clawcrew config patch");
     assert!(
         out.status.success(),
         "config patch must succeed, got {:?}\nstdout:\n{}\nstderr:\n{}",
@@ -358,12 +358,12 @@ fn a_patch_that_does_not_enable_the_section_adds_no_second_record() {
     )
     .expect("write patch.json");
 
-    let out = Command::new(env!("CARGO_BIN_EXE_zeroclaw"))
-        .env("ZEROCLAW_CONFIG_DIR", dir.path())
+    let out = Command::new(env!("CARGO_BIN_EXE_clawcrew"))
+        .env("CLAWCREW_CONFIG_DIR", dir.path())
         .args(["config", "patch"])
         .arg(&patch)
         .output()
-        .expect("run zeroclaw config patch");
+        .expect("run clawcrew config patch");
     assert!(out.status.success(), "config patch must succeed");
 
     let trace = trace_path(dir.path());

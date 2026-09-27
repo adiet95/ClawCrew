@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply ZeroClaw PR size labels from GitHub pull-request metadata."""
+"""Apply ClawCrew PR size labels from GitHub pull-request metadata."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ DOCS_LIKE_CONTRACT_SENTENCE = (
     "`.markdownlint-cli2.yaml`, and `LICENSE`."
 )
 DEFAULT_DOCS_PATH = Path(__file__).resolve().parents[2] / "docs/book/src/maintainers/labels.md"
-USER_AGENT = "zeroclaw-pr-size-labeler/1.0"
+USER_AGENT = "clawcrew-pr-size-labeler/1.0"
 
 
 @dataclass(frozen=True)

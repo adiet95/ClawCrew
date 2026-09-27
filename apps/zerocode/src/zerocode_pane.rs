@@ -1153,7 +1153,7 @@ impl ZerocodePane {
 
     /// Returns `true` when the key was consumed. Left/Back at the section
     /// level is intentionally *not* consumed so the outer config pane can
-    /// cross back to the left (zeroclaw) pane instead of dead-ending here.
+    /// cross back to the left (clawcrew) pane instead of dead-ending here.
     pub(crate) fn handle_key(&mut self, key: KeyEvent) -> bool {
         self.status = None;
         if self.capture.is_some() {
@@ -1184,7 +1184,7 @@ impl ZerocodePane {
             // (deepest level — cross-tab nav stays on the global PaneNav chord).
             Some(ConfigTabAction::TabRight) => self.enter_detail(),
             // Left walks back to the section list; at the section level it does
-            // not consume so the outer pane crosses to the left (zeroclaw) pane.
+            // not consume so the outer pane crosses to the left (clawcrew) pane.
             Some(ConfigTabAction::TabLeft) => {
                 if self.cursor == PaneCursor::Sections {
                     return false;

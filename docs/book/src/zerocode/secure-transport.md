@@ -33,9 +33,9 @@ Default ports (all configurable):
 | Daemon enrollment endpoint | `9782` | `[enroll].port` |
 | Relay (outer TLS + WS) | `8443` | relay `--bind` / `[bind]` |
 
-Throughout, `<data_dir>` is the daemon's data directory (typically `~/.zeroclaw`)
+Throughout, `<data_dir>` is the daemon's data directory (typically `~/.clawcrew`)
 and `<config-dir>` is the client's zerocode config directory (`--config-dir`,
-typically `~/.zeroclaw`). Config files do not expand `~`; use absolute paths.
+typically `~/.clawcrew`). Config files do not expand `~`; use absolute paths.
 
 ---
 
@@ -144,7 +144,7 @@ If you would rather mint a cert on the daemon and copy it out:
 
 ```sh
 # On the daemon host. --out-dir also writes a drop-in ca.crt/client.crt/client.key.
-zeroclaw security issue-client-cert --name my-laptop --out-dir /tmp/my-laptop-tls
+clawcrew security issue-client-cert --name my-laptop --out-dir /tmp/my-laptop-tls
 # add --force to overwrite an existing cert for this name
 ```
 
@@ -305,7 +305,7 @@ node_id_rotation_days = 30   # auto-rotate the auto-minted id every N days (0 = 
 Rotation mints a fresh id, runs it alongside the old one for a 10-minute grace
 window so in-flight clients are not cut off, then retires the old id; the new id
 reaches clients in-band on their next certificate renewal. Force one now with
-`zeroclaw security relay-rotate-node-id` (auto-mint mode only; a pinned `node_id`
+`clawcrew security relay-rotate-node-id` (auto-mint mode only; a pinned `node_id`
 is never rotated).
 
 For a relay that authenticates daemons on the outer layer too, set the

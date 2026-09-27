@@ -4,7 +4,7 @@ import test from 'node:test';
 async function loadValidationWarningMessage() {
   Object.defineProperty(globalThis, 'window', {
     configurable: true,
-    value: { __ZEROCLAW_BASE__: '' },
+    value: { __CLAWCREW_BASE__: '' },
   });
   const { validationWarningMessage } = await import('./validationWarnings.ts');
   delete (globalThis as { window?: unknown }).window;

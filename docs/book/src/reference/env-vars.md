@@ -1,13 +1,13 @@
 # Environment Variables
 
-Every operator env-var override uses a single schema-mirror grammar. The tail of a `ZEROCLAW_*` env var is the dotted prop-path that `zeroclaw config set` accepts, with each `__` (double underscore) separating path segments and each single `_` either a snake-case joiner inside a field name (`api_key` → `api-key` in `set_prop`) or a literal char inside an alias key.
+Every operator env-var override uses a single schema-mirror grammar. The tail of a `CLAWCREW_*` env var is the dotted prop-path that `clawcrew config set` accepts, with each `__` (double underscore) separating path segments and each single `_` either a snake-case joiner inside a field name (`api_key` → `api-key` in `set_prop`) or a literal char inside an alias key.
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-ZEROCLAW_<dotted_path_with_double_underscores>=<value>
+CLAWCREW_<dotted_path_with_double_underscores>=<value>
 ```
 
 </div>
@@ -24,16 +24,16 @@ The `<alias>` segments above (`home`, `prod_v2`) are operator-chosen, substitute
 
 ## Bootstrap (uppercase tail)
 
-These env vars decide *where* the config file and instance data live, before any `Config` exists. They keep their UPPERCASE form so the case rule disambiguates them from the schema-mirror surface. They resolve in the order `ZEROCLAW_CONFIG_DIR` > `ZEROCLAW_DATA_DIR` > `ZEROCLAW_WORKSPACE` (deprecated):
+These env vars decide *where* the config file and instance data live, before any `Config` exists. They keep their UPPERCASE form so the case rule disambiguates them from the schema-mirror surface. They resolve in the order `CLAWCREW_CONFIG_DIR` > `CLAWCREW_DATA_DIR` > `CLAWCREW_WORKSPACE` (deprecated):
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-ZEROCLAW_CONFIG_DIR=/etc/zeroclaw         # config-file location (takes precedence)
-ZEROCLAW_DATA_DIR=/srv/zeroclaw           # instance data directory (canonical)
-ZEROCLAW_WORKSPACE=/srv/zeroclaw          # DEPRECATED — alias for ZEROCLAW_DATA_DIR
+CLAWCREW_CONFIG_DIR=/etc/clawcrew         # config-file location (takes precedence)
+CLAWCREW_DATA_DIR=/srv/clawcrew           # instance data directory (canonical)
+CLAWCREW_WORKSPACE=/srv/clawcrew          # DEPRECATED — alias for CLAWCREW_DATA_DIR
 ```
 
 </div>
@@ -45,7 +45,7 @@ setting reference.
 
 ## Persistence boundary
 
-Values applied via `ZEROCLAW_*` env vars land on the **in-memory** `Config` at load time and are **never** persisted to disk. `zeroclaw config save` masks env-overridden paths back to their disk-or-default values before encryption. A `WARN` log line is emitted whenever a secret-typed path (e.g. an API key) is env-overridden, so audit logs make the injection visible.
+Values applied via `CLAWCREW_*` env vars land on the **in-memory** `Config` at load time and are **never** persisted to disk. `clawcrew config save` masks env-overridden paths back to their disk-or-default values before encryption. A `WARN` log line is emitted whenever a secret-typed path (e.g. an API key) is env-overridden, so audit logs make the injection visible.
 
 ## Alias grammar
 
@@ -62,14 +62,14 @@ Aliases (the `<alias>` segments in the examples above, `home`, `prod_v2`, `mymat
 
 ## Errors
 
-Unresolvable `ZEROCLAW_<lowercase_*>` names (typos, paths that don't match any prop in the schema) abort startup with a hard error naming the offending env var. Env-var names without the `ZEROCLAW_` prefix are not read by this override layer.
+Unresolvable `CLAWCREW_<lowercase_*>` names (typos, paths that don't match any prop in the schema) abort startup with a hard error naming the offending env var. Env-var names without the `CLAWCREW_` prefix are not read by this override layer.
 
 ## Visibility
 
 The override state is surfaced wherever the config is rendered, with a 💉 indicator marking env-overridden fields:
 
-1. **`zeroclaw config list`**: legend `💉 env-overridden  🔒 secret` printed once at the top; rows for env-overridden fields are prefixed with 💉.
-2. **Web Config editor**: every `ListEntry` carries an `is_env_overridden` bool. Env-overridden field rows render the 💉 badge and a persistent warning *"Edits here won't take effect, overridden by ZEROCLAW_..."* so operators see the override without having to attempt an edit.
+1. **`clawcrew config list`**: legend `💉 env-overridden  🔒 secret` printed once at the top; rows for env-overridden fields are prefixed with 💉.
+2. **Web Config editor**: every `ListEntry` carries an `is_env_overridden` bool. Env-overridden field rows render the 💉 badge and a persistent warning *"Edits here won't take effect, overridden by CLAWCREW_..."* so operators see the override without having to attempt an edit.
 3. **CLI/TUI onboarding**: `prompt_field` skips env-overridden fields and prints a 💉 three-line note (the env var name, the TOML path, and a skip notice) that clears on next/back navigation. Operators don't get prompted to type a value they've already injected.
 4. **Reload drift**: `GET /api/config/drift`, `GET /api/config/list`, and the reload banner exclude env-overridden paths from drift computation. Because these values live only in memory and are never written to disk, they would otherwise report as permanent drift that no config-file edit could reconcile. Excluding them keeps drift output limited to differences an operator can actually resolve by editing the stored config.
 5. **Programmatic**: `Config::prop_is_env_overridden(path) -> bool` is an O(1) HashSet lookup. Hooks here for any custom render layer.
@@ -78,11 +78,11 @@ The override state is surfaced wherever the config is rendered, with a 💉 indi
 
 Three mechanical steps to derive an env-var name from any TOML key:
 
-1. **Prefix the path with `ZEROCLAW_`.** The dotted config path is the source of truth, find the field via `zeroclaw config schema`.
+1. **Prefix the path with `CLAWCREW_`.** The dotted config path is the source of truth, find the field via `clawcrew config schema`.
 2. **Replace `.` with `__`** (double underscore, the path separator).
 3. **Field name stays as-is** (snake_case). Aliases stay as-is. Nothing else transforms.
 
-For example, `[providers.models.anthropic.home] api_key = "sk-..."` lives at the dotted path `providers.models.anthropic.home.api_key`. Apply the three rules and the env var is `ZEROCLAW_providers__models__anthropic__home__api_key=sk-...`. Same mechanical mapping for any field in any section.
+For example, `[providers.models.anthropic.home] api_key = "sk-..."` lives at the dotted path `providers.models.anthropic.home.api_key`. Apply the three rules and the env var is `CLAWCREW_providers__models__anthropic__home__api_key=sk-...`. Same mechanical mapping for any field in any section.
 
 ## Bridging ecosystem-default env vars
 

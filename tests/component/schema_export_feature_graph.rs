@@ -38,8 +38,8 @@ fn root_schema_export_feature_graph_is_gated() {
     assert!(
         schema_export
             .iter()
-            .any(|value| value.as_str() == Some("zeroclaw-config/schema-export")),
-        "root features.schema-export must forward zeroclaw-config/schema-export; \
+            .any(|value| value.as_str() == Some("clawcrew-config/schema-export")),
+        "root features.schema-export must forward clawcrew-config/schema-export; \
          got {schema_export:?}"
     );
 
@@ -62,15 +62,15 @@ fn root_schema_export_feature_graph_is_gated() {
         .get("dependencies")
         .and_then(toml::Value::as_table)
         .expect("workspace must define a dependencies table");
-    let zeroclaw_config = workspace_dependencies
-        .get("zeroclaw-config")
+    let clawcrew_config = workspace_dependencies
+        .get("clawcrew-config")
         .and_then(toml::Value::as_table)
-        .expect("workspace.dependencies must define zeroclaw-config as a table");
+        .expect("workspace.dependencies must define clawcrew-config as a table");
     assert_eq!(
-        zeroclaw_config
+        clawcrew_config
             .get("default-features")
             .and_then(toml::Value::as_bool),
         Some(false),
-        "workspace.dependencies.zeroclaw-config must set default-features=false"
+        "workspace.dependencies.clawcrew-config must set default-features=false"
     );
 }

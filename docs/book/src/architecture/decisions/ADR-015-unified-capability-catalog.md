@@ -4,24 +4,24 @@ title: Unified capability catalog is a read-only projection over canonical owner
 date: 2026-08-22
 status: proposed
 relates-to:
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/9346
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/6489
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8908
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8850
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8367
+  - https://github.com/clawcrew-labs/clawcrew/issues/9346
+  - https://github.com/clawcrew-labs/clawcrew/issues/6489
+  - https://github.com/clawcrew-labs/clawcrew/issues/8908
+  - https://github.com/clawcrew-labs/clawcrew/issues/8850
+  - https://github.com/clawcrew-labs/clawcrew/issues/8367
   - docs/book/src/plugins/index.md
-  - crates/zeroclaw-plugins/src/config.rs
+  - crates/clawcrew-plugins/src/config.rs
 ---
 
 # ADR-015: Unified Capability Catalog Is a Read-Only Projection Over Canonical Owners
 
 ## Context
 
-ZeroClaw has several surfaces that describe capabilities: built-in channels and tools, installed plugin packages, registry-available packages, configured provider and channel aliases, gateway Integration entries, CLI plugin commands, web dashboard views, ZeroCode, and agent-facing setup guidance. These surfaces currently answer different questions and use overlapping words such as "installed", "configured", "enabled", "active", and "healthy".
+ClawCrew has several surfaces that describe capabilities: built-in channels and tools, installed plugin packages, registry-available packages, configured provider and channel aliases, gateway Integration entries, CLI plugin commands, web dashboard views, ZeroCode, and agent-facing setup guidance. These surfaces currently answer different questions and use overlapping words such as "installed", "configured", "enabled", "active", and "healthy".
 
-The product direction in [#6489](https://github.com/zeroclaw-labs/zeroclaw/issues/6489) is one truthful catalog across integrations, built-ins, installable packages, configured instances, and runtime observations. That direction is sometimes summarized as "everything is a plugin", but the durable architecture is narrower: one catalog, not one implementation mechanism. Built-in and package-backed implementations may coexist indefinitely.
+The product direction in [#6489](https://github.com/clawcrew-labs/clawcrew/issues/6489) is one truthful catalog across integrations, built-ins, installable packages, configured instances, and runtime observations. That direction is sometimes summarized as "everything is a plugin", but the durable architecture is narrower: one catalog, not one implementation mechanism. Built-in and package-backed implementations may coexist indefinitely.
 
-Accepted RFC [#9346](https://github.com/zeroclaw-labs/zeroclaw/issues/9346) defines the missing contract. The catalog must keep package facts, capability facts, implementation facts, configured-instance facts, and runtime observations separate. It must derive each fact from its canonical owner instead of creating another persisted lifecycle registry. It must also preserve compatibility with existing package and Integration projections before any route retirement, migration, or stable public API commitment.
+Accepted RFC [#9346](https://github.com/clawcrew-labs/clawcrew/issues/9346) defines the missing contract. The catalog must keep package facts, capability facts, implementation facts, configured-instance facts, and runtime observations separate. It must derive each fact from its canonical owner instead of creating another persisted lifecycle registry. It must also preserve compatibility with existing package and Integration projections before any route retirement, migration, or stable public API commitment.
 
 This record captures that target architecture. It does not claim that the unified catalog projection, compatibility bridge, or runtime observation model has shipped.
 
@@ -71,7 +71,7 @@ A projection is not an atomic transaction across independent owners. Public payl
 
 ### Keep resolver authority family-specific
 
-Native/plugin collision and precedence are not global catalog policy. RFC [#8850](https://github.com/zeroclaw-labs/zeroclaw/issues/8850) supplies native/plugin collision behavior for channels and tools. The catalog projects that result for `channel:*` and `tool:*`.
+Native/plugin collision and precedence are not global catalog policy. RFC [#8850](https://github.com/clawcrew-labs/clawcrew/issues/8850) supplies native/plugin collision behavior for channels and tools. The catalog projects that result for `channel:*` and `tool:*`.
 
 For providers, memory backends, observers, skills, and platform integrations without an owner-defined resolver, the catalog reports every matching implementation with explicit unresolved or unknown conflict evidence and applies no implicit ordering. A later owner-defined resolver can become the source for that family without changing the catalog into the resolver.
 
@@ -79,7 +79,7 @@ For providers, memory backends, observers, skills, and platform integrations wit
 
 Catalog visibility can narrow what a user, UI, API, or agent sees. It cannot grant invocation authority.
 
-Agent tool registries, risk profiles, per-run narrowing, destination policy, grants, approvals, and subject-scoped authorization remain outside the catalog. A consumer such as [#8367](https://github.com/zeroclaw-labs/zeroclaw/issues/8367) may derive point-in-time guidance from catalog evidence and subject-specific policy, but that guidance is a projection. It does not authorize an action, write lifecycle state, or become a configured-instance fact.
+Agent tool registries, risk profiles, per-run narrowing, destination policy, grants, approvals, and subject-scoped authorization remain outside the catalog. A consumer such as [#8367](https://github.com/clawcrew-labs/clawcrew/issues/8367) may derive point-in-time guidance from catalog evidence and subject-specific policy, but that guidance is a projection. It does not authorize an action, write lifecycle state, or become a configured-instance fact.
 
 Public projections exclude credentials, secret references, raw configuration values, registry authentication, host identity, unrestricted filesystem paths, raw runtime errors, and private manifest fields. Registry and manifest text is untrusted metadata and must be rendered as data, not instructions.
 
@@ -91,7 +91,7 @@ CLI, web, ZeroCode, gateway, and agent-facing readiness consume versioned projec
 
 Package identity must map against the existing registry directions rather than minting another unrelated coordinate system. Implementation work should reconcile package coordinates with existing MCP-style package identity and the separately proposed OCI registry direction before a second consumer depends on them.
 
-The evidence vocabulary intentionally follows established distributed-state practice: Kubernetes-style condition semantics for known, unknown, and observed facts, and systemd's distinction between enabled intent and active runtime state. ZeroClaw does not need to import those systems wholesale, but the catalog should preserve that separation.
+The evidence vocabulary intentionally follows established distributed-state practice: Kubernetes-style condition semantics for known, unknown, and observed facts, and systemd's distinction between enabled intent and active runtime state. ClawCrew does not need to import those systems wholesale, but the catalog should preserve that separation.
 
 ### Acceptance gates
 
@@ -128,10 +128,10 @@ Negative consequences:
 
 ## References
 
-- [RFC #9346: Define the unified package/capability/config/runtime-state catalog contract](https://github.com/zeroclaw-labs/zeroclaw/issues/9346)
-- [Tracker #6489: Unified capability catalog and plugin migration roadmap](https://github.com/zeroclaw-labs/zeroclaw/issues/6489)
-- [PR #8908: Package-centric plugin list catalog](https://github.com/zeroclaw-labs/zeroclaw/pull/8908)
-- [Issue #8850: Optional channels and tools move from compile-time features to runtime plugins](https://github.com/zeroclaw-labs/zeroclaw/issues/8850)
-- [Issue #8367: Derived capability readiness for agent guidance](https://github.com/zeroclaw-labs/zeroclaw/issues/8367)
+- [RFC #9346: Define the unified package/capability/config/runtime-state catalog contract](https://github.com/clawcrew-labs/clawcrew/issues/9346)
+- [Tracker #6489: Unified capability catalog and plugin migration roadmap](https://github.com/clawcrew-labs/clawcrew/issues/6489)
+- [PR #8908: Package-centric plugin list catalog](https://github.com/clawcrew-labs/clawcrew/pull/8908)
+- [Issue #8850: Optional channels and tools move from compile-time features to runtime plugins](https://github.com/clawcrew-labs/clawcrew/issues/8850)
+- [Issue #8367: Derived capability readiness for agent guidance](https://github.com/clawcrew-labs/clawcrew/issues/8367)
 - [Plugins documentation](../../plugins/index.md)
-- `crates/zeroclaw-plugins/src/config.rs`
+- `crates/clawcrew-plugins/src/config.rs`

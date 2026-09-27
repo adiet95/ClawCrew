@@ -9,8 +9,8 @@ SOPs:
 - `POST /webhook` checks for an exact `/webhook` SOP trigger first. If none
   matches, it retains the normal webhook chat behavior.
 
-Run these endpoints through `zeroclaw daemon` with `sop.sops_dir` configured.
-They use the daemon's shared SOP engine. A standalone `zeroclaw gateway start`,
+Run these endpoints through `clawcrew daemon` with `sop.sops_dir` configured.
+They use the daemon's shared SOP engine. A standalone `clawcrew gateway start`,
 or a daemon without the SOP subsystem enabled, returns `503` from `/sop/*`.
 
 ## Trigger

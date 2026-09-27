@@ -1,17 +1,17 @@
-# Hardware Peripherals Design: ZeroClaw
+# Hardware Peripherals Design: ClawCrew
 
-ZeroClaw enables microcontrollers (MCUs) and Single Board Computers (SBCs) to **dynamically interpret natural language commands**, generate hardware-specific code, and execute peripheral interactions in real-time.
+ClawCrew enables microcontrollers (MCUs) and Single Board Computers (SBCs) to **dynamically interpret natural language commands**, generate hardware-specific code, and execute peripheral interactions in real-time.
 
 ## 1. Vision
 
-**Goal:** ZeroClaw acts as a hardware-aware AI agent that:
+**Goal:** ClawCrew acts as a hardware-aware AI agent that:
 - Receives natural language triggers (e.g. "Move X arm", "Turn on LED") via channels (WhatsApp, Telegram)
 - Fetches accurate hardware documentation (datasheets, register maps)
 - Synthesizes Rust code/logic using an LLM (Gemini, local open-source models)
 - Executes the logic to manipulate peripherals (GPIO, I2C, SPI)
 - Persists optimized code for future reuse
 
-**Mental model:** ZeroClaw = brain that understands hardware. Peripherals = arms and legs it controls.
+**Mental model:** ClawCrew = brain that understands hardware. Peripherals = arms and legs it controls.
 
 ## 2. Two Modes of Operation
 
@@ -19,10 +19,10 @@ ZeroClaw enables microcontrollers (MCUs) and Single Board Computers (SBCs) to **
 
 **Target:** Wi-Fi-enabled boards (ESP32, Raspberry Pi).
 
-ZeroClaw runs **directly on the device**. The board spins up a gRPC/nanoRPC server and communicates with peripherals locally.
+ClawCrew runs **directly on the device**. The board spins up a gRPC/nanoRPC server and communicates with peripherals locally.
 
 ```text
-ZeroClaw on ESP32 / Raspberry Pi (Edge-Native)
+ClawCrew on ESP32 / Raspberry Pi (Edge-Native)
 
   Channels (WhatsApp, Telegram)
         │
@@ -38,7 +38,7 @@ ZeroClaw on ESP32 / Raspberry Pi (Edge-Native)
 
 **Workflow:**
 1. User sends WhatsApp: *"Turn on LED on pin 13"*
-2. ZeroClaw fetches board-specific docs (e.g. ESP32 GPIO mapping)
+2. ClawCrew fetches board-specific docs (e.g. ESP32 GPIO mapping)
 3. LLM synthesizes Rust code
 4. Code runs in a sandbox (Wasm or dynamic linking)
 5. GPIO is toggled; result returned to user
@@ -50,10 +50,10 @@ ZeroClaw on ESP32 / Raspberry Pi (Edge-Native)
 
 **Target:** Hardware connected via USB / J-Link to a host (macOS, Linux).
 
-ZeroClaw runs on the **host** and maintains a hardware-aware link to the target. Used for development, introspection, and flashing.
+ClawCrew runs on the **host** and maintains a hardware-aware link to the target. Used for development, introspection, and flashing.
 
 ```text
-  ZeroClaw on Mac (host)              STM32 Nucleo-F401RE (or other MCU)
+  ClawCrew on Mac (host)              STM32 Nucleo-F401RE (or other MCU)
   ─────────────────────              ──────────────────────────────────
   - Channels                         - Memory map
   - LLM                              - Peripherals (GPIO, ADC, I2C)
@@ -65,17 +65,17 @@ ZeroClaw runs on the **host** and maintains a hardware-aware link to the target.
 
 **Workflow:**
 1. User sends Telegram: *"What are the readable memory addresses on this USB device?"*
-2. ZeroClaw identifies connected hardware (VID/PID, architecture)
+2. ClawCrew identifies connected hardware (VID/PID, architecture)
 3. Performs memory mapping; suggests available address spaces
 4. Returns result to user
 
 **Or:**
 1. User: *"Flash this firmware to the Nucleo"*
-2. ZeroClaw writes/flashes via OpenOCD or probe-rs
+2. ClawCrew writes/flashes via OpenOCD or probe-rs
 3. Confirms success
 
 **Or:**
-1. ZeroClaw auto-discovers: *"STM32 Nucleo on /dev/ttyACM0, ARM Cortex-M4"*
+1. ClawCrew auto-discovers: *"STM32 Nucleo on /dev/ttyACM0, ARM Cortex-M4"*
 2. Suggests: *"I can read/write GPIO, ADC, flash. What would you like to do?"*
 
 ---
@@ -84,7 +84,7 @@ ZeroClaw runs on the **host** and maintains a hardware-aware link to the target.
 
 | Aspect           | Edge-Native                    | Host-Mediated                    |
 |------------------|--------------------------------|----------------------------------|
-| ZeroClaw runs on | Device (ESP32, RPi)           | Host (Mac, Linux)                |
+| ClawCrew runs on | Device (ESP32, RPi)           | Host (Mac, Linux)                |
 | Hardware link    | Local (GPIO, I2C, SPI)        | USB, J-Link                      |
 | LLM              | On-device or cloud (Gemini)   | Host (cloud or local)            |
 | Use case         | Production, standalone         | Dev, debug, introspection       |
@@ -96,11 +96,11 @@ For boards without WiFi or before full Edge-Native is ready:
 
 ### Mode A: Host + Remote Peripheral (STM32 via serial)
 
-Host runs ZeroClaw; peripheral runs minimal firmware. Simple JSON over serial.
+Host runs ClawCrew; peripheral runs minimal firmware. Simple JSON over serial.
 
 ### Mode B: RPi as Host (Native GPIO)
 
-ZeroClaw on Pi; GPIO via rppal or sysfs. No separate firmware.
+ClawCrew on Pi; GPIO via rppal or sysfs. No separate firmware.
 
 ## 4. Technical Requirements
 
@@ -132,7 +132,7 @@ ZeroClaw on Pi; GPIO via rppal or sysfs. No separate firmware.
 
 ## 5. CLI and Config
 
-See the [CLI reference](../reference/cli.md) for `zeroclaw hardware` / `zeroclaw peripheral` subcommands and the [Config reference](../reference/config.md) for the `[peripherals]` and `[[peripherals.boards]]` fields.
+See the [CLI reference](../reference/cli.md) for `clawcrew hardware` / `clawcrew peripheral` subcommands and the [Config reference](../reference/config.md) for the `[peripherals]` and `[[peripherals.boards]]` fields.
 
 ## 6. Architecture: Peripheral as Extension Point
 
@@ -154,7 +154,7 @@ pub trait Peripheral: Send + Sync {
 
 ### Flow
 
-1. **Startup:** ZeroClaw loads config, sees `peripherals.boards`.
+1. **Startup:** ClawCrew loads config, sees `peripherals.boards`.
 2. **Connect:** For each board, create a `Peripheral` impl, call `connect()`.
 3. **Tools:** Collect tools from all connected peripherals; merge with default tools.
 4. **Agent loop:** Agent can call `gpio_write`, `sensor_read`, etc., these delegate to the peripheral.
@@ -177,7 +177,7 @@ The base tools every board exposes are listed in
 
 ### gRPC / nanoRPC (Edge-Native, Host-Mediated)
 
-For low-latency, typed RPC between ZeroClaw and peripherals:
+For low-latency, typed RPC between ClawCrew and peripherals:
 
 - **nanoRPC** or **tonic** (gRPC): Protobuf-defined services.
 - Methods: `GpioWrite`, `GpioRead`, `I2cTransfer`, `SpiTransfer`, `MemoryRead`, `FlashWrite`, etc.
@@ -199,22 +199,22 @@ Simple JSON over serial for boards without gRPC support:
 
 ## 8. Firmware (Separate Repo or Crate)
 
-- **zeroclaw-firmware** or **zeroclaw-peripheral**: a separate crate/workspace.
+- **clawcrew-firmware** or **clawcrew-peripheral**: a separate crate/workspace.
 - Targets: `thumbv7em-none-eabihf` (STM32), `armv7-unknown-linux-gnueabihf` (RPi), etc.
 - Uses `embassy` or Zephyr for STM32.
 - Implements the protocol above.
-- User flashes this to the board; ZeroClaw connects and discovers capabilities.
+- User flashes this to the board; ClawCrew connects and discovers capabilities.
 
 ## 9. Capability Layers
 
 The subsystem is built in layers; each is independently usable. Rather than
 tracking phase status here (which drifts as work lands), the layers are:
 
-- **Skeleton.** The `Peripheral` trait, config schema, and `zeroclaw peripheral`
+- **Skeleton.** The `Peripheral` trait, config schema, and `clawcrew peripheral`
   CLI. The `--peripheral` flag wires a board into the agent.
-- **Host-mediated discovery.** `zeroclaw hardware discover` enumerates USB
+- **Host-mediated discovery.** `clawcrew hardware discover` enumerates USB
   devices by VID/PID; the board registry maps them to architecture and name;
-  `zeroclaw hardware introspect <path>` reports the memory map and peripheral
+  `clawcrew hardware introspect <path>` reports the memory map and peripheral
   list.
 - **Serial / probe transport.** `SerialPeripheral` carries the JSON protocol
   over USB CDC; the `probe` feature adds probe-rs SWD for flash, memory map, and
@@ -222,13 +222,13 @@ tracking phase status here (which drifts as work lands), the layers are:
 - **RAG pipeline.** Datasheets are indexed and injected into LLM context on
   hardware queries.
 
-  **Usage:** `zeroclaw config set peripherals.datasheet-dir docs/datasheets`.
+  **Usage:** `clawcrew config set peripherals.datasheet-dir docs/datasheets`.
   Place `.md` or `.txt` files named by board (e.g. `nucleo-f401re.md`,
   `rpi-gpio.md`). Files in `_generic/` or named `generic.md` apply to all
   boards. Chunks are retrieved by keyword match and injected into the user
   message context.
 
-- **Edge-native (Raspberry Pi).** ZeroClaw runs on the Pi with native GPIO via
+- **Edge-native (Raspberry Pi).** ClawCrew runs on the Pi with native GPIO via
   rppal (the `peripheral-rpi` feature).
 - **ESP32.** Host-mediated over the serial transport, same JSON protocol as
   STM32. ESP32 dev boards are in the registry by their CH340 USB VID/PID.
@@ -248,7 +248,7 @@ tracking phase status here (which drifts as work lands), the layers are:
 
 ## 11. Non-Goals (For Now)
 
-- Running full ZeroClaw *on* bare STM32 (no WiFi, limited RAM), use Host-Mediated instead
+- Running full ClawCrew *on* bare STM32 (no WiFi, limited RAM), use Host-Mediated instead
 - Real-time guarantees: peripherals are best-effort
 - Arbitrary native code execution from LLM: prefer Wasm or templates
 
@@ -269,6 +269,6 @@ tracking phase status here (which drifts as work lands), the layers are:
 
 ## 14. Raw Prompt Summary
 
-> *"Boards like ESP, Raspberry Pi, or boards with WiFi can connect to an LLM (Gemini or open-source). ZeroClaw runs on the device, creates its own gRPC, spins it up, and communicates with peripherals. User asks via WhatsApp: 'move X arm' or 'turn on LED'. ZeroClaw gets accurate documentation, writes code, executes it, stores it optimally, runs it, and turns on the LED, all on the development board.*
+> *"Boards like ESP, Raspberry Pi, or boards with WiFi can connect to an LLM (Gemini or open-source). ClawCrew runs on the device, creates its own gRPC, spins it up, and communicates with peripherals. User asks via WhatsApp: 'move X arm' or 'turn on LED'. ClawCrew gets accurate documentation, writes code, executes it, stores it optimally, runs it, and turns on the LED, all on the development board.*
 >
-> *For STM Nucleo connected via USB/J-Link to my Mac: ZeroClaw from my Mac accesses the hardware, installs or writes what it wants on the device, and returns the result. Example: 'Hey ZeroClaw, what are the available/readable addresses on this USB device?' It can figure out what's connected where and suggest."*
+> *For STM Nucleo connected via USB/J-Link to my Mac: ClawCrew from my Mac accesses the hardware, installs or writes what it wants on the device, and returns the result. Example: 'Hey ClawCrew, what are the available/readable addresses on this USB device?' It can figure out what's connected where and suggest."*

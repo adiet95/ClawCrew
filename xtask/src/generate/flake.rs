@@ -1,6 +1,6 @@
 //! Nix flake renderer. The flake is the one packaged surface that rebuilds from
 //! source per-user, so it must expose feature selection (overridable), not a
-//! fixed set. We generate a sentinel-delimited zone defining the zeroclaw +
+//! fixed set. We generate a sentinel-delimited zone defining the clawcrew +
 //! zerocode packages with the canonical Dist feature list as the default
 
 use super::spec::{self, Selection};
@@ -17,7 +17,7 @@ const ZONE: &str = "flake-packages";
 
 /// Render the generated package-definition zone body: a Rust package builder
 /// with the Dist feature list as default buildFeatures (overridable), exposing
-/// zeroclaw, zerocode, and default. Indented to sit inside the per-system `in {`
+/// clawcrew, zerocode, and default. Indented to sit inside the per-system `in {`
 /// block of the flake.
 pub fn render_zone(root: &Path) -> anyhow::Result<String> {
     let version = spec::resolve_version(root)?;
@@ -33,9 +33,9 @@ pub fn render_zone(root: &Path) -> anyhow::Result<String> {
     // override with `.override { features = [ ... ]; }`.
     let lines = [
         "        # Default feature set: canonical lean Dist.".to_string(),
-        "        # Override with `packages.zeroclaw.override { features = [ ... ]; }`.".to_string(),
-        format!("        zeroclawDefaultFeatures = [ {feature_list} ];"),
-        "        buildZeroclaw = { pname, cargoPkg, features ? zeroclawDefaultFeatures }:"
+        "        # Override with `packages.clawcrew.override { features = [ ... ]; }`.".to_string(),
+        format!("        clawcrewDefaultFeatures = [ {feature_list} ];"),
+        "        buildZeroclaw = { pname, cargoPkg, features ? clawcrewDefaultFeatures }:"
             .to_string(),
         "          (pkgs.makeRustPlatform {".to_string(),
         "            cargo = rustToolchain;".to_string(),
@@ -101,7 +101,7 @@ mod tests {
     fn zone_exposes_overridable_features() {
         let z = render_zone(&root()).unwrap();
         assert!(
-            z.contains("zeroclawDefaultFeatures"),
+            z.contains("clawcrewDefaultFeatures"),
             "default feature list present"
         );
         assert!(

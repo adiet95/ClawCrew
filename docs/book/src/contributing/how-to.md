@@ -36,7 +36,7 @@ The key checkpoints:
 - No unused production code: delete it, wire it into behavior, or track a follow-up issue. Do not silence it with underscore prefixes or `#[allow(dead_code)]`; reserve underscore names for required but intentionally unused API, trait, or callback parameters.
 - Error handling: `anyhow::Result` at binary boundaries, typed errors in library crates. No `unwrap()` / `expect()` in production code paths: propagate with `?` or document the invariant that makes panic impossible.
 - Minimal dependencies: every dep adds to binary size; weigh the trade before adding one
-- Trait-first: define the trait in `zeroclaw-api`, then implement in the right edge crate
+- Trait-first: define the trait in `clawcrew-api`, then implement in the right edge crate
 - Security by default: allowlists, not blocklists. New external surface defaults closed
 - Inline unit tests: `#[cfg(test)] mod tests {}` at the bottom of the file or a sibling `tests.rs`
 - Don't commit secrets, personal data, or real-user identities: the [Privacy & PII discipline](./privacy.md) page is the merge gate
@@ -62,7 +62,7 @@ If the statement can only stay true by manually editing the comment whenever cod
 ## Testing
 
 - Unit tests co-located with the code (`mod tests`)
-- Integration tests in `tests/` and crate-local unit tests: run via `cargo nextest run --locked --workspace --exclude zeroclaw-desktop`
+- Integration tests in `tests/` and crate-local unit tests: run via `cargo nextest run --locked --workspace --exclude clawcrew-desktop`
 - Feature-gated code needs feature-gated tests
 - Don't mock the database for tests that exercise schema or SQL: integration tests must hit a real SQLite
 
@@ -131,11 +131,11 @@ A PR carrying either `risk:high` or `domain:security` needs deep review, a rollb
 
 | Area | Where to start |
 |---|---|
-| New channel | `crates/zeroclaw-channels/`: copy an existing channel of similar shape |
-| New provider | `crates/zeroclaw-providers/`: `compatible.rs` covers most OpenAI-like ones |
+| New channel | `crates/clawcrew-channels/`: copy an existing channel of similar shape |
+| New provider | `crates/clawcrew-providers/`: `compatible.rs` covers most OpenAI-like ones |
 | Docs | `docs/book/src/`: anything marked outdated or missing |
 | Translations | `cargo fluent fill --locale <code>`: see [Maintainers → Docs & Translations](../maintainers/docs-and-translations.md) |
-| Hardware | `crates/zeroclaw-hardware/`: new board support, new sensor drivers |
+| Hardware | `crates/clawcrew-hardware/`: new board support, new sensor drivers |
 
 ## Code of conduct
 

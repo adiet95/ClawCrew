@@ -1,47 +1,47 @@
 [workspace]
-members = [".", "crates/zeroclaw-api", "crates/zeroclaw-infra", "crates/zeroclaw-config", "crates/zeroclaw-dist", "crates/zeroclaw-log", "crates/zeroclaw-log/tests/fixtures/attribution-macro-support", "crates/zeroclaw-log/tests/fixtures/attribution-macro-consumer", "crates/zeroclaw-tls", "crates/zeroclaw-relay-proto", "apps/zerorelay", "crates/zeroclaw-spawn", "crates/zeroclaw-commands", "crates/zeroclaw-providers", "crates/zeroclaw-memory", "crates/zeroclaw-channels", "crates/zeroclaw-tools", "crates/zeroclaw-sop-graph", "crates/zeroclaw-runtime", "crates/zeroclaw-eval", "apps/zerocode", "crates/zeroclaw-plugins", "crates/zeroclaw-plugins/tests/fixtures/channel-fixture", "crates/zeroclaw-plugins/tests/fixtures/channel-egress-fixture", "crates/zeroclaw-plugins/tests/fixtures/egress-fixture", "crates/zeroclaw-plugins/tests/fixtures/tool-fixture", "crates/zeroclaw-plugins/tests/fixtures/tool-timeout-fixture", "crates/zeroclaw-plugins/tests/fixtures/tool-sequential-fixture", "crates/zeroclaw-plugins/tests/fixtures/tool-secret-fixture", "crates/zeroclaw-gateway", "crates/zeroclaw-hardware", "crates/zeroclaw-tool-call-parser", "crates/zeroclaw-macros", "apps/tauri", "tools/fill-translations", "xtask"]
+members = [".", "crates/clawcrew-api", "crates/clawcrew-infra", "crates/clawcrew-config", "crates/clawcrew-dist", "crates/clawcrew-log", "crates/clawcrew-log/tests/fixtures/attribution-macro-support", "crates/clawcrew-log/tests/fixtures/attribution-macro-consumer", "crates/clawcrew-tls", "crates/clawcrew-relay-proto", "apps/zerorelay", "crates/clawcrew-spawn", "crates/clawcrew-commands", "crates/clawcrew-providers", "crates/clawcrew-memory", "crates/clawcrew-channels", "crates/clawcrew-tools", "crates/clawcrew-sop-graph", "crates/clawcrew-runtime", "crates/clawcrew-eval", "apps/zerocode", "crates/clawcrew-plugins", "crates/clawcrew-plugins/tests/fixtures/channel-fixture", "crates/clawcrew-plugins/tests/fixtures/channel-egress-fixture", "crates/clawcrew-plugins/tests/fixtures/egress-fixture", "crates/clawcrew-plugins/tests/fixtures/tool-fixture", "crates/clawcrew-plugins/tests/fixtures/tool-timeout-fixture", "crates/clawcrew-plugins/tests/fixtures/tool-sequential-fixture", "crates/clawcrew-plugins/tests/fixtures/tool-secret-fixture", "crates/clawcrew-gateway", "crates/clawcrew-hardware", "crates/clawcrew-tool-call-parser", "crates/clawcrew-macros", "apps/tauri", "tools/fill-translations", "xtask"]
 resolver = "2"
 
 [workspace.package]
 version = "0.8.5"
 edition = "2024"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/zeroclaw-labs/zeroclaw"
-homepage = "https://www.zeroclaw.com"
+repository = "https://github.com/clawcrew-labs/clawcrew"
+homepage = "https://www.clawcrew.com"
 rust-version = "1.96.0"
 
 [workspace.dependencies]
-zeroclaw-api = { path = "crates/zeroclaw-api", version = "0.8.5" }
-zeroclaw-infra = { path = "crates/zeroclaw-infra", version = "0.8.5" }
-zeroclaw-config = { path = "crates/zeroclaw-config", version = "0.8.5", default-features = false }
-zeroclaw-dist = { path = "crates/zeroclaw-dist", version = "0.8.5" }
-zeroclaw-log = { path = "crates/zeroclaw-log", version = "0.8.5" }
-zeroclaw-tls = { path = "crates/zeroclaw-tls", version = "0.8.5" }
-zeroclaw-relay-proto = { path = "crates/zeroclaw-relay-proto", version = "0.8.5" }
+clawcrew-api = { path = "crates/clawcrew-api", version = "0.8.5" }
+clawcrew-infra = { path = "crates/clawcrew-infra", version = "0.8.5" }
+clawcrew-config = { path = "crates/clawcrew-config", version = "0.8.5", default-features = false }
+clawcrew-dist = { path = "crates/clawcrew-dist", version = "0.8.5" }
+clawcrew-log = { path = "crates/clawcrew-log", version = "0.8.5" }
+clawcrew-tls = { path = "crates/clawcrew-tls", version = "0.8.5" }
+clawcrew-relay-proto = { path = "crates/clawcrew-relay-proto", version = "0.8.5" }
 zerorelay = { path = "apps/zerorelay", version = "0.8.5" }
-zeroclaw-spawn = { path = "crates/zeroclaw-spawn", version = "0.8.5" }
-zeroclaw-commands = { path = "crates/zeroclaw-commands", version = "0.8.5" }
-zeroclaw-providers = { path = "crates/zeroclaw-providers", version = "0.8.5" }
-zeroclaw-memory = { path = "crates/zeroclaw-memory", version = "0.8.5" }
-zeroclaw-channels = { path = "crates/zeroclaw-channels", version = "0.8.5", default-features = false }
-zeroclaw-tools = { path = "crates/zeroclaw-tools", version = "0.8.5" }
-zeroclaw-sop-graph = { path = "crates/zeroclaw-sop-graph", version = "0.8.5", default-features = false }
-zeroclaw-runtime = { path = "crates/zeroclaw-runtime", version = "0.8.5", default-features = false }
-zeroclaw-eval = { path = "crates/zeroclaw-eval", version = "0.8.5" }
-zeroclaw-plugins = { path = "crates/zeroclaw-plugins", version = "0.8.5" }
-zeroclaw-gateway = { path = "crates/zeroclaw-gateway", version = "0.8.5" }
-zeroclaw-hardware = { path = "crates/zeroclaw-hardware", version = "0.8.5" }
-zeroclaw-tool-call-parser = { path = "crates/zeroclaw-tool-call-parser", version = "0.8.5" }
-zeroclaw-macros = { path = "crates/zeroclaw-macros", version = "0.8.5" }
+clawcrew-spawn = { path = "crates/clawcrew-spawn", version = "0.8.5" }
+clawcrew-commands = { path = "crates/clawcrew-commands", version = "0.8.5" }
+clawcrew-providers = { path = "crates/clawcrew-providers", version = "0.8.5" }
+clawcrew-memory = { path = "crates/clawcrew-memory", version = "0.8.5" }
+clawcrew-channels = { path = "crates/clawcrew-channels", version = "0.8.5", default-features = false }
+clawcrew-tools = { path = "crates/clawcrew-tools", version = "0.8.5" }
+clawcrew-sop-graph = { path = "crates/clawcrew-sop-graph", version = "0.8.5", default-features = false }
+clawcrew-runtime = { path = "crates/clawcrew-runtime", version = "0.8.5", default-features = false }
+clawcrew-eval = { path = "crates/clawcrew-eval", version = "0.8.5" }
+clawcrew-plugins = { path = "crates/clawcrew-plugins", version = "0.8.5" }
+clawcrew-gateway = { path = "crates/clawcrew-gateway", version = "0.8.5" }
+clawcrew-hardware = { path = "crates/clawcrew-hardware", version = "0.8.5" }
+clawcrew-tool-call-parser = { path = "crates/clawcrew-tool-call-parser", version = "0.8.5" }
+clawcrew-macros = { path = "crates/clawcrew-macros", version = "0.8.5" }
 zerocode = { path = "apps/zerocode", version = "0.8.5" }
 directories = "6.0"
 sys-locale = "0.3"
 
 [package]
-name = "zeroclaw"
+name = "clawcrew"
 # Workspace crates are publish = false during microkernel transition.
 publish = true
-default-run = "zeroclaw"
+default-run = "clawcrew"
 version.workspace = true
 edition.workspace = true
 authors = ["theonlyhennygod"]
@@ -49,7 +49,7 @@ license.workspace = true
 description = "Zero overhead. Zero compromise. 100% Rust. The fastest, smallest AI assistant."
 repository.workspace = true
 homepage.workspace = true
-documentation = "https://docs.zeroclaw.com"
+documentation = "https://docs.clawcrew.com"
 readme = "README.md"
 keywords = ["ai", "agent", "cli", "assistant", "chatbot"]
 categories = ["command-line-utilities", "api-bindings"]
@@ -66,37 +66,37 @@ include = [
 ]
 
 [[bin]]
-name = "zeroclaw"
+name = "clawcrew"
 path = "src/main.rs"
 
 [[bin]]
-name = "zeroclaw-acp-bridge"
-path = "src/bin/zeroclaw-acp-bridge.rs"
+name = "clawcrew-acp-bridge"
+path = "src/bin/clawcrew-acp-bridge.rs"
 required-features = ["acp-bridge"]
 
 [lib]
-name = "zeroclaw"
+name = "clawcrew"
 path = "src/lib.rs"
 
 [dependencies]
 # Internal workspace crates — versions and paths declared once in [workspace.dependencies]
-zeroclaw-api.workspace = true
-zeroclaw-spawn.workspace = true
-zeroclaw-infra.workspace = true
-zeroclaw-config = { workspace = true, features = ["clap"] }
-zeroclaw-log.workspace = true
-zeroclaw-providers.workspace = true
-zeroclaw-memory.workspace = true
-zeroclaw-channels = { workspace = true, optional = true }
-zeroclaw-tools = { workspace = true, optional = true }
-zeroclaw-runtime = { workspace = true, optional = true }
-zeroclaw-tls = { workspace = true }
-zeroclaw-eval = { workspace = true, optional = true }
-zeroclaw-plugins = { workspace = true, optional = true }
-zeroclaw-gateway = { workspace = true, optional = true }
-zeroclaw-hardware = { workspace = true, optional = true }
-zeroclaw-tool-call-parser.workspace = true
-zeroclaw-macros.workspace = true
+clawcrew-api.workspace = true
+clawcrew-spawn.workspace = true
+clawcrew-infra.workspace = true
+clawcrew-config = { workspace = true, features = ["clap"] }
+clawcrew-log.workspace = true
+clawcrew-providers.workspace = true
+clawcrew-memory.workspace = true
+clawcrew-channels = { workspace = true, optional = true }
+clawcrew-tools = { workspace = true, optional = true }
+clawcrew-runtime = { workspace = true, optional = true }
+clawcrew-tls = { workspace = true }
+clawcrew-eval = { workspace = true, optional = true }
+clawcrew-plugins = { workspace = true, optional = true }
+clawcrew-gateway = { workspace = true, optional = true }
+clawcrew-hardware = { workspace = true, optional = true }
+clawcrew-tool-call-parser.workspace = true
+clawcrew-macros.workspace = true
 # CLI - minimal and fast
 clap = { version = "4.5", features = ["derive"] }
 clap_complete = "4.5"
@@ -188,7 +188,7 @@ libc = "0.2"
 # identical single cross-crate refs but one is meta and one is a real row), so
 # it lives here in the canonical registry. install.sh and `cargo cmd convert`
 # both read this; neither shadows it with its own list.
-[package.metadata.zeroclaw]
+[package.metadata.clawcrew]
 non_row_features = [
     "default",
     "default-channels",
@@ -220,7 +220,7 @@ container_excluded_features = [
 
 # Compatibility exclusions for standard distribution artifacts. Release
 # workflows pass only their target triple; feature policy stays here.
-[package.metadata.zeroclaw.dist_target_exclusions]
+[package.metadata.clawcrew.dist_target_exclusions]
 aarch64-linux-android = ["whatsapp-web"]
 arm-unknown-linux-gnueabihf = ["observability-prometheus"]
 armv7-unknown-linux-gnueabihf = ["observability-prometheus"]
@@ -240,7 +240,7 @@ default = [
 # Channels are opt-in via the lean `default-channels` bundle, `channels-full`,
 # or individual `channel-*` features.
 agent-runtime = [
-    "dep:zeroclaw-runtime", "dep:zeroclaw-eval", "dep:zeroclaw-channels", "dep:zeroclaw-tools",
+    "dep:clawcrew-runtime", "dep:clawcrew-eval", "dep:clawcrew-channels", "dep:clawcrew-tools",
     "dep:rusqlite",
     "dep:which",
     "dep:crossterm",
@@ -258,7 +258,7 @@ default-channels = [
 
 # Historical broad channel bundle. Preserves the older default channel surface.
 channels-full = [
-    "default-channels", "zeroclaw-channels/channels-full", "channel-lark",
+    "default-channels", "clawcrew-channels/channels-full", "channel-lark",
     "channel-line",
     "channel-slack", "channel-signal",
     "channel-mattermost", "channel-irc", "channel-imessage",
@@ -271,79 +271,79 @@ channels-full = [
 
 # Major subsystems — each forwards to exactly ONE crate
 gateway = [
-    "dep:zeroclaw-gateway",
+    "dep:clawcrew-gateway",
     "dep:axum", "dep:tower",
 ]
-schema-export = ["dep:schemars", "zeroclaw-config/schema-export"]
+schema-export = ["dep:schemars", "clawcrew-config/schema-export"]
 acp-bridge = ["dep:tokio-tungstenite"]
 
-# Channels — each forwards to zeroclaw-channels.
-channel-email = ["zeroclaw-channels/channel-email", "zeroclaw-gateway?/channel-email"]
-channel-telegram = ["zeroclaw-channels/channel-telegram"]
-channel-lark = ["zeroclaw-channels/channel-lark"]
-channel-nostr = ["zeroclaw-channels/channel-nostr"]
-channel-matrix = ["zeroclaw-channels/channel-matrix"]
-channel-discord = ["zeroclaw-channels/channel-discord"]
-channel-slack = ["zeroclaw-channels/channel-slack"]
-channel-signal = ["zeroclaw-channels/channel-signal"]
-channel-mattermost = ["zeroclaw-channels/channel-mattermost"]
-channel-irc = ["zeroclaw-channels/channel-irc"]
-channel-twitch = ["zeroclaw-channels/channel-twitch"]
-channel-imessage = ["zeroclaw-channels/channel-imessage"]
-channel-dingtalk = ["zeroclaw-channels/channel-dingtalk"]
-channel-qq = ["zeroclaw-channels/channel-qq"]
-channel-bluesky = ["zeroclaw-channels/channel-bluesky"]
-channel-git = ["zeroclaw-channels/channel-git"]
-provider-github = ["zeroclaw-channels/provider-github"]
-provider-gitea = ["zeroclaw-channels/provider-gitea"]
-channel-twitter = ["zeroclaw-channels/channel-twitter"]
-channel-reddit = ["zeroclaw-channels/channel-reddit"]
-channel-notion = ["zeroclaw-channels/channel-notion"]
-channel-mqtt = ["zeroclaw-channels/channel-mqtt"]
-channel-filesystem = ["zeroclaw-channels/channel-filesystem"]
-channel-amqp = ["zeroclaw-channels/channel-amqp"]
-channel-linq = ["zeroclaw-channels/channel-linq", "zeroclaw-gateway?/channel-linq"]
-channel-nextcloud = ["zeroclaw-channels/channel-nextcloud", "zeroclaw-gateway?/channel-nextcloud"]
-channel-mochat = ["zeroclaw-channels/channel-mochat"]
-channel-wechat = ["zeroclaw-channels/channel-wechat", "zeroclaw-gateway?/channel-wechat"]
-channel-wecom = ["zeroclaw-channels/channel-wecom"]
-channel-wecom-ws = ["zeroclaw-channels/channel-wecom-ws"]
-channel-clawdtalk = ["zeroclaw-channels/channel-clawdtalk"]
-channel-webhook = ["zeroclaw-channels/channel-webhook"]
-channel-acp-server = ["zeroclaw-channels/channel-acp-server", "zeroclaw-gateway?/channel-acp-server"]
-channel-whatsapp-cloud = ["zeroclaw-channels/channel-whatsapp-cloud", "zeroclaw-gateway?/channel-whatsapp-cloud"]
-channel-voice-call = ["zeroclaw-channels/channel-voice-call"]
-channel-line = ["zeroclaw-channels/channel-line"]
+# Channels — each forwards to clawcrew-channels.
+channel-email = ["clawcrew-channels/channel-email", "clawcrew-gateway?/channel-email"]
+channel-telegram = ["clawcrew-channels/channel-telegram"]
+channel-lark = ["clawcrew-channels/channel-lark"]
+channel-nostr = ["clawcrew-channels/channel-nostr"]
+channel-matrix = ["clawcrew-channels/channel-matrix"]
+channel-discord = ["clawcrew-channels/channel-discord"]
+channel-slack = ["clawcrew-channels/channel-slack"]
+channel-signal = ["clawcrew-channels/channel-signal"]
+channel-mattermost = ["clawcrew-channels/channel-mattermost"]
+channel-irc = ["clawcrew-channels/channel-irc"]
+channel-twitch = ["clawcrew-channels/channel-twitch"]
+channel-imessage = ["clawcrew-channels/channel-imessage"]
+channel-dingtalk = ["clawcrew-channels/channel-dingtalk"]
+channel-qq = ["clawcrew-channels/channel-qq"]
+channel-bluesky = ["clawcrew-channels/channel-bluesky"]
+channel-git = ["clawcrew-channels/channel-git"]
+provider-github = ["clawcrew-channels/provider-github"]
+provider-gitea = ["clawcrew-channels/provider-gitea"]
+channel-twitter = ["clawcrew-channels/channel-twitter"]
+channel-reddit = ["clawcrew-channels/channel-reddit"]
+channel-notion = ["clawcrew-channels/channel-notion"]
+channel-mqtt = ["clawcrew-channels/channel-mqtt"]
+channel-filesystem = ["clawcrew-channels/channel-filesystem"]
+channel-amqp = ["clawcrew-channels/channel-amqp"]
+channel-linq = ["clawcrew-channels/channel-linq", "clawcrew-gateway?/channel-linq"]
+channel-nextcloud = ["clawcrew-channels/channel-nextcloud", "clawcrew-gateway?/channel-nextcloud"]
+channel-mochat = ["clawcrew-channels/channel-mochat"]
+channel-wechat = ["clawcrew-channels/channel-wechat", "clawcrew-gateway?/channel-wechat"]
+channel-wecom = ["clawcrew-channels/channel-wecom"]
+channel-wecom-ws = ["clawcrew-channels/channel-wecom-ws"]
+channel-clawdtalk = ["clawcrew-channels/channel-clawdtalk"]
+channel-webhook = ["clawcrew-channels/channel-webhook"]
+channel-acp-server = ["clawcrew-channels/channel-acp-server", "clawcrew-gateway?/channel-acp-server"]
+channel-whatsapp-cloud = ["clawcrew-channels/channel-whatsapp-cloud", "clawcrew-gateway?/channel-whatsapp-cloud"]
+channel-voice-call = ["clawcrew-channels/channel-voice-call"]
+channel-line = ["clawcrew-channels/channel-line"]
 # Feishu uses the same channel implementation as Lark; `use_feishu = true`
 # selects Feishu endpoints at runtime.
 channel-feishu = ["channel-lark"]
-whatsapp-web = ["zeroclaw-channels/whatsapp-web", "zeroclaw-gateway?/whatsapp-web"]
-voice-wake = ["zeroclaw-channels/voice-wake"]
-memory-postgres = ["zeroclaw-memory/memory-postgres"]
+whatsapp-web = ["clawcrew-channels/whatsapp-web", "clawcrew-gateway?/whatsapp-web"]
+voice-wake = ["clawcrew-channels/voice-wake"]
+memory-postgres = ["clawcrew-memory/memory-postgres"]
 
 # Backends and platform flags — each forwards to ONE crate
 observability-prometheus = [
-    "zeroclaw-runtime/observability-prometheus",
-    "zeroclaw-gateway/observability-prometheus",
+    "clawcrew-runtime/observability-prometheus",
+    "clawcrew-gateway/observability-prometheus",
 ]
-observability-otel = ["zeroclaw-runtime/observability-otel"]
-hardware = ["dep:zeroclaw-hardware", "zeroclaw-hardware/hardware"]
-peripheral-rpi = ["dep:zeroclaw-hardware", "zeroclaw-hardware/peripheral-rpi"]
-# Forwards `zeroclaw-hardware/dev-sim`: extends the serial allow-list with
+observability-otel = ["clawcrew-runtime/observability-otel"]
+hardware = ["dep:clawcrew-hardware", "clawcrew-hardware/hardware"]
+peripheral-rpi = ["dep:clawcrew-hardware", "clawcrew-hardware/peripheral-rpi"]
+# Forwards `clawcrew-hardware/dev-sim`: extends the serial allow-list with
 # `/tmp/zc-sim-*` for hardware-free simulation. Off by default; opt-in for the
 # simulator and demo.
-dev-sim = ["dep:zeroclaw-hardware", "zeroclaw-hardware/dev-sim"]
-sandbox-landlock = ["zeroclaw-runtime/sandbox-landlock"]
-sandbox-bubblewrap = ["zeroclaw-runtime/sandbox-bubblewrap"]
-browser-native = ["zeroclaw-tools/browser-native"]
+dev-sim = ["dep:clawcrew-hardware", "clawcrew-hardware/dev-sim"]
+sandbox-landlock = ["clawcrew-runtime/sandbox-landlock"]
+sandbox-bubblewrap = ["clawcrew-runtime/sandbox-bubblewrap"]
+browser-native = ["clawcrew-tools/browser-native"]
 plugins-wasm = [
-    "dep:zeroclaw-plugins",
-    "zeroclaw-runtime/plugins-wasm",
-    "zeroclaw-gateway?/plugins-wasm",
+    "dep:clawcrew-plugins",
+    "clawcrew-runtime/plugins-wasm",
+    "clawcrew-gateway?/plugins-wasm",
 ]
-probe = ["dep:zeroclaw-hardware", "zeroclaw-hardware/probe"]
-webauthn = ["zeroclaw-runtime/webauthn", "zeroclaw-gateway?/webauthn"]
-embedded-web = ["zeroclaw-gateway/embedded-web"]
+probe = ["dep:clawcrew-hardware", "clawcrew-hardware/probe"]
+webauthn = ["clawcrew-runtime/webauthn", "clawcrew-gateway?/webauthn"]
+embedded-web = ["clawcrew-gateway/embedded-web"]
 
 # Backward-compatible aliases
 fantoccini = ["browser-native"]
@@ -373,9 +373,9 @@ metrics = ["observability-prometheus"]
 # - `plugins-wasm-pulley`: Most flexible, supports JIT compilation on targets
 #   where Cranelift isn't available (e.g., ARM32), but has the slowest runtime
 #   performance.
-plugins-wasm-runtime-only = ["plugins-wasm", "zeroclaw-plugins/plugins-wasmtime"]
-plugins-wasm-cranelift    = ["plugins-wasm", "zeroclaw-plugins/plugins-wasm-cranelift", "zeroclaw-runtime/plugins-wasm-cranelift"]
-plugins-wasm-pulley       = ["plugins-wasm", "zeroclaw-plugins/plugins-wasm-pulley"]
+plugins-wasm-runtime-only = ["plugins-wasm", "clawcrew-plugins/plugins-wasmtime"]
+plugins-wasm-cranelift    = ["plugins-wasm", "clawcrew-plugins/plugins-wasm-cranelift", "clawcrew-runtime/plugins-wasm-cranelift"]
+plugins-wasm-pulley       = ["plugins-wasm", "clawcrew-plugins/plugins-wasm-pulley"]
 
 # CI meta-feature
 ci-all = [
@@ -427,7 +427,7 @@ panic = "abort"
 # so this package's integration-test helpers can mint the now-sealed engine tool
 # registry. dev-dependency only: resolver v2 keeps `test-util` out of the shipped
 # binary build, so the assemble()-only seal holds in production.
-zeroclaw-runtime = { workspace = true, features = ["test-util"] }
+clawcrew-runtime = { workspace = true, features = ["test-util"] }
 tempfile = "3.26"
 criterion = { version = "0.8", features = ["async_tokio"] }
 wiremock = "0.6"

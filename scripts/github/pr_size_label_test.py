@@ -62,7 +62,7 @@ class PrSizeLabelTest(unittest.TestCase):
             change(".github/ISSUE_TEMPLATE/feature.yml", 1000),
             change(".github/pull_request_template.md", 1000),
             change("README.md", 1000),
-            change("crates/zeroclaw-config/src/policy.rs", 10, 5),
+            change("crates/clawcrew-config/src/policy.rs", 10, 5),
         ]
         self.assertEqual(size_labeler.effective_changed_lines(files), 15)
 
@@ -114,11 +114,11 @@ class PrSizeLabelTest(unittest.TestCase):
 
     def test_client_rejects_non_api_urls(self) -> None:
         client = size_labeler.GitHubClient("token")
-        self.assertEqual(client._parse_url("/repos/zeroclaw-labs/zeroclaw").scheme, "https")
+        self.assertEqual(client._parse_url("/repos/clawcrew-labs/clawcrew").scheme, "https")
         with self.assertRaisesRegex(ValueError, "non-GitHub-API URL"):
             client._parse_url("file:///tmp/token")
         with self.assertRaisesRegex(ValueError, "non-GitHub-API URL"):
-            client._parse_url("https://example.com/repos/zeroclaw-labs/zeroclaw")
+            client._parse_url("https://example.com/repos/clawcrew-labs/clawcrew")
 
     def test_client_sends_required_user_agent_header(self) -> None:
         captured: dict[str, object] = {}
@@ -157,7 +157,7 @@ class PrSizeLabelTest(unittest.TestCase):
 
         client = size_labeler.GitHubClient("token")
         with mock.patch.object(size_labeler.http.client, "HTTPSConnection", FakeConnection):
-            client._send("GET", "/repos/zeroclaw-labs/zeroclaw/pulls/1")
+            client._send("GET", "/repos/clawcrew-labs/clawcrew/pulls/1")
 
         headers = captured["headers"]
         self.assertIsInstance(headers, dict)
@@ -172,9 +172,9 @@ class PrSizeLabelTest(unittest.TestCase):
                 return {"changed_files": 3}
 
         client = FakeClient()
-        self.assertEqual(size_labeler.load_pr_changed_file_count(client, "zeroclaw-labs/zeroclaw", 9), 3)
+        self.assertEqual(size_labeler.load_pr_changed_file_count(client, "clawcrew-labs/clawcrew", 9), 3)
         self.assertEqual(client.method, "GET")
-        self.assertEqual(client.path, "/repos/zeroclaw-labs/zeroclaw/pulls/9")
+        self.assertEqual(client.path, "/repos/clawcrew-labs/clawcrew/pulls/9")
 
     def test_load_pr_changed_file_count_rejects_malformed_metadata(self) -> None:
         class FakeClient:
@@ -185,11 +185,11 @@ class PrSizeLabelTest(unittest.TestCase):
                 return self.payload
 
         with self.assertRaisesRegex(ValueError, "must be an object"):
-            size_labeler.load_pr_changed_file_count(FakeClient([]), "zeroclaw-labs/zeroclaw", 9)
+            size_labeler.load_pr_changed_file_count(FakeClient([]), "clawcrew-labs/clawcrew", 9)
         with self.assertRaisesRegex(ValueError, "invalid changed_files"):
             size_labeler.load_pr_changed_file_count(
                 FakeClient({"changed_files": True}),
-                "zeroclaw-labs/zeroclaw",
+                "clawcrew-labs/clawcrew",
                 9,
             )
 
@@ -204,8 +204,8 @@ class PrSizeLabelTest(unittest.TestCase):
 
         client = FakeClient()
         with self.assertRaisesRegex(ValueError, "incomplete PR file list"):
-            size_labeler.load_pr_files(client, "zeroclaw-labs/zeroclaw", 9, expected_file_count=3001)
-        self.assertEqual(client.path, "/repos/zeroclaw-labs/zeroclaw/pulls/9/files?per_page=100")
+            size_labeler.load_pr_files(client, "clawcrew-labs/clawcrew", 9, expected_file_count=3001)
+        self.assertEqual(client.path, "/repos/clawcrew-labs/clawcrew/pulls/9/files?per_page=100")
 
     def test_load_pr_files_accepts_complete_file_list(self) -> None:
         class FakeClient:
@@ -217,7 +217,7 @@ class PrSizeLabelTest(unittest.TestCase):
 
         files = size_labeler.load_pr_files(
             FakeClient(),
-            "zeroclaw-labs/zeroclaw",
+            "clawcrew-labs/clawcrew",
             9,
             expected_file_count=2,
         )
@@ -237,7 +237,7 @@ class PrSizeLabelTest(unittest.TestCase):
                 payload: dict[str, object] | None = None,
             ) -> object:
                 calls.append(("request", method, path))
-                if path == "/repos/zeroclaw-labs/zeroclaw/pulls/9":
+                if path == "/repos/clawcrew-labs/clawcrew/pulls/9":
                     return {"changed_files": 3001}
                 raise AssertionError(f"unexpected label request or mutation: {method} {path}")
 
@@ -253,7 +253,7 @@ class PrSizeLabelTest(unittest.TestCase):
                 size_labeler.main(
                     [
                         "--repo",
-                        "zeroclaw-labs/zeroclaw",
+                        "clawcrew-labs/clawcrew",
                         "--pr",
                         "9",
                         "--token",
@@ -262,7 +262,7 @@ class PrSizeLabelTest(unittest.TestCase):
                     ]
                 )
 
-        self.assertNotIn(("request", "GET", "/repos/zeroclaw-labs/zeroclaw/issues/9/labels?per_page=100"), calls)
+        self.assertNotIn(("request", "GET", "/repos/clawcrew-labs/clawcrew/issues/9/labels?per_page=100"), calls)
         self.assertFalse(any("/issues/9/labels" in call[2] for call in calls if len(call) == 3))
 
     def test_main_dry_run_prints_plan_without_label_mutation(self) -> None:
@@ -279,7 +279,7 @@ class PrSizeLabelTest(unittest.TestCase):
                 payload: dict[str, object] | None = None,
             ) -> object:
                 calls.append(("request", method, path))
-                if method == "GET" and path == "/repos/zeroclaw-labs/zeroclaw/pulls/9":
+                if method == "GET" and path == "/repos/clawcrew-labs/clawcrew/pulls/9":
                     return {"changed_files": 1}
                 if method in {"POST", "DELETE"}:
                     raise AssertionError(f"dry run must not mutate labels: {method} {path}")
@@ -287,9 +287,9 @@ class PrSizeLabelTest(unittest.TestCase):
 
             def paginate(self, path: str) -> list[dict[str, object]]:
                 calls.append(("paginate", "GET", path))
-                if path == "/repos/zeroclaw-labs/zeroclaw/pulls/9/files?per_page=100":
+                if path == "/repos/clawcrew-labs/clawcrew/pulls/9/files?per_page=100":
                     return [{"filename": "src/main.rs", "additions": 501, "deletions": 0}]
-                if path == "/repos/zeroclaw-labs/zeroclaw/issues/9/labels?per_page=100":
+                if path == "/repos/clawcrew-labs/clawcrew/issues/9/labels?per_page=100":
                     return [{"name": "size:M"}]
                 raise AssertionError(f"unexpected pagination: {path}")
 
@@ -299,7 +299,7 @@ class PrSizeLabelTest(unittest.TestCase):
                 size_labeler.main(
                     [
                         "--repo",
-                        "zeroclaw-labs/zeroclaw",
+                        "clawcrew-labs/clawcrew",
                         "--pr",
                         "9",
                         "--token",
@@ -314,7 +314,7 @@ class PrSizeLabelTest(unittest.TestCase):
         self.assertEqual(payload["selected_label"], "size:L")
         self.assertEqual(payload["labels_to_add"], ["size:L"])
         self.assertEqual(payload["labels_to_remove"], ["size:M"])
-        self.assertNotIn(("request", "POST", "/repos/zeroclaw-labs/zeroclaw/issues/9/labels"), calls)
+        self.assertNotIn(("request", "POST", "/repos/clawcrew-labs/clawcrew/issues/9/labels"), calls)
         self.assertFalse(any(call[0] == "request" and call[1] == "DELETE" for call in calls))
 
     def test_apply_size_plan_posts_and_deletes_only_planned_canonical_size_labels(self) -> None:
@@ -337,14 +337,14 @@ class PrSizeLabelTest(unittest.TestCase):
             labels_to_remove=("size:M", "size:XS"),
         )
 
-        size_labeler.apply_size_plan(FakeClient(), "zeroclaw-labs/zeroclaw", 9, plan)
+        size_labeler.apply_size_plan(FakeClient(), "clawcrew-labs/clawcrew", 9, plan)
 
         self.assertEqual(
             calls,
             [
-                ("POST", "/repos/zeroclaw-labs/zeroclaw/issues/9/labels", {"labels": ["size:L"]}),
-                ("DELETE", "/repos/zeroclaw-labs/zeroclaw/issues/9/labels/size%3AM", None),
-                ("DELETE", "/repos/zeroclaw-labs/zeroclaw/issues/9/labels/size%3AXS", None),
+                ("POST", "/repos/clawcrew-labs/clawcrew/issues/9/labels", {"labels": ["size:L"]}),
+                ("DELETE", "/repos/clawcrew-labs/clawcrew/issues/9/labels/size%3AM", None),
+                ("DELETE", "/repos/clawcrew-labs/clawcrew/issues/9/labels/size%3AXS", None),
             ],
         )
 
@@ -365,7 +365,7 @@ class PrSizeLabelTest(unittest.TestCase):
             labels_to_remove=("size:M",),
         )
 
-        size_labeler.apply_size_plan(FakeClient(), "zeroclaw-labs/zeroclaw", 9, plan)
+        size_labeler.apply_size_plan(FakeClient(), "clawcrew-labs/clawcrew", 9, plan)
 
     def test_workflow_fetches_workflow_classifier_without_checking_out_pr_code(self) -> None:
         workflow = (REPO_ROOT / ".github/workflows/pr-size-labeler.yml").read_text(encoding="utf-8")
@@ -421,7 +421,7 @@ class PrSizeLabelTest(unittest.TestCase):
                         "ENCODED_CLASSIFIER": base64.b64encode(b'print("ok")\n').decode("ascii"),
                         "FETCH_CASE": fetch_case,
                         "GH_TOKEN": "test-token",
-                        "GITHUB_REPOSITORY": "zeroclaw-labs/zeroclaw",
+                        "GITHUB_REPOSITORY": "clawcrew-labs/clawcrew",
                         "RUNNER_TEMP": str(temp_path),
                         "WORKFLOW_SHA": "trusted-workflow-sha",
                         "PATH": f"{bin_path}{os.pathsep}{os.environ['PATH']}",

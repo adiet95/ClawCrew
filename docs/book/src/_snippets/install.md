@@ -5,7 +5,7 @@
 ### Unix fast path
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh
 ```
 
 This route is noninteractive and does not open a picker.
@@ -20,15 +20,15 @@ If a source build is needed, the installer can bootstrap Rust when it is missing
 
 On Unix, the installer updates the shell profile when allowed; reload the parent shell before relying on the new PATH.
 
-The installer skips setup and prints `zeroclaw quickstart` as the next step.
+The installer skips setup and prints `clawcrew quickstart` as the next step.
 <!-- ANCHOR_END: unix-fast -->
 
 <!-- ANCHOR: unix-guided -->
 ### Unix guided path
 
 ```sh
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 ./install.sh
 ```
 
@@ -44,7 +44,7 @@ If a source build is needed, the installer can bootstrap Rust when it is missing
 
 On Unix, the installer updates the shell profile when allowed; reload the parent shell before relying on the new PATH.
 
-For an unconfigured install, it offers `zeroclaw quickstart` or browser-based Quickstart.
+For an unconfigured install, it offers `clawcrew quickstart` or browser-based Quickstart.
 <!-- ANCHOR_END: unix-guided -->
 <!-- ANCHOR_END: linux -->
 
@@ -65,7 +65,7 @@ This prebuilt route does not require a Rust toolchain.
 
 On Windows, the PowerShell path updates the current process and the persistent user PATH.
 
-The PowerShell block finishes by running `zeroclaw quickstart` automatically.
+The PowerShell block finishes by running `clawcrew quickstart` automatically.
 <!-- ANCHOR_END: windows-prebuilt -->
 
 <!-- ANCHOR: advanced-source -->
@@ -89,7 +89,7 @@ If a source build is needed, the installer can bootstrap Rust when it is missing
 
 On Unix, the installer updates the shell profile when allowed; reload the parent shell before relying on the new PATH.
 
-For an unconfigured install, it offers `zeroclaw quickstart` or browser-based Quickstart.
+For an unconfigured install, it offers `clawcrew quickstart` or browser-based Quickstart.
 
 #### Windows
 
@@ -101,7 +101,7 @@ This route is noninteractive and does not open a picker.
 
 This route always builds from source.
 
-This command installs the core `zeroclaw` binary; it does not install optional apps.
+This command installs the core `clawcrew` binary; it does not install optional apps.
 
 The command uses a fixed feature set.
 
@@ -109,5 +109,5 @@ A Rust toolchain is required before using this command.
 
 This Cargo command does not edit PATH; make sure Cargo's bin directory is already available in your shell.
 
-After installation, run `zeroclaw quickstart`.
+After installation, run `clawcrew quickstart`.
 <!-- ANCHOR_END: advanced-source -->

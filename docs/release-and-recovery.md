@@ -4,7 +4,7 @@ Status: initial · Updated: 2026-09-27
 
 ## Release channels
 
-ZeroClaw ships as a native binary (and a Tauri desktop bundle). There is a
+ClawCrew ships as a native binary (and a Tauri desktop bundle). There is a
 single stable channel today; release artifacts are produced from tagged
 `vX.Y.Z` commits. Pre-release tags carry a `-rc.N` suffix and are not
 recommended for production.
@@ -15,7 +15,7 @@ recommended for production.
 
 ## Supported versions
 
-`zeroclaw_runtime::platform::backup::schema_versions()` is the canonical,
+`clawcrew_runtime::platform::backup::schema_versions()` is the canonical,
 operator-readable list of the durable schema versions a build understands:
 
 | Store | Meaning |
@@ -32,7 +32,7 @@ version is refused (downgrade is unsafe) — see
 
 ## Backup
 
-`zeroclaw_runtime::platform::backup::create_backup(data_dir, dest, stores)`
+`clawcrew_runtime::platform::backup::create_backup(data_dir, dest, stores)`
 copies the known durable stores into `dest` and writes `manifest.json`
 (per-store size + SHA-256). `default_store_paths()` lists the stores currently
 covered; add new durable store paths there as they land.

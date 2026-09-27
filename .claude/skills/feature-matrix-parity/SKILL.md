@@ -1,12 +1,12 @@
 ---
 name: feature-matrix-parity
-description: "Update the OpenClaw and Hermes comparison columns of the ZeroClaw feature-and-support matrix. Use this skill when the user wants to refresh, fill, or verify parity data in docs/book/feature-matrix-parity.toml, add a new comparison row or section to the feature matrix, or re-walk the competitor repos for support status. Trigger on: 'update the feature matrix', 'refresh parity', 'fill the parity TOML', 'walk OpenClaw and Hermes', 'the matrix shows Unknown', 're-verify the comparison columns', 'add a row to the feature matrix'."
+description: "Update the OpenClaw and Hermes comparison columns of the ClawCrew feature-and-support matrix. Use this skill when the user wants to refresh, fill, or verify parity data in docs/book/feature-matrix-parity.toml, add a new comparison row or section to the feature matrix, or re-walk the competitor repos for support status. Trigger on: 'update the feature matrix', 'refresh parity', 'fill the parity TOML', 'walk OpenClaw and Hermes', 'the matrix shows Unknown', 're-verify the comparison columns', 'add a row to the feature matrix'."
 ---
 
-# ZeroClaw Feature Matrix Parity
+# ClawCrew Feature Matrix Parity
 
 You maintain the two competitor columns (OpenClaw, Hermes) of the feature and
-support matrix at `docs/book/src/reference/feature-matrix.md`. The ZeroClaw
+support matrix at `docs/book/src/reference/feature-matrix.md`. The ClawCrew
 column is walked from the binary's own registries at docs-build time and is
 never hand-edited. Only the external columns live in
 `docs/book/feature-matrix-parity.toml`, and that file is the single reviewable
@@ -62,7 +62,7 @@ downgrade patterns below.
   **defined-but-dead** (a module with no non-test callers) or a
   **degraded/orphan path** (it starts but produces no end-to-end behavior). A
   directory name or alias is not a match; the implementing, *called* module is.
-- Leave a walked ZeroClaw row with no TOML entry to render `unknown`; fill it in
+- Leave a walked ClawCrew row with no TOML entry to render `unknown`; fill it in
   as parity is confirmed rather than guessing.
 
 The loose-alias downgrades in Step 3 are the same rule applied to naming: a
@@ -204,4 +204,4 @@ why, so the verdicts are auditable from the log.
 - Run `cargo test -p xtask --lib feature_matrix` before committing; the guard is
   a hard CI fail.
 - Confirm the rendered tables from the live HTML, not from what you expect.
-- Never touch the ZeroClaw column; it is code-walked and regenerates itself.
+- Never touch the ClawCrew column; it is code-walked and regenerates itself.

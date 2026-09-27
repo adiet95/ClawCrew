@@ -15,7 +15,7 @@ import unicodedata
 from typing import Any, Callable, Iterable
 from urllib.parse import quote_plus
 
-REPOSITORY = "zeroclaw-labs/zeroclaw"
+REPOSITORY = "clawcrew-labs/clawcrew"
 CORE_ROSTER_PATH = Path(__file__).resolve().parents[2] / "docs/book/src/contributing/communication.md"
 QUEUES = ("near-ready", "maintainer", "second-core", "author-action", "stacked", "mine", "all")
 MAX_WORKERS = 8

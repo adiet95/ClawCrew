@@ -11,7 +11,7 @@ mandatory.
 This guide assumes you have built the [tool plugin](./writing-a-tool-plugin.md)
 and understand crate setup, the `__config` rule, logging, and install. It is
 checked against `wit/v0/channel.wit` and the host adapter in
-`crates/zeroclaw-plugins/src/wasm_channel.rs`.
+`crates/clawcrew-plugins/src/wasm_channel.rs`.
 
 > **Wiring status.** Channel plugins are constructed by a running daemon. An
 > installed package bound through `[channels.plugin.<alias>]` is admitted at
@@ -159,14 +159,14 @@ mod component {
         features: ["plugins-wit-v0"],
     });
 
-    use exports::zeroclaw::plugin::channel::{
+    use exports::clawcrew::plugin::channel::{
         ApprovalRequest, ApprovalResponse, ChannelCapabilities,
         Guest as Channel, InboundMessage, SendMessage,
     };
-    use exports::zeroclaw::plugin::plugin_info::Guest as PluginInfo;
-    use zeroclaw::plugin::config::get as config_get;
-    use zeroclaw::plugin::inbound::inbound_poll;
-    use zeroclaw::plugin::secrets::get as secret_get;
+    use exports::clawcrew::plugin::plugin_info::Guest as PluginInfo;
+    use clawcrew::plugin::config::get as config_get;
+    use clawcrew::plugin::inbound::inbound_poll;
+    use clawcrew::plugin::secrets::get as secret_get;
 
     #[derive(serde::Deserialize)]
     #[serde(deny_unknown_fields)]
@@ -252,7 +252,7 @@ that list is refused before a packet leaves, and a granted host that resolves
 to a loopback, private, or link-local address is refused too unless it is also
 listed under `egress_allow_private`. Install-time seeding of that grant for channel instances is
 still manual (the grant ceremony is
-[#9584](https://github.com/zeroclaw-labs/zeroclaw/pull/9584)), so document the
+[#9584](https://github.com/clawcrew-labs/clawcrew/pull/9584)), so document the
 hosts your plugin needs in its README.
 
 Pair `config_read` with the schema consumed by `ChannelConfig`:
@@ -398,13 +398,13 @@ denial, the inbound queue handoff, capability-gated dispatch, and poll-health
 accounting.
 
 To run your own component under those exact semantics, write an integration
-test that instantiates it through the real host adapter. `zeroclaw-plugins`
+test that instantiates it through the real host adapter. `clawcrew-plugins`
 is not published to crates.io, so pull it as a git dev-dependency pinned to
 the tag matching your target host:
 
 ```bash
-cargo add --dev zeroclaw-plugins \
-  --git https://github.com/zeroclaw-labs/zeroclaw --tag <host-version> \
+cargo add --dev clawcrew-plugins \
+  --git https://github.com/clawcrew-labs/clawcrew --tag <host-version> \
   --no-default-features --features plugins-wasm-cranelift
 ```
 

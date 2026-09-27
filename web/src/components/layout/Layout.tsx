@@ -9,7 +9,7 @@ import { ErrorBoundary } from '@/App';
 import { t } from '@/lib/i18n';
 
 // First-path-segment → i18n title key, so the browser tab/history/bookmark
-// reflects the current page instead of a constant "ZeroClaw".
+// reflects the current page instead of a constant "ClawCrew".
 const TITLE_KEYS: Record<string, string> = {
   agents: 'nav.agents',
   config: 'nav.config',
@@ -50,7 +50,7 @@ export default function Layout() {
       const key = TITLE_KEYS[first];
       name = key ? t(key) : null;
     }
-    document.title = name ? `${name} — ZeroClaw` : 'ZeroClaw';
+    document.title = name ? `${name} — ClawCrew` : 'ClawCrew';
   }, [pathname]);
 
   return (

@@ -1,6 +1,6 @@
 # Hardware subsystem
 
-ZeroClaw's hardware subsystem lets the agent control microcontrollers, SBCs, and peripherals directly. Enable with `--features hardware`.
+ClawCrew's hardware subsystem lets the agent control microcontrollers, SBCs, and peripherals directly. Enable with `--features hardware`.
 
 ## What's supported
 
@@ -55,7 +55,7 @@ The most common hardware target. A minimal setup:
 
 <!-- >>> generated:unix-fast-command by `cargo generate installers` - do not edit <<< -->
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh
 ```
 <!-- >>> end generated:unix-fast-command <<< -->
 
@@ -64,7 +64,7 @@ curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/insta
 sudo usermod -aG gpio,spi,i2c $USER
 
 # install as user service (ensures hardware group membership is inherited)
-zeroclaw service install
+clawcrew service install
 ```
 
 </div>

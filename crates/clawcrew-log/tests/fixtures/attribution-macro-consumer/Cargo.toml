@@ -1,0 +1,10 @@
+[package]
+name = "clawcrew-log-attribution-macro-consumer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+clawcrew-log.workspace = true
+clawcrew-log-attribution-macro-support = { path = "../attribution-macro-support" }

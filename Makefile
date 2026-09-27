@@ -1,4 +1,4 @@
-IMAGE_NAME    = zeroclaw
+IMAGE_NAME    = clawcrew
 IMAGE_TAG     = stagex
 IMAGE_FAT_TAG = stagex-fat
 
@@ -14,22 +14,22 @@ extract:
 	@if ! podman image exists $(IMAGE_NAME):$(IMAGE_TAG) 2>/dev/null; then \
 		$(MAKE) build; \
 	fi
-	podman create --name zeroclaw-extract $(IMAGE_NAME):$(IMAGE_TAG)
-	podman cp zeroclaw-extract:/usr/bin/zeroclaw .
-	podman cp zeroclaw-extract:/usr/bin/zerocode .
-	podman rm zeroclaw-extract
-	ls -lh zeroclaw zerocode
+	podman create --name clawcrew-extract $(IMAGE_NAME):$(IMAGE_TAG)
+	podman cp clawcrew-extract:/usr/bin/clawcrew .
+	podman cp clawcrew-extract:/usr/bin/zerocode .
+	podman rm clawcrew-extract
+	ls -lh clawcrew zerocode
 
 extract-fat:
 	@if ! podman image exists $(IMAGE_NAME):$(IMAGE_FAT_TAG) 2>/dev/null; then \
 		$(MAKE) build-fat; \
 	fi
-	podman create --name zeroclaw-fat-extract $(IMAGE_NAME):$(IMAGE_FAT_TAG)
-	podman cp zeroclaw-fat-extract:/usr/bin/zeroclaw .
-	podman cp zeroclaw-fat-extract:/usr/bin/zerocode .
-	podman rm zeroclaw-fat-extract
-	mv zeroclaw zeroclaw-fat
-	ls -lh zeroclaw-fat
+	podman create --name clawcrew-fat-extract $(IMAGE_NAME):$(IMAGE_FAT_TAG)
+	podman cp clawcrew-fat-extract:/usr/bin/clawcrew .
+	podman cp clawcrew-fat-extract:/usr/bin/zerocode .
+	podman rm clawcrew-fat-extract
+	mv clawcrew clawcrew-fat
+	ls -lh clawcrew-fat
 
 shell-debug:
 	podman run --rm -it \
@@ -38,4 +38,4 @@ shell-debug:
 
 clean:
 	-podman rmi $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_FAT_TAG) 2>/dev/null
-	rm -f zeroclaw zerocode zeroclaw-fat
+	rm -f clawcrew zerocode clawcrew-fat

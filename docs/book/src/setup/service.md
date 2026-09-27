@@ -1,32 +1,32 @@
 # Service Management
 
-ZeroClaw ships with first-class service integration for systemd (Linux), launchctl (macOS), and Task Scheduler (Windows). All three are driven by one CLI surface:
+ClawCrew ships with first-class service integration for systemd (Linux), launchctl (macOS), and Task Scheduler (Windows). All three are driven by one CLI surface:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw service install     # register the service
-zeroclaw service start       # start it
-zeroclaw service stop        # stop it
-zeroclaw service restart     # stop + start
-zeroclaw service status      # running / stopped, last exit code
-zeroclaw service uninstall   # remove it
+clawcrew service install     # register the service
+clawcrew service start       # start it
+clawcrew service stop        # stop it
+clawcrew service restart     # stop + start
+clawcrew service status      # running / stopped, last exit code
+clawcrew service uninstall   # remove it
 ```
 
 </div>
 
-The platform-specific backends are implemented in `crates/zeroclaw-runtime/src/service/`. You don't have to think about them, but knowing what they produce helps when debugging.
+The platform-specific backends are implemented in `crates/clawcrew-runtime/src/service/`. You don't have to think about them, but knowing what they produce helps when debugging.
 
 ## Linux: systemd
 
-`zeroclaw service install` writes a user-scoped unit at `~/.config/systemd/user/zeroclaw.service`.
+`clawcrew service install` writes a user-scoped unit at `~/.config/systemd/user/clawcrew.service`.
 
 The unit:
 
 - `Type=simple` with the agent process staying in the foreground
-- `ExecStart={cargo-bin}/zeroclaw daemon`
+- `ExecStart={cargo-bin}/clawcrew daemon`
 - `Restart=always` with `RestartSec=3`
 - `Environment=HOME=%h` and `PassEnvironment=DISPLAY XDG_RUNTIME_DIR` so headless browser tools can create profile/cache dirs and reach the user session
 - `WantedBy=default.target`
@@ -38,10 +38,10 @@ The unit:
 #### sh
 
 ```sh
-systemctl --user start zeroclaw
-systemctl --user stop zeroclaw
-systemctl --user status zeroclaw
-systemctl --user enable zeroclaw     # start on login
+systemctl --user start clawcrew
+systemctl --user stop clawcrew
+systemctl --user status clawcrew
+systemctl --user enable clawcrew     # start on login
 ```
 
 </div>
@@ -53,8 +53,8 @@ systemctl --user enable zeroclaw     # start on login
 #### sh
 
 ```sh
-journalctl --user -u zeroclaw -f        # follow
-journalctl --user -u zeroclaw --since "1h ago"
+journalctl --user -u clawcrew -f        # follow
+journalctl --user -u clawcrew --since "1h ago"
 ```
 
 </div>
@@ -68,7 +68,7 @@ Use a user-service override when the daemon needs environment variables that are
 #### sh
 
 ```sh
-systemctl --user edit zeroclaw.service
+systemctl --user edit clawcrew.service
 ```
 
 </div>
@@ -77,7 +77,7 @@ For example, a Bedrock profile that uses `credential_process` needs `AWS_PROFILE
 
 ```ini
 [Service]
-Environment=AWS_PROFILE=zeroclaw-bedrock
+Environment=AWS_PROFILE=clawcrew-bedrock
 ```
 
 After saving the override, reload and restart the user service:
@@ -88,8 +88,8 @@ After saving the override, reload and restart the user service:
 
 ```sh
 systemctl --user daemon-reload
-systemctl --user restart zeroclaw
-journalctl --user -u zeroclaw -f
+systemctl --user restart clawcrew
+journalctl --user -u clawcrew -f
 ```
 
 </div>
@@ -98,7 +98,7 @@ The generated user service sets `HOME=%h`, so provider code that reads files und
 
 ### Starting before user login
 
-The CLI only ever writes a user-scoped unit (`systemctl --user`), which by default starts at login and stops at logout. To keep ZeroClaw running on a headless box without an active session, enable lingering for the service user:
+The CLI only ever writes a user-scoped unit (`systemctl --user`), which by default starts at login and stops at logout. To keep ClawCrew running on a headless box without an active session, enable lingering for the service user:
 
 <div class="os-tabs-src">
 
@@ -106,12 +106,12 @@ The CLI only ever writes a user-scoped unit (`systemctl --user`), which by defau
 
 ```sh
 sudo loginctl enable-linger $USER
-systemctl --user enable --now zeroclaw
+systemctl --user enable --now clawcrew
 ```
 
 </div>
 
-If you need a true system-scope unit (root-owned, `/etc/systemd/system/`, dedicated service account, or hardware groups via `SupplementaryGroups`), the CLI does not generate one; adapt the system-level template at [`scripts/zeroclaw.service`](https://github.com/zeroclaw-labs/zeroclaw/blob/master/scripts/zeroclaw.service) and install it yourself. On OpenRC hosts, `sudo zeroclaw service install` does provision a dedicated `zeroclaw` user and system paths (see below).
+If you need a true system-scope unit (root-owned, `/etc/systemd/system/`, dedicated service account, or hardware groups via `SupplementaryGroups`), the CLI does not generate one; adapt the system-level template at [`scripts/clawcrew.service`](https://github.com/clawcrew-labs/clawcrew/blob/master/scripts/clawcrew.service) and install it yourself. On OpenRC hosts, `sudo clawcrew service install` does provision a dedicated `clawcrew` user and system paths (see below).
 
 ## Linux: OpenRC
 
@@ -122,35 +122,35 @@ Detected automatically when `/run/openrc` exists (Alpine, some Gentoo configs).
 #### sh
 
 ```sh
-zeroclaw service install   # writes /etc/init.d/zeroclaw
-rc-service zeroclaw start
-rc-update add zeroclaw default    # start on boot
+clawcrew service install   # writes /etc/init.d/clawcrew
+rc-service clawcrew start
+rc-update add clawcrew default    # start on boot
 ```
 
 </div>
 
-OpenRC keeps daemon output in `/var/log/zeroclaw/access.log` and
-`/var/log/zeroclaw/error.log`. Each file retains recent output within an 8 MiB
+OpenRC keeps daemon output in `/var/log/clawcrew/access.log` and
+`/var/log/clawcrew/error.log`. Each file retains recent output within an 8 MiB
 bound. Reinstall and restart the service after upgrading so the generated init
 script uses bounded logger processes.
 
 ## macOS: LaunchAgent
 
-`zeroclaw service install` writes `~/Library/LaunchAgents/com.zeroclaw.daemon.plist` and loads it.
+`clawcrew service install` writes `~/Library/LaunchAgents/com.clawcrew.daemon.plist` and loads it.
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-launchctl list | grep zeroclaw
-launchctl unload ~/Library/LaunchAgents/com.zeroclaw.daemon.plist
-launchctl load ~/Library/LaunchAgents/com.zeroclaw.daemon.plist
+launchctl list | grep clawcrew
+launchctl unload ~/Library/LaunchAgents/com.clawcrew.daemon.plist
+launchctl load ~/Library/LaunchAgents/com.clawcrew.daemon.plist
 ```
 
 </div>
 
-Logs go to `<config-dir>/logs/` as `daemon.stdout.log` and `daemon.stderr.log` (for a default install, `~/.zeroclaw/logs/`). Homebrew installs write to `$HOMEBREW_PREFIX/var/zeroclaw/logs/` instead. Each launchd capture file retains recent output within an 8 MiB bound. Reinstall and restart the service after upgrading so the generated LaunchAgent uses bounded capture. `zeroclaw service logs` tails whichever of the two files hold output, so a daemon that only writes to stdout still shows up; `--follow` watches both, so a failure written to `daemon.stderr.log` after startup still reaches a running viewer. When more than one file is shown, `tail` labels each block with a `==> path <==` header.
+Logs go to `<config-dir>/logs/` as `daemon.stdout.log` and `daemon.stderr.log` (for a default install, `~/.clawcrew/logs/`). Homebrew installs write to `$HOMEBREW_PREFIX/var/clawcrew/logs/` instead. Each launchd capture file retains recent output within an 8 MiB bound. Reinstall and restart the service after upgrading so the generated LaunchAgent uses bounded capture. `clawcrew service logs` tails whichever of the two files hold output, so a daemon that only writes to stdout still shows up; `--follow` watches both, so a failure written to `daemon.stderr.log` after startup still reaches a running viewer. When more than one file is shown, `tail` labels each block with a `==> path <==` header.
 
 ### Homebrew-managed
 
@@ -161,49 +161,49 @@ If installed via Homebrew, `brew services` is the preferred interface:
 #### sh
 
 ```sh
-brew services start zeroclaw
-brew services restart zeroclaw
-brew services info zeroclaw
+brew services start clawcrew
+brew services restart clawcrew
+brew services info clawcrew
 ```
 
 </div>
 
-Don't mix `zeroclaw service` CLI commands with `brew services`, pick one. Both end up writing a plist; having both around confuses `launchctl`.
+Don't mix `clawcrew service` CLI commands with `brew services`, pick one. Both end up writing a plist; having both around confuses `launchctl`.
 
 ## Windows: Task Scheduler
 
-`zeroclaw service install` creates a per-user scheduled task named **ZeroClaw Daemon**:
+`clawcrew service install` creates a per-user scheduled task named **ClawCrew Daemon**:
 
 - Trigger: at logon (`/SC ONLOGON`)
 - Run level: `LIMITED` (runs as the current user, not elevated)
-- Action: runs the install wrapper `zeroclaw-daemon.cmd`, which launches `zeroclaw daemon`
+- Action: runs the install wrapper `clawcrew-daemon.cmd`, which launches `clawcrew daemon`
 
-Verify in Task Scheduler GUI (`taskschd.msc`) under Task Scheduler Library → ZeroClaw Daemon.
+Verify in Task Scheduler GUI (`taskschd.msc`) under Task Scheduler Library → ClawCrew Daemon.
 
-Logs go to `<config-dir>\logs\` as `daemon.stdout.log` and `daemon.stderr.log` (for a default install, `%USERPROFILE%\.zeroclaw\logs\`). `zeroclaw service logs` prints whichever of the two files hold output, and `--follow` shows the others first and then streams `daemon.stdout.log`, or `daemon.stderr.log` when only that file holds output, because `Get-Content -Wait` tracks a single path. To read one directly:
+Logs go to `<config-dir>\logs\` as `daemon.stdout.log` and `daemon.stderr.log` (for a default install, `%USERPROFILE%\.clawcrew\logs\`). `clawcrew service logs` prints whichever of the two files hold output, and `--follow` shows the others first and then streams `daemon.stdout.log`, or `daemon.stderr.log` when only that file holds output, because `Get-Content -Wait` tracks a single path. To read one directly:
 
 <div class="os-tabs-src">
 
 #### cmd
 
 ```cmd
-type %USERPROFILE%\.zeroclaw\logs\daemon.stdout.log
+type %USERPROFILE%\.clawcrew\logs\daemon.stdout.log
 ```
 
 </div>
 
 ### Manual control (Task Scheduler)
 
-The task is driven through `zeroclaw service start|stop|status`, which wrap `schtasks /Run`, `/End`, and `/Query` against the **ZeroClaw Daemon** task. You can also manage it directly:
+The task is driven through `clawcrew service start|stop|status`, which wrap `schtasks /Run`, `/End`, and `/Query` against the **ClawCrew Daemon** task. You can also manage it directly:
 
 <div class="os-tabs-src">
 
 #### cmd
 
 ```cmd
-schtasks /Run /TN "ZeroClaw Daemon"
-schtasks /End /TN "ZeroClaw Daemon"
-schtasks /Query /TN "ZeroClaw Daemon" /FO LIST
+schtasks /Run /TN "ClawCrew Daemon"
+schtasks /End /TN "ClawCrew Daemon"
+schtasks /Query /TN "ClawCrew Daemon" /FO LIST
 ```
 
 </div>
@@ -214,22 +214,22 @@ The CLI installs only a per-user ONLOGON task; it does not register a `LocalSyst
 
 The service reads config from whichever directory resolved at install time. Precedence (first match wins):
 
-1. `$ZEROCLAW_CONFIG_DIR` (config lives directly under `$ZEROCLAW_CONFIG_DIR`)
-2. `$ZEROCLAW_DATA_DIR`
-3. `$ZEROCLAW_WORKSPACE` (**deprecated**, prefer `ZEROCLAW_DATA_DIR`; resolves either `$ZEROCLAW_WORKSPACE` or the legacy sibling `.zeroclaw/`)
-4. On macOS only, the Homebrew config dir (`$HOMEBREW_PREFIX/var/zeroclaw/`) when installed via Homebrew
-5. Default `~/.zeroclaw/` (Linux/macOS) or `%USERPROFILE%\.zeroclaw\` (Windows)
+1. `$CLAWCREW_CONFIG_DIR` (config lives directly under `$CLAWCREW_CONFIG_DIR`)
+2. `$CLAWCREW_DATA_DIR`
+3. `$CLAWCREW_WORKSPACE` (**deprecated**, prefer `CLAWCREW_DATA_DIR`; resolves either `$CLAWCREW_WORKSPACE` or the legacy sibling `.clawcrew/`)
+4. On macOS only, the Homebrew config dir (`$HOMEBREW_PREFIX/var/clawcrew/`) when installed via Homebrew
+5. Default `~/.clawcrew/` (Linux/macOS) or `%USERPROFILE%\.clawcrew\` (Windows)
 
-`ZEROCLAW_CONFIG_DIR` overrides everything; setting it alongside `ZEROCLAW_DATA_DIR` or `ZEROCLAW_WORKSPACE` logs a warning and ignores the others.
+`CLAWCREW_CONFIG_DIR` overrides everything; setting it alongside `CLAWCREW_DATA_DIR` or `CLAWCREW_WORKSPACE` logs a warning and ignores the others.
 
-If your service seems to ignore config changes, check which path the daemon resolved against, `zeroclaw status` reports the active config file, and the runtime logs a resolution-source line at startup:
+If your service seems to ignore config changes, check which path the daemon resolved against, `clawcrew status` reports the active config file, and the runtime logs a resolution-source line at startup:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw status
+clawcrew status
 ```
 
 </div>

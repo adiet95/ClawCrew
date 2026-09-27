@@ -9,16 +9,16 @@ tool until the replacement preserves the operator contract: config, security
 policy, tool receipts, audit visibility, compatibility, and rollback.
 
 The runtime registry source of truth is
-`crates/zeroclaw-runtime/src/tools/mod.rs`, especially `default_tools`,
+`crates/clawcrew-runtime/src/tools/mod.rs`, especially `default_tools`,
 `all_tools_with_runtime`, and `register_skill_tools_with_context_and_runtime`.
-The shared tool implementations live primarily under `crates/zeroclaw-tools/`.
+The shared tool implementations live primarily under `crates/clawcrew-tools/`.
 
 ## Classification Buckets
 
 | Bucket | Meaning | Next action |
 |---|---|---|
 | Keep built-in | Part of the baseline agent contract or tightly coupled to runtime policy, receipts, memory, sessions, or delegation. | Keep in core unless the agent contract changes through an RFC. |
-| Feature-gate candidate | First-party behavior still belongs in ZeroClaw, but the dependency, platform, binary-size, or operator-risk cost should not affect minimal builds. | Add or tighten a feature/config gate before considering removal. |
+| Feature-gate candidate | First-party behavior still belongs in ClawCrew, but the dependency, platform, binary-size, or operator-risk cost should not affect minimal builds. | Add or tighten a feature/config gate before considering removal. |
 | Externalize later | Useful capability, but the long-term owner should be a plugin, skill package, MCP server, or external CLI because the behavior mostly wraps a product, vendor API, or optional workflow. | Keep compatibility until the external surface is real and documented. |
 | No action yet | Current evidence is not enough to choose a different home. | Leave in place and revisit with source, usage, and replacement evidence. |
 
@@ -29,7 +29,7 @@ These tools form the minimum local agent work surface. They are registered by
 
 | Tool(s) | Why they stay |
 |---|---|
-| `shell` | Executes local commands under ZeroClaw's shell policy, sandbox, runtime adapter, path guard, and receipts. |
+| `shell` | Executes local commands under ClawCrew's shell policy, sandbox, runtime adapter, path guard, and receipts. |
 | `file_read`, `file_write`, `file_edit` | Own the workspace file contract, persistence behavior, path guard, and audit surface. |
 | `glob_search`, `content_search` | Provide local discovery without requiring shell-specific command syntax. |
 
@@ -56,7 +56,7 @@ boundaries because they add platform, dependency, network, or UI surface area.
 | Tool(s) | Boundary | Classification |
 |---|---|---|
 | `browser`, `browser_open`, `browser_delegate`, `text_browser` | Config-gated and runtime-dependent. | Keep first-party, but continue tightening feature/config gates because browser automation is a large trusted surface. |
-| `http_request`, `web_fetch`, `web_search_tool` | Config-gated network access. | Keep first-party while SSRF, allowlist, provider routing, and receipt behavior remain ZeroClaw-owned. Revisit only after MCP/plugin replacements can express the same network policy. |
+| `http_request`, `web_fetch`, `web_search_tool` | Config-gated network access. | Keep first-party while SSRF, allowlist, provider routing, and receipt behavior remain ClawCrew-owned. Revisit only after MCP/plugin replacements can express the same network policy. |
 | SOP tools (`sop_list`, `sop_execute`, `sop_advance`, `sop_approve`, `sop_status`, and conditional `sop_workshop`) | Runtime-handle gated; `sop_workshop` also requires procedural memory. | Keep first-party; SOP lifecycle, approvals, procedural memory, and audit records are runtime state, not a generic external integration. |
 | WASM plugin tools | Compile-feature and config-gated host bridge. | Keep the host bridge first-party; individual plugin capabilities should live outside core. |
 | `execute_pipeline` | Config-gated tool chaining. | Keep gated until tool chaining policy, per-step receipts, and caller allowlists are stable enough to judge whether it is core. |
@@ -66,8 +66,8 @@ boundaries because they add platform, dependency, network, or UI surface area.
 | `screenshot`, `image_info`, `canvas` | Visual/UI tool surface. | Keep for now; classify with the visual/UI tool surface once plugin and dashboard boundaries settle. |
 | `llm_task` | Provider-dependent subtask execution. | Keep until provider-scoped subtask execution has a separate contract from delegation. |
 | `security_ops` | Config-gated security operations. | Keep gated; security operations need first-party policy visibility until a plugin can advertise equivalent permissions, receipts, and rollback. |
-| `verifiable_intent` | Config-gated trust policy. **The `vi_verify` tool is temporarily withheld from the model-visible registry.** | Keep gated and first-party; intent issuance and verification affect trust policy and should stay first-party until the credential boundary is stable. No chain verifier exists yet, so `vi_verify` is not registered even when `verifiable_intent.enabled = true`; enabling the section now only emits a warning naming that gap, traced at process startup, again on each daemon reload, and once more when a `zeroclaw config patch` turns the section from disabled to enabled, and reported by `zeroclaw doctor` and the config API as the `verifiable_intent_tool_withheld` validation warning so it survives `observability.log_persistence = "none"`. Withholding the tool does not remove the issuance and verification library paths, which remain available to embedders. Restore registration only behind a verify-and-evaluate path that consumes a verified chain result, retiring both channels in that same change. |
-| Hardware probes (`hardware_board_info`, `hardware_memory_map`, `hardware_memory_read`) | Peripheral-gated hardware access. | Keep first-party while hardware tools are added through the peripheral registry path and touch physical devices under ZeroClaw permission rules. |
+| `verifiable_intent` | Config-gated trust policy. **The `vi_verify` tool is temporarily withheld from the model-visible registry.** | Keep gated and first-party; intent issuance and verification affect trust policy and should stay first-party until the credential boundary is stable. No chain verifier exists yet, so `vi_verify` is not registered even when `verifiable_intent.enabled = true`; enabling the section now only emits a warning naming that gap, traced at process startup, again on each daemon reload, and once more when a `clawcrew config patch` turns the section from disabled to enabled, and reported by `clawcrew doctor` and the config API as the `verifiable_intent_tool_withheld` validation warning so it survives `observability.log_persistence = "none"`. Withholding the tool does not remove the issuance and verification library paths, which remain available to embedders. Restore registration only behind a verify-and-evaluate path that consumes a verified chain result, retiring both channels in that same change. |
+| Hardware probes (`hardware_board_info`, `hardware_memory_map`, `hardware_memory_read`) | Peripheral-gated hardware access. | Keep first-party while hardware tools are added through the peripheral registry path and touch physical devices under ClawCrew permission rules. |
 
 ## Externalize Later
 
@@ -77,7 +77,7 @@ replacement surface exists. Until then, keep them compatible and policy-visible.
 | Tool(s) | Likely long-term home | Why |
 |---|---|---|
 | `notion`, `jira`, `microsoft365`, `google_workspace`, `linkedin`, `composio` | Plugin, MCP server, or CLI-backed integration. | These mostly wrap third-party products and authentication models that can evolve independently from the core runtime. |
-| `claude_code`, `claude_code_runner`, `codex_cli`, `gemini_cli`, `opencode_cli` | CLI-backed integration or skill package. | The external CLI already owns authentication, command behavior, and release cadence; ZeroClaw should preserve receipts and policy if it invokes them. |
+| `claude_code`, `claude_code_runner`, `codex_cli`, `gemini_cli`, `opencode_cli` | CLI-backed integration or skill package. | The external CLI already owns authentication, command behavior, and release cadence; ClawCrew should preserve receipts and policy if it invokes them. |
 | `email_search`, `email_read` | Channel companion plugin or MCP server. | Email search/read is useful but tied to external account auth and channel setup rather than the baseline agent contract. |
 | `discord_search` | Channel companion plugin or archive-query skill. | It depends on a Discord archive database produced by the channel; keep it close to that channel until the archive API is explicit. |
 | `image_gen`, `cloud_ops`, `cloud_patterns`, `project_intel`, `report_template` | Skill package, plugin, or MCP server. | These are optional workflows or vendor/data-service wrappers rather than core execution primitives. |

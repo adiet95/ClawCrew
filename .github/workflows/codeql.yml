@@ -42,7 +42,7 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     # Results upload to this repo's Security tab; skip on forks.
-    if: github.repository == 'zeroclaw-labs/zeroclaw'
+    if: github.repository == 'clawcrew-labs/clawcrew'
     # Keep the fast interpreted-language scan on GitHub; give only Rust the
     # existing closed Blacksmith toggle used by compile-heavy CI jobs.
     runs-on: ${{ matrix.language == 'rust' && vars.CI_USE_BLACKSMITH == 'true' && 'blacksmith-8vcpu-ubuntu-2404' || 'ubuntu-latest' }}
@@ -73,7 +73,7 @@ jobs:
 
       - name: Build
         if: matrix.language == 'rust'
-        run: cargo build --locked --workspace --exclude zeroclaw-desktop --features ci-all
+        run: cargo build --locked --workspace --exclude clawcrew-desktop --features ci-all
         env:
           CARGO_TERM_COLOR: always
 

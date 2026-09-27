@@ -3,8 +3,8 @@
 > Starting v0.7.0 · Type: Governance · Rev. 18
 >
 > **Canonical reference** · Ratified by the team · Rev. 18
-> Original governance discussion: [#5577](https://github.com/zeroclaw-labs/zeroclaw/issues/5577)
-> Follow-up work-lane and label-governance policy: [#6808](https://github.com/zeroclaw-labs/zeroclaw/issues/6808)
+> Original governance discussion: [#5577](https://github.com/clawcrew-labs/clawcrew/issues/5577)
+> Follow-up work-lane and label-governance policy: [#6808](https://github.com/clawcrew-labs/clawcrew/issues/6808)
 
 ---
 
@@ -20,22 +20,22 @@
 |---|---|---|
 | 1 | 2026-04-09 | Initial draft |
 | 2 | 2026-04-09 | Added §6.4 Architectural Compliance: Human Review, AI Support; added Discussion Question on AI automation of architecture reviews |
-| 3 | 2026-05-24 | Added #6808 operational-label-policy pointers; current label behavior lives in maintainer docs ([#6899](https://github.com/zeroclaw-labs/zeroclaw/pull/6899)) |
-| 4 | 2026-05-24 | Added #6808 community-pickup and issue-risk/PR-risk operational pointers ([#6903](https://github.com/zeroclaw-labs/zeroclaw/pull/6903)) |
-| 5 | 2026-05-25 | Promoted #6808 feature-facing work-lane and label-governance policy into FND-003; clarified durable source boundaries, Discussions stewardship, Discord-to-GitHub handoff, and where operational gate questions live ([#6919](https://github.com/zeroclaw-labs/zeroclaw/pull/6919)) |
-| 6 | 2026-05-27 | Made board-level `Won't Do` a durable closure decision and delegated current terminal-label and replacement-process rules to maintainer sources ([#6929](https://github.com/zeroclaw-labs/zeroclaw/pull/6929)) |
-| 7 | 2026-06-07 | Expanded project-board planning ownership to an active owner or steward path and required stale-exemption reason plus active movement ownership ([#7011](https://github.com/zeroclaw-labs/zeroclaw/pull/7011)) |
-| 8 | 2026-06-14 | Replaced owner-or-steward requirements with contributor-visible routing evidence for project-board and stale-exemption policy ([#7571](https://github.com/zeroclaw-labs/zeroclaw/pull/7571)) |
-| 9 | 2026-06-16 | Made `.github/ISSUE_TEMPLATE/` the operational intake source, defined the current intake lanes, and kept judgment-only labels maintainer-applied ([#7652](https://github.com/zeroclaw-labs/zeroclaw/pull/7652)) |
-| 10 | 2026-06-23 | Standardized size-label spelling and changed PR-size labeling from required automation to a future optional mechanism aligned with maintainer policy ([#8111](https://github.com/zeroclaw-labs/zeroclaw/pull/8111)) |
-| 11 | 2026-07-05 | Changed the RFC lifecycle to issue-first governance and linked the foundational RFCs to their canonical FNDs ([#8694](https://github.com/zeroclaw-labs/zeroclaw/pull/8694)) |
-| 12 | 2026-07-12 | Revised issue stale timing and qualifying-activity policy; made the maintainer label guide the sole operational source ([#8989](https://github.com/zeroclaw-labs/zeroclaw/pull/8989)) |
-| 13 | 2026-07-18 | Replaced the universal ADR requirement with an explicit durable-disposition rule for accepted RFCs; reserved ADRs for significant architecture decisions ([#9136](https://github.com/zeroclaw-labs/zeroclaw/pull/9136)) |
-| 14 | 2026-07-25 | Retired the `CONTRIBUTORS.md` membership record and the `zeroclaw-core`/`zeroclaw-contributors` team names, none of which were ever created; §5.3 now names the `core-contributors` GitHub team, CODEOWNERS, and the Communication maintainer table as the real records ([#9388](https://github.com/zeroclaw-labs/zeroclaw/pull/9388)) |
-| 15 | 2026-08-10 | Narrowed the RFC trigger to four project-level categories and named the ordinary work that does not require an RFC; replaced the seven-day discussion period with 48h ordinary / 72h exceptional; defined the 72-hour vote against an immutable snapshot, the 30-day active electorate, two-ballot quorum, silence-as-approval after quorum, non-vetoing `REVISE`, and outcome precedence; made two-thirds the default threshold and reserved unanimity for expensive or irreversible decisions; retired the nonexistent parallel `rfc:*` label family; added the GitHub bridge record for Core meeting decisions ([#9499](https://github.com/zeroclaw-labs/zeroclaw/pull/9499)) |
-| 16 | 2026-08-22 | Calibrated consequence-based PR risk routing, retained `risk:manual` as an automation freeze, and required two independent Core Team approvals for `risk:high` or `domain:security` PRs ([#10192](https://github.com/zeroclaw-labs/zeroclaw/pull/10192)) |
-| 17 | 2026-08-23 | Defined deferred RFC vote handling for unchanged snapshots: no-quorum and missing-threshold or explicit-unanimity cases enter another recorded 72-hour cycle on the same vote, existing explicit ballots count toward quorum and outcome until replaced, and material revisions return the proposal to discussion rather than renewing the unchanged snapshot ([#10288](https://github.com/zeroclaw-labs/zeroclaw/pull/10288)) |
-| 18 | 2026-09-08 | Implemented the accepted second-review exception with one non-author Core approval, clean exact-head advisory evidence, green required CI, and no unresolved holds or findings; added a five-business-date waiting condition ([RFC #10366](https://github.com/zeroclaw-labs/zeroclaw/issues/10366), [#10677](https://github.com/zeroclaw-labs/zeroclaw/pull/10677)) |
+| 3 | 2026-05-24 | Added #6808 operational-label-policy pointers; current label behavior lives in maintainer docs ([#6899](https://github.com/clawcrew-labs/clawcrew/pull/6899)) |
+| 4 | 2026-05-24 | Added #6808 community-pickup and issue-risk/PR-risk operational pointers ([#6903](https://github.com/clawcrew-labs/clawcrew/pull/6903)) |
+| 5 | 2026-05-25 | Promoted #6808 feature-facing work-lane and label-governance policy into FND-003; clarified durable source boundaries, Discussions stewardship, Discord-to-GitHub handoff, and where operational gate questions live ([#6919](https://github.com/clawcrew-labs/clawcrew/pull/6919)) |
+| 6 | 2026-05-27 | Made board-level `Won't Do` a durable closure decision and delegated current terminal-label and replacement-process rules to maintainer sources ([#6929](https://github.com/clawcrew-labs/clawcrew/pull/6929)) |
+| 7 | 2026-06-07 | Expanded project-board planning ownership to an active owner or steward path and required stale-exemption reason plus active movement ownership ([#7011](https://github.com/clawcrew-labs/clawcrew/pull/7011)) |
+| 8 | 2026-06-14 | Replaced owner-or-steward requirements with contributor-visible routing evidence for project-board and stale-exemption policy ([#7571](https://github.com/clawcrew-labs/clawcrew/pull/7571)) |
+| 9 | 2026-06-16 | Made `.github/ISSUE_TEMPLATE/` the operational intake source, defined the current intake lanes, and kept judgment-only labels maintainer-applied ([#7652](https://github.com/clawcrew-labs/clawcrew/pull/7652)) |
+| 10 | 2026-06-23 | Standardized size-label spelling and changed PR-size labeling from required automation to a future optional mechanism aligned with maintainer policy ([#8111](https://github.com/clawcrew-labs/clawcrew/pull/8111)) |
+| 11 | 2026-07-05 | Changed the RFC lifecycle to issue-first governance and linked the foundational RFCs to their canonical FNDs ([#8694](https://github.com/clawcrew-labs/clawcrew/pull/8694)) |
+| 12 | 2026-07-12 | Revised issue stale timing and qualifying-activity policy; made the maintainer label guide the sole operational source ([#8989](https://github.com/clawcrew-labs/clawcrew/pull/8989)) |
+| 13 | 2026-07-18 | Replaced the universal ADR requirement with an explicit durable-disposition rule for accepted RFCs; reserved ADRs for significant architecture decisions ([#9136](https://github.com/clawcrew-labs/clawcrew/pull/9136)) |
+| 14 | 2026-07-25 | Retired the `CONTRIBUTORS.md` membership record and the `clawcrew-core`/`clawcrew-contributors` team names, none of which were ever created; §5.3 now names the `core-contributors` GitHub team, CODEOWNERS, and the Communication maintainer table as the real records ([#9388](https://github.com/clawcrew-labs/clawcrew/pull/9388)) |
+| 15 | 2026-08-10 | Narrowed the RFC trigger to four project-level categories and named the ordinary work that does not require an RFC; replaced the seven-day discussion period with 48h ordinary / 72h exceptional; defined the 72-hour vote against an immutable snapshot, the 30-day active electorate, two-ballot quorum, silence-as-approval after quorum, non-vetoing `REVISE`, and outcome precedence; made two-thirds the default threshold and reserved unanimity for expensive or irreversible decisions; retired the nonexistent parallel `rfc:*` label family; added the GitHub bridge record for Core meeting decisions ([#9499](https://github.com/clawcrew-labs/clawcrew/pull/9499)) |
+| 16 | 2026-08-22 | Calibrated consequence-based PR risk routing, retained `risk:manual` as an automation freeze, and required two independent Core Team approvals for `risk:high` or `domain:security` PRs ([#10192](https://github.com/clawcrew-labs/clawcrew/pull/10192)) |
+| 17 | 2026-08-23 | Defined deferred RFC vote handling for unchanged snapshots: no-quorum and missing-threshold or explicit-unanimity cases enter another recorded 72-hour cycle on the same vote, existing explicit ballots count toward quorum and outcome until replaced, and material revisions return the proposal to discussion rather than renewing the unchanged snapshot ([#10288](https://github.com/clawcrew-labs/clawcrew/pull/10288)) |
+| 18 | 2026-09-08 | Implemented the accepted second-review exception with one non-author Core approval, clean exact-head advisory evidence, green required CI, and no unresolved holds or findings; added a five-business-date waiting condition ([RFC #10366](https://github.com/clawcrew-labs/clawcrew/issues/10366), [#10677](https://github.com/clawcrew-labs/clawcrew/pull/10677)) |
 
 ---
 
@@ -71,7 +71,7 @@ Every project without an intentional coordination system develops an accidental 
 
 This is not a criticism of anyone's effort. It is a description of what happens by default. The solution is not more process. It is the right process, applied at the right level for the size and maturity of the team.
 
-ZeroClaw needs three things:
+ClawCrew needs three things:
 
 1. **A pipeline** for turning ideas into shipped code, with visible stages and clear gates at each transition
 2. **A maintained discussion lane** for community questions, ideas, showcases, and early exploration that are not ready for the pipeline yet, without losing them or cluttering the active work
@@ -391,7 +391,7 @@ Membership itself is established by decision, not by any file or GitHub setting.
 
 Removals work the same way as admissions: they are decisions, recorded where they are made. Revoking access or removing someone from CODEOWNERS implements a departure; it does not by itself constitute one.
 
-Revisions 1 through 7 of this document specified a `CONTRIBUTORS.md` file at the repository root as a tier-organized membership record, and named `zeroclaw-core` and `zeroclaw-contributors` GitHub teams. None of the three was ever created; the organization uses a single `core-contributors` team instead. RFC #6808 reached the same finding independently, recording that the FND-003 team-tier structure is not the visible current routing model and that new lane rules should not be built on it. Those references are retired here rather than left standing as a description of machinery that does not exist.
+Revisions 1 through 7 of this document specified a `CONTRIBUTORS.md` file at the repository root as a tier-organized membership record, and named `clawcrew-core` and `clawcrew-contributors` GitHub teams. None of the three was ever created; the organization uses a single `core-contributors` team instead. RFC #6808 reached the same finding independently, recording that the FND-003 team-tier structure is not the visible current routing model and that new lane rules should not be built on it. Those references are retired here rather than left standing as a description of machinery that does not exist.
 
 Tier 2 has no durable membership record at present. Establishing one, or retiring the tier, is an open question for the team.
 
@@ -403,7 +403,7 @@ Tier 2 has no durable membership record at present. Establishing one, or retirin
 
 The `CODEOWNERS` file makes governance automatic. It defines which paths require review from which team before a PR can merge. GitHub enforces this as a required review: the PR cannot be merged until the requirement is satisfied.
 
-The block below is the original illustrative proposal, kept for the reasoning it shows about protected review routing. It is not the current file and should not be copied. `.github/CODEOWNERS` already exists and is actively maintained; it routes to individual handles rather than team handles, and its paths follow the post-microkernel crate layout established in #6537. The `@zeroclaw-labs/zeroclaw-core` and `@zeroclaw-labs/zeroclaw-contributors` handles used here were never created; see §5.3. Its broad routing paths are not the current `risk:high` classifier; read the live file and the [maintainer label guide](../maintainers/labels.md#risk-labels) for current routing and risk semantics.
+The block below is the original illustrative proposal, kept for the reasoning it shows about protected review routing. It is not the current file and should not be copied. `.github/CODEOWNERS` already exists and is actively maintained; it routes to individual handles rather than team handles, and its paths follow the post-microkernel crate layout established in #6537. The `@clawcrew-labs/clawcrew-core` and `@clawcrew-labs/clawcrew-contributors` handles used here were never created; see §5.3. Its broad routing paths are not the current `risk:high` classifier; read the live file and the [maintainer label guide](../maintainers/labels.md#risk-labels) for current routing and risk semantics.
 
 ```
 # CODEOWNERS — Automatic review routing by protected surface
@@ -412,29 +412,29 @@ The block below is the original illustrative proposal, kept for the reasoning it
 
 # ── Protected review routing: Core Team review ──────────────────────────────
 
-src/security/**                 @zeroclaw-labs/zeroclaw-core
-src/gateway/**                  @zeroclaw-labs/zeroclaw-core
-src/runtime/**                  @zeroclaw-labs/zeroclaw-core
-src/tools/shell.rs              @zeroclaw-labs/zeroclaw-core
-src/tools/file_write.rs         @zeroclaw-labs/zeroclaw-core
-src/tools/security_ops.rs       @zeroclaw-labs/zeroclaw-core
+src/security/**                 @clawcrew-labs/clawcrew-core
+src/gateway/**                  @clawcrew-labs/clawcrew-core
+src/runtime/**                  @clawcrew-labs/clawcrew-core
+src/tools/shell.rs              @clawcrew-labs/clawcrew-core
+src/tools/file_write.rs         @clawcrew-labs/clawcrew-core
+src/tools/security_ops.rs       @clawcrew-labs/clawcrew-core
 
 # ── Governance and configuration: requires Core Team approval ───────────────
 
-.github/**                      @zeroclaw-labs/zeroclaw-core
-CODEOWNERS                      @zeroclaw-labs/zeroclaw-core
-Cargo.toml                      @zeroclaw-labs/zeroclaw-core
-deny.toml                       @zeroclaw-labs/zeroclaw-core
+.github/**                      @clawcrew-labs/clawcrew-core
+CODEOWNERS                      @clawcrew-labs/clawcrew-core
+Cargo.toml                      @clawcrew-labs/clawcrew-core
+deny.toml                       @clawcrew-labs/clawcrew-core
 
 # ── Architecture documents: requires Core Team review ───────────────────────
 
-docs/book/src/foundations/**    @zeroclaw-labs/zeroclaw-core
-docs/book/src/architecture/decisions/**  @zeroclaw-labs/zeroclaw-core
-AGENTS.md                       @zeroclaw-labs/zeroclaw-core
+docs/book/src/foundations/**    @clawcrew-labs/clawcrew-core
+docs/book/src/architecture/decisions/**  @clawcrew-labs/clawcrew-core
+AGENTS.md                       @clawcrew-labs/clawcrew-core
 
 # ── Default: any Contributor or Core Team member can review ─────────────────
 
-*                               @zeroclaw-labs/zeroclaw-contributors
+*                               @clawcrew-labs/clawcrew-contributors
 ```
 
 As specific Core Team members take ownership of components, add their individual handles alongside the team handle. Specificity wins in CODEOWNERS: a more specific path rule overrides a more general one.
@@ -471,7 +471,7 @@ fmt                     ← cargo fmt --all -- --check
 clippy                  ← cargo clippy --all-targets -- -D warnings
 ```
 
-As the workspace decomposes into crates (per the architecture RFC), add per-crate checks. A change to `crates/zeroclaw-api` should run that crate's test suite independently.
+As the workspace decomposes into crates (per the architecture RFC), add per-crate checks. A change to `crates/clawcrew-api` should run that crate's test suite independently.
 
 ### 6.4 Architectural Compliance: Human Review, AI Support
 
@@ -485,7 +485,7 @@ This section exists because the question will come up (it already has) and it de
 
 **There are two fundamentally different kinds of quality enforcement, and they require different mechanisms.**
 
-The first kind is *structural compliance*: does this code violate a mechanical rule? Does `zeroclaw-kernel` import `TelegramChannel`? Do the dependency graph edges point the wrong way? Are there clippy warnings? These are binary questions. Either the code violates the rule or it does not. The compiler, `cargo deny`, and `cargo clippy --workspace` already enforce this. No human is needed. No AI is needed. The machine is authoritative, fast, and never wrong about a factual violation.
+The first kind is *structural compliance*: does this code violate a mechanical rule? Does `clawcrew-kernel` import `TelegramChannel`? Do the dependency graph edges point the wrong way? Are there clippy warnings? These are binary questions. Either the code violates the rule or it does not. The compiler, `cargo deny`, and `cargo clippy --workspace` already enforce this. No human is needed. No AI is needed. The machine is authoritative, fast, and never wrong about a factual violation.
 
 The second kind is *architectural intent*: does this decision belong here? Is this abstraction at the right layer? Does this trade-off align with the vision? Is this coupling going to be painful in Phase 3? Will this PR create a maintenance burden that isn't visible in the diff today? These questions require judgment, context, and an understanding of *why* the architecture exists, not just what the rules are. No automated tool can answer them reliably, because the answer depends on information that is not in the diff: the roadmap, the team's current priorities, the contributor's intent, and the long-term cost of the decision.
 
@@ -663,9 +663,9 @@ and foundation documents:
 
 | RFC issue | Current durable surface | Priority |
 |---|---|---|
-| [#5574](https://github.com/zeroclaw-labs/zeroclaw/issues/5574) | [FND-001: Intentional architecture](./fnd-001-intentional-architecture.md) | High |
-| [#5576](https://github.com/zeroclaw-labs/zeroclaw/issues/5576) | [FND-002: Documentation standards](./fnd-002-documentation-standards.md) | High |
-| [#5577](https://github.com/zeroclaw-labs/zeroclaw/issues/5577) | [FND-003: Governance](./fnd-003-governance.md) | Medium |
+| [#5574](https://github.com/clawcrew-labs/clawcrew/issues/5574) | [FND-001: Intentional architecture](./fnd-001-intentional-architecture.md) | High |
+| [#5576](https://github.com/clawcrew-labs/clawcrew/issues/5576) | [FND-002: Documentation standards](./fnd-002-documentation-standards.md) | High |
+| [#5577](https://github.com/clawcrew-labs/clawcrew/issues/5577) | [FND-003: Governance](./fnd-003-governance.md) | Medium |
 
 ---
 
@@ -933,6 +933,6 @@ By v1.0.0, the governance model should be self-sustaining: the team should not n
 
 ---
 
-*This proposal was developed in the context of ZeroClaw v0.6.8 and the two preceding architecture and documentation RFCs. The governance model proposed here is intentionally lightweight for a student-led project at an early stage of community growth. It is designed to scale: adding process as the team grows, not all at once.*
+*This proposal was developed in the context of ClawCrew v0.6.8 and the two preceding architecture and documentation RFCs. The governance model proposed here is intentionally lightweight for a student-led project at an early stage of community growth. It is designed to scale: adding process as the team grows, not all at once.*
 
 *The best governance model is the simplest one the team will actually follow. Start here. Adjust based on what you learn.*

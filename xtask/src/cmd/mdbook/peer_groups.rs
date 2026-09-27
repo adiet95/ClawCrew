@@ -154,8 +154,8 @@ fn expand_directives(
             "{{#model-provider-catalog-table" => render_model_provider_catalog_table(),
             "{{#model-provider-fields" => render_model_provider_fields(),
             "{{#channel-streaming-matrix" => {
-                let schema = schemars::schema_for!(zeroclaw_config::schema::Config);
-                zeroclaw_config::schema_markdown::channel_streaming_matrix(&schema.to_value())
+                let schema = schemars::schema_for!(clawcrew_config::schema::Config);
+                clawcrew_config::schema_markdown::channel_streaming_matrix(&schema.to_value())
             }
             "{{#env-var-bridge" => render_env_var_bridge(env_vars)?,
             "{{#env-var-name " => render_env_var_name(arg)?,
@@ -209,13 +209,13 @@ In the **Config** pane, under **{label}**.
 
 fn render_config_fields(arg: &str) -> anyhow::Result<String> {
     let path = arg.trim();
-    let schema = schemars::schema_for!(zeroclaw_config::schema::Config);
-    zeroclaw_config::schema_markdown::field_table_for_path(&schema.to_value(), path, false, None)
+    let schema = schemars::schema_for!(clawcrew_config::schema::Config);
+    clawcrew_config::schema_markdown::field_table_for_path(&schema.to_value(), path, false, None)
         .map_err(anyhow::Error::msg)
 }
 
 fn sop_trigger_variants() -> anyhow::Result<(serde_json::Value, Vec<(String, serde_json::Value)>)> {
-    let schema = schemars::schema_for!(zeroclaw_runtime::sop::types::SopTrigger);
+    let schema = schemars::schema_for!(clawcrew_runtime::sop::types::SopTrigger);
     let root = schema.to_value();
     let defs = root
         .get("$defs")
@@ -322,7 +322,7 @@ fn render_sop_trigger(arg: &str) -> anyhow::Result<String> {
     if let Some(obj) = node.as_object_mut() {
         obj.insert("$defs".to_string(), defs);
     }
-    let fields = zeroclaw_config::schema_markdown::field_table(&node, true, None, None);
+    let fields = clawcrew_config::schema_markdown::field_table(&node, true, None, None);
 
     Ok(format!(
         r#"{summary}
@@ -340,14 +340,14 @@ Author the SOP as described in [Syntax](../syntax.md), with a `{ty}` trigger. Th
 #### Validate
 
 ```sh
-zeroclaw sop validate
+clawcrew sop validate
 ```
 
 #### Inspect
 
 ```sh
-zeroclaw sop list
-zeroclaw sop show <name>
+clawcrew sop list
+clawcrew sop show <name>
 ```
 
 </div>
@@ -359,8 +359,8 @@ zeroclaw sop show <name>
 }
 
 fn config_section_label(path: &str) -> anyhow::Result<String> {
-    use zeroclaw_config::schema::Config;
-    if let Some(section) = zeroclaw_config::sections::Section::from_key(path) {
+    use clawcrew_config::schema::Config;
+    if let Some(section) = clawcrew_config::sections::Section::from_key(path) {
         return Ok(section.label());
     }
     let prefix = format!("{path}.");
@@ -372,12 +372,12 @@ fn config_section_label(path: &str) -> anyhow::Result<String> {
     if !is_schema_section {
         anyhow::bail!("config-where section '{path}' is not a known config section");
     }
-    Ok(zeroclaw_config::sections::humanize_section_key(path))
+    Ok(clawcrew_config::sections::humanize_section_key(path))
 }
 
 /// Render a secret-field setter widget. Secrets are stored encrypted; they must
 /// never be hand-written into `config.toml`. Tabs cover only the surfaces that
-/// encrypt on write: the gateway dashboard, zerocode, and `zeroclaw config set`
+/// encrypt on write: the gateway dashboard, zerocode, and `clawcrew config set`
 /// (masked input). The arg is the full dotted path to the secret field.
 fn render_secret_config(path: &str) -> String {
     let path = path.trim();
@@ -399,10 +399,10 @@ Open [`/config/{section}`](http://127.0.0.1:42617/config/{section}) and set the 
 
 In the **Config** pane, set the `{display_path}` field (input is masked).
 
-#### zeroclaw config
+#### clawcrew config
 
 ```sh
-zeroclaw config set {path}    # prompts for masked input, stores encrypted
+clawcrew config set {path}    # prompts for masked input, stores encrypted
 ```
 
 </div>"#,
@@ -411,7 +411,7 @@ zeroclaw config set {path}    # prompts for masked input, stores encrypted
 
 /// Render a set-it-any-surface widget for a single non-secret config field.
 /// Same three-surface tabs as `secret-config` (gateway dashboard, zerocode,
-/// `zeroclaw config set`) minus the masked-secret framing. The arg is the full
+/// `clawcrew config set`) minus the masked-secret framing. The arg is the full
 /// dotted path to the field, e.g. `channels.git.<alias>.app_id`. Used by setup
 /// guides that walk each required field individually.
 fn render_config_set(path: &str) -> String {
@@ -429,10 +429,10 @@ Open [`/config/{section}`](http://127.0.0.1:42617/config/{section}) and set the 
 
 In the **Config** pane, set the `{display_path}` field.
 
-#### zeroclaw config
+#### clawcrew config
 
 ```sh
-zeroclaw config set {path} <value>
+clawcrew config set {path} <value>
 ```
 
 </div>"#,
@@ -510,11 +510,11 @@ Open [`/config/{section}`](http://127.0.0.1:42617/config/{section}) and toggle t
 
 In the **Config** pane, set the `{display_path}` field.
 
-#### zeroclaw config
+#### clawcrew config
 
 ```sh
-zeroclaw config set {p} true     # thread replies on
-zeroclaw config set {p} false    # replies at the channel root
+clawcrew config set {p} true     # thread replies on
+clawcrew config set {p} false    # replies at the channel root
 ```
 
 </div>"#
@@ -525,7 +525,7 @@ zeroclaw config set {p} false    # replies at the channel root
 
     Ok(format!(
         r#"When a {channel} conversation happens in a thread, that thread is its own
-conversation. ZeroClaw derives a distinct session key per thread, so every
+conversation. ClawCrew derives a distinct session key per thread, so every
 thread carries an independent context window and history: messages in one
 thread never bleed into another, and the agent does not see a sibling thread's
 earlier turns.{toggle}
@@ -598,10 +598,10 @@ Open [`/config/{section}`](http://127.0.0.1:42617/config/{section}) and set the 
 
 In the **Config** pane, set the `{display_path}` field.
 
-#### zeroclaw config
+#### clawcrew config
 
 ```sh
-zeroclaw config set {p} <value>
+clawcrew config set {p} <value>
 ```
 
 </div>"#
@@ -683,7 +683,7 @@ fn render_example(p: &PeerParams) -> String {
     format!(
         "A {key} peer group named e.g. `my_{key}_group` sets `channel = \"{key}\"`, \
 allows `{example}` in `external_peers`, names {agents}{ignore}. Set it through \
-the gateway dashboard, zerocode, or `zeroclaw config set`.",
+the gateway dashboard, zerocode, or `clawcrew config set`.",
         key = p.key,
         agents = agents,
         example = p.sender_example,
@@ -727,7 +727,7 @@ fn load_params() -> anyhow::Result<Vec<PeerParams>> {
 }
 
 fn validate_keys(params: &[PeerParams]) -> anyhow::Result<()> {
-    let inventory = zeroclaw_config::schema::ChannelsConfig::default();
+    let inventory = clawcrew_config::schema::ChannelsConfig::default();
     let known: Vec<&'static str> = inventory.channels().iter().map(|c| c.kind).collect();
     for p in params {
         if !known.contains(&p.key.as_str()) {
@@ -744,7 +744,7 @@ fn validate_keys(params: &[PeerParams]) -> anyhow::Result<()> {
 /// Render the two-tab "bridge ecosystem env vars" widget (sh + PowerShell) from
 /// the `bridge_sh` and `bridge_ps` groups. The schema-mirror name on the left
 /// is derived from a validated path; the ecosystem var on the right lives in
-/// each row's `value`. One widget, both tabs, no literal `ZEROCLAW_...` name.
+/// each row's `value`. One widget, both tabs, no literal `CLAWCREW_...` name.
 fn render_env_var_bridge(vars: &[EnvVarParams]) -> anyhow::Result<String> {
     let sh = env_var_lines(vars, "bridge_sh")?;
     let ps = env_var_lines(vars, "bridge_ps")?;
@@ -779,7 +779,7 @@ fn env_var_lines(vars: &[EnvVarParams], group: &str) -> anyhow::Result<String> {
     Ok(body)
 }
 
-/// Render a single bare `ZEROCLAW_...` env-var name for inline prose or a
+/// Render a single bare `CLAWCREW_...` env-var name for inline prose or a
 /// one-line code block. The path is validated against the schema exactly like
 /// the `env-vars.toml` rows, so an inline reference cannot drift either.
 fn render_env_var_name(path: &str) -> anyhow::Result<String> {
@@ -788,9 +788,9 @@ fn render_env_var_name(path: &str) -> anyhow::Result<String> {
 }
 
 fn render_model_provider_endpoint(name: &str, format_fixed: impl FnOnce(&str) -> String) -> String {
-    use zeroclaw_providers::factory::ProviderEndpoint;
+    use clawcrew_providers::factory::ProviderEndpoint;
 
-    let endpoint = zeroclaw_providers::factory::endpoint_for_family(name);
+    let endpoint = clawcrew_providers::factory::endpoint_for_family(name);
     // INVARIANT: `name` comes from `list_model_providers`, whose canonical
     // entries are required by provider-catalog tests to define an endpoint
     // classification.
@@ -803,7 +803,7 @@ fn render_model_provider_endpoint(name: &str, format_fixed: impl FnOnce(&str) ->
 }
 
 fn render_model_provider_catalog_table() -> String {
-    use zeroclaw_providers::ModelProviderCategory as C;
+    use clawcrew_providers::ModelProviderCategory as C;
     let category_title = |c: C| match c {
         C::Primary => "Primary",
         C::OpenAiCompatible => "OpenAI-compatible",
@@ -813,7 +813,7 @@ fn render_model_provider_catalog_table() -> String {
         C::CloudEndpoint => "Cloud AI endpoints",
         C::AiRouter => "AI Model Routers",
     };
-    let providers = zeroclaw_providers::list_model_providers();
+    let providers = clawcrew_providers::list_model_providers();
     let mut out = String::new();
     for category in C::all() {
         let rows: Vec<_> = providers
@@ -836,7 +836,7 @@ fn render_model_provider_catalog_table() -> String {
 
 fn render_model_provider_fields() -> String {
     use std::fmt::Write as _;
-    use zeroclaw_providers::ModelProviderCategory as C;
+    use clawcrew_providers::ModelProviderCategory as C;
     let category_title = |c: C| match c {
         C::Primary => "Primary",
         C::OpenAiCompatible => "OpenAI-compatible",
@@ -846,16 +846,16 @@ fn render_model_provider_fields() -> String {
         C::CloudEndpoint => "Cloud AI endpoints",
         C::AiRouter => "AI Model Routers",
     };
-    let providers = zeroclaw_providers::list_model_providers();
-    let schema = schemars::schema_for!(zeroclaw_config::schema::Config);
+    let providers = clawcrew_providers::list_model_providers();
+    let schema = schemars::schema_for!(clawcrew_config::schema::Config);
     let schema = schema.to_value();
     let provider_defaults =
-        serde_json::to_value(zeroclaw_config::schema::ModelProviderConfig::default()).ok();
+        serde_json::to_value(clawcrew_config::schema::ModelProviderConfig::default()).ok();
 
     let base: std::collections::BTreeSet<String> = providers
         .iter()
         .map(|p| {
-            zeroclaw_config::schema_markdown::section_field_names(
+            clawcrew_config::schema_markdown::section_field_names(
                 &schema,
                 &format!("providers.models.{}", p.name),
             )
@@ -869,7 +869,7 @@ fn render_model_provider_fields() -> String {
     // empty set keeps the full base, and the base fields are identical across
     // slots so the choice of slot does not matter.
     if let Some(first) = providers.first() {
-        let base_table = zeroclaw_config::schema_markdown::field_table_for_path(
+        let base_table = clawcrew_config::schema_markdown::field_table_for_path(
             &schema,
             &format!("providers.models.{}", first.name),
             false,
@@ -877,13 +877,13 @@ fn render_model_provider_fields() -> String {
         )
         .unwrap_or_default();
         // Trim base_table to only the shared fields by excluding everything else.
-        let extras_of_first = zeroclaw_config::schema_markdown::section_field_names(
+        let extras_of_first = clawcrew_config::schema_markdown::section_field_names(
             &schema,
             &format!("providers.models.{}", first.name),
         );
         let non_base: std::collections::BTreeSet<String> =
             extras_of_first.difference(&base).cloned().collect();
-        let base_only = zeroclaw_config::schema_markdown::field_table_for_path_excluding(
+        let base_only = clawcrew_config::schema_markdown::field_table_for_path_excluding(
             &schema,
             &format!("providers.models.{}", first.name),
             false,
@@ -914,7 +914,7 @@ fn render_model_provider_fields() -> String {
                 render_model_provider_endpoint(p.name, |url| format!("<code>{url}</code>"));
             let local = if p.local { " · local" } else { "" };
             let path = format!("providers.models.{}", p.name);
-            let extras = zeroclaw_config::schema_markdown::field_table_for_path_excluding(
+            let extras = clawcrew_config::schema_markdown::field_table_for_path_excluding(
                 &schema,
                 &path,
                 false,
@@ -955,12 +955,12 @@ fn render_model_provider_fields() -> String {
 }
 
 fn env_form(path: &str) -> String {
-    format!("ZEROCLAW_{}", path.replace('.', "__"))
+    format!("CLAWCREW_{}", path.replace('.', "__"))
 }
 
 /// Render the `## Examples` code block from the curated, schema-validated rows
 /// in the `example` group. Comments become `#` lines; each row becomes one
-/// `ZEROCLAW_...=value` line. No env-var name is literal in the page — every
+/// `CLAWCREW_...=value` line. No env-var name is literal in the page — every
 /// one is derived from a validated schema path.
 fn render_env_var_block(vars: &[EnvVarParams], group: &str) -> anyhow::Result<String> {
     let mut body = String::new();
@@ -1025,7 +1025,7 @@ fn validate_env_var_paths(vars: &[EnvVarParams]) -> anyhow::Result<()> {
 }
 
 fn validate_env_var_path(path: &str) -> anyhow::Result<()> {
-    use zeroclaw_config::schema::Config;
+    use clawcrew_config::schema::Config;
     let config = Config::default();
     let is_leaf = config.prop_fields().into_iter().any(|f| f.name == path);
     if is_leaf {
@@ -1109,7 +1109,7 @@ mod generated_prose_gate {
         let rendered = super::render_secret_config("channels.discord.<alias>.bot_token");
 
         assert!(rendered.contains("`channels.discord.<alias>.bot_token`"));
-        assert!(rendered.contains("zeroclaw config set channels.discord.<alias>.bot_token"));
+        assert!(rendered.contains("clawcrew config set channels.discord.<alias>.bot_token"));
     }
 
     #[test]
@@ -1125,11 +1125,11 @@ mod generated_prose_gate {
 
         assert!(thread.contains("`channels.matrix.<alias>.reply_in_thread`"));
         assert!(
-            thread.contains("zeroclaw config set channels.matrix.<alias>.reply_in_thread true")
+            thread.contains("clawcrew config set channels.matrix.<alias>.reply_in_thread true")
         );
         assert!(streaming.contains("`channels.slack.<alias>.stream_drafts`"));
         assert!(
-            streaming.contains("zeroclaw config set channels.slack.<alias>.stream_drafts <value>")
+            streaming.contains("clawcrew config set channels.slack.<alias>.stream_drafts <value>")
         );
     }
 
@@ -1138,10 +1138,10 @@ mod generated_prose_gate {
         let catalog = super::render_model_provider_catalog_table();
         let fields = super::render_model_provider_fields();
 
-        for provider in zeroclaw_providers::list_model_providers() {
-            use zeroclaw_providers::factory::ProviderEndpoint;
+        for provider in clawcrew_providers::list_model_providers() {
+            use clawcrew_providers::factory::ProviderEndpoint;
 
-            let endpoint = zeroclaw_providers::factory::endpoint_for_family(provider.name)
+            let endpoint = clawcrew_providers::factory::endpoint_for_family(provider.name)
                 .unwrap_or_else(|| panic!("missing endpoint metadata for {:?}", provider.name));
             let (catalog_endpoint, fields_endpoint) = match endpoint {
                 ProviderEndpoint::Fixed(url) => (format!("`{url}`"), format!("<code>{url}</code>")),

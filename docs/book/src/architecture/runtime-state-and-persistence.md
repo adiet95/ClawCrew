@@ -1,6 +1,6 @@
 # Runtime state and persistence
 
-ZeroClaw has one install root, but not one monolithic "workspace database".
+ClawCrew has one install root, but not one monolithic "workspace database".
 Different state surfaces have different owners, reload behavior, and durability.
 Use this map when a change adds state, moves state, caches config, touches reload,
 or changes session/memory/log/cost behavior.
@@ -13,7 +13,7 @@ use time.
 ## Install layout
 
 For a normal install, `<install>` is the resolved config directory
-(`~/.zeroclaw/` by default, Homebrew and explicit `--config-dir` installs can
+(`~/.clawcrew/` by default, Homebrew and explicit `--config-dir` installs can
 move it). The current layout is:
 
 ```text
@@ -44,25 +44,25 @@ new runtime state should be described in terms of `<install>/data/`,
 
 | Surface | Canonical source | Durable path | In-memory owner | Reload / concurrency boundary | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Config values | `zeroclaw-config::Config` loaded from `config.toml` | `<install>/config.toml` | daemon `Arc<RwLock<Config>>` plus per-subsystem resolved views | `/admin/reload` re-reads config and re-instantiates daemon subsystems; direct config writes use schema validation and dirty-path checks. RPC-side config mutations additionally serialize their whole read-mutate-flush section on `RpcContext::config_write_lock` (tokio mutex first, `parking_lot` `RwLock` second, and never a `parking_lot` guard held across an `.await` or `lock().await`); gateway HTTP config mutations likewise serialize their whole read-mutate-swap section on `AppState::config_write_lock` (same lock order) | Do not cache config-derived facts in long-lived structs unless the cache is explicitly rebuilt on reload. |
-| Config save durability | `save()` / `save_dirty()` atomic-write path in `zeroclaw-config` | `<install>/config.toml` plus retained `config.toml.bak` | same as config values | Writes go through a temp file, pre-replacement directory sync, atomic rename, then a post-replacement directory sync | `Ok(())` means the replacement is **visible**, not that rename durability is proven: a pre-replacement failure aborts with disk and live config unchanged, but a post-rename directory-sync failure still returns `Ok(())` with a warning logged and `config.toml.bak` retained. After a crash immediately following such a save, the directory entry may replay to the prior file; callers must not treat `Ok` as a stronger durability guarantee, and recovery can consult the retained `.bak`. |
-| Encrypted secrets | Config secret fields plus `.secret_key` | `<install>/config.toml`, `<install>/.secret_key` | secret-store helpers in `zeroclaw-config` | Reload observes changed config; losing `.secret_key` makes encrypted config secrets unrecoverable | Never copy decrypted values into logs, docs, PR bodies, or runtime metadata. |
+| Config values | `clawcrew-config::Config` loaded from `config.toml` | `<install>/config.toml` | daemon `Arc<RwLock<Config>>` plus per-subsystem resolved views | `/admin/reload` re-reads config and re-instantiates daemon subsystems; direct config writes use schema validation and dirty-path checks. RPC-side config mutations additionally serialize their whole read-mutate-flush section on `RpcContext::config_write_lock` (tokio mutex first, `parking_lot` `RwLock` second, and never a `parking_lot` guard held across an `.await` or `lock().await`); gateway HTTP config mutations likewise serialize their whole read-mutate-swap section on `AppState::config_write_lock` (same lock order) | Do not cache config-derived facts in long-lived structs unless the cache is explicitly rebuilt on reload. |
+| Config save durability | `save()` / `save_dirty()` atomic-write path in `clawcrew-config` | `<install>/config.toml` plus retained `config.toml.bak` | same as config values | Writes go through a temp file, pre-replacement directory sync, atomic rename, then a post-replacement directory sync | `Ok(())` means the replacement is **visible**, not that rename durability is proven: a pre-replacement failure aborts with disk and live config unchanged, but a post-rename directory-sync failure still returns `Ok(())` with a warning logged and `config.toml.bak` retained. After a crash immediately following such a save, the directory entry may replay to the prior file; callers must not treat `Ok` as a stronger durability guarantee, and recovery can consult the retained `.bak`. |
+| Encrypted secrets | Config secret fields plus `.secret_key` | `<install>/config.toml`, `<install>/.secret_key` | secret-store helpers in `clawcrew-config` | Reload observes changed config; losing `.secret_key` makes encrypted config secrets unrecoverable | Never copy decrypted values into logs, docs, PR bodies, or runtime metadata. |
 | Agent filesystem identity | Per-agent workspace files | `<install>/agents/<alias>/workspace/` | effective `SecurityPolicy` and agent prompt construction | Created lazily when the agent starts; workspace access is evaluated from config | This is the filesystem sandbox, not the config source of truth for providers/channels/tools. |
 | Shared skill bundles | Configured skill bundle entries and resolved bundle dirs | `<install>/shared/skills/<bundle>/` by default | skill loading / prompt enrichment | Reload and new agent starts observe config and filesystem changes | Bundle aliases and directory resolution come from config; the files are the bundle content. |
-| Conversation memory | `zeroclaw-memory` backend selected per agent | SQLite/Postgres/Lucid/Qdrant/Markdown backend locations; SQLite shared store lives under `data/memory/` | `Arc<dyn Memory>` wrapped in agent-scoping adapters | Backend choice is locked once an agent has written data; same-backend cross-agent recall is opt-in | Memory rows are agent-scoped. Do not replace memory ownership with copied prompt/session caches. |
-| Chat and channel sessions | `[channels].session_backend` plus `SessionBackend` | Default `data/sessions/sessions.db`; legacy/explicit JSONL uses `data/sessions/*.jsonl` | `zeroclaw-infra` backend handles are currently constructed independently by channels, gateway, RPC, and session tools | SQLite backend uses WAL; `SessionActorQueue` serializes active turns per session; JSONL mutations share a process-local sessions-directory lock | Chat/Code sessions use the unified backend contract. ACP protocol sessions use a separate store. Process-level backend ownership is not yet single-sourced. |
+| Conversation memory | `clawcrew-memory` backend selected per agent | SQLite/Postgres/Lucid/Qdrant/Markdown backend locations; SQLite shared store lives under `data/memory/` | `Arc<dyn Memory>` wrapped in agent-scoping adapters | Backend choice is locked once an agent has written data; same-backend cross-agent recall is opt-in | Memory rows are agent-scoped. Do not replace memory ownership with copied prompt/session caches. |
+| Chat and channel sessions | `[channels].session_backend` plus `SessionBackend` | Default `data/sessions/sessions.db`; legacy/explicit JSONL uses `data/sessions/*.jsonl` | `clawcrew-infra` backend handles are currently constructed independently by channels, gateway, RPC, and session tools | SQLite backend uses WAL; `SessionActorQueue` serializes active turns per session; JSONL mutations share a process-local sessions-directory lock | Chat/Code sessions use the unified backend contract. ACP protocol sessions use a separate store. Process-level backend ownership is not yet single-sourced. |
 | ACP sessions | ACP protocol session store | `data/sessions/acp-sessions.db` | `AcpSessionStore` opened at daemon boot and in RPC context | WAL-backed SQLite store, separate from chat sessions | ACP `session/load` and `session/resume` operate on this protocol store, not the chat session backend. |
-| Live RPC/TUI sessions | RPC `SessionStore` | none by itself | `crates/zeroclaw-runtime/src/rpc/session.rs` in-memory map | Process-local; session history persists only through the chat or ACP backend | Live session handles, uploads, cancel tokens, owners, and overrides are runtime state. |
-| Cron jobs | Declarative config membership plus cron SQLite store | `data/cron/jobs.db` | `zeroclaw-runtime::cron` scheduler/store | Read paths do not create `jobs.db`; scheduler owns due/lock state | Declarative jobs are reconciled from config, while run metadata and locks live in the cron DB. |
+| Live RPC/TUI sessions | RPC `SessionStore` | none by itself | `crates/clawcrew-runtime/src/rpc/session.rs` in-memory map | Process-local; session history persists only through the chat or ACP backend | Live session handles, uploads, cancel tokens, owners, and overrides are runtime state. |
+| Cron jobs | Declarative config membership plus cron SQLite store | `data/cron/jobs.db` | `clawcrew-runtime::cron` scheduler/store | Read paths do not create `jobs.db`; scheduler owns due/lock state | Declarative jobs are reconciled from config, while run metadata and locks live in the cron DB. |
 | SOP runs | `SopEngine` plus `SopRunStore` | None by default; `data/sop/runs.db` when durable SQLite initialization succeeds | SOP engine active/finished run caches | The durable store owns admission claims and persisted revisions; the engine restores active and terminal state on startup | Store initialization failure logs a warning and falls back to memory. Memory-backed audit records are not the run-lifecycle source of truth. |
 | Background task supervision | Durable task control plane | `data/control_plane.db` | observer/producer handles plus the daemon-only recovery owner and reaper | Owner PID plus process-start identity prevents recovery from reclaiming live work; heartbeat timeout applies only to producers that emit heartbeats | Background delegates require a task row and atomically settle status, output reference, and error there. A process-local supervisor retries failed terminal writes with capped backoff. Their originating agent alias scopes new-row result and cancellation access; terminal pre-route rows retain exact-ID read compatibility only. Subagent registration remains best-effort and leaves route absent. Both leave heartbeat, parent, and principal fields absent. Goal APIs exist, but end-to-end goal execution is not yet wired. |
 | Background delegate output | Delegate output artifact | `<workspace>/delegate_results/<task-id>.json` | delegate tool cancellation registry and running future | Output files survive restart; live cancellation handles do not | Current artifacts contain task identity and output but no lifecycle status, error, or timestamps. Reads take lifecycle state from the task row; legacy status-bearing files are fallback-only when no row exists. |
-| Runtime logs | `zeroclaw-log` event schema and subscriber layer | `data/state/runtime-trace.jsonl` when persistence is enabled | broadcast hook, JSONL writer, `/api/logs` reader, `Observer` bridge | Rolling/full/none persistence is config-controlled; dashboard SSE receives events even when JSONL is disabled | Logs are evidence and observability, not the source of user config or session state. |
+| Runtime logs | `clawcrew-log` event schema and subscriber layer | `data/state/runtime-trace.jsonl` when persistence is enabled | broadcast hook, JSONL writer, `/api/logs` reader, `Observer` bridge | Rolling/full/none persistence is config-controlled; dashboard SSE receives events even when JSONL is disabled | Logs are evidence and observability, not the source of user config or session state. |
 | Cost ledger | `CostTracker` plus rate config | `data/state/costs.jsonl` | process-global `CostTracker` | Reload hot-swaps `CostConfig`; the tracker is constructed on demand if cost tracking becomes enabled | Existing records keep their recorded price; rate edits affect future requests after reload. |
 | Gateway pairing tokens | `PairingGuard` from `gateway.paired_tokens` | token hashes in config | pairing guard | Reload reconstructs the guard from config | Valid bearer tokens are config state, not `devices.db` rows. |
 | Paired device metadata | Device registry rows keyed by token hash | `data/devices.db` | `DeviceRegistry` cache plus SQLite | Registry reconciles metadata against the canonical paired-token set | This DB makes paired devices visible/manageable; it does not invent valid tokens. |
 | Health and component status | running subsystems report component state | none | gateway health/status state | Process-local; reset/rebuilt on daemon restart or reload | `/health`, `/api/health`, and `/api/status` are current observations, not durable configuration. |
-| Queues, debouncers, watchdogs | `zeroclaw-infra` process utilities | none unless a caller stores results elsewhere | in-memory queues/debouncers/watchdogs | Process-local; used to serialize, coalesce, or detect stalls | Treat these as coordination state. Persist only the domain data they protect, not the queue itself. |
+| Queues, debouncers, watchdogs | `clawcrew-infra` process utilities | none unless a caller stores results elsewhere | in-memory queues/debouncers/watchdogs | Process-local; used to serialize, coalesce, or detect stalls | Treat these as coordination state. Persist only the domain data they protect, not the queue itself. |
 
 ## Reload and restart
 
@@ -107,16 +107,16 @@ the instance.
 
 ## Source pointers
 
-- Config, install-root, and data-dir resolution: `crates/zeroclaw-config/src/schema.rs`
-- Session backends: `crates/zeroclaw-infra/src/session_sqlite.rs`, `crates/zeroclaw-infra/src/session_store.rs`
-- ACP session store: `crates/zeroclaw-infra/src/acp_session_store.rs`
-- RPC live sessions: `crates/zeroclaw-runtime/src/rpc/session.rs`
-- Cron persistence: `crates/zeroclaw-runtime/src/cron/store.rs`
-- SOP persistence: `crates/zeroclaw-runtime/src/sop/store/`
-- Background task and goal supervision: `crates/zeroclaw-runtime/src/control_plane/`
-- Background delegation results: `crates/zeroclaw-runtime/src/tools/delegate.rs`
-- Logs: `crates/zeroclaw-log/`
-- Cost ledger: `crates/zeroclaw-config/src/cost/tracker.rs`
-- Pairing guard: `crates/zeroclaw-config/src/pairing.rs`
-- Device registry: `crates/zeroclaw-gateway/src/api_pairing.rs`
-- Reload endpoint: `crates/zeroclaw-gateway/src/lib.rs`
+- Config, install-root, and data-dir resolution: `crates/clawcrew-config/src/schema.rs`
+- Session backends: `crates/clawcrew-infra/src/session_sqlite.rs`, `crates/clawcrew-infra/src/session_store.rs`
+- ACP session store: `crates/clawcrew-infra/src/acp_session_store.rs`
+- RPC live sessions: `crates/clawcrew-runtime/src/rpc/session.rs`
+- Cron persistence: `crates/clawcrew-runtime/src/cron/store.rs`
+- SOP persistence: `crates/clawcrew-runtime/src/sop/store/`
+- Background task and goal supervision: `crates/clawcrew-runtime/src/control_plane/`
+- Background delegation results: `crates/clawcrew-runtime/src/tools/delegate.rs`
+- Logs: `crates/clawcrew-log/`
+- Cost ledger: `crates/clawcrew-config/src/cost/tracker.rs`
+- Pairing guard: `crates/clawcrew-config/src/pairing.rs`
+- Device registry: `crates/clawcrew-gateway/src/api_pairing.rs`
+- Reload endpoint: `crates/clawcrew-gateway/src/lib.rs`

@@ -2,17 +2,17 @@
 
 An agent's policy - which tools it may call, when it must ask for approval, its
 runtime budgets, its memory scope, and its skills - must be enforced identically
-no matter which code path assembles and runs the turn. ZeroClaw builds a turn
+no matter which code path assembles and runs the turn. ClawCrew builds a turn
 through several distinct construction paths, and historically each applied the
 policy itself. When the same policy is re-derived in several places, a setting
 honored on one path can be silently skipped on another.
 
-[#8120](https://github.com/zeroclaw-labs/zeroclaw/pull/8120) (MCP tools from one
+[#8120](https://github.com/clawcrew-labs/clawcrew/pull/8120) (MCP tools from one
 agent appearing in another agent's session) was one such divergence: the
 per-agent tool scoping that the channel path applied was missing on another
 construction path. The agent-policy parity harness exists to make that class of
 bug visible before it ships, and the trunk it builds on
-([#8156](https://github.com/zeroclaw-labs/zeroclaw/pull/8156)) exists to make it
+([#8156](https://github.com/clawcrew-labs/clawcrew/pull/8156)) exists to make it
 impossible by construction.
 
 ## The construction paths
@@ -75,7 +75,7 @@ The end state is that the divergence is uncompilable rather than merely tested a
 ## The tool-assembly seam (Epic A, the first surface)
 
 The per-agent tool registry is the first surface with a single gated constructor:
-`ScopedToolRegistry::assemble` (`crates/zeroclaw-runtime/src/tools/scoped.rs`). The
+`ScopedToolRegistry::assemble` (`crates/clawcrew-runtime/src/tools/scoped.rs`). The
 registry has historically been assembled by hand at six construction sites - the
 reason the built-in filter and MCP scoping had to be patched per-site (#7064,
 \#6960, #8120). `assemble` applies, in order: the agent's `config.peripherals`
@@ -117,15 +117,15 @@ other path applied the plain `apply_policy_tool_filter`. #8701 retired that
 variant, so every path now applies the same plain filter (ledger A4, backed
 by an in-file positive parity test rather than a divergence characterization).
 
-The remaining construction sites have also migrated: the channels orchestrator (`start_channels`), `Agent::from_config`, and the delegate independent-target builder (`independent_agentic_tools_for_target`). The seal landed in #9319. Every production tool-assembly path now mints through `ScopedToolRegistry::assemble`. `ScopedToolRegistry` is a private-field newtype in `crates/zeroclaw-runtime/src/tools/scoped.rs`; the turn-engine carriers (`ResolvedAgentExecution` and `ResolvedIo`), `Agent`, and `ChannelRuntimeContext` carry that sealed type. Handing those carriers a raw tool vector instead is a compile error. The registry exposes immutable slice access; `retain` only narrows an already sealed registry, and `into_inner` consumes it for non-turn consumers such as listings.
+The remaining construction sites have also migrated: the channels orchestrator (`start_channels`), `Agent::from_config`, and the delegate independent-target builder (`independent_agentic_tools_for_target`). The seal landed in #9319. Every production tool-assembly path now mints through `ScopedToolRegistry::assemble`. `ScopedToolRegistry` is a private-field newtype in `crates/clawcrew-runtime/src/tools/scoped.rs`; the turn-engine carriers (`ResolvedAgentExecution` and `ResolvedIo`), `Agent`, and `ChannelRuntimeContext` carry that sealed type. Handing those carriers a raw tool vector instead is a compile error. The registry exposes immutable slice access; `retain` only narrows an already sealed registry, and `into_inner` consumes it for non-turn consumers such as listings.
 
 The fixture escape hatch remains: `ScopedToolRegistry::from_raw_for_test` is gated by `cfg(any(test, feature = "test-util"))`. The `test-util` feature supports cross-crate test fixtures and is enabled through development dependencies, not production dependency edges. The seal therefore enforces the production construction boundary without preventing tests from supplying raw fixtures.
 
-Parity row 1 is `Tested`. `parity_l2_builtin_filter_semantic_parity` in `crates/zeroclaw-runtime/src/agent/parity.rs` compares assembly with the shared built-in filter; `tools::scoped::tests::assemble_applies_the_builtin_filter_uniformly` verifies allowed and excluded tools at the assembly seam. These tests establish filter behavior. The private field and sealed carrier types establish the construction boundary; the tests do not independently execute every production entry path. `parity_matrix_rows_are_owned_tracked_and_evidenced` checks row bookkeeping only, not whether a named test exists or proves the claim. This closes the tool-construction divergence, not the remaining policy surfaces.
+Parity row 1 is `Tested`. `parity_l2_builtin_filter_semantic_parity` in `crates/clawcrew-runtime/src/agent/parity.rs` compares assembly with the shared built-in filter; `tools::scoped::tests::assemble_applies_the_builtin_filter_uniformly` verifies allowed and excluded tools at the assembly seam. These tests establish filter behavior. The private field and sealed carrier types establish the construction boundary; the tests do not independently execute every production entry path. `parity_matrix_rows_are_owned_tracked_and_evidenced` checks row bookkeeping only, not whether a named test exists or proves the claim. This closes the tool-construction divergence, not the remaining policy surfaces.
 
 ## The harness
 
-The parity harness lives at `crates/zeroclaw-runtime/src/agent/parity.rs`, a
+The parity harness lives at `crates/clawcrew-runtime/src/agent/parity.rs`, a
 `#[cfg(test)]` sibling of the `#7415` `safety_net.rs` turn-engine oracle, reusing
 its fixtures. It carries an INDEX of parity rows - each naming its owner epic, a
 public tracking reference, and the test (or tracked-divergence record) that backs

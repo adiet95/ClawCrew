@@ -3,7 +3,7 @@
 > Starting v0.7.0 · Type: Documentation · Rev. 7
 >
 > **Canonical reference** · Ratified by the team · Rev. 7
-> Original RFC discussion: [#5576](https://github.com/zeroclaw-labs/zeroclaw/issues/5576)
+> Original RFC discussion: [#5576](https://github.com/clawcrew-labs/clawcrew/issues/5576)
 
 ---
 
@@ -34,12 +34,12 @@
 | Rev | Date | Summary |
 |---|---|---|
 | 1 | 2026-04-20 | Initial ratified documentation standard |
-| 2 | 2026-06-21 | Changed the foundational plugin ADR target from the Extism model to the Extism-to-WIT transition ([#8061](https://github.com/zeroclaw-labs/zeroclaw/pull/8061)) |
-| 3 | 2026-07-05 | Reconciled the canonical ADR location and set, and moved the RFC lifecycle from proposal files and PRs to RFC issues ([#8694](https://github.com/zeroclaw-labs/zeroclaw/pull/8694)) |
-| 4 | 2026-07-14 | Reconciled the foundational ADR backlog with the restored ADR set and separated retroactive records from implementation-gated roadmap decisions ([#9042](https://github.com/zeroclaw-labs/zeroclaw/pull/9042)) |
-| 5 | 2026-07-18 | Added proposed ADR-006 and ADR-007 records for the resolved runtime-channel-plugin and separate-gateway-process targets while keeping acceptance implementation-gated ([#9133](https://github.com/zeroclaw-labs/zeroclaw/pull/9133)) |
-| 6 | 2026-07-20 | Defined the compact root coding-agent contract, architecture-map routing, optional detailed guidance, and crate-policy safety floor ([#9050](https://github.com/zeroclaw-labs/zeroclaw/pull/9050)) |
-| 7 | 2026-08-06 | Defined the foundation revision policy and reconciled revision metadata across the FND suite ([#9778](https://github.com/zeroclaw-labs/zeroclaw/pull/9778)) |
+| 2 | 2026-06-21 | Changed the foundational plugin ADR target from the Extism model to the Extism-to-WIT transition ([#8061](https://github.com/clawcrew-labs/clawcrew/pull/8061)) |
+| 3 | 2026-07-05 | Reconciled the canonical ADR location and set, and moved the RFC lifecycle from proposal files and PRs to RFC issues ([#8694](https://github.com/clawcrew-labs/clawcrew/pull/8694)) |
+| 4 | 2026-07-14 | Reconciled the foundational ADR backlog with the restored ADR set and separated retroactive records from implementation-gated roadmap decisions ([#9042](https://github.com/clawcrew-labs/clawcrew/pull/9042)) |
+| 5 | 2026-07-18 | Added proposed ADR-006 and ADR-007 records for the resolved runtime-channel-plugin and separate-gateway-process targets while keeping acceptance implementation-gated ([#9133](https://github.com/clawcrew-labs/clawcrew/pull/9133)) |
+| 6 | 2026-07-20 | Defined the compact root coding-agent contract, architecture-map routing, optional detailed guidance, and crate-policy safety floor ([#9050](https://github.com/clawcrew-labs/clawcrew/pull/9050)) |
+| 7 | 2026-08-06 | Defined the foundation revision policy and reconciled revision metadata across the FND suite ([#9778](https://github.com/clawcrew-labs/clawcrew/pull/9778)) |
 
 ### Foundation Revision Policy
 
@@ -72,7 +72,7 @@ Without an answer to that question, documentation accumulates as a pile of pages
 
 The fix is not to write more documentation. The fix is to decide, before writing anything, what type of artifact you are creating. Type determines format, audience, location, lifecycle, and who is responsible for keeping it current. Once type is established, the rest follows naturally.
 
-This RFC adopts the **EA Artifacts on a Page** framework by Svyatoslav Kotusev (<https://eaonapage.com>) as the classification lens for all ZeroClaw documentation. The framework is evidence-based, deliberately non-prescriptive, and maps directly onto the kinds of documents an open source infrastructure project actually needs.
+This RFC adopts the **EA Artifacts on a Page** framework by Svyatoslav Kotusev (<https://eaonapage.com>) as the classification lens for all ClawCrew documentation. The framework is evidence-based, deliberately non-prescriptive, and maps directly onto the kinds of documents an open source infrastructure project actually needs.
 
 The core principle, borrowed from the broader development philosophy this team is adopting:
 
@@ -130,9 +130,9 @@ The `docs-contract.md` concept, treating documentation as a governed product sur
 
 ## 3. A Classification Framework: EA Artifacts on a Page
 
-The **EA Artifacts on a Page** framework defines five families of architecture artifacts. Every document in the ZeroClaw repository should belong to one of these families, and that family determines everything about where it lives, how it is formatted, and when it becomes stale.
+The **EA Artifacts on a Page** framework defines five families of architecture artifacts. Every document in the ClawCrew repository should belong to one of these families, and that family determines everything about where it lives, how it is formatted, and when it becomes stale.
 
-| EA Artifact Family | The Question It Answers | Examples in ZeroClaw | Location |
+| EA Artifact Family | The Question It Answers | Examples in ClawCrew | Location |
 |---|---|---|---|
 | **Considerations** | What principles and standards guide our decisions? | `AGENTS.md` files, coding standards, security policy, this doc | `docs/book/src/contributing/` or per-crate |
 | **Landscapes** | What does the system look like right now? | Component maps, crate topology, dependency diagrams | `docs/book/src/architecture/` |
@@ -159,7 +159,7 @@ A useful test for the second question: *would this document become wrong or misl
 
 The case for removing all non-English content from the repository rests on four pillars:
 
-**1. The audience has on-demand translation.** ZeroClaw's primary users are people running an AI assistant. Every such person has access to instant, high-quality machine translation, either through the agent they are running, through their browser, or through any of dozens of free translation services. The practical benefit of shipping translations in the repository is marginal.
+**1. The audience has on-demand translation.** ClawCrew's primary users are people running an AI assistant. Every such person has access to instant, high-quality machine translation, either through the agent they are running, through their browser, or through any of dozens of free translation services. The practical benefit of shipping translations in the repository is marginal.
 
 **2. The translations are almost certainly stale.** Machine-translated content was likely generated once and has not been kept synchronised with the English source. Stale documentation is worse than no documentation for AI-assisted development, because language models will confidently derive incorrect conclusions from outdated information.
 
@@ -169,7 +169,7 @@ The case for removing all non-English content from the repository rests on four 
 
 ### 4.2 What Stays
 
-One thing worth preserving: the *structure* of the i18n approach. The idea of making ZeroClaw accessible in multiple languages is right. Only the *location* and *ownership model* is wrong.
+One thing worth preserving: the *structure* of the i18n approach. The idea of making ClawCrew accessible in multiple languages is right. Only the *location* and *ownership model* is wrong.
 
 ### 4.3 The Replacement Strategy
 
@@ -178,10 +178,10 @@ One thing worth preserving: the *structure* of the i18n approach. The idea of ma
 3. **Remove** all non-English hub files from `docs/` (e.g. `docs/README.zh-CN.md`)
 4. **Add** a `Languages` section to the main `README.md`:
 
-   > **Translations:** Community-maintained translations are available in the [GitHub Wiki](https://github.com/zeroclaw-labs/zeroclaw/wiki). To contribute a translation or improve an existing one, edit the Wiki directly. All languages are welcome.
+   > **Translations:** Community-maintained translations are available in the [GitHub Wiki](https://github.com/clawcrew-labs/clawcrew/wiki). To contribute a translation or improve an existing one, edit the Wiki directly. All languages are welcome.
 
 5. **Create** a `Translations` page on the GitHub Wiki with a table of available languages, their completeness, and the contributors maintaining them
-6. **Optionally:** add a `zeroclaw docs --translate` CLI feature that uses the configured LLM provider to translate any doc page on demand, a natural fit for a product whose entire purpose is AI assistance
+6. **Optionally:** add a `clawcrew docs --translate` CLI feature that uses the configured LLM provider to translate any doc page on demand, a natural fit for a product whose entire purpose is AI assistance
 
 ### 4.4 The AGENTS.md Impact
 
@@ -296,7 +296,7 @@ date: YYYY-MM-DD
 status: proposed | accepted | deprecated | superseded-by-ADR-NNN
 relates-to:
   - ADR-XXX (optional, list of related decisions)
-  - crates/zeroclaw-api (optional, affected code paths)
+  - crates/clawcrew-api (optional, affected code paths)
 ---
 
 # ADR-NNN: Title
@@ -356,7 +356,7 @@ superseding ADR separately.
 
 ### 6.4 Why This Matters for AI-Assisted Development
 
-When an AI coding assistant reads a repository, it sees the code as it is now. It does not see the choices that were rejected, the tradeoffs that were weighed, or the reasons a particular structure was chosen over alternatives. Without ADRs, the AI will suggest changes that violate architectural constraints it has no way of knowing about. With ADRs, the reasoning is explicit and machine-readable. The frontmatter makes ADRs queryable: an AI tool can find all ADRs related to `zeroclaw-api` and load them as context before editing that crate.
+When an AI coding assistant reads a repository, it sees the code as it is now. It does not see the choices that were rejected, the tradeoffs that were weighed, or the reasons a particular structure was chosen over alternatives. Without ADRs, the AI will suggest changes that violate architectural constraints it has no way of knowing about. With ADRs, the reasoning is explicit and machine-readable. The frontmatter makes ADRs queryable: an AI tool can find all ADRs related to `clawcrew-api` and load them as context before editing that crate.
 
 ---
 
@@ -395,13 +395,13 @@ Explicit anti-patterns. What would be a mistake to add to this crate?
 
 ### 7.3 Examples
 
-**For `crates/zeroclaw-api` (once extracted):**
+**For `crates/clawcrew-api` (once extracted):**
 
 ```markdown
-# zeroclaw-api
+# clawcrew-api
 
 ## What this crate is
-Trait definitions and shared data types for the ZeroClaw plugin and kernel
+Trait definitions and shared data types for the ClawCrew plugin and kernel
 interfaces. This is the contract layer. Everything else depends on it.
 
 ## What this crate is allowed to depend on
@@ -431,10 +431,10 @@ All traits in this crate are extension points:
 - ADR-002: Trait-driven extensibility
 ```
 
-**For `crates/zeroclaw-kernel` (once extracted):**
+**For `crates/clawcrew-kernel` (once extracted):**
 
 ```markdown
-# zeroclaw-kernel
+# clawcrew-kernel
 
 ## What this crate is
 The orchestration engine. Runs the agent loop, manages the service registry,
@@ -442,8 +442,8 @@ exposes the local IPC API. The kernel knows nothing about specific channels,
 providers, or tools — only their abstract interfaces.
 
 ## What this crate is allowed to depend on
-- zeroclaw-api (traits only)
-- zeroclaw-tool-call-parser (parsing, no agent state)
+- clawcrew-api (traits only)
+- clawcrew-tool-call-parser (parsing, no agent state)
 - Standard async/runtime crates (tokio, anyhow, tracing)
 - Config and storage crates (toml, serde, rusqlite for core memory)
 NOT: any specific channel, provider, or tool implementation crate.
@@ -470,7 +470,7 @@ Implementations are registered by the binary crate, not by the kernel.
 
 The root `AGENTS.md` sets the compact project-wide policy. The [architecture and contribution map](../contributing/architecture-map.md) routes tasks to maintained architecture, foundation, testing, security, and maintainer sources. [Coding agent guidelines](../contributing/agent-guidelines.md) provide detailed project-wide examples and registries that are useful on demand but are not part of the always-loaded bootstrap.
 
-Crate-level `AGENTS.md` files narrow that policy for their specific scope. When an AI tool reads a file in `crates/zeroclaw-api/`, it should read the root contract, follow the architecture map for the task, and read `crates/zeroclaw-api/AGENTS.md` when present. Crate policy is more specific and takes precedence within its scope, but it cannot weaken project-wide safety, privacy, or authorization requirements.
+Crate-level `AGENTS.md` files narrow that policy for their specific scope. When an AI tool reads a file in `crates/clawcrew-api/`, it should read the root contract, follow the architecture map for the task, and read `crates/clawcrew-api/AGENTS.md` when present. Crate policy is more specific and takes precedence within its scope, but it cannot weaken project-wide safety, privacy, or authorization requirements.
 
 ---
 
@@ -637,7 +637,7 @@ These documentation-specific standards complement the broader standards proposed
 
 **How it applies:** User-facing documentation on the Wiki should follow Diátaxis structure. Code-adjacent documentation in the repository follows EA Artifacts. The two frameworks operate at different levels and do not conflict.
 
-| Diátaxis Type | Purpose | Example in ZeroClaw | Location |
+| Diátaxis Type | Purpose | Example in ClawCrew | Location |
 |---|---|---|---|
 | **Tutorial** | Learning-oriented, leads through an experience | "Build your first tool plugin" | Wiki |
 | **How-to Guide** | Goal-oriented, solves a specific problem | "Set up Telegram integration" | Wiki |
@@ -655,7 +655,7 @@ status: draft | proposed | accepted | deprecated | superseded
 last-reviewed: YYYY-MM-DD
 relates-to:
   - ADR-NNN
-  - crates/zeroclaw-api
+  - crates/clawcrew-api
 ---
 ```
 
@@ -711,7 +711,7 @@ The documentation migration follows the same Strangler Fig pattern as the archit
 - [ ] Migrate `docs/setup-guides/` content to the GitHub Wiki
 - [ ] Migrate `docs/ops/` content to the GitHub Wiki
 - [ ] Update `SUMMARY.md` to reflect the new structure (repo-only content)
-- [ ] Write root-level `AGENTS.md` for `crates/zeroclaw-api` (in anticipation of extraction)
+- [ ] Write root-level `AGENTS.md` for `crates/clawcrew-api` (in anticipation of extraction)
 
 **Success metrics:**
 - ADR-001 through ADR-007 exist with accepted, proposed, or superseded status as appropriate
@@ -787,6 +787,6 @@ The documentation migration follows the same Strangler Fig pattern as the archit
 
 ---
 
-*This proposal was developed from direct analysis of the ZeroClaw documentation system at v0.6.8. The metrics cited (169 i18n files, 2.2 MB, 31 language README variants) are based on direct measurement. The recommendations reflect established practices in technical documentation for open source infrastructure projects, adapted to the specific constraints and goals of ZeroClaw.*
+*This proposal was developed from direct analysis of the ClawCrew documentation system at v0.6.8. The metrics cited (169 i18n files, 2.2 MB, 31 language README variants) are based on direct measurement. The recommendations reflect established practices in technical documentation for open source infrastructure projects, adapted to the specific constraints and goals of ClawCrew.*
 
 *Feedback, corrections, and counterproposals are welcome. Good documentation is a community effort, and the best structure is the one the team will actually maintain.*

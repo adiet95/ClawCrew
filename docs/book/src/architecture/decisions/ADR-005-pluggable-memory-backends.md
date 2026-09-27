@@ -7,10 +7,10 @@ relates-to:
   - ADR-002
   - docs/book/src/foundations/fnd-001-intentional-architecture.md
   - docs/book/src/foundations/fnd-002-documentation-standards.md
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/6850
-  - crates/zeroclaw-api/src/memory_traits.rs
-  - crates/zeroclaw-memory
-  - crates/zeroclaw-config/src/schema.rs
+  - https://github.com/clawcrew-labs/clawcrew/issues/6850
+  - crates/clawcrew-api/src/memory_traits.rs
+  - crates/clawcrew-memory
+  - crates/clawcrew-config/src/schema.rs
 ---
 
 # ADR-005: Memory Storage Is Backend-Neutral With SQLite As The Default
@@ -21,7 +21,7 @@ FND-002 originally described this decision as choosing SQLite and Markdown as th
 
 ## Context
 
-ZeroClaw needs persistent memory across installations with different operational constraints. A local single-process agent benefits from an embedded store with no service dependency. Operators may also need a human-readable filesystem store, a shared database, a vector database, or an integration with another memory system.
+ClawCrew needs persistent memory across installations with different operational constraints. A local single-process agent benefits from an embedded store with no service dependency. Operators may also need a human-readable filesystem store, a shared database, a vector database, or an integration with another memory system.
 
 These stores do not have identical schemas or operational properties. They still need to present one runtime interface for memory operations and scoping. Individual operations may have backend-specific capability semantics; for example, Markdown memory is append-only and does not delete entries. Turn processing must not depend on a concrete database type, and adding a backend must not require copying prompt assembly, consolidation, hygiene, or agent-authorization policy into that backend.
 
@@ -33,7 +33,7 @@ Memory persistence is selected through a backend-neutral contract, with SQLite a
 
 ### Storage contract
 
-Concrete stores implement the `Memory` trait from `zeroclaw-api`. The trait owns backend-neutral persistence operations and entry semantics. Callers use `Memory` handles rather than branching on SQLite, Markdown, PostgreSQL, Qdrant, or Lucid in turn-processing code.
+Concrete stores implement the `Memory` trait from `clawcrew-api`. The trait owns backend-neutral persistence operations and entry semantics. Callers use `Memory` handles rather than branching on SQLite, Markdown, PostgreSQL, Qdrant, or Lucid in turn-processing code.
 
 Backend construction currently consults two overlapping configuration levels. `agents.<alias>.memory.backend` directly routes only the Markdown and `none` construction paths and supplies the kind used for same-backend sharing validation. All other per-agent values proceed through the install-wide factory, where `memory.backend` selects the concrete typed `storage.<kind>.<alias>` entry; legacy bare names resolve to the `default` alias. This ADR records that interaction without treating the overlap as an ideal end state. Runtime components must follow the current factory and validation ownership rather than infer unsupported per-agent selection or create another stored selector.
 
@@ -80,9 +80,9 @@ Follow-up decisions:
 - [FND-001: Intentional architecture](../../foundations/fnd-001-intentional-architecture.md)
 - [FND-002: Documentation standards](../../foundations/fnd-002-documentation-standards.md)
 - [Runtime state and persistence](../runtime-state-and-persistence.md)
-- [Issue #6850](https://github.com/zeroclaw-labs/zeroclaw/issues/6850)
-- `crates/zeroclaw-api/src/memory_traits.rs`
-- `crates/zeroclaw-config/src/schema.rs`
-- `crates/zeroclaw-memory/src/backend.rs`
-- `crates/zeroclaw-memory/src/lib.rs`
-- `crates/zeroclaw-runtime/src/agent/memory_strategy.rs`
+- [Issue #6850](https://github.com/clawcrew-labs/clawcrew/issues/6850)
+- `crates/clawcrew-api/src/memory_traits.rs`
+- `crates/clawcrew-config/src/schema.rs`
+- `crates/clawcrew-memory/src/backend.rs`
+- `crates/clawcrew-memory/src/lib.rs`
+- `crates/clawcrew-runtime/src/agent/memory_strategy.rs`

@@ -53,15 +53,15 @@ const positives = [
   ['cli', 'src/memory/cli.rs'],
   ['cli', 'src/commands/update.rs'],
   ['hardware', 'src/peripherals/mod.rs'],
-  ['hardware', 'crates/zeroclaw-api/src/peripherals_traits.rs'],
+  ['hardware', 'crates/clawcrew-api/src/peripherals_traits.rs'],
   ['hardware', 'firmware/esp32-ui/src/main.rs'],
 ];
 const negatives = [
   ['cli', 'src/memory/mod.rs'],
-  ['cli', 'crates/zeroclaw-memory/src/cli.rs'],
+  ['cli', 'crates/clawcrew-memory/src/cli.rs'],
   ['hardware', 'src/peripherals/driver.rs'],
-  ['hardware', 'crates/zeroclaw-api/src/channel.rs'],
-  ['hardware', 'crates/zeroclaw-runtime/src/agent/history.rs'],
+  ['hardware', 'crates/clawcrew-api/src/channel.rs'],
+  ['hardware', 'crates/clawcrew-runtime/src/agent/history.rs'],
   ['hardware', 'docs/book/src/hardware/subsystem.md'],
 ];
 

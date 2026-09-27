@@ -293,7 +293,7 @@ mod tests {
         format!(
             r#"[[image]]
 zone = "base-arg-node"
-arg = "ZEROCLAW_BASE_NODE"
+arg = "CLAWCREW_BASE_NODE"
 registry = "dockerhub"
 repo = "library/node"
 image_ref = "node"
@@ -314,7 +314,7 @@ digest = "sha256:{}"
     fn fixed(zone: &str) -> BaseImage {
         BaseImage {
             zone: zone.to_string(),
-            arg: "ZEROCLAW_TEST".to_string(),
+            arg: "CLAWCREW_TEST".to_string(),
             registry: Registry::DockerHub,
             repo: "library/rust".to_string(),
             image_ref: "rust".to_string(),
@@ -371,7 +371,7 @@ digest = "sha256:{}"
 
     #[test]
     fn check_flags_orphan_reference() {
-        let content = "FROM ${ZEROCLAW_BASE_RUST_SLIM} AS x\n";
+        let content = "FROM ${CLAWCREW_BASE_RUST_SLIM} AS x\n";
         let drift = check(&root(), content).unwrap();
         assert!(drift.iter().any(|d| d.contains("base-arg-rust-slim")));
     }
@@ -381,7 +381,7 @@ digest = "sha256:{}"
         let temp = tempfile::tempdir().unwrap();
         write_source(temp.path(), &source_with_node_tag("24.1-bookworm-slim"));
         let content = format!(
-            "{}\nARG ZEROCLAW_BASE_NODE=node:24.1-bookworm-slim@sha256:{}\n{}\n",
+            "{}\nARG CLAWCREW_BASE_NODE=node:24.1-bookworm-slim@sha256:{}\n{}\n",
             begin("base-arg-node"),
             "a".repeat(64),
             end("base-arg-node")

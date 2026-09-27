@@ -17,20 +17,20 @@ This applies to every mode, including accounting. The fetch commands return raw 
 Before any labeling action in any mode, verify that the labels you intend to apply exist in the repository. Run once at the start of the session:
 
 ```bash
-gh label list --repo zeroclaw-labs/zeroclaw --limit 200 --json name
+gh label list --repo clawcrew-labs/clawcrew --limit 200 --json name
 ```
 
 If a required label is missing, create it before applying:
 
 ```bash
-gh label create "status:stale"       --color "E4E669" --repo zeroclaw-labs/zeroclaw
-gh label create "status:accepted"    --color "0E8A16" --repo zeroclaw-labs/zeroclaw
-gh label create "status:blocked"     --color "B60205" --repo zeroclaw-labs/zeroclaw
-gh label create "status:no-stale"    --color "0E8A16" --repo zeroclaw-labs/zeroclaw
-gh label create "status:in-progress" --color "0075CA" --repo zeroclaw-labs/zeroclaw
-gh label create "wontfix"            --color "B60205" --repo zeroclaw-labs/zeroclaw
-gh label create "duplicate"          --color "CFD3D7" --repo zeroclaw-labs/zeroclaw
-gh label create "invalid"            --color "CFD3D7" --repo zeroclaw-labs/zeroclaw
+gh label create "status:stale"       --color "E4E669" --repo clawcrew-labs/clawcrew
+gh label create "status:accepted"    --color "0E8A16" --repo clawcrew-labs/clawcrew
+gh label create "status:blocked"     --color "B60205" --repo clawcrew-labs/clawcrew
+gh label create "status:no-stale"    --color "0E8A16" --repo clawcrew-labs/clawcrew
+gh label create "status:in-progress" --color "0075CA" --repo clawcrew-labs/clawcrew
+gh label create "wontfix"            --color "B60205" --repo clawcrew-labs/clawcrew
+gh label create "duplicate"          --color "CFD3D7" --repo clawcrew-labs/clawcrew
+gh label create "invalid"            --color "CFD3D7" --repo clawcrew-labs/clawcrew
 ```
 
 Only create labels that are actually needed in the current run.
@@ -45,7 +45,7 @@ The project has contributors filing issues in non-English locales (the supported
 
 ### Maintainer identification
 
-When the protocol needs a maintainer identity for authority or routing, check the CODEOWNERS file or repository collaborator list. If neither is accessible, use org membership in `zeroclaw-labs`. Do not guess based on comment tone or authority. Participant role does not determine qualifying activity under the issue stale policy; comment substance does.
+When the protocol needs a maintainer identity for authority or routing, check the CODEOWNERS file or repository collaborator list. If neither is accessible, use org membership in `clawcrew-labs`. Do not guess based on comment tone or authority. Participant role does not determine qualifying activity under the issue stale policy; comment substance does.
 
 ### Cross-mode session awareness
 
@@ -69,7 +69,7 @@ Any `gh issue list` with `--limit N` may silently truncate. After every bulk fet
 1. Fetch open issue metadata without comment bodies:
 
    ```bash
-   gh issue list --repo zeroclaw-labs/zeroclaw --state open \
+   gh issue list --repo clawcrew-labs/clawcrew --state open \
      --json number,title,labels,createdAt,author,reactionGroups \
      --limit 300
    ```
@@ -109,7 +109,7 @@ Do not take any action on issues until the user answers.
 Fetch metadata first (not full bodies):
 
 ```bash
-gh issue list --repo zeroclaw-labs/zeroclaw --state open \
+gh issue list --repo clawcrew-labs/clawcrew --state open \
   --json number,title,labels,createdAt,author \
   --limit 300
 ```
@@ -143,7 +143,7 @@ Process two groups:
 
 5. **Assess repro quality (bug reports only)** — check for:
    - Concrete steps to reproduce
-   - ZeroClaw version or commit SHA
+   - ClawCrew version or commit SHA
    - Actual error output or log snippet
    - Expected vs. actual behavior
    - Environment (OS, arch)
@@ -161,7 +161,7 @@ If an issue describes a potential vulnerability:
 1. Do **not** comment with technical details.
 2. Post a single brief comment:
    - Thank the reporter
-   - Ask them to report privately via GitHub Security Advisories at `https://github.com/zeroclaw-labs/zeroclaw/security/advisories/new`
+   - Ask them to report privately via GitHub Security Advisories at `https://github.com/clawcrew-labs/clawcrew/security/advisories/new`
    - Note that maintainers will follow up privately
 3. Apply the `security` label if it exists.
 4. Do **not** close the issue publicly — the reporter may need to reference it until a private advisory is created. Leave it open; a maintainer will close it once the advisory exists.
@@ -206,7 +206,7 @@ Do not close a single issue until the user confirms.
 1. Batch-search for merged PRs that reference open issues. Rather than running one API call per issue (which hits rate limits at scale), fetch recently merged PRs once and scan their titles and bodies for issue references:
 
    ```bash
-   gh pr list --repo zeroclaw-labs/zeroclaw --state merged --limit 100 \
+   gh pr list --repo clawcrew-labs/clawcrew --state merged --limit 100 \
      --json number,title,body,mergedAt
    ```
 
@@ -245,7 +245,7 @@ Do not close a single issue until the user confirms.
 2. For every r:support candidate, apply the label and post a comment that:
    - Answers the question directly if the answer is known
    - Points to the relevant docs section
-   - Explicitly invites a follow-up if they discover it is actually a bug: "If you find that the documented behavior doesn't match what ZeroClaw does, please reopen or file a new issue with the specific mismatch."
+   - Explicitly invites a follow-up if they discover it is actually a bug: "If you find that the documented behavior doesn't match what ClawCrew does, please reopen or file a new issue with the specific mismatch."
 
 3. Close only if **all three** are true:
    - The issue is a pure how-do-I question with a clear documented answer
@@ -277,7 +277,7 @@ Target policy: `status:no-stale` protects an issue only when the stale-exemption
 2. Fetch open PR metadata once for the stale pass and scan titles/bodies for issue references:
 
    ```bash
-   gh pr list --repo zeroclaw-labs/zeroclaw --state open --limit 300 \
+   gh pr list --repo clawcrew-labs/clawcrew --state open --limit 300 \
      --json number,title,body,url
    ```
 
@@ -325,7 +325,7 @@ Stale closures are especially sensitive — a reporter may have been waiting pat
 2. Review open feature requests for requests that directly require violating a constraint. Common patterns:
    - "Add a cloud service for X" → zero external infra
    - "Embed Y framework/runtime" → single static binary
-   - "Make ZeroClaw require Docker" → runs on anything
+   - "Make ClawCrew require Docker" → runs on anything
    - "Add X as a required dependency" → minimal footprint / single binary
    - "Disable security check Z by default" → secure by default
 
@@ -353,7 +353,7 @@ Stale closures are especially sensitive — a reporter may have been waiting pat
 
 1. Fetch full issue state:
    ```bash
-   gh issue view N --repo zeroclaw-labs/zeroclaw --json number,title,body,labels,author,createdAt,comments,url
+   gh issue view N --repo clawcrew-labs/clawcrew --json number,title,body,labels,author,createdAt,comments,url
    ```
 
 2. Fetch any open or merged PRs referencing this issue number.
@@ -379,7 +379,7 @@ Stale closures are especially sensitive — a reporter may have been waiting pat
 
 ## §7 Label Taxonomy
 
-Derived from current maintainer label policy, with RFC scope set by [#9496](https://github.com/zeroclaw-labs/zeroclaw/issues/9496) (FND-003 Rev. 15). Apply these consistently:
+Derived from current maintainer label policy, with RFC scope set by [#9496](https://github.com/clawcrew-labs/clawcrew/issues/9496) (FND-003 Rev. 15). Apply these consistently:
 
 ### Type
 

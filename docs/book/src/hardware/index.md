@@ -1,6 +1,6 @@
 # Hardware: Overview
 
-ZeroClaw's hardware subsystem lets the agent control microcontrollers, SBCs, and peripherals directly. Enable with `--features hardware`.
+ClawCrew's hardware subsystem lets the agent control microcontrollers, SBCs, and peripherals directly. Enable with `--features hardware`.
 
 - [Hardware subsystem](./subsystem.md): supported targets, enabling, runtime tools, the Raspberry Pi quickstart, safety, and datasheets.
 - [Adding boards & tools](./adding-boards-and-tools.md): implement the `Peripheral` trait for a new board.

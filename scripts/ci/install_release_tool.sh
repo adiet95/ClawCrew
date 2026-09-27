@@ -17,7 +17,7 @@ die() {
 }
 
 normalize_os() {
-  local raw="${ZEROCLAW_RELEASE_TOOL_OS:-${RUNNER_OS:-}}"
+  local raw="${CLAWCREW_RELEASE_TOOL_OS:-${RUNNER_OS:-}}"
   if [[ -z "$raw" ]]; then
     raw="$(uname -s)"
   fi
@@ -31,7 +31,7 @@ normalize_os() {
 }
 
 normalize_arch() {
-  local raw="${ZEROCLAW_RELEASE_TOOL_ARCH:-${RUNNER_ARCH:-}}"
+  local raw="${CLAWCREW_RELEASE_TOOL_ARCH:-${RUNNER_ARCH:-}}"
   if [[ -z "$raw" ]]; then
     raw="$(uname -m)"
   fi

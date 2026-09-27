@@ -23,7 +23,7 @@ struct Args {
     #[arg(long)]
     model_provider: String,
     /// Config directory holding config.toml and .secret-key (default:
-    /// ~/.zeroclaw). Mirrors `zeroclaw --config-dir`.
+    /// ~/.clawcrew). Mirrors `clawcrew --config-dir`.
     #[arg(long)]
     config_dir: Option<String>,
     /// Path for appending full input/output on every failure (default: {po}.failures.log)
@@ -408,7 +408,7 @@ fn fail(err: anyhow::Error, raw_response: impl Into<String>) -> BatchFailure {
 /// builds no HTTP. One request per source string keeps the per-entry mapping
 /// unambiguous (the .po model is one msgid -> one msgstr).
 async fn translate_batch(
-    provider: &dyn zeroclaw_api::model_provider::ModelProvider,
+    provider: &dyn clawcrew_api::model_provider::ModelProvider,
     model: &str,
     locale: &str,
     batch: &[&str],
@@ -440,7 +440,7 @@ async fn translate_batch(
         } else {
             system.as_str()
         };
-        let content = zeroclaw_providers::ProviderDispatch::from_ref(provider)
+        let content = clawcrew_providers::ProviderDispatch::from_ref(provider)
             .chat_with_system(Some(system_ref), source, model, None)
             .await
             .map_err(|e| fail(e, String::new()))?;
@@ -621,14 +621,14 @@ mod tests {
         assert!(matches!(
             check_for_leak(
                 "The failure log is next to the catalog.",
-                "Le journal est dans /private/tmp/zeroclaw/fr.failures.log.",
+                "Le journal est dans /private/tmp/clawcrew/fr.failures.log.",
             ),
             LeakCheck::IntroducedLocalPath(_)
         ));
         assert_eq!(
             translation_for_write(
                 "The failure log is next to the catalog.",
-                "Le journal est dans /private/tmp/zeroclaw/fr.failures.log.",
+                "Le journal est dans /private/tmp/clawcrew/fr.failures.log.",
             ),
             ""
         );
@@ -643,8 +643,8 @@ mod tests {
     fn allows_translation_that_preserves_source_path() {
         assert!(matches!(
             check_for_leak(
-                "Write `/home/alice/zeroclaw/web/dist`.",
-                "Écrivez `/home/alice/zeroclaw/web/dist`.",
+                "Write `/home/alice/clawcrew/web/dist`.",
+                "Écrivez `/home/alice/clawcrew/web/dist`.",
             ),
             LeakCheck::Clean
         ));

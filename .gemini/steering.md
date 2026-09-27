@@ -1,6 +1,6 @@
 # Steering: Graph-First Codebase Navigation
 
-This steering document governs how AI agents discover, query, and navigate the ZeroClaw codebase. It applies to all agent sessions (Antigravity, Claude Code, subagents).
+This steering document governs how AI agents discover, query, and navigate the ClawCrew codebase. It applies to all agent sessions (Antigravity, Claude Code, subagents).
 
 Related skills: [`.gemini/skills/graphify/SKILL.md`](skills/graphify/SKILL.md), [`.github/skills/graphify/SKILL.md`](../.github/skills/graphify/SKILL.md)
 
@@ -84,7 +84,7 @@ After graphify identifies the relevant file(s), use `Select-String` for line-lev
 
 ```powershell
 # GOOD: graphify told us TaskRecord is in task_registry.rs
-Select-String -Pattern "pub struct TaskRecord" crates/zeroclaw-runtime/src/control_plane/task_registry.rs
+Select-String -Pattern "pub struct TaskRecord" crates/clawcrew-runtime/src/control_plane/task_registry.rs
 
 # BAD: blind recursive search without checking the graph
 Get-ChildItem -Recurse -Filter "*.rs" | Select-String "TaskRecord"

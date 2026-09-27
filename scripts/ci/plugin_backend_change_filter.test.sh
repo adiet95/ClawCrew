@@ -21,34 +21,34 @@ expect() {
 
 # Plugin-only changes must run the backend job.
 expect "plugin crate source" "true" \
-    "crates/zeroclaw-plugins/src/wasm_tool.rs"
+    "crates/clawcrew-plugins/src/wasm_tool.rs"
 expect "plugin crate tests" "true" \
-    "crates/zeroclaw-plugins/tests/reference_plugin_e2e.rs"
+    "crates/clawcrew-plugins/tests/reference_plugin_e2e.rs"
 
 # Runtime-only changes must run the backend job: it carries the
 # feature-gated live-config regression that protects the Agent
 # constructor's live_config forwarding.
 expect "runtime agent constructor" "true" \
-    "crates/zeroclaw-runtime/src/agent/agent.rs"
+    "crates/clawcrew-runtime/src/agent/agent.rs"
 expect "runtime live-config regression" "true" \
-    "crates/zeroclaw-runtime/src/agent/plugin_live_config.rs"
+    "crates/clawcrew-runtime/src/agent/plugin_live_config.rs"
 expect "runtime elsewhere" "true" \
-    "crates/zeroclaw-runtime/src/tools/mod.rs"
+    "crates/clawcrew-runtime/src/tools/mod.rs"
 
-# Config-only changes must run the backend job: zeroclaw-config owns the
-# operator-facing plugin config surface that zeroclaw-plugins compiles
+# Config-only changes must run the backend job: clawcrew-config owns the
+# operator-facing plugin config surface that clawcrew-plugins compiles
 # against, so this job can break with nothing under the plugin crate touched.
 expect "config plugin entry schema" "true" \
-    "crates/zeroclaw-config/src/schema.rs"
+    "crates/clawcrew-config/src/schema.rs"
 expect "config crate elsewhere" "true" \
-    "crates/zeroclaw-config/src/lib.rs"
+    "crates/clawcrew-config/src/lib.rs"
 expect "mixed unrelated then config" "true" \
     "web/src/pages/AgentChat.tsx" \
-    "crates/zeroclaw-config/src/schema.rs"
+    "crates/clawcrew-config/src/schema.rs"
 
 # The root-package channel activation e2e must run the backend job. It is the
 # only piece of this job's coverage that lives outside a crate directory,
-# because it drives zeroclaw-runtime from the root `zeroclaw` package.
+# because it drives clawcrew-runtime from the root `clawcrew` package.
 expect "root channel activation e2e" "true" \
     "tests/plugin_channel_runtime_e2e.rs"
 expect "mixed unrelated then activation e2e" "true" \
@@ -65,14 +65,14 @@ expect "the filter fixture" "true" \
     "scripts/ci/plugin_backend_change_filter.test.sh"
 expect "mixed unrelated then runtime" "true" \
     "docs/book/src/plugins/typed-config.md" \
-    "crates/zeroclaw-runtime/src/agent/agent.rs"
+    "crates/clawcrew-runtime/src/agent/agent.rs"
 
 # Unrelated changes must keep the job skipped.
 expect "docs-only changes" "false" \
     "docs/book/src/contributing/testing.md"
 expect "web-only changes" "false" "web/src/pages/AgentChat.tsx"
 expect "unrelated crate changes" "false" \
-    "crates/zeroclaw-providers/src/openai.rs"
+    "crates/clawcrew-providers/src/openai.rs"
 expect "other workflow changes" "false" \
     ".github/workflows/release.yml"
 # The activation e2e is matched by exact path, not by a `tests/*` wildcard, so

@@ -5,7 +5,7 @@ The runtime can wrap tool invocations in an OS-level sandbox that restricts file
 Sandbox settings live on a risk profile. Each agent points at a risk profile via `agents.<alias>.risk_profile`; the agent's sandbox enable/backend are read from that profile.
 
 **CLI model providers (for example `grok_cli`):** the external CLI is outside
-ZeroClaw's native tool-approval path. Risk-profile sandboxing above does not
+ClawCrew's native tool-approval path. Risk-profile sandboxing above does not
 confine it. The `grok_cli` ACP provider therefore injects `--sandbox strict`,
 `--permission-mode dontAsk`, and an empty built-in tool set by default, and it
 rejects ACP permission requests (selecting `reject_once` when the CLI offers
@@ -151,7 +151,7 @@ sudo apt install firejail
 
 </div>
 
-Firejail's default profile is fairly permissive; ZeroClaw applies a custom profile. Pass extra args with `firejail_args` on the risk profile.
+Firejail's default profile is fairly permissive; ClawCrew applies a custom profile. Pass extra args with `firejail_args` on the risk profile.
 
 ### Docker
 
@@ -162,7 +162,7 @@ Works anywhere Docker does. The Docker runtime kind (`[runtime] kind = "docker"`
 #### sh
 
 ```sh
-docker build -t zeroclaw-sandbox:local dev/sandbox/   # build the bundled toolkit image
+docker build -t clawcrew-sandbox:local dev/sandbox/   # build the bundled toolkit image
 ```
 
 </div>
@@ -171,22 +171,22 @@ Pros: strong isolation, works on any OS. Cons: per-invocation container startup 
 
 ### Seatbelt (macOS)
 
-Native macOS sandbox (`sandbox-exec`). Profiles are SBPL: ZeroClaw bundles one for tool runs. Works on macOS 10.11+.
+Native macOS sandbox (`sandbox-exec`). Profiles are SBPL: ClawCrew bundles one for tool runs. Works on macOS 10.11+.
 
 Limitation: some CLI tools (older `git`, some Homebrew-linked binaries) don't cooperate with Seatbelt's file-access rules. If you see "Operation not permitted" errors from the agent's shell calls on macOS, the tool needs broader filesystem access: consider switching to Docker.
 
 ### `none`
 
-No sandboxing. Tools run with the full privileges of the ZeroClaw service user. This is what YOLO mode enables. Loud, obvious, intentional.
+No sandboxing. Tools run with the full privileges of the ClawCrew service user. This is what YOLO mode enables. Loud, obvious, intentional.
 
 ## Troubleshooting
 
-- **"Sandbox backend unavailable"** on startup: check `zeroclaw service status` and the journal; the auto-detect logs which backends it tried.
+- **"Sandbox backend unavailable"** on startup: check `clawcrew service status` and the journal; the auto-detect logs which backends it tried.
 - **Tools working on dev, failing in service**: the service user often differs from the CLI user. Verify both have whatever sandbox-adjacent permissions are needed (Landlock: nothing; Bubblewrap: userns enabled; Docker: service user in `docker` group).
 - **Slow tool invocations** on the Docker runtime: first invocation pulls the image, subsequent are fast. Pre-pull with `docker pull <image>`.
 
 ## Code reference
 
-- Detection: `crates/zeroclaw-runtime/src/security/detect.rs`
-- Backends: `crates/zeroclaw-runtime/src/security/sandbox/` (one file per backend)
-- Schema: `RiskProfileConfig` and `DockerRuntimeConfig` in `crates/zeroclaw-config/src/schema.rs`
+- Detection: `crates/clawcrew-runtime/src/security/detect.rs`
+- Backends: `crates/clawcrew-runtime/src/security/sandbox/` (one file per backend)
+- Schema: `RiskProfileConfig` and `DockerRuntimeConfig` in `crates/clawcrew-config/src/schema.rs`

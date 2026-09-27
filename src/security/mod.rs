@@ -1,5 +1,5 @@
 #[allow(unused_imports)]
-pub use zeroclaw_runtime::security::*;
+pub use clawcrew_runtime::security::*;
 
 #[cfg(test)]
 mod tests {

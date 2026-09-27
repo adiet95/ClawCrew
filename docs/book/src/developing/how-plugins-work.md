@@ -36,7 +36,7 @@ one.
 1. **Gate.** If `[plugins] enabled` is false, the loader does nothing. This is
    the first and cheapest check.
 2. **Discover.** The loader scans the resolved plugins directory
-   (`[plugins] plugins_dir`, default `~/.zeroclaw/plugins/`) for subdirectories
+   (`[plugins] plugins_dir`, default `~/.clawcrew/plugins/`) for subdirectories
    containing a `manifest.toml`.
 3. **Validate shape.** Each manifest must declare at least one capability, and
    a non-skill plugin must name a confined relative `wasm_path`. Traversal and
@@ -115,20 +115,20 @@ config surface (zerocode, the gateway, or the CLI):
 
 ```bash
 # Master switch. Nothing loads while this is false.
-zeroclaw config set plugins.enabled true
+clawcrew config set plugins.enabled true
 
 # Load auto-discovered tool and skill plugins at runtime (default: false).
 # Without this, `enabled = true` activates only explicitly-declared channels.
-zeroclaw config set plugins.auto_discover true
+clawcrew config set plugins.auto_discover true
 
-# Where plugins are discovered (default: ~/.zeroclaw/plugins).
-zeroclaw config set plugins.plugins_dir ~/.zeroclaw/plugins
+# Where plugins are discovered (default: ~/.clawcrew/plugins).
+clawcrew config set plugins.plugins_dir ~/.clawcrew/plugins
 
 # disabled | permissive | strict
-zeroclaw config set plugins.security.signature_mode strict
+clawcrew config set plugins.security.signature_mode strict
 
 # Hex-encoded Ed25519 public keys allowed to publish plugins under strict mode.
-zeroclaw config set plugins.security.trusted_publisher_keys '["a1b2c3d4e5f6..."]'
+clawcrew config set plugins.security.trusted_publisher_keys '["a1b2c3d4e5f6..."]'
 ```
 
 A host meant to load third-party plugins should set `enabled = true`,

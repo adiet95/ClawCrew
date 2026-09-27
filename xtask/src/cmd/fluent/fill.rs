@@ -1,8 +1,8 @@
 use crate::util::*;
 use anyhow::Context as _;
 use std::path::{Path, PathBuf};
-use zeroclaw_api::model_provider::ModelProvider;
-use zeroclaw_providers::ProviderDispatch;
+use clawcrew_api::model_provider::ModelProvider;
+use clawcrew_providers::ProviderDispatch;
 
 const DEFAULT_BATCH_SIZE: usize = 50;
 
@@ -148,7 +148,7 @@ fn call_api(
         "You are a translator. Translate UI strings from English to {locale_name}.\n\
          Rules:\n\
          - Return ONLY a JSON object mapping each key to its translated string value.\n\
-         - Do NOT translate: proper nouns, brand names (e.g. ZeroClaw, Anthropic), command names, \
+         - Do NOT translate: proper nouns, brand names (e.g. ClawCrew, Anthropic), command names, \
            technical identifiers, or code examples.\n\
          - Preserve exactly: Fluent placeholders ({{ variable }}), special syntax, and escape sequences.\n\
          - Do NOT wrap output in markdown code fences."

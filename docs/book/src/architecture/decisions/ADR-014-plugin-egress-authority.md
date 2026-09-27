@@ -6,32 +6,32 @@ status: proposed
 relates-to:
   - ADR-006
   - ADR-009
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/9395
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8850
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8398
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9580
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9137
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9582
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9584
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9126
-  - crates/zeroclaw-infra/src/net_guard.rs
-  - crates/zeroclaw-plugins/src/egress.rs
-  - crates/zeroclaw-plugins/src/component.rs
-  - crates/zeroclaw-config/src/schema.rs
-  - crates/zeroclaw-tools/src/helpers/domain_guard.rs
+  - https://github.com/clawcrew-labs/clawcrew/issues/9395
+  - https://github.com/clawcrew-labs/clawcrew/issues/8850
+  - https://github.com/clawcrew-labs/clawcrew/issues/8398
+  - https://github.com/clawcrew-labs/clawcrew/pull/9580
+  - https://github.com/clawcrew-labs/clawcrew/pull/9137
+  - https://github.com/clawcrew-labs/clawcrew/pull/9582
+  - https://github.com/clawcrew-labs/clawcrew/pull/9584
+  - https://github.com/clawcrew-labs/clawcrew/pull/9126
+  - crates/clawcrew-infra/src/net_guard.rs
+  - crates/clawcrew-plugins/src/egress.rs
+  - crates/clawcrew-plugins/src/component.rs
+  - crates/clawcrew-config/src/schema.rs
+  - crates/clawcrew-tools/src/helpers/domain_guard.rs
 ---
 
 # ADR-014: Plugin Instances Reach the Network Only Through One Host-Owned Egress Authority
 
 ## Context
 
-Before the enforcement shipped in #9582, ZeroClaw linked the `wasi:http` import into a plugin store when the plugin's manifest requested the `http_client` permission. That store installed wasmtime's default request hooks (`crates/zeroclaw-plugins/src/component.rs`), so nothing on the ZeroClaw side decided where the guest could connect: no destination allowlist, no address-class guard, no operator-facing configuration. Manifest permissions were requests, and the host granted every request verbatim (`crates/zeroclaw-plugins/src/instance.rs`), while `plugins.security.signature_mode` defaulted to `disabled`. An unsigned component could therefore declare `http_client`, receive it, and become an unfiltered pivot to loopback services, the local gateway, or cloud metadata addresses. Bug [#9395](https://github.com/zeroclaw-labs/zeroclaw/issues/9395) records that historical consequence; the shipped enforcement now applies the host-owned destination policy.
+Before the enforcement shipped in #9582, ClawCrew linked the `wasi:http` import into a plugin store when the plugin's manifest requested the `http_client` permission. That store installed wasmtime's default request hooks (`crates/clawcrew-plugins/src/component.rs`), so nothing on the ClawCrew side decided where the guest could connect: no destination allowlist, no address-class guard, no operator-facing configuration. Manifest permissions were requests, and the host granted every request verbatim (`crates/clawcrew-plugins/src/instance.rs`), while `plugins.security.signature_mode` defaulted to `disabled`. An unsigned component could therefore declare `http_client`, receive it, and become an unfiltered pivot to loopback services, the local gateway, or cloud metadata addresses. Bug [#9395](https://github.com/clawcrew-labs/clawcrew/issues/9395) records that historical consequence; the shipped enforcement now applies the host-owned destination policy.
 
-The host-side sibling already fails closed. The `http_request` tool refuses every call when its `allowed_domains` list is empty, and validates the destination and every resolved address against metadata, loopback, and private ranges through `crates/zeroclaw-tools/src/helpers/domain_guard.rs` and `crates/zeroclaw-infra/src/net_guard.rs`. Two outbound paths in one process carried opposite guarantees.
+The host-side sibling already fails closed. The `http_request` tool refuses every call when its `allowed_domains` list is empty, and validates the destination and every resolved address against metadata, loopback, and private ranges through `crates/clawcrew-tools/src/helpers/domain_guard.rs` and `crates/clawcrew-infra/src/net_guard.rs`. Two outbound paths in one process carried opposite guarantees.
 
 Pressure on this boundary grows with ADR-006, which makes runtime plugins the target for optional channels, because every messaging channel is an egress consumer. Today `wit/v0/inbound.wit` states plainly that a channel plugin runs with no network and no sockets, and the official plugin repository contains a socket interface draft at `wit/unstable/sockets.wit` for a transport the host does not expose. Whichever transport arrives next needs an existing answer to "may this instance reach that address", not a third one.
 
-Part of this direction has shipped. [#9580](https://github.com/zeroclaw-labs/zeroclaw/pull/9580) moved the built-in HTTP egress onto a shared network guard, [#9137](https://github.com/zeroclaw-labs/zeroclaw/pull/9137) added the plugin-side egress policy foundation, [#9582](https://github.com/zeroclaw-labs/zeroclaw/pull/9582) enforced the policy at the `wasi:http` boundary, and [#9126](https://github.com/zeroclaw-labs/zeroclaw/pull/9126) added typed instance configuration. [#9584](https://github.com/zeroclaw-labs/zeroclaw/pull/9584), the operator grant ceremony, remains in review. This record states the decision those slices implement and complete. RFC [#8398](https://github.com/zeroclaw-labs/zeroclaw/issues/8398) is closed as an omnibus/superseded RFC; this ADR records the focused network-egress decision that survived that split: Q1 for network permissions, Q4 for user-extended destination grants.
+Part of this direction has shipped. [#9580](https://github.com/clawcrew-labs/clawcrew/pull/9580) moved the built-in HTTP egress onto a shared network guard, [#9137](https://github.com/clawcrew-labs/clawcrew/pull/9137) added the plugin-side egress policy foundation, [#9582](https://github.com/clawcrew-labs/clawcrew/pull/9582) enforced the policy at the `wasi:http` boundary, and [#9126](https://github.com/clawcrew-labs/clawcrew/pull/9126) added typed instance configuration. [#9584](https://github.com/clawcrew-labs/clawcrew/pull/9584), the operator grant ceremony, remains in review. This record states the decision those slices implement and complete. RFC [#8398](https://github.com/clawcrew-labs/clawcrew/issues/8398) is closed as an omnibus/superseded RFC; this ADR records the focused network-egress decision that survived that split: Q1 for network permissions, Q4 for user-extended destination grants.
 
 The alternatives are to treat the manifest declaration itself as the grant, to keep one global allowlist for every installed plugin, or to give each transport its own destination policy. Manifest-as-grant preserves the #9395 self-grant path for unsigned packages, violates the default-closed doctrine, and makes the manifest a second source of truth for live authority. A global allowlist denies per-instance isolation, because any installed plugin could then reach every host any other plugin needs. Per-transport policies put three knobs on one question and invite drift, when the destination decision is transport-independent.
 
@@ -39,7 +39,7 @@ The alternatives are to treat the manifest declaration itself as the grant, to k
 
 ### Use one egress authority with shared policy machinery and default deny
 
-All plugin outbound network access, `wasi:http` today and any future socket, WebSocket, or TLS-profile import, is mediated by one host-owned egress authority. Destination matching, address classification, NAT64 translation, and the post-resolution verdict live in `zeroclaw-infra::net_guard`, which the built-in tools already use. `crates/zeroclaw-plugins/src/egress.rs` holds the instance-scoped service that consumes those primitives and re-implements none of them, and `zeroclaw-plugins` takes no dependency on `zeroclaw-tools` for this. A plugin and a built-in tool must not be able to disagree about whether a destination is reachable.
+All plugin outbound network access, `wasi:http` today and any future socket, WebSocket, or TLS-profile import, is mediated by one host-owned egress authority. Destination matching, address classification, NAT64 translation, and the post-resolution verdict live in `clawcrew-infra::net_guard`, which the built-in tools already use. `crates/clawcrew-plugins/src/egress.rs` holds the instance-scoped service that consumes those primitives and re-implements none of them, and `clawcrew-plugins` takes no dependency on `clawcrew-tools` for this. A plugin and a built-in tool must not be able to disagree about whether a destination is reachable.
 
 A plugin instance with no granted destination has no network reach. There is no compatibility mode in which `http_client` alone confers unrestricted HTTP. The permission grants the surface; the operator's list grants the destinations.
 
@@ -47,7 +47,7 @@ The service re-checks the transport's required permission at the operation bound
 
 ### Enforce at the `wasi:http` boundary with a pinned send path
 
-Enforcement lives at the transport boundary. A ZeroClaw hooks implementation stored per plugin store replaces wasmtime's default hooks, and its request hook evaluates policy on every guest-issued request. The send path is host-owned and pinned: resolve the destination once, validate the resolved addresses through the shared guard, then connect only to those exact addresses, using the hostname for SNI and certificate verification. A DNS answer cannot change class between the check and the connection because there is no second resolution. `ResolvedDestination` exists to keep that property structural: it retains the validated addresses and offers no route back to a fresh lookup.
+Enforcement lives at the transport boundary. A ClawCrew hooks implementation stored per plugin store replaces wasmtime's default hooks, and its request hook evaluates policy on every guest-issued request. The send path is host-owned and pinned: resolve the destination once, validate the resolved addresses through the shared guard, then connect only to those exact addresses, using the hostname for SNI and certificate verification. A DNS answer cannot change class between the check and the connection because there is no second resolution. `ResolvedDestination` exists to keep that property structural: it retains the validated addresses and offers no route back to a fresh lookup.
 
 The host never follows redirects on a guest's behalf. A guest that chooses to chase a redirect issues a new request, and every hop passes the full policy independently.
 
@@ -88,7 +88,7 @@ Two rules follow, and both are stricter than the obvious implementation. First, 
 
 ### Make the grant an explicit ceremony
 
-`zeroclaw plugin install` prints a package's declared destinations and seeds them into the entries it already creates. An instance whose binding is created later, such as a channel alias, receives its egress entry when that binding is created, from the same declaration and with the same printout. Installation and binding creation are explicit operator acts, and the printed, persisted allowlist is their record. `zeroclaw plugin list` shows each instance's granted destinations so reach can be audited without reading the configuration file.
+`clawcrew plugin install` prints a package's declared destinations and seeds them into the entries it already creates. An instance whose binding is created later, such as a channel alias, receives its egress entry when that binding is created, from the same declaration and with the same printout. Installation and binding creation are explicit operator acts, and the printed, persisted allowlist is their record. `clawcrew plugin list` shows each instance's granted destinations so reach can be audited without reading the configuration file.
 
 A package upgrade whose declaration adds destinations does not extend an existing entry. The CLI prints the difference and the operator applies it deliberately. Absent an entry, egress is denied.
 
@@ -112,9 +112,9 @@ A manifest is attacker-controlled input at the same trust boundary as an egress 
 
 This ADR remains proposed until all of these conditions are met:
 
-- the shared guard primitives live in `zeroclaw-infra::net_guard` with both consumers on them, the per-store hooks and the pinned send path ship for plugin stores, the manifest `[egress]` declaration exists with parsing, validation, and signature coverage, the effective grant is the intersection of that declaration with the operator's entry, and install-time and binding-time seeding and the upgrade-diff ceremony work (G1);
+- the shared guard primitives live in `clawcrew-infra::net_guard` with both consumers on them, the per-store hooks and the pinned send path ship for plugin stores, the manifest `[egress]` declaration exists with parsing, validation, and signature coverage, the effective grant is the intersection of that declaration with the operator's entry, and install-time and binding-time seeding and the upgrade-diff ceremony work (G1);
 - required CI proves the boundary with a real component fixture: denied by default with no entry, allowed through a seeded entry, metadata and private-address refusal over a matching allowlist, and a component that chases a redirect from an allowed host toward a blocked class has its second request denied (G2);
-- the first channel plugin selected by [#8850](https://github.com/zeroclaw-labs/zeroclaw/issues/8850) runs under a seeded entry for its API host (G3); and
+- the first channel plugin selected by [#8850](https://github.com/clawcrew-labs/clawcrew/issues/8850) runs under a seeded entry for its API host (G3); and
 - the rollout for the existing fleet is complete: official registry `http_client` packages carry `[egress]` declarations in republished versions before host enforcement turns on, an upgrade-time diagnostic lists each installed instance's denied destinations with the exact seeding command, and the release that enables enforcement names the break in its changelog, with #9395 already closed by the enforcement slice (G4).
 
 The shared guard, the plaintext operator fields, the per-request policy read, the strict destination grammar, the NAT64 boundary, and the connection budget are in place. The rest of G1, and G2 through G4, are not.
@@ -139,21 +139,21 @@ Negative consequences:
 
 ## References
 
-- [Bug #9395: plugin `wasi:http` egress has no destination policy and no configuration knob](https://github.com/zeroclaw-labs/zeroclaw/issues/9395)
-- [Migration tracker #8850](https://github.com/zeroclaw-labs/zeroclaw/issues/8850)
-- [RFC #8398: plugin permission, config, and secrets model](https://github.com/zeroclaw-labs/zeroclaw/issues/8398) (closed/superseded context)
-- [PR #9580: harden built-in HTTP egress on the shared network guard](https://github.com/zeroclaw-labs/zeroclaw/pull/9580) (merged)
-- [PR #9137: shared egress policy foundation](https://github.com/zeroclaw-labs/zeroclaw/pull/9137) (merged)
-- [PR #9582: enforce a host-owned egress policy on plugin `wasi:http`](https://github.com/zeroclaw-labs/zeroclaw/pull/9582) (merged)
-- [PR #9584: egress grant ceremony for plugin install and list](https://github.com/zeroclaw-labs/zeroclaw/pull/9584) (in review)
-- [PR #9126: typed instance configuration validation](https://github.com/zeroclaw-labs/zeroclaw/pull/9126) (merged)
+- [Bug #9395: plugin `wasi:http` egress has no destination policy and no configuration knob](https://github.com/clawcrew-labs/clawcrew/issues/9395)
+- [Migration tracker #8850](https://github.com/clawcrew-labs/clawcrew/issues/8850)
+- [RFC #8398: plugin permission, config, and secrets model](https://github.com/clawcrew-labs/clawcrew/issues/8398) (closed/superseded context)
+- [PR #9580: harden built-in HTTP egress on the shared network guard](https://github.com/clawcrew-labs/clawcrew/pull/9580) (merged)
+- [PR #9137: shared egress policy foundation](https://github.com/clawcrew-labs/clawcrew/pull/9137) (merged)
+- [PR #9582: enforce a host-owned egress policy on plugin `wasi:http`](https://github.com/clawcrew-labs/clawcrew/pull/9582) (merged)
+- [PR #9584: egress grant ceremony for plugin install and list](https://github.com/clawcrew-labs/clawcrew/pull/9584) (in review)
+- [PR #9126: typed instance configuration validation](https://github.com/clawcrew-labs/clawcrew/pull/9126) (merged)
 - [ADR-006: Runtime channel plugins](./ADR-006-runtime-channel-plugins.md)
 - [ADR-009: WIT and wasmtime plugin execution](./ADR-009-wit-wasmtime-plugin-execution.md)
 - [ADR-012: Generation-scoped live config apply](./ADR-012-generation-scoped-live-config-apply.md)
 - [Security model](../../security/model.md)
-- `crates/zeroclaw-infra/src/net_guard.rs`
-- `crates/zeroclaw-plugins/src/egress.rs`
-- `crates/zeroclaw-plugins/src/component.rs`
-- `crates/zeroclaw-config/src/schema.rs`
-- `crates/zeroclaw-tools/src/helpers/domain_guard.rs`
-- `crates/zeroclaw-tools/src/http_request.rs`
+- `crates/clawcrew-infra/src/net_guard.rs`
+- `crates/clawcrew-plugins/src/egress.rs`
+- `crates/clawcrew-plugins/src/component.rs`
+- `crates/clawcrew-config/src/schema.rs`
+- `crates/clawcrew-tools/src/helpers/domain_guard.rs`
+- `crates/clawcrew-tools/src/http_request.rs`

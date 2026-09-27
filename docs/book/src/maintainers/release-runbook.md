@@ -79,12 +79,12 @@ Bump `workspace.package.version` in the workspace `Cargo.toml`, then run the two
 This updates README badges, the Tauri config, and workflow description
 examples, then regenerates every spec-driven install surface via
 `cargo generate installers`: install.sh, setup.bat, `dist/aur/PKGBUILD`,
-`dist/aur/.SRCINFO`, `dist/scoop/zeroclaw.json`, `flake.nix`, the Dockerfile/Containerfile feature
+`dist/aur/.SRCINFO`, `dist/scoop/clawcrew.json`, `flake.nix`, the Dockerfile/Containerfile feature
 sets, `dev/ci/docker-tags.toml`, `docs/book/src/_snippets/install.md`, the Unix
 fast-path blocks in README/platform docs, and the Windows prebuilt block in
 `docs/book/src/setup/windows.md`.
 Version, feature, and application-packaging values come from `Cargo.toml` and
-`[package.metadata.zeroclaw]`; the four stable installation routes come from
+`[package.metadata.clawcrew]`; the four stable installation routes come from
 typed contracts in `xtask/src/generate/spec.rs`. The bump keeps these surfaces
 in step automatically, so never hand-edit a generated region. Live release
 availability remains hand-authored and is not inferred by the generator. This
@@ -129,7 +129,7 @@ Then run the release wrapper:
 
 `refresh-translations.sh` reads the version from `Cargo.toml` (nothing typed by
 hand), runs the translation pass, commits and pushes the catalogues to the
-[`zeroclaw-labs/zeroclaw-docs-translations`](https://github.com/zeroclaw-labs/zeroclaw-docs-translations)
+[`clawcrew-labs/clawcrew-docs-translations`](https://github.com/clawcrew-labs/clawcrew-docs-translations)
 submodule, cuts the `v{version}` tag there, and stages the main-repo gitlink
 pinned to that tag. It initialises the submodule if it is not already checked
 out. Run it after `bump-version.sh` so the `Cargo.toml` version it reads is the
@@ -394,7 +394,7 @@ standard PR off master.
 Go to:
 
 ```
-https://github.com/zeroclaw-labs/zeroclaw/actions/workflows/release-stable-manual.yml
+https://github.com/clawcrew-labs/clawcrew/actions/workflows/release-stable-manual.yml
 ```
 
 Click **Run workflow**. Fill in:
@@ -438,7 +438,7 @@ Once `publish` completes, confirm:
 [ ] Release notes are non-empty
 [ ] SHA256SUMS asset is present and non-empty
 [ ] Both SPDX and CycloneDX SBOM assets are present
-[ ] Exactly one zeroclaw-vX.Y.Z-verification.tar.gz asset is present
+[ ] Exactly one clawcrew-vX.Y.Z-verification.tar.gz asset is present
 [ ] No loose *.bundle, *.attestation.jsonl, or *.intoto.jsonl assets are present
 [ ] At least one binary archive is downloadable (spot-check linux x86_64)
 [ ] Prebuilt Docker and generated Docker matrix jobs are green
@@ -472,7 +472,7 @@ check because neither can mint GitHub's production OIDC attestation.
 
 ## Step 7: Versioned documentation deployment
 
-ZeroClaw docs use a versioned structure on the `gh-pages` branch. The `Release
+ClawCrew docs use a versioned structure on the `gh-pages` branch. The `Release
 Stable` workflow's `deploy-docs` job dispatches the `Deploy mdBook docs to
 Pages` workflow for the release tag once `publish` succeeds; that dispatched
 run builds and publishes the version's documentation into `/vX.Y.Z/`
@@ -575,7 +575,7 @@ under-scoped. Rotate the token per
 then dispatch Scoop Bucket Canary to confirm the fix without writing to the
 bucket. Rerun the Scoop publisher with `dry_run: false` and confirm the bucket
 landed the new version. Bucket-side Excavator recovery remains pending on
-`zeroclaw-labs/scoop-zeroclaw#1`, repository workflow write permission, and a
+`clawcrew-labs/scoop-clawcrew#1`, repository workflow write permission, and a
 maintainer smoke test; do not wait for it to repair a release until those steps
 are complete.
 
@@ -595,7 +595,7 @@ stops instead of downgrading it if another run has already published a newer
 version. Reaching the maintenance error means the window outlasted the retry
 budget. Wait for `aur.archlinux.org` to come back, then re-dispatch Pub AUR Package at the
 release tag with `dry_run: true`, then `dry_run: false`. Confirm the result with
-`curl -fsS 'https://aur.archlinux.org/rpc/v5/info?arg%5B%5D=zeroclawlabs'`, or
+`curl -fsS 'https://aur.archlinux.org/rpc/v5/info?arg%5B%5D=clawcrewlabs'`, or
 just dispatch AUR Freshness Check. Skipping this leaves the AUR silently behind
 until the weekly check catches it.
 

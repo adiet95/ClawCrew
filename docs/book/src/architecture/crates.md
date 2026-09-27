@@ -4,7 +4,7 @@ The workspace is split into layers. Edge crates talk to the outside world; core 
 
 ## Layer: Core
 
-### `zeroclaw-runtime`
+### `clawcrew-runtime`
 
 The agent loop, security-policy enforcement, SOP engine, cron scheduler, SubAgent lifecycle, and RPC layer for zerocode. Depends on every other core and edge crate.
 
@@ -19,7 +19,7 @@ Notable submodules:
 - `service/`: systemd / launchctl / Windows Service integration
 - `rpc/`: the RPC layer for zerocode
 
-### `zeroclaw-config`
+### `clawcrew-config`
 
 TOML schema and its validation. Handles:
 
@@ -30,7 +30,7 @@ TOML schema and its validation. Handles:
 
 All user-facing config keys are documented in [Reference → Config](../reference/config.md), which is generated from this crate.
 
-### `zeroclaw-api`
+### `clawcrew-api`
 
 The kernel ABI. Defines the core public traits, including:
 
@@ -44,28 +44,28 @@ The runtime depends only on these traits, not on concrete implementations. This 
 
 ## Layer: Edge
 
-### `zeroclaw-providers`
+### `clawcrew-providers`
 
 All LLM client implementations plus the routing and retry wrappers. See [Model Providers → Overview](../providers/overview.md) for the list.
 
 Structure:
 
-- `traits.rs`: re-exports from `zeroclaw-api` plus provider-internal helpers
+- `traits.rs`: re-exports from `clawcrew-api` plus provider-internal helpers
 - `anthropic.rs`, `openai.rs`, `ollama.rs`, …: one file per native provider
 - `compatible.rs`: a single OpenAI-compatible implementation reused by 20+ providers (Groq, Mistral, xAI, Venice, etc.)
 - `router.rs`: hint-based per-call model route selection
 - `reliable.rs`: retry / backoff / cooldown and ordered model-provider fallback wrapper
 - `streaming.rs`: SSE parsing, token estimation, tool-call deltas
 
-### `zeroclaw-channels`
+### `clawcrew-channels`
 
 30+ messaging integrations. See [Channels → Overview](../channels/overview.md) for the catalogue.
 
-All channels implement the `Channel` trait from `zeroclaw-api`. Each is feature-gated, a minimal build includes only the channels you compile in.
+All channels implement the `Channel` trait from `clawcrew-api`. Each is feature-gated, a minimal build includes only the channels you compile in.
 
 The `orchestrator/` submodule handles message streaming, draft updates, multi-message splits, and the ACP server.
 
-### `zeroclaw-gateway`
+### `clawcrew-gateway`
 
 HTTP/WebSocket gateway. Exposes the runtime over:
 
@@ -76,9 +76,9 @@ HTTP/WebSocket gateway. Exposes the runtime over:
 
 Pairing is required by default; `[gateway.allow_public_bind = true]` enables binding to `0.0.0.0`.
 
-### `zeroclaw-tools`
+### `clawcrew-tools`
 
-Callable tools the agent invokes. Not to be confused with CLI `zeroclaw` subcommands.
+Callable tools the agent invokes. Not to be confused with CLI `clawcrew` subcommands.
 
 Includes: `browser`, `http_request`, `web_search`, `shell`, `file_read`, `file_write`, hardware probes (`hardware_board_info`, `hardware_memory_read`), and more. See [Tools → Overview](../tools/overview.md).
 
@@ -86,7 +86,7 @@ Each tool is registered via factory and described to the model via Fluent-locali
 
 ## Layer: Support
 
-### `zeroclaw-memory`
+### `clawcrew-memory`
 
 Conversation memory and retrieval. SQLite is the default backend; PostgreSQL is available behind `--features memory-postgres` for multi-instance deployments that need a shared, concurrent-write store. Optional:
 
@@ -94,7 +94,7 @@ Conversation memory and retrieval. SQLite is the default backend; PostgreSQL is 
 - Vector retrieval over stored conversations (pgvector when on PostgreSQL)
 - Memory consolidation (summaries, fact extraction)
 
-### `zeroclaw-tool-call-parser`
+### `clawcrew-tool-call-parser`
 
 Model-side tool-call syntax parsing. Handles variations between providers:
 
@@ -103,15 +103,15 @@ Model-side tool-call syntax parsing. Handles variations between providers:
 - Qwen/Ollama's function-call formats
 - Native tool-call streaming deltas
 
-### `zeroclaw-plugins`
+### `clawcrew-plugins`
 
 Sandboxed WASM plugin host: loads component-model plugins (tool, channel, memory, skill bundles) in-process under WASI with per-call fuel and memory limits. See [Developing → Plugin protocol](../developing/plugin-protocol.md).
 
-### `zeroclaw-hardware`
+### `clawcrew-hardware`
 
 Hardware abstraction: GPIO, I2C, SPI, USB. Platform-gated. See [Hardware → Overview](../hardware/index.md).
 
-### `zeroclaw-log`
+### `clawcrew-log`
 
 The single emission surface for every log event in the workspace. Owns
 the on-disk JSONL schema (`LogEvent`), the alias-bound attribution
@@ -122,7 +122,7 @@ paginated cursor reader behind `/api/logs`, and the bridge to the
 typed `Observer` for Prometheus / OTel consumers. See
 [`architecture/logging.md`](./logging.md).
 
-### `zeroclaw-spawn`
+### `clawcrew-spawn`
 
 The sanctioned wrapper around `tokio::spawn`. Provides the `spawn!`
 macro, which instruments every background task with the caller's
@@ -130,22 +130,22 @@ current attribution span so a `record!` emitted inside the spawned
 future inherits the parent's `agent_alias` / `channel` / `session_key`.
 Call sites use `spawn!` instead of `tokio::spawn` directly.
 
-### `zeroclaw-infra`
+### `clawcrew-infra`
 
 Process-level support: debouncers, watchdogs, the SQLite session
-backend. Not a tracing/metrics layer, that's `zeroclaw-log`. See
+backend. Not a tracing/metrics layer, that's `clawcrew-log`. See
 [Runtime state and persistence](./runtime-state-and-persistence.md) for the
 state ownership and durability boundaries across config, sessions, memory,
 logs, costs, cron, and gateway metadata.
 
-### `zeroclaw-macros`
+### `clawcrew-macros`
 
 Derive macros for config schema, tool registration, and channel registration. Saves boilerplate across the workspace.
 
 ### `zerocode`
 
 Terminal UI, built as a separate app under `apps/zerocode/`. It depends only on
-the shared contracts in `zeroclaw-api`, not runtime, config, channel, provider,
+the shared contracts in `clawcrew-api`, not runtime, config, channel, provider,
 or tool implementations. Its i18n catalogue remains independent; see
 [Docs & Translations → zerocode strings](../maintainers/docs-and-translations.md).
 

@@ -1,6 +1,6 @@
 # Web dashboard (`gateway.web_dist_dir`)
 
-When ZeroClaw is built with the `embedded-web` feature, the compiled-in dashboard assets take precedence over `gateway.web_dist_dir` and the filesystem locations described below. Filesystem resolution and API-only fallback apply when embedded assets are unavailable.
+When ClawCrew is built with the `embedded-web` feature, the compiled-in dashboard assets take precedence over `gateway.web_dist_dir` and the filesystem locations described below. Filesystem resolution and API-only fallback apply when embedded assets are unavailable.
 
 The gateway daemon ships its HTTP API in the binary, but the web dashboard
 HTML/JS/CSS lives on disk in a `web/dist/` directory produced by Vite. The
@@ -67,16 +67,16 @@ contains an `index.html` that resolves within that candidate root:
 |---|-----------|-----------------|
 | 1 | `./web/dist` (relative to CWD) | Running `cargo run` from the repo root in dev |
 | 2 | `<dir-of-binary>/web/dist` | The packaged binary ships `web/dist` next to itself |
-| 3 | `/zeroclaw-data/web/dist` | Standard Docker / packaged-volume layout |
-| 4 | `/usr/share/zeroclawlabs/web/dist` | AUR / system package install |
-| 5 | `${XDG_DATA_HOME:-~/.local/share}/zeroclaw/web/dist` | Prebuilt-binary installer (per-user) |
+| 3 | `/clawcrew-data/web/dist` | Standard Docker / packaged-volume layout |
+| 4 | `/usr/share/clawcrewlabs/web/dist` | AUR / system package install |
+| 5 | `${XDG_DATA_HOME:-~/.local/share}/clawcrew/web/dist` | Prebuilt-binary installer (per-user) |
 
 If you're on one of those distributions and the dashboard "just works", you
 don't need to set `gateway.web_dist_dir` at all, the auto-detect found it.
 
 ## How to obtain a `web/dist`
 
-You have three options. Pick whichever matches how you installed ZeroClaw.
+You have three options. Pick whichever matches how you installed ClawCrew.
 
 ### A) Source checkout (developers / packagers)
 
@@ -85,8 +85,8 @@ You have three options. Pick whichever matches how you installed ZeroClaw.
 #### sh
 
 ```sh
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 cargo web build           # alias for `cargo run -p xtask --bin web -- build`
                           # auto-runs `npm install` on first run
 ```
@@ -102,14 +102,14 @@ documented in [Building the web dashboard](../developing/web.md).
 
 ### B) Pre-built release artifact
 
-Release archives on the [Releases page](https://github.com/zeroclaw-labs/zeroclaw/releases)
+Release archives on the [Releases page](https://github.com/clawcrew-labs/clawcrew/releases)
 ship the daemon with `web/dist/` already populated alongside the binary.
 Auto-detect candidate 2 finds it; no `gateway.web_dist_dir` configuration
 needed.
 
 ### C) Docker image
 
-The official Docker image places the bundle at `/zeroclaw-data/web/dist`
+The official Docker image places the bundle at `/clawcrew-data/web/dist`
 (auto-detect candidate 3). It works out of the box; you only need to set
 `web_dist_dir` if you mount your own volume over that path.
 
@@ -125,7 +125,7 @@ The value is resolved with the standard config-layer order:
 Env-var overrides apply to the in-memory `Config` only; they are never
 persisted.
 
-## Schema-mirror grammar: deriving `ZEROCLAW_gateway__web_dist_dir`
+## Schema-mirror grammar: deriving `CLAWCREW_gateway__web_dist_dir`
 
 The general operator override grammar (see
 [Environment variables](../reference/env-vars.md)) maps the dotted TOML path
@@ -136,7 +136,7 @@ TOML path:  gateway.web_dist_dir
             ─────── ─────────────
             section field-name (snake_case, kept as-is)
 
-Env var:    ZEROCLAW_gateway__web_dist_dir
+Env var:    CLAWCREW_gateway__web_dist_dir
             ─────────       ──            ────────────
             prefix          path-separator  field-name
                             (`.` → `__`)    (unchanged)
@@ -154,15 +154,15 @@ A literal tilde is **not** expanded by the gateway; use an absolute path for `ga
 
 {{#env-var web_dist_home}}
 
-Companion [PR #6961](https://github.com/zeroclaw-labs/zeroclaw/pull/6961) adds
+Companion [PR #6961](https://github.com/clawcrew-labs/clawcrew/pull/6961) adds
 the targeted "looks like an unexpanded `~` / `$VAR`,
 [`shellexpand`](https://crates.io/crates/shellexpand) it before writing this
 value" check tracked in
-[issue #6079](https://github.com/zeroclaw-labs/zeroclaw/issues/6079) to both
-`zeroclaw doctor` and `zeroclaw self-test` as a Warn-severity diagnostic.
+[issue #6079](https://github.com/clawcrew-labs/clawcrew/issues/6079) to both
+`clawcrew doctor` and `clawcrew self-test` as a Warn-severity diagnostic.
 Neither command surfaces it on current `master`, until #6961 lands, expand
 `~` / `$VAR` yourself before writing `gateway.web_dist_dir` (for example
-write `/home/alice/zeroclaw/web/dist` instead of `~/zeroclaw/web/dist`).
+write `/home/alice/clawcrew/web/dist` instead of `~/clawcrew/web/dist`).
 
 ### Relative paths resolve against CWD, not the config file
 

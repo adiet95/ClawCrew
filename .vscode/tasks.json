@@ -245,7 +245,7 @@
       ],
       "options": {
         "env": {
-          "ZEROCLAW_REQUIRE_PAIRING": "false"
+          "CLAWCREW_REQUIRE_PAIRING": "false"
         }
       },
       "dependsOn": [

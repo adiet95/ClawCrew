@@ -51,7 +51,7 @@ pub fn take_screenshot() -> Result<ScreenshotResult, String> {
         }
 
         let tmp = std::env::temp_dir().join(format!(
-            "zeroclaw-screenshot-{}-{}.png",
+            "clawcrew-screenshot-{}-{}.png",
             std::process::id(),
             chrono_ish_nanos()
         ));
@@ -100,7 +100,7 @@ mod tests {
 
     fn test_path(case: &str) -> PathBuf {
         std::env::temp_dir().join(format!(
-            "zeroclaw-screenshot-test-{}-{}-{case}",
+            "clawcrew-screenshot-test-{}-{}-{case}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)

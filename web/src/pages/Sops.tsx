@@ -57,8 +57,8 @@ function blankStep(number: number): SopStep {
   };
 }
 
-const DRAFT_STORAGE_KEY = 'zeroclaw_sop_draft';
-const DRAFT_EDITING_NAME_KEY = 'zeroclaw_sop_editing_name';
+const DRAFT_STORAGE_KEY = 'clawcrew_sop_draft';
+const DRAFT_EDITING_NAME_KEY = 'clawcrew_sop_editing_name';
 
 function setArgAtPath(
   root: Record<string, unknown>,

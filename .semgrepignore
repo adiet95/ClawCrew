@@ -21,6 +21,6 @@ docs/book/theme/
 
 # Selected skill docs contain illustrative protocol and token placeholders. Keep
 # executable tooling elsewhere under .claude/ in scan scope.
-.claude/skills/zeroclaw/SKILL.md
-.claude/skills/zeroclaw/references/cli-reference.md
-.claude/skills/zeroclaw/references/rest-api.md
+.claude/skills/clawcrew/SKILL.md
+.claude/skills/clawcrew/references/cli-reference.md
+.claude/skills/clawcrew/references/rest-api.md

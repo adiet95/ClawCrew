@@ -25,18 +25,18 @@ Without lingering, a user-scope systemd service stops when the last session clos
 
 ## Restart behaviour
 
-The installed systemd user unit (`~/.config/systemd/user/zeroclaw.service`) uses:
+The installed systemd user unit (`~/.config/systemd/user/clawcrew.service`) uses:
 
 ```ini
 Restart=always
 RestartSec=3
 ```
 
-systemd restarts the daemon on any exit with a 3-second backoff. There is no exit-code allowlist, so a daemon that fails fast on a bad config will flap; fix the config and `systemctl --user restart zeroclaw` rather than relying on the service to give up.
+systemd restarts the daemon on any exit with a 3-second backoff. There is no exit-code allowlist, so a daemon that fails fast on a bad config will flap; fix the config and `systemctl --user restart clawcrew` rather than relying on the service to give up.
 
-On macOS, the LaunchAgent (`~/Library/LaunchAgents/com.zeroclaw.daemon.plist`) sets `RunAtLoad` and `KeepAlive` to `true`, so launchd keeps the daemon running and relaunches it whenever it exits.
+On macOS, the LaunchAgent (`~/Library/LaunchAgents/com.clawcrew.daemon.plist`) sets `RunAtLoad` and `KeepAlive` to `true`, so launchd keeps the daemon running and relaunches it whenever it exits.
 
-On Windows, `zeroclaw service install` registers a Task Scheduler task triggered `ONLOGON` at the `LIMITED` run level. It starts the daemon at logon; it does not add an automatic restart-on-failure policy.
+On Windows, `clawcrew service install` registers a Task Scheduler task triggered `ONLOGON` at the `LIMITED` run level. It starts the daemon at logon; it does not add an automatic restart-on-failure policy.
 
 ## Graceful shutdown
 
@@ -63,13 +63,13 @@ Skip the service and run the daemon directly:
 #### sh
 
 ```sh
-zeroclaw service stop     # free the gateway port if the service is running
-zeroclaw daemon
+clawcrew service stop     # free the gateway port if the service is running
+clawcrew daemon
 ```
 
 </div>
 
-`zeroclaw daemon` runs in the foreground, logs to stderr, and is the same process the service runs, just without the service harness. Useful when:
+`clawcrew daemon` runs in the foreground, logs to stderr, and is the same process the service runs, just without the service harness. Useful when:
 
 - Diagnosing startup failures that the service swallows
 - Running under `gdb` / `lldb`
@@ -88,7 +88,7 @@ Add to a drop-in:
 #### sh
 
 ```sh
-systemctl --user edit zeroclaw.service
+systemctl --user edit clawcrew.service
 ```
 
 </div>
@@ -108,14 +108,14 @@ Reload and restart:
 
 ```sh
 systemctl --user daemon-reload
-systemctl --user restart zeroclaw
+systemctl --user restart clawcrew
 ```
 
 </div>
 
 ### macOS: launchd
 
-Edit `~/Library/LaunchAgents/com.zeroclaw.daemon.plist`:
+Edit `~/Library/LaunchAgents/com.clawcrew.daemon.plist`:
 
 ```xml
 <key>SoftResourceLimits</key>
@@ -132,8 +132,8 @@ Unload + load the plist to apply:
 #### sh
 
 ```sh
-launchctl unload ~/Library/LaunchAgents/com.zeroclaw.daemon.plist
-launchctl load ~/Library/LaunchAgents/com.zeroclaw.daemon.plist
+launchctl unload ~/Library/LaunchAgents/com.clawcrew.daemon.plist
+launchctl load ~/Library/LaunchAgents/com.clawcrew.daemon.plist
 ```
 
 </div>
@@ -144,8 +144,8 @@ Compose:
 
 ```yaml
 services:
-  zeroclaw:
-    image: ghcr.io/zeroclaw-labs/zeroclaw:latest
+  clawcrew:
+    image: ghcr.io/clawcrew-labs/clawcrew:latest
     mem_limit: 2g
     cpus: 2.0
     ulimits:
@@ -154,22 +154,22 @@ services:
 
 ## Running multiple workspaces
 
-Each ZeroClaw daemon owns one config directory (which contains its `data/` dir). To run two side by side, give each its own config directory via `--config-dir` (or the `ZEROCLAW_CONFIG_DIR` env var):
+Each ClawCrew daemon owns one config directory (which contains its `data/` dir). To run two side by side, give each its own config directory via `--config-dir` (or the `CLAWCREW_CONFIG_DIR` env var):
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw --config-dir ~/.zeroclaw-home daemon
-zeroclaw --config-dir ~/.zeroclaw-work daemon
+clawcrew --config-dir ~/.clawcrew-home daemon
+clawcrew --config-dir ~/.clawcrew-work daemon
 ```
 
 </div>
 
 Each instance reads its own config, its own `data/` (memory, sessions), its own gateway port (set per config), and its own channel bindings. Memory stays separate; a Telegram bot in one config dir doesn't know about the other.
 
-`zeroclaw service install` always installs a single unit pointed at the default config directory; it has no flag to name or parameterize instances. To run more than one as a persistent service, hand-author a second unit file (copy `~/.config/systemd/user/zeroclaw.service` to a new name) whose `ExecStart` passes `--config-dir <dir>`, then enable it separately.
+`clawcrew service install` always installs a single unit pointed at the default config directory; it has no flag to name or parameterize instances. To run more than one as a persistent service, hand-author a second unit file (copy `~/.config/systemd/user/clawcrew.service` to a new name) whose `ExecStart` passes `--config-dir <dir>`, then enable it separately.
 
 Don't point two daemons at the same config directory. SQLite is single-writer; the second will fail on startup.
 
@@ -181,10 +181,10 @@ Don't point two daemons at the same config directory. SQLite is single-writer; t
 
 ```sh
 # Linux
-journalctl --user -u zeroclaw --since "1 day ago" | grep -E 'Started|Stopped|failed'
+journalctl --user -u clawcrew --since "1 day ago" | grep -E 'Started|Stopped|failed'
 
 # macOS
-log show --predicate 'process == "zeroclaw"' --last 1d | grep -E 'start|stop|error'
+log show --predicate 'process == "clawcrew"' --last 1d | grep -E 'start|stop|error'
 ```
 
 </div>

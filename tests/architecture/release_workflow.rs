@@ -147,7 +147,7 @@ fn macos_desktop_release_notarizes_published_dmg() {
         "the published DMG path must have exactly one source of truth"
     );
     for required in [
-        "MACOS_DMG_PATH: desktop-assets/ZeroClaw.dmg",
+        "MACOS_DMG_PATH: desktop-assets/ClawCrew.dmg",
         "dmg_dir=\"target/universal-apple-darwin/release/bundle/dmg\"",
         "dmg_candidates=(\"$dmg_dir\"/*.dmg)",
         "\"${#dmg_candidates[@]}\" -ne 1",
@@ -203,7 +203,7 @@ fn package_publishers_use_canonical_sources_and_scoped_credentials() {
     let scoop = workflow("pub-scoop.yml");
     for required in [
         "SCOOP_BUCKET_TOKEN",
-        "dist/scoop/zeroclaw.json",
+        "dist/scoop/clawcrew.json",
         "push --dry-run origin HEAD",
         "Contents: Read and write",
         ".architecture[\"64bit\"].url = $url",
@@ -226,7 +226,7 @@ fn package_publishers_use_canonical_sources_and_scoped_credentials() {
 
     assert!(
         scoop.contains(
-            "bash scripts/release/scoop_metadata.sh dist/scoop/zeroclaw.json \"$version\""
+            "bash scripts/release/scoop_metadata.sh dist/scoop/clawcrew.json \"$version\""
         ),
         "pub-scoop.yml must materialize publisher metadata from the canonical manifest"
     );
@@ -261,7 +261,7 @@ fn package_publishers_use_canonical_sources_and_scoped_credentials() {
         "case \"$attempt_status\" in",
         "unexpected status ${attempt_status}",
         "Generated PKGBUILD is not valid Bash syntax",
-        "tarball_url=\"https://github.com/zeroclaw-labs/zeroclaw/archive/refs/tags/${RELEASE_TAG}.tar.gz\"",
+        "tarball_url=\"https://github.com/clawcrew-labs/clawcrew/archive/refs/tags/${RELEASE_TAG}.tar.gz\"",
         "require_exact_line \"$PKGBUILD_FILE\" \"$expected_pkgbuild_source\"",
         "require_exact_line \"$SRCINFO_FILE\" \"$expected_srcinfo_source\"",
         "package metadata is missing, malformed, or inconsistent",
@@ -311,7 +311,7 @@ fn package_publishers_use_canonical_sources_and_scoped_credentials() {
     );
 
     let clone_position = aur
-        .find("git clone --quiet ssh://aur@aur.archlinux.org/zeroclawlabs.git")
+        .find("git clone --quiet ssh://aur@aur.archlinux.org/clawcrewlabs.git")
         .expect("AUR publisher must clone the authoritative package state");
     let guard_position = aur
         .rfind(guard_call)
@@ -487,12 +487,12 @@ fn aur_publisher_rejects_stale_release_downgrades() {
     let srcinfo = |epoch: Option<u32>, version: &str, release: &str| {
         let epoch = epoch.map_or_else(String::new, |value| format!("epoch = {value}\n"));
         format!(
-            "pkgbase = zeroclawlabs\n{epoch}pkgver = {version}\npkgrel = {release}\npkgname = zeroclawlabs\n"
+            "pkgbase = clawcrewlabs\n{epoch}pkgver = {version}\npkgrel = {release}\npkgname = clawcrewlabs\n"
         )
     };
     let pkgbuild = |epoch: Option<u32>, version: &str, release: &str| {
         let epoch = epoch.map_or_else(String::new, |value| format!("epoch={value}\n"));
-        format!("pkgname=zeroclawlabs\n{epoch}pkgver={version}\npkgrel={release}\n")
+        format!("pkgname=clawcrewlabs\n{epoch}pkgver={version}\npkgrel={release}\n")
     };
 
     let run_guard = |target_metadata: &str,
@@ -1012,14 +1012,14 @@ fn scoop_publisher_metadata_follows_canonical_url_template() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let metadata_script = root.join("scripts/release/scoop_metadata.sh");
     let temp = tempfile::tempdir().expect("create temporary Scoop manifest directory");
-    let manifest_path = temp.path().join("zeroclaw.json");
+    let manifest_path = temp.path().join("clawcrew.json");
     fs::write(
         &manifest_path,
         r#"{
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://downloads.example.test/renamed/repository/releases/v$version/zeroclaw-renamed.zip"
+        "url": "https://downloads.example.test/renamed/repository/releases/v$version/clawcrew-renamed.zip"
       }
     }
   }
@@ -1043,9 +1043,9 @@ fn scoop_publisher_metadata_follows_canonical_url_template() {
 
     assert_eq!(
         metadata["zip_url"],
-        "https://downloads.example.test/renamed/repository/releases/v1.2.3/zeroclaw-renamed.zip"
+        "https://downloads.example.test/renamed/repository/releases/v1.2.3/clawcrew-renamed.zip"
     );
-    assert_eq!(metadata["asset_name"], "zeroclaw-renamed.zip");
+    assert_eq!(metadata["asset_name"], "clawcrew-renamed.zip");
     assert_eq!(
         metadata["sums_url"],
         "https://downloads.example.test/renamed/repository/releases/v1.2.3/SHA256SUMS"
@@ -1064,8 +1064,8 @@ fn scoop_publisher_metadata_follows_canonical_url_template() {
 
     for invalid_template in [
         "",
-        "https://downloads.example.test/releases/v$version/\nzeroclaw.zip",
-        "https://downloads.example.test/releases/latest/zeroclaw.zip",
+        "https://downloads.example.test/releases/v$version/\nclawcrew.zip",
+        "https://downloads.example.test/releases/latest/clawcrew.zip",
     ] {
         let invalid_manifest = serde_json::json!({
             "autoupdate": {

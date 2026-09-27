@@ -1114,7 +1114,7 @@ fn flatten_table(table: &OverrideTable) -> HashMap<String, ChordSpec> {
 ///
 /// Canonical spelling: the `ZEROCODE_` prefix followed by the lowercase dotted
 /// config path with `.` written as `__` — e.g. `ZEROCODE_todotracker__enabled=false`
-/// sets `todotracker.enabled`. This mirrors the daemon's `ZEROCLAW_<path>` form.
+/// sets `todotracker.enabled`. This mirrors the daemon's `CLAWCREW_<path>` form.
 /// Overrides are process-transient and are never written back to disk.
 fn apply_env_overrides(config: &mut ZerocodeConfig) -> Result<()> {
     let mut entries: Vec<(String, String, String)> = std::env::vars()

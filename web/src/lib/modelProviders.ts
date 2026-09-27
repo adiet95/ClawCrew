@@ -1,5 +1,5 @@
 // Local-vs-remote provider classification, sourced from the backend catalog
-// (`GET /api/config/catalog`, which serves `zeroclaw_providers::list_model_providers()`).
+// (`GET /api/config/catalog`, which serves `clawcrew_providers::list_model_providers()`).
 // The registry is canonical; this module caches the `local` flag per provider
 // name so synchronous call sites (placeholder text, offline fallbacks) can ask
 // without re-deriving the list. Until the cache is primed, classification

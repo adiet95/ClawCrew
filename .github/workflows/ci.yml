@@ -277,9 +277,9 @@ jobs:
         env:
           RUST_CACHE_HIT: ${{ steps.rust-cache.outputs.cache-hit }}
       - name: Rustdoc warnings gate
-        # Exclude zeroclaw-desktop: same surface as xtask build_api / docs-deploy.
+        # Exclude clawcrew-desktop: same surface as xtask build_api / docs-deploy.
         # Desktop pulls glib-sys on Linux; the lint runner does not install GTK libs.
-        run: cargo doc --no-deps --workspace --exclude zeroclaw-desktop
+        run: cargo doc --no-deps --workspace --exclude clawcrew-desktop
       - name: Comment hygiene gate (no issue refs / review notes / truncation artifacts)
         run: |
           bash scripts/ci/comment_hygiene_gate.test.sh
@@ -323,7 +323,7 @@ jobs:
               ;;
           esac
 
-          if grep -Eq '^(crates/zeroclaw-tools/|scripts/ci/run_clippy\.sh$|\.github/workflows/(ci|cross-platform-clippy)\.yml$)' "$changed_files"; then
+          if grep -Eq '^(crates/clawcrew-tools/|scripts/ci/run_clippy\.sh$|\.github/workflows/(ci|cross-platform-clippy)\.yml$)' "$changed_files"; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -413,7 +413,7 @@ jobs:
           duration_seconds=$SECONDS
           set -e
 
-          workspace_path_compiles="$(grep -E -c 'Compiling.*\([^)]*zeroclaw' "$cargo_log" || true)"
+          workspace_path_compiles="$(grep -E -c 'Compiling.*\([^)]*clawcrew' "$cargo_log" || true)"
           total_compiles="$(grep -c 'Compiling' "$cargo_log" || true)"
           downloaded_crates="$(grep -c 'Downloaded' "$cargo_log" || true)"
           cache_hit="${RUST_CACHE_HIT:-unknown}"
@@ -442,11 +442,11 @@ jobs:
       - name: Check voice-wake
         if: runner.os != 'Linux'
         shell: bash
-        run: cargo check --locked -p zeroclaw-channels --no-default-features --features voice-wake --target ${{ matrix.target }}
+        run: cargo check --locked -p clawcrew-channels --no-default-features --features voice-wake --target ${{ matrix.target }}
       - name: Test voice-wake
         if: runner.os == 'Linux'
         shell: bash
-        run: cargo test --locked -p zeroclaw-channels --no-default-features --features voice-wake --target ${{ matrix.target }} --lib voice_wake
+        run: cargo test --locked -p clawcrew-channels --no-default-features --features voice-wake --target ${{ matrix.target }} --lib voice_wake
         env:
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
@@ -454,10 +454,10 @@ jobs:
         if: runner.os == 'Windows' && needs.path-changes.outputs.windows_recovery != 'false'
         shell: bash
         run: |
-          cargo test --profile ci --locked -p zeroclaw-runtime --lib \
+          cargo test --profile ci --locked -p clawcrew-runtime --lib \
             --target x86_64-pc-windows-msvc \
             control_plane::authority::tests::windows_process_exit_is_detected -- --exact
-          cargo test --profile ci --locked -p zeroclaw-runtime --lib \
+          cargo test --profile ci --locked -p clawcrew-runtime --lib \
             --target x86_64-pc-windows-msvc \
             control_plane::boot::tests::recovery_retains_live_foreign_process_then_reclaims_after_exit -- --exact
 
@@ -472,7 +472,7 @@ jobs:
       matrix:
         include:
           - name: no default features
-            args: --workspace --exclude zeroclaw-desktop --no-default-features
+            args: --workspace --exclude clawcrew-desktop --no-default-features
             sys_deps: ""
             rustflags: -D warnings
           # Lint already denies warnings with --all-targets, but only at
@@ -481,7 +481,7 @@ jobs:
           # drift lands green. This row compiles the test targets on the
           # default surface, where that mismatch is visible.
           - name: default features, all targets
-            args: --workspace --exclude zeroclaw-desktop --all-targets
+            args: --workspace --exclude clawcrew-desktop --all-targets
             sys_deps: ""
             rustflags: -D warnings
     steps:
@@ -553,20 +553,20 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/master' }}
       - name: Check
         if: steps.changed.outputs.run == 'true' && matrix.suite != 'runtime'
-        run: cargo check --locked -p zeroclaw-plugins --no-default-features --features ${{ matrix.features }}
+        run: cargo check --locked -p clawcrew-plugins --no-default-features --features ${{ matrix.features }}
       - name: Run plugin component tests
         if: steps.changed.outputs.run == 'true' && matrix.suite == 'components'
-        run: cargo test --locked -p zeroclaw-plugins --features plugins-wasm-cranelift --test channel_plugin_e2e --test egress_plugin_e2e --test tool_plugin_timeout_e2e --test reference_plugin --test reference_plugin_e2e --test tool_plugin_e2e
+        run: cargo test --locked -p clawcrew-plugins --features plugins-wasm-cranelift --test channel_plugin_e2e --test egress_plugin_e2e --test tool_plugin_timeout_e2e --test reference_plugin --test reference_plugin_e2e --test tool_plugin_e2e
       - name: Run plugins lib unit tests
         if: steps.changed.outputs.run == 'true' && matrix.suite == 'components'
-        run: cargo test --locked -p zeroclaw-plugins --no-default-features --features plugins-wasm-cranelift --lib
+        run: cargo test --locked -p clawcrew-plugins --no-default-features --features plugins-wasm-cranelift --lib
       - name: Run runtime live-config plugin regressions
         if: steps.changed.outputs.run == 'true' && matrix.suite == 'runtime'
         # Module filter, not a single test name: agent::plugin_live_config holds
         # every production-constructor live-config regression (direct Agent and
         # independently delegated registries today), and a filter pinned to one
         # test name silently skips the others.
-        run: cargo test --locked -p zeroclaw-runtime --features plugins-wasm-cranelift --lib agent::plugin_live_config
+        run: cargo test --locked -p clawcrew-runtime --features plugins-wasm-cranelift --lib agent::plugin_live_config
       # Feature-gated admission proofs. These only compile under plugins-wasm, so
       # the default-feature workspace Test job never runs them: the activation
       # plan (plugin_runtime), the shared instance ceiling, the auto_discover
@@ -575,10 +575,10 @@ jobs:
       # `cargo test` accepts only one positional TESTNAME; the harness ORs them.
       - name: Run runtime plugin admission regressions
         if: steps.changed.outputs.run == 'true' && matrix.suite == 'runtime'
-        run: 'cargo test --locked -p zeroclaw-runtime --features plugins-wasm-cranelift --lib -- plugin_runtime:: tools::tests::shared_ceiling tools::tests::repeated_loader tools::tests::auto_discover tools::tests::colliding_plugin'
-      # Cross-crate activation proof. This lives in the root `zeroclaw` package
-      # rather than the line above because it drives `zeroclaw-runtime`, which
-      # `zeroclaw-plugins` cannot depend on without inverting the crate graph.
+        run: 'cargo test --locked -p clawcrew-runtime --features plugins-wasm-cranelift --lib -- plugin_runtime:: tools::tests::shared_ceiling tools::tests::repeated_loader tools::tests::auto_discover tools::tests::colliding_plugin'
+      # Cross-crate activation proof. This lives in the root `clawcrew` package
+      # rather than the line above because it drives `clawcrew-runtime`, which
+      # `clawcrew-plugins` cannot depend on without inverting the crate graph.
       - name: Run channel plugin activation e2e
         if: steps.changed.outputs.run == 'true' && matrix.suite == 'runtime'
         run: cargo test --locked --features plugins-wasm-cranelift --test plugin_channel_runtime_e2e
@@ -629,7 +629,7 @@ jobs:
       # Containerfile or rebuild the generator under the MSRV toolchain.
       - name: Check at the declared MSRV
         run: |
-          cargo check --locked --workspace --exclude zeroclaw-desktop \
+          cargo check --locked --workspace --exclude clawcrew-desktop \
             --no-default-features \
             --features "${{ needs.installer-drift.outputs.all_features }}"
 
@@ -691,7 +691,7 @@ jobs:
           duration_seconds=$SECONDS
           set -e
 
-          workspace_path_compiles="$(grep -E -c 'Compiling.*\([^)]*zeroclaw' "$cargo_log" || true)"
+          workspace_path_compiles="$(grep -E -c 'Compiling.*\([^)]*clawcrew' "$cargo_log" || true)"
           total_compiles="$(grep -c 'Compiling' "$cargo_log" || true)"
           downloaded_crates="$(grep -c 'Downloaded' "$cargo_log" || true)"
           cache_hit="${RUST_CACHE_HIT:-unknown}"
@@ -742,7 +742,7 @@ jobs:
       - name: Install cargo-nextest
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
       - name: Run tests
-        run: cargo nextest run --locked --workspace --exclude zeroclaw-desktop
+        run: cargo nextest run --locked --workspace --exclude clawcrew-desktop
         env:
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
@@ -750,7 +750,7 @@ jobs:
       # modules. Compile-only `ci-all` coverage cannot exercise their process,
       # timeout, cleanup, and validation regressions.
       - name: Run hardware feature lib unit tests
-        run: cargo nextest run --locked --no-fail-fast -p zeroclaw-hardware --features hardware --lib
+        run: cargo nextest run --locked --no-fail-fast -p clawcrew-hardware --features hardware --lib
         env:
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
@@ -766,13 +766,13 @@ jobs:
       matrix:
         include:
           - name: WeChat
-            command: "cargo nextest run --locked -p zeroclaw-channels --features channel-wechat --lib wechat::"
+            command: "cargo nextest run --locked -p clawcrew-channels --features channel-wechat --lib wechat::"
           - name: Lark
-            command: "cargo nextest run --locked -p zeroclaw-channels --no-default-features --features channel-lark --lib lark_url_verification"
+            command: "cargo nextest run --locked -p clawcrew-channels --no-default-features --features channel-lark --lib lark_url_verification"
           - name: Matrix
-            command: "cargo nextest run --locked -p zeroclaw-channels --features channel-matrix --lib matrix::"
+            command: "cargo nextest run --locked -p clawcrew-channels --features channel-matrix --lib matrix::"
           - name: QQ
-            command: "cargo nextest run --locked -p zeroclaw-channels --features channel-qq --lib qq::tests::health_check one_off_send_resolves_dotted_qq_alias deliver_announcement_routes_qq_to_qq_arm deliver_announcement_rejects_disabled_qq_alias compiled_channel_keys_have_intentional_announcement_delivery_registration compiled_channel_keys_have_intentional_one_shot_builder_support"
+            command: "cargo nextest run --locked -p clawcrew-channels --features channel-qq --lib qq::tests::health_check one_off_send_resolves_dotted_qq_alias deliver_announcement_routes_qq_to_qq_arm deliver_announcement_rejects_disabled_qq_alias compiled_channel_keys_have_intentional_announcement_delivery_registration compiled_channel_keys_have_intentional_one_shot_builder_support"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
@@ -806,13 +806,13 @@ jobs:
       postgres:
         image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 # 17.11-alpine3.24
         env:
-          POSTGRES_USER: zeroclaw_test
-          POSTGRES_PASSWORD: zeroclaw_test
-          POSTGRES_DB: zeroclaw_test
+          POSTGRES_USER: clawcrew_test
+          POSTGRES_PASSWORD: clawcrew_test
+          POSTGRES_DB: clawcrew_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U zeroclaw_test -d zeroclaw_test"
+          --health-cmd "pg_isready -U clawcrew_test -d clawcrew_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -834,14 +834,14 @@ jobs:
       - name: Install cargo-nextest
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
       - name: Run memory-postgres feature tests
-        run: cargo nextest run --locked -p zeroclaw-memory --features memory-postgres
+        run: cargo nextest run --locked -p clawcrew-memory --features memory-postgres
         env:
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
       - name: Run PostgreSQL acceptance tests
-        run: cargo test --locked -p zeroclaw-memory --features memory-postgres -- --ignored --test-threads=1
+        run: cargo test --locked -p clawcrew-memory --features memory-postgres -- --ignored --test-threads=1
         env:
-          ZEROCLAW_TEST_POSTGRES_URL: postgres://zeroclaw_test:zeroclaw_test@127.0.0.1:5432/zeroclaw_test
+          CLAWCREW_TEST_POSTGRES_URL: postgres://clawcrew_test:clawcrew_test@127.0.0.1:5432/clawcrew_test
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
 
@@ -916,7 +916,7 @@ jobs:
       - name: Repeat parallel runtime tests
         run: ./scripts/ci/parallel_runtime_test_gate.sh
         env:
-          ZEROCLAW_PARALLEL_TEST_SCOPE: ${{ needs.parallel-runtime-test-changes.outputs.scope }}
+          CLAWCREW_PARALLEL_TEST_SCOPE: ${{ needs.parallel-runtime-test-changes.outputs.scope }}
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
 
@@ -941,7 +941,7 @@ jobs:
       - name: Install cargo-nextest
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
       - name: Run Landlock tests
-        run: cargo nextest run --locked -p zeroclaw-runtime --features sandbox-landlock -- landlock
+        run: cargo nextest run --locked -p clawcrew-runtime --features sandbox-landlock -- landlock
         env:
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
@@ -1069,7 +1069,7 @@ jobs:
           # The generated dashboard contract includes schemas owned by the
           # config, runtime, and SOP graph crates and is rendered by the xtask generator.
           # Keep this trigger aligned with every source that can change it.
-          emit web      "^web/|^crates/zeroclaw-(config|gateway|runtime|sop-graph)/|^xtask/|^Cargo\.(toml|lock)$|^\.nvmrc$|${wf}"
+          emit web      "^web/|^crates/clawcrew-(config|gateway|runtime|sop-graph)/|^xtask/|^Cargo\.(toml|lock)$|^\.nvmrc$|${wf}"
 
   nix-eval:
     name: Nix Module Eval
@@ -1150,7 +1150,7 @@ jobs:
           fi
       - name: Guard zerocode RPC-only boundary
         if: steps.changed.outputs.run == 'true'
-        run: bash scripts/ci/zerocode_no_zeroclaw_dep_gate.sh
+        run: bash scripts/ci/zerocode_no_clawcrew_dep_gate.sh
 
   # Guards generated installation surfaces against canonical-spec drift from PR #7558; see the bespoke gate registry in README.md.
   installer-drift:

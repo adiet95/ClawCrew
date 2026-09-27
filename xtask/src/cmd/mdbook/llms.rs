@@ -27,11 +27,11 @@ use std::io::Read as _;
 use std::path::{Path, PathBuf};
 
 /// Environment variable carrying the absolute URL prefix for every page link
-/// (for example `https://docs.zeroclaw.com/v0.8.5/en/`). Set by `build.rs`.
-pub const BASE_URL_ENV: &str = "ZEROCLAW_DOCS_LLMS_BASE_URL";
+/// (for example `https://docs.clawcrew.com/v0.8.5/en/`). Set by `build.rs`.
+pub const BASE_URL_ENV: &str = "CLAWCREW_DOCS_LLMS_BASE_URL";
 
 /// Public host for the docs site; the versioned prefix is appended per build.
-pub const DOCS_ORIGIN: &str = "https://docs.zeroclaw.com";
+pub const DOCS_ORIGIN: &str = "https://docs.clawcrew.com";
 
 pub const INDEX_FILE: &str = "llms.txt";
 pub const FULL_FILE: &str = "llms-full.txt";
@@ -423,10 +423,10 @@ mod tests {
             "root": "/book",
             "destination": "/book/out",
             "config": {
-                "book": { "title": "ZeroClaw Docs", "description": "Docs for ZeroClaw." }
+                "book": { "title": "ClawCrew Docs", "description": "Docs for ClawCrew." }
             },
             "book": { "items": [
-                { "Chapter": { "name": "Introduction", "content": "# ZeroClaw\n\nPersonal assistant *you* own.\n\nMore.\n",
+                { "Chapter": { "name": "Introduction", "content": "# ClawCrew\n\nPersonal assistant *you* own.\n\nMore.\n",
                     "number": [1], "sub_items": [], "path": "introduction.md", "source_path": "introduction.md", "parent_names": [] } },
                 { "PartTitle": "Guides" },
                 { "Chapter": { "name": "Setup", "content": "# Setup\n\n<div class=\"warning\">note</div>\n\n```sh\ncargo install\n```\n\nInstall on [Linux](./linux.md) or macOS.\n",
@@ -444,13 +444,13 @@ mod tests {
 
     #[test]
     fn index_groups_pages_by_top_level_chapter_with_absolute_urls() {
-        let out = render(&ctx(), "https://docs.zeroclaw.com/v0.8.5/en").unwrap();
+        let out = render(&ctx(), "https://docs.clawcrew.com/v0.8.5/en").unwrap();
         let index = out.index;
-        assert!(index.starts_with("# ZeroClaw Docs\n\n> Docs for ZeroClaw.\n\n"));
-        assert!(index.contains("https://docs.zeroclaw.com/v0.8.5/en/llms-full.txt"));
-        assert!(index.contains("## Introduction\n\n- [Introduction](https://docs.zeroclaw.com/v0.8.5/en/introduction.html): Personal assistant you own.\n"));
-        assert!(index.contains("## Setup\n\n- [Setup](https://docs.zeroclaw.com/v0.8.5/en/setup/index.html): Install on Linux or macOS.\n- [Linux](https://docs.zeroclaw.com/v0.8.5/en/setup/linux.html): Use the script.\n"));
-        assert!(index.contains("## Appendix\n\n- [Appendix](https://docs.zeroclaw.com/v0.8.5/en/appendix.html): Trailing prefix-less chapter.\n"));
+        assert!(index.starts_with("# ClawCrew Docs\n\n> Docs for ClawCrew.\n\n"));
+        assert!(index.contains("https://docs.clawcrew.com/v0.8.5/en/llms-full.txt"));
+        assert!(index.contains("## Introduction\n\n- [Introduction](https://docs.clawcrew.com/v0.8.5/en/introduction.html): Personal assistant you own.\n"));
+        assert!(index.contains("## Setup\n\n- [Setup](https://docs.clawcrew.com/v0.8.5/en/setup/index.html): Install on Linux or macOS.\n- [Linux](https://docs.clawcrew.com/v0.8.5/en/setup/linux.html): Use the script.\n"));
+        assert!(index.contains("## Appendix\n\n- [Appendix](https://docs.clawcrew.com/v0.8.5/en/appendix.html): Trailing prefix-less chapter.\n"));
         assert!(
             !index.contains("Draft"),
             "draft chapters have no page to link"
@@ -459,17 +459,17 @@ mod tests {
 
     #[test]
     fn full_dump_keeps_reading_order_and_prefixes_each_page_with_its_url() {
-        let out = render(&ctx(), "https://docs.zeroclaw.com/master/en/").unwrap();
+        let out = render(&ctx(), "https://docs.clawcrew.com/master/en/").unwrap();
         let full = out.full;
-        let intro = full.find("Source: https://docs.zeroclaw.com/master/en/introduction.html\n\n# ZeroClaw\n\nPersonal assistant *you* own.").unwrap();
+        let intro = full.find("Source: https://docs.clawcrew.com/master/en/introduction.html\n\n# ClawCrew\n\nPersonal assistant *you* own.").unwrap();
         let setup = full
-            .find("Source: https://docs.zeroclaw.com/master/en/setup/index.html\n\n# Setup")
+            .find("Source: https://docs.clawcrew.com/master/en/setup/index.html\n\n# Setup")
             .unwrap();
         let linux = full
-            .find("Source: https://docs.zeroclaw.com/master/en/setup/linux.html\n\n# Linux")
+            .find("Source: https://docs.clawcrew.com/master/en/setup/linux.html\n\n# Linux")
             .unwrap();
         let appendix = full
-            .find("Source: https://docs.zeroclaw.com/master/en/appendix.html")
+            .find("Source: https://docs.clawcrew.com/master/en/appendix.html")
             .unwrap();
         assert!(intro < setup && setup < linux && linux < appendix);
         assert!(
@@ -485,7 +485,7 @@ mod tests {
             "the preamble must not promise working deployed links"
         );
         assert!(
-            !full.contains("Source: https://docs.zeroclaw.com/master/en/\n"),
+            !full.contains("Source: https://docs.clawcrew.com/master/en/\n"),
             "drafts emit nothing"
         );
     }
@@ -648,11 +648,11 @@ mod tests {
     fn base_url_joins_origin_tag_and_locale() {
         assert_eq!(
             base_url_for("v0.8.5", "en"),
-            "https://docs.zeroclaw.com/v0.8.5/en/"
+            "https://docs.clawcrew.com/v0.8.5/en/"
         );
         assert_eq!(
             base_url_for("master", "en"),
-            "https://docs.zeroclaw.com/master/en/"
+            "https://docs.clawcrew.com/master/en/"
         );
     }
 }

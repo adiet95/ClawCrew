@@ -1,22 +1,22 @@
-//! Mirror the canonical English tool catalogue into `zeroclaw-tools`.
+//! Mirror the canonical English tool catalogue into `clawcrew-tools`.
 //!
-//! `crates/zeroclaw-runtime/locales/en/tools.ftl` stays the source of truth, and
-//! `cargo fluent fill` keeps translations beside it. `zeroclaw-tools` embeds the
-//! English strings itself rather than depending on `zeroclaw-runtime`, because
+//! `crates/clawcrew-runtime/locales/en/tools.ftl` stays the source of truth, and
+//! `cargo fluent fill` keeps translations beside it. `clawcrew-tools` embeds the
+//! English strings itself rather than depending on `clawcrew-runtime`, because
 //! the dependency runs runtime -> tools and importing back would invert it.
 //!
-//! That embed used to be `include_str!("../../zeroclaw-runtime/locales/en/tools.ftl")`,
+//! That embed used to be `include_str!("../../clawcrew-runtime/locales/en/tools.ftl")`,
 //! which reaches outside the crate directory. `cargo package` copies only the
-//! package directory, so the read made `zeroclaw-tools` unpublishable. Mirroring
+//! package directory, so the read made `clawcrew-tools` unpublishable. Mirroring
 //! the file into the crate keeps the dependency direction intact and puts the
 //! bytes where packaging can see them; CI fails on drift.
 
 use std::path::Path;
 
-pub const SOURCE: &str = "crates/zeroclaw-runtime/locales/en/tools.ftl";
+pub const SOURCE: &str = "crates/clawcrew-runtime/locales/en/tools.ftl";
 
 const HEADER: &str = "\
-# GENERATED from crates/zeroclaw-runtime/locales/en/tools.ftl by
+# GENERATED from crates/clawcrew-runtime/locales/en/tools.ftl by
 # `cargo generate installers` - do not edit by hand. Edit the runtime catalogue
 # instead, then regenerate. CI fails on drift via `cargo generate installers --check`.
 ";

@@ -22,7 +22,7 @@ hand-authored manifest examples.
 Use this page for the syntax that remains visible when reviewing, validating, or
 debugging SOPs: `SOP.md` step bullets, trigger field summaries generated from
 the runtime schema, and `condition` expressions. Before running a generated or
-checked-in SOP, validate it with `zeroclaw sop validate <name>`.
+checked-in SOP, validate it with `clawcrew sop validate <name>`.
 
 `SOP.toml` carries the SOP's identity (`name`, `description`, `version`), its
 `triggers`, and its execution knobs. The concurrency-admission fields govern what
@@ -74,7 +74,7 @@ max_pending_approvals = 8
 type = "manual"
 ```
 
-Approval broker groups and policies live in the main ZeroClaw config, not in
+Approval broker groups and policies live in the main ClawCrew config, not in
 per-SOP `SOP.toml` files. A step can reference a configured policy by name with
 `- policy: prod` in `SOP.md`:
 
@@ -91,9 +91,9 @@ escalation_route = "oncall"
 `[sop.approval.groups.*]` members are approval identities, not account names.
 Members may be source-qualified (`http:<subject>`, `ws:<subject>`,
 `agent:<alias>`) to grant approval rights on one transport only, or bare
-(`ZeroClawOperator`) to grant any source carrying that identity. HTTP and WebSocket
+(`ClawCrewOperator`) to grant any source carrying that identity. HTTP and WebSocket
 approval surfaces use the paired-token subject; the current CLI approval path
-(`zeroclaw sop approve`) is anonymous and cannot satisfy `cli:<user>`
+(`clawcrew sop approve`) is anonymous and cannot satisfy `cli:<user>`
 membership yet.
 
 The paired-token subject is the lowercase SHA-256 hex digest of the bearer
@@ -228,7 +228,7 @@ description = "Classify an incoming alert, remediate critical alerts, and notify
 type = "manual"
 ```
 
-Then run `zeroclaw sop validate alert-triage`, which reports the SOP as valid.
+Then run `clawcrew sop validate alert-triage`, which reports the SOP as valid.
 
 ### `[sop.approval]` policies and route delivery
 
@@ -256,7 +256,7 @@ which is the default.
 
 Route delivery has no durable retry queue. A daemon exit before the asynchronous
 send completes, or a channel send failure, can lose the notice without changing
-the parked gate. Operators can inspect pending runs with `zeroclaw sop pending`
+the parked gate. Operators can inspect pending runs with `clawcrew sop pending`
 and contact an eligible approver through an authenticated approval surface.
 
 Approval groups that grant channel-native approvers must use the channel-qualified
@@ -268,7 +268,7 @@ platforms and channel aliases.
 ### Deterministic checkpoints: approval and resume
 
 A deterministic run paused at a `kind: checkpoint` step is resolved by the SAME
-approve/deny surfaces as an approval gate (`zeroclaw sop pending` lists both,
+approve/deny surfaces as an approval gate (`clawcrew sop pending` lists both,
 distinguished by `kind`). On approve, the engine resumes the run and drives any
 following `kind: capability` steps headlessly to the next pause or completion -
 so a `checkpoint -> capability` tail (e.g. posting an approved draft) executes
@@ -495,8 +495,8 @@ Use:
 #### sh
 
 ```sh
-zeroclaw sop validate
-zeroclaw sop validate <name>
+clawcrew sop validate
+clawcrew sop validate <name>
 ```
 
 </div>

@@ -1,15 +1,15 @@
 [book]
-title = "ZeroClaw Docs"
-description = "Documentation for the ZeroClaw personal AI assistant."
-authors = ["ZeroClaw Labs"]
+title = "ClawCrew Docs"
+description = "Documentation for the ClawCrew personal AI assistant."
+authors = ["ClawCrew Labs"]
 language = "en"
 src = "src"
 
 [output.html]
 default-theme = "default-dark"
 preferred-dark-theme = "default-dark"
-git-repository-url = "https://github.com/zeroclaw-labs/zeroclaw"
-edit-url-template = "https://github.com/zeroclaw-labs/zeroclaw/edit/master/docs/book/{path}"
+git-repository-url = "https://github.com/clawcrew-labs/clawcrew"
+edit-url-template = "https://github.com/clawcrew-labs/clawcrew/edit/master/docs/book/{path}"
 site-url = "/"
 additional-js = [
   "theme/version-selector.js",

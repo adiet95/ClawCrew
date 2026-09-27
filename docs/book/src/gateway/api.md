@@ -1,11 +1,11 @@
 # Gateway HTTP API
 
 The gateway exposes a REST surface alongside the local CLI. Anything that can
-be set with `zeroclaw config get/set/list/init/migrate` is also reachable via
+be set with `clawcrew config get/set/list/init/migrate` is also reachable via
 HTTP, so the dashboard, third-party tooling, and the CLI all drive the same
 underlying `Config` mutation core.
 
-This page is a high-level overview. Field-level definitions, request and response shapes, and "Try it out" forms for the currently documented OpenAPI subset live at `/api/docs` on a running gateway. Those schemas come from runtime types, but the route inventory is assembled separately and does not yet cover every route registered by the gateway. The router in `crates/zeroclaw-gateway/src/lib.rs` remains the authority for the full live surface.
+This page is a high-level overview. Field-level definitions, request and response shapes, and "Try it out" forms for the currently documented OpenAPI subset live at `/api/docs` on a running gateway. Those schemas come from runtime types, but the route inventory is assembled separately and does not yet cover every route registered by the gateway. The router in `crates/clawcrew-gateway/src/lib.rs` remains the authority for the full live surface.
 
 > Tracked under issue #6175.
 
@@ -87,12 +87,12 @@ returned.
 | `OPTIONS` | `/api/config/prop?path=...` | Per-field schema fragment. |
 | `GET` | `/api/config/list?prefix=...` | Enumerate every reachable path with type and category. Secret entries carry `{path, populated, is_secret: true}` and no value. |
 | `POST` | `/api/config/init?section=...` | Instantiate `None` nested sections with defaults. Dynamic-map aliases are not created here; use `POST /api/config/map-key`. |
-| `POST` | `/api/config/migrate` | Apply on-disk schema migration in place. Mirrors `zeroclaw config migrate`. |
+| `POST` | `/api/config/migrate` | Apply on-disk schema migration in place. Mirrors `clawcrew config migrate`. |
 
 ## Atomic batch writes: JSON Patch
 
 `PATCH /api/config` accepts a JSON Patch document (RFC 6902). The supported
-config operations are `add`, `replace`, `remove`, and `test`. ZeroClaw also
+config operations are `add`, `replace`, `remove`, and `test`. ClawCrew also
 accepts a `comment` extension for config annotations. Config operations run
 against an in-memory copy; once every operation has applied,
 `Config::validate()` runs once on the result. If validation passes, the new
@@ -109,7 +109,7 @@ Path syntax: JSON Pointer (`/agents/researcher/model_provider`) or the
 dotted form (`agents.researcher.model_provider`). Both are accepted; the
 server normalises.
 
-The CLI counterpart is `zeroclaw config patch <file-or-stdin>`, which applies
+The CLI counterpart is `clawcrew config patch <file-or-stdin>`, which applies
 the same op set against the local Config and returns the same structured
 response shape (`--json` for scripts).
 
@@ -149,7 +149,7 @@ Once a gateway is running, browse to `http://<gateway-host>:<port>/api/docs` for
 
 The explorer's authentication panel binds to the `bearerAuth` scheme declared
 in the spec, paste your pairing-derived bearer token there before issuing
-live calls. The CLI shortcut for the URL is `zeroclaw config docs`.
+live calls. The CLI shortcut for the URL is `clawcrew config docs`.
 
 If the Scalar bundle can't load from the CDN (offline / air-gapped install),
 the page degrades gracefully and points you at the raw spec at

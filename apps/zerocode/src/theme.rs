@@ -1,4 +1,4 @@
-//! ZeroClaw TUI colour palette and style helpers.
+//! ClawCrew TUI colour palette and style helpers.
 //! Shared between the onboarding UI (lib target) and the main chat TUI (binary
 //! target). Not every helper is used by both targets.
 

@@ -1,4 +1,4 @@
 .env
 data/
 *.log
-zeroclaw.toml
+clawcrew.toml

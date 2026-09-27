@@ -107,31 +107,31 @@ Applied automatically by `pr-path-labeler.yml`. Globs live in `.github/labeler.y
 | `dependencies` | `Cargo.toml`, `**/Cargo.toml`, `Cargo.lock`, `**/Cargo.lock`, `deny.toml`, `.github/dependabot.yml` |
 | `ci` | `.github/codeql/**`, `.github/workflows/**`, `.github/*.yaml`, `.github/*.yml`, `.github/*.json`, `.githooks/**` |
 | `core` | `src/*.rs` |
-| `cli` | `src/main.rs`, `src/lib.rs`, `src/commands/**`, `src/alias_cli/**`, `src/cli_input.rs`, `src/memory/cli.rs` (the `zeroclaw memory` command), `crates/zeroclaw-commands/**`, `crates/zeroclaw-runtime/src/cli_input.rs` |
-| `agent` | `src/agent/**`, `crates/zeroclaw-runtime/src/agent/**` |
-| `channel` | `src/channels/**`, `crates/zeroclaw-channels/src/**` |
-| `gateway` | `src/gateway/**`, `crates/zeroclaw-gateway/src/**` |
-| `config` | `src/config/**`, `crates/zeroclaw-config/src/**` |
-| `cron` | `src/cron/**`, `crates/zeroclaw-runtime/src/cron/**` |
-| `daemon` | `src/daemon/**`, `crates/zeroclaw-runtime/src/daemon/**` |
-| `doctor` | `src/doctor/**`, `crates/zeroclaw-runtime/src/doctor/**` |
-| `health` | `src/health/**`, `crates/zeroclaw-runtime/src/health/**` |
-| `heartbeat` | `src/heartbeat/**`, `crates/zeroclaw-runtime/src/heartbeat/**` |
-| `integration` | `src/integrations/**`, `crates/zeroclaw-runtime/src/integrations/**` |
-| `memory` | `src/memory/**`, `crates/zeroclaw-memory/src/**` |
-| `security` | `src/security/**`, `crates/zeroclaw-runtime/src/security/**` |
-| `runtime` | `src/runtime/**`, `crates/zeroclaw-runtime/src/**` |
-| `quickstart` | `crates/zeroclaw-runtime/src/quickstart/**`, `crates/zeroclaw-gateway/src/api_quickstart.rs`, `apps/zerocode/src/quickstart_pane.rs`, `web/src/pages/quickstart/**` |
+| `cli` | `src/main.rs`, `src/lib.rs`, `src/commands/**`, `src/alias_cli/**`, `src/cli_input.rs`, `src/memory/cli.rs` (the `clawcrew memory` command), `crates/clawcrew-commands/**`, `crates/clawcrew-runtime/src/cli_input.rs` |
+| `agent` | `src/agent/**`, `crates/clawcrew-runtime/src/agent/**` |
+| `channel` | `src/channels/**`, `crates/clawcrew-channels/src/**` |
+| `gateway` | `src/gateway/**`, `crates/clawcrew-gateway/src/**` |
+| `config` | `src/config/**`, `crates/clawcrew-config/src/**` |
+| `cron` | `src/cron/**`, `crates/clawcrew-runtime/src/cron/**` |
+| `daemon` | `src/daemon/**`, `crates/clawcrew-runtime/src/daemon/**` |
+| `doctor` | `src/doctor/**`, `crates/clawcrew-runtime/src/doctor/**` |
+| `health` | `src/health/**`, `crates/clawcrew-runtime/src/health/**` |
+| `heartbeat` | `src/heartbeat/**`, `crates/clawcrew-runtime/src/heartbeat/**` |
+| `integration` | `src/integrations/**`, `crates/clawcrew-runtime/src/integrations/**` |
+| `memory` | `src/memory/**`, `crates/clawcrew-memory/src/**` |
+| `security` | `src/security/**`, `crates/clawcrew-runtime/src/security/**` |
+| `runtime` | `src/runtime/**`, `crates/clawcrew-runtime/src/**` |
+| `quickstart` | `crates/clawcrew-runtime/src/quickstart/**`, `crates/clawcrew-gateway/src/api_quickstart.rs`, `apps/zerocode/src/quickstart_pane.rs`, `web/src/pages/quickstart/**` |
 | `desktop` | `apps/tauri/**` |
-| `hardware` | `src/hardware/**`, `src/peripherals/mod.rs`, `crates/zeroclaw-hardware/**`, `crates/zeroclaw-api/src/peripherals_traits.rs`, `firmware/**` |
+| `hardware` | `src/hardware/**`, `src/peripherals/mod.rs`, `crates/clawcrew-hardware/**`, `crates/clawcrew-api/src/peripherals_traits.rs`, `firmware/**` |
 | `web` | `web/**` |
 | `zerocode` | `apps/zerocode/**` |
-| `provider` | `src/providers/**`, `crates/zeroclaw-providers/src/**` |
-| `service` | `src/service/**`, `crates/zeroclaw-runtime/src/service/**` |
-| `skills` | `src/skills/**`, `crates/zeroclaw-runtime/src/skills/**` |
-| `tool` | `src/tools/**`, `crates/zeroclaw-tools/src/**` |
-| `tunnel` | `src/tunnel/**`, `crates/zeroclaw-runtime/src/tunnel/**` |
-| `observability` | `src/observability/**`, `crates/zeroclaw-runtime/src/observability/**` |
+| `provider` | `src/providers/**`, `crates/clawcrew-providers/src/**` |
+| `service` | `src/service/**`, `crates/clawcrew-runtime/src/service/**` |
+| `skills` | `src/skills/**`, `crates/clawcrew-runtime/src/skills/**` |
+| `tool` | `src/tools/**`, `crates/clawcrew-tools/src/**` |
+| `tunnel` | `src/tunnel/**`, `crates/clawcrew-runtime/src/tunnel/**` |
+| `observability` | `src/observability/**`, `crates/clawcrew-runtime/src/observability/**` |
 | `tests` | `tests/**` |
 | `scripts` | `scripts/**` |
 | `dev` | `dev/**` |
@@ -146,7 +146,7 @@ Scoped path labels do not guarantee a same-prefix base label. Because `pr-path-l
 
 | Label | Matches |
 |---|---|
-| `observability:log` | `crates/zeroclaw-log/src/**`, `crates/zeroclaw-runtime/src/observability/log.rs` |
+| `observability:log` | `crates/clawcrew-log/src/**`, `crates/clawcrew-runtime/src/observability/log.rs` |
 | `observability:otel` | `otel.rs`, OTel dependency feature regression coverage |
 | `observability:prometheus` | `prometheus.rs` |
 | `runtime:wasm` | runtime WASM platform and first-party WASM plugin host files |
@@ -182,7 +182,7 @@ The following duplicate domain and product-surface labels are pending retirement
 
 The retained product labels are intentionally distinct. `cli` is the end-user command-line surface, while `channel:cli` is the interactive CLI chat channel. `web` is the browser dashboard and web-chat product, while `tool:web` is the agent's web-fetch/search tool group. `zerocode` is the ZeroCode terminal application, `hardware` covers the host integrations, support crates, and firmware tree, and `desktop` is the Tauri desktop product. Use the applicable tool or product label for native computer-use work outside `apps/tauri/**`; do not apply synchronized `desktop` manually to a PR whose paths do not match.
 
-`agent:prompt` is for provider-visible prompt, context, and response-guidance policy. Use it when the work is about system-prompt content, tool-call formatting guidance, prompt-cache-sensitive context, channel response guidance, or other model-visible instruction surfaces that cross the base `agent`, `channel`, `memory`, `provider`, or `runtime` labels. Apply it in addition to applicable base or scope labels; it does not replace them. Do not apply it to every `crates/zeroclaw-runtime/src/agent/**` change; use the base `agent` label for ordinary agent runtime changes.
+`agent:prompt` is for provider-visible prompt, context, and response-guidance policy. Use it when the work is about system-prompt content, tool-call formatting guidance, prompt-cache-sensitive context, channel response guidance, or other model-visible instruction surfaces that cross the base `agent`, `channel`, `memory`, `provider`, or `runtime` labels. Apply it in addition to applicable base or scope labels; it does not replace them. Do not apply it to every `crates/clawcrew-runtime/src/agent/**` change; use the base `agent` label for ordinary agent runtime changes.
 
 `agent:loop` is retired. For agent-loop routing, use base `agent` plus any matching `runtime`, provider, channel, tool, or risk labels.
 
@@ -200,8 +200,8 @@ Each channel gets a `channel:<name>` label in addition to the base `channel` lab
 
 | Label | Matches |
 |---|---|
-| `channel:acp` | `acp_channel.rs`, `acp_server.rs`, `zeroclaw-acp-bridge.rs`, `acp_session_store.rs`, `channels/acp.md`, selected ACP gateway/app/web entrypoints |
-| `channel:core` | `crates/zeroclaw-api/src/channel.rs`, `crates/zeroclaw-channels/src/lib.rs`, `crates/zeroclaw-channels/src/orchestrator/**`, `src/channels/mod.rs` |
+| `channel:acp` | `acp_channel.rs`, `acp_server.rs`, `clawcrew-acp-bridge.rs`, `acp_session_store.rs`, `channels/acp.md`, selected ACP gateway/app/web entrypoints |
+| `channel:core` | `crates/clawcrew-api/src/channel.rs`, `crates/clawcrew-channels/src/lib.rs`, `crates/clawcrew-channels/src/orchestrator/**`, `src/channels/mod.rs` |
 | `channel:bluesky` | `bluesky.rs` |
 | `channel:clawdtalk` | `clawdtalk.rs` |
 | `channel:cli` | `cli.rs` |
@@ -226,7 +226,7 @@ Each channel gets a `channel:<name>` label in addition to the base `channel` lab
 | `channel:slack` | `slack.rs` |
 | `channel:telegram` | `telegram.rs` |
 | `channel:twitter` | `twitter.rs` |
-| `channel:wechat` | `crates/zeroclaw-channels/src/wechat.rs` |
+| `channel:wechat` | `crates/clawcrew-channels/src/wechat.rs` |
 | `channel:webhook` | `webhook.rs` |
 | `channel:wecom` | `wecom.rs`, `wecom_ws.rs` |
 | `channel:whatsapp` | `whatsapp.rs`, `whatsapp_storage.rs`, `whatsapp_web.rs` |
@@ -269,17 +269,17 @@ Tools are grouped by logical function rather than one label per file.
 | `tool:browser` | `browser.rs`, `browser_delegate.rs`, `browser_open.rs`, `text_browser.rs`, `screenshot.rs` |
 | `tool:cloud` | `cloud_ops.rs`, `cloud_patterns.rs` |
 | `tool:composio` | `composio.rs` |
-| `tool:cron` | `src/tools/cron_add.rs`, `src/tools/cron_list.rs`, `src/tools/cron_remove.rs`, `src/tools/cron_run.rs`, `src/tools/cron_runs.rs`, `src/tools/cron_update.rs`, `crates/zeroclaw-runtime/src/tools/cron_add.rs`, `crates/zeroclaw-runtime/src/tools/cron_common.rs`, `crates/zeroclaw-runtime/src/tools/cron_list.rs`, `crates/zeroclaw-runtime/src/tools/cron_remove.rs`, `crates/zeroclaw-runtime/src/tools/cron_run.rs`, `crates/zeroclaw-runtime/src/tools/cron_runs.rs`, `crates/zeroclaw-runtime/src/tools/cron_update.rs` |
-| `tool:delegate` | `crates/zeroclaw-runtime/src/tools/delegate.rs` |
-| `tool:file` | `src/tools/file_edit.rs`, `src/tools/file_read.rs`, `src/tools/file_write.rs`, `src/tools/glob_search.rs`, `src/tools/content_search.rs`, `crates/zeroclaw-tools/src/file_edit.rs`, `crates/zeroclaw-runtime/src/tools/file_read.rs`, `crates/zeroclaw-tools/src/file_write.rs`, `crates/zeroclaw-tools/src/glob_search.rs`, `crates/zeroclaw-tools/src/content_search.rs` |
+| `tool:cron` | `src/tools/cron_add.rs`, `src/tools/cron_list.rs`, `src/tools/cron_remove.rs`, `src/tools/cron_run.rs`, `src/tools/cron_runs.rs`, `src/tools/cron_update.rs`, `crates/clawcrew-runtime/src/tools/cron_add.rs`, `crates/clawcrew-runtime/src/tools/cron_common.rs`, `crates/clawcrew-runtime/src/tools/cron_list.rs`, `crates/clawcrew-runtime/src/tools/cron_remove.rs`, `crates/clawcrew-runtime/src/tools/cron_run.rs`, `crates/clawcrew-runtime/src/tools/cron_runs.rs`, `crates/clawcrew-runtime/src/tools/cron_update.rs` |
+| `tool:delegate` | `crates/clawcrew-runtime/src/tools/delegate.rs` |
+| `tool:file` | `src/tools/file_edit.rs`, `src/tools/file_read.rs`, `src/tools/file_write.rs`, `src/tools/glob_search.rs`, `src/tools/content_search.rs`, `crates/clawcrew-tools/src/file_edit.rs`, `crates/clawcrew-runtime/src/tools/file_read.rs`, `crates/clawcrew-tools/src/file_write.rs`, `crates/clawcrew-tools/src/glob_search.rs`, `crates/clawcrew-tools/src/content_search.rs` |
 | `tool:google-workspace` | `google_workspace.rs` |
 | `tool:mcp` | `mcp_client.rs`, `mcp_deferred.rs`, `mcp_protocol.rs`, `mcp_tool.rs`, `mcp_transport.rs` |
 | `tool:memory` | `memory_forget.rs`, `memory_recall.rs`, `memory_store.rs` |
 | `tool:microsoft365` | `microsoft365/**` |
 | `tool:pushover` | `pushover.rs` |
-| `tool:security` | `src/tools/security_ops.rs`, `src/tools/verifiable_intent.rs`, `crates/zeroclaw-runtime/src/tools/security_ops.rs`, `crates/zeroclaw-runtime/src/tools/verifiable_intent.rs` |
-| `tool:shell` | `src/tools/shell.rs`, `src/tools/node_tool.rs`, `src/tools/cli_discovery.rs`, `crates/zeroclaw-runtime/src/tools/shell.rs`, `crates/zeroclaw-gateway/src/node_tool.rs`, `crates/zeroclaw-tools/src/cli_discovery.rs` |
-| `tool:sop` | `src/tools/sop_advance.rs`, `src/tools/sop_approve.rs`, `src/tools/sop_execute.rs`, `src/tools/sop_list.rs`, `src/tools/sop_status.rs`, `crates/zeroclaw-runtime/src/tools/sop_advance.rs`, `crates/zeroclaw-runtime/src/tools/sop_approve.rs`, `crates/zeroclaw-runtime/src/tools/sop_execute.rs`, `crates/zeroclaw-runtime/src/tools/sop_list.rs`, `crates/zeroclaw-runtime/src/tools/sop_status.rs` |
+| `tool:security` | `src/tools/security_ops.rs`, `src/tools/verifiable_intent.rs`, `crates/clawcrew-runtime/src/tools/security_ops.rs`, `crates/clawcrew-runtime/src/tools/verifiable_intent.rs` |
+| `tool:shell` | `src/tools/shell.rs`, `src/tools/node_tool.rs`, `src/tools/cli_discovery.rs`, `crates/clawcrew-runtime/src/tools/shell.rs`, `crates/clawcrew-gateway/src/node_tool.rs`, `crates/clawcrew-tools/src/cli_discovery.rs` |
+| `tool:sop` | `src/tools/sop_advance.rs`, `src/tools/sop_approve.rs`, `src/tools/sop_execute.rs`, `src/tools/sop_list.rs`, `src/tools/sop_status.rs`, `crates/clawcrew-runtime/src/tools/sop_advance.rs`, `crates/clawcrew-runtime/src/tools/sop_approve.rs`, `crates/clawcrew-runtime/src/tools/sop_execute.rs`, `crates/clawcrew-runtime/src/tools/sop_list.rs`, `crates/clawcrew-runtime/src/tools/sop_status.rs` |
 | `tool:web` | `web_fetch.rs`, `web_search_tool.rs`, `web_search_provider_routing.rs`, `http_request.rs` |
 
 `tool:schema` is a manual-only label for tool-schema serialization and cleaning issues. Do not add broad schema files to `.github/labeler.yml`; many schema files are shared config, provider, or API surfaces and would over-label unrelated changes.

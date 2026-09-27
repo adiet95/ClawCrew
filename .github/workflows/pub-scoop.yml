@@ -107,7 +107,7 @@ jobs:
           fi
 
           version="${RELEASE_TAG#v}"
-          if ! metadata="$(bash scripts/release/scoop_metadata.sh dist/scoop/zeroclaw.json "$version")"; then
+          if ! metadata="$(bash scripts/release/scoop_metadata.sh dist/scoop/clawcrew.json "$version")"; then
             echo "::error::could not derive Scoop release metadata from the canonical manifest"
             exit 1
           fi
@@ -155,7 +155,7 @@ jobs:
               | .architecture["64bit"].url = $url
               | .architecture["64bit"].hash = $hash
             ' \
-            dist/scoop/zeroclaw.json > "$manifest_file"
+            dist/scoop/clawcrew.json > "$manifest_file"
 
           jq -e \
             --arg version "$VERSION" \
@@ -189,7 +189,7 @@ jobs:
           set -euo pipefail
 
           if [[ -z "${SCOOP_BUCKET_REPO}" ]]; then
-            echo "::error::Repository variable SCOOP_BUCKET_REPO is required (e.g. zeroclaw-labs/scoop-zeroclaw)."
+            echo "::error::Repository variable SCOOP_BUCKET_REPO is required (e.g. clawcrew-labs/scoop-clawcrew)."
             exit 1
           fi
 
@@ -201,17 +201,17 @@ jobs:
           git clone --depth=1 "https://github.com/${SCOOP_BUCKET_REPO}.git" "$tmp_dir/bucket"
 
           mkdir -p "$tmp_dir/bucket/bucket"
-          cp "$MANIFEST_FILE" "$tmp_dir/bucket/bucket/zeroclaw.json"
+          cp "$MANIFEST_FILE" "$tmp_dir/bucket/bucket/clawcrew.json"
 
           cd "$tmp_dir/bucket"
-          git config user.name "zeroclaw-bot"
-          git config user.email "bot@zeroclaw.dev"
-          git add bucket/zeroclaw.json
+          git config user.name "clawcrew-bot"
+          git config user.email "bot@clawcrew.dev"
+          git add bucket/clawcrew.json
           git diff --cached --quiet && {
             echo "Scoop manifest is already at ${VERSION}."
             exit 0
           }
-          git commit -m "zeroclaw ${VERSION}"
+          git commit -m "clawcrew ${VERSION}"
           git push origin HEAD
 
           echo "Scoop manifest updated to ${VERSION}"

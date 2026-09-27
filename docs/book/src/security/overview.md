@@ -1,6 +1,6 @@
 # Security: Overview
 
-An agent that can execute shell commands, open URLs, and write files is a privileged process. ZeroClaw's security model sits on top of every tool call and every channel message, gating what the agent is actually allowed to do at runtime.
+An agent that can execute shell commands, open URLs, and write files is a privileged process. ClawCrew's security model sits on top of every tool call and every channel message, gating what the agent is actually allowed to do at runtime.
 
 Each agent runs under a risk profile and a runtime profile it references; see [Agents](../agents/overview.md) for how those references attach to an agent.
 

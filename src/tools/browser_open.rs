@@ -1,1 +1,1 @@
-pub use zeroclaw_tools::browser_open::*;
+pub use clawcrew_tools::browser_open::*;

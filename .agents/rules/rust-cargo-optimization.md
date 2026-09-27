@@ -7,7 +7,7 @@
 
 ## 1. Fast Feedback Loop (Prinsip Pengecekan Cepat)
 
-Di workspace multi-crate besar (seperti ZeroClaw dengan 25+ crates), menjalankan pengecekan menyeluruh pada seluruh workspace akan memakan waktu 1–2 menit per iterasi.
+Di workspace multi-crate besar (seperti ClawCrew dengan 25+ crates), menjalankan pengecekan menyeluruh pada seluruh workspace akan memakan waktu 1–2 menit per iterasi.
 
 ### Aturan Wajib Pengecekan:
 1. **Targeted Crate Check (Utamakan ini)**:
@@ -16,7 +16,7 @@ Di workspace multi-crate besar (seperti ZeroClaw dengan 25+ crates), menjalankan
      ```bash
      cargo check -p <crate-name>
      ```
-     *Contoh: `cargo check -p zeroclaw-runtime` atau `cargo check -p zeroclaw-config` (waktu: 1–2 detik).*
+     *Contoh: `cargo check -p clawcrew-runtime` atau `cargo check -p clawcrew-config` (waktu: 1–2 detik).*
 2. **Targeted Clippy**:
    * Jalankan clippy per-crate:
      ```bash

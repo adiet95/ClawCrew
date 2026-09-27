@@ -1,6 +1,6 @@
 # Config pane
 
-zerocode's **Config** pane is the way to configure a running ZeroClaw. Each
+zerocode's **Config** pane is the way to configure a running ClawCrew. Each
 setting has a typed control, validation, and an inline explanation of what it
 does, and most settings apply live without a daemon restart. Open it from any
 zerocode session and edit settings there rather than hand editing the config
@@ -94,7 +94,7 @@ Before this setting moved, `[todotracker]` was a section of the *daemon's*
    set them from **Config → Todo tracker**.
 3. Delete the `[todotracker]` section from the daemon `config.toml`.
 
-Existing `ZEROCLAW_todotracker__*` environment variables do **not** need to be
+Existing `CLAWCREW_todotracker__*` environment variables do **not** need to be
 removed before upgrading: the five recognized fields (`enabled`,
 `enabled_at_start`, `location`, `width`, `max_height`) are accepted and ignored
 by the daemon so a previously working deployment still starts. They no longer

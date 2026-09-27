@@ -1,10 +1,10 @@
 //! Binary-side config module. Pure re-export surface — the real types and
-//! helpers live in `zeroclaw-config`. Everything the binary needs (schema,
+//! helpers live in `clawcrew-config`. Everything the binary needs (schema,
 //! traits, property helpers) is pulled through here so `crate::config::*`
 //! continues to resolve for callers that predate the crate split.
 
-pub use zeroclaw_config::migration;
-pub use zeroclaw_config::providers;
+pub use clawcrew_config::migration;
+pub use clawcrew_config::providers;
 pub mod schema;
 pub mod traits;
 
@@ -52,7 +52,7 @@ pub use schema::ws_connect_with_proxy;
 pub use schema::ModelProviderConfig;
 // Per-family model model_provider configs (typed split — Re-exported here
 // so tests + downstream binary callers can construct typed family entries
-// without reaching into `zeroclaw_config::schema` directly.
+// without reaching into `clawcrew_config::schema` directly.
 pub use schema::{
     Ai21ModelProviderConfig, AihubmixModelProviderConfig, AnthropicModelProviderConfig,
     AnyscaleModelProviderConfig, AstraiModelProviderConfig, AvianModelProviderConfig,
@@ -81,10 +81,10 @@ pub use traits::PropFieldInfo;
 pub use traits::PropKind;
 pub use traits::SecretFieldInfo;
 
-// Property helpers — single source of truth in zeroclaw-config.
+// Property helpers — single source of truth in clawcrew-config.
 #[cfg(feature = "schema-export")]
-pub use zeroclaw_config::helpers::enum_variants;
-pub use zeroclaw_config::helpers::{
+pub use clawcrew_config::helpers::enum_variants;
+pub use clawcrew_config::helpers::{
     make_prop_field, route_hashmap_path, serde_get_prop, serde_set_prop,
 };
 
@@ -104,7 +104,7 @@ mod tests {
         let telegram = TelegramConfig {
             enabled: true,
             bot_token: "token".into(),
-            api_base_url: zeroclaw_config::schema::TELEGRAM_OFFICIAL_API_BASE_URL.to_string(),
+            api_base_url: clawcrew_config::schema::TELEGRAM_OFFICIAL_API_BASE_URL.to_string(),
             stream_mode: StreamMode::default(),
             draft_update_interval_ms: 1000,
             multi_message_delay_ms: 800,
@@ -138,7 +138,7 @@ mod tests {
             stall_timeout_secs: 0,
             slash_commands: false,
             intents_mask: None,
-            reaction_notifications: zeroclaw_config::schema::DiscordReactionScope::Off,
+            reaction_notifications: clawcrew_config::schema::DiscordReactionScope::Off,
             approval_timeout_secs: 300,
             excluded_tools: vec![],
             reply_min_interval_secs: 0,

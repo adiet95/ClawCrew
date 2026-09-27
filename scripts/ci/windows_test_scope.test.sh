@@ -9,54 +9,54 @@ fixture_dir="$(mktemp -d)"
 trap 'rm -rf "$fixture_dir"' EXIT
 
 repo_root="${fixture_dir}/repo"
-mkdir -p "$repo_root/crates/zeroclaw-channels" \
-    "$repo_root/crates/zeroclaw-api" \
-    "$repo_root/crates/zeroclaw-config" \
-    "$repo_root/crates/zeroclaw-plugins" \
-    "$repo_root/crates/zeroclaw-runtime" \
-    "$repo_root/crates/zeroclaw-gateway" \
-    "$repo_root/crates/zeroclaw-providers" \
-    "$repo_root/crates/zeroclaw-plugins/tests/fixtures/channel-fixture" \
+mkdir -p "$repo_root/crates/clawcrew-channels" \
+    "$repo_root/crates/clawcrew-api" \
+    "$repo_root/crates/clawcrew-config" \
+    "$repo_root/crates/clawcrew-plugins" \
+    "$repo_root/crates/clawcrew-runtime" \
+    "$repo_root/crates/clawcrew-gateway" \
+    "$repo_root/crates/clawcrew-providers" \
+    "$repo_root/crates/clawcrew-plugins/tests/fixtures/channel-fixture" \
     "$repo_root/apps/tauri"
 metadata_file="${fixture_dir}/metadata.json"
 cat > "$metadata_file" <<EOF
 {
   "packages": [
-    {"id": "path+file://${repo_root}#zeroclaw 0.8.4", "name": "zeroclaw", "manifest_path": "Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-api#zeroclaw-api 0.8.4", "name": "zeroclaw-api", "manifest_path": "crates/zeroclaw-api/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-channels#zeroclaw-channels 0.8.4", "name": "zeroclaw-channels", "manifest_path": "crates/zeroclaw-channels/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-config#zeroclaw-config 0.8.4", "name": "zeroclaw-config", "manifest_path": "crates/zeroclaw-config/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-plugins#zeroclaw-plugins 0.8.4", "name": "zeroclaw-plugins", "manifest_path": "crates/zeroclaw-plugins/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-runtime#zeroclaw-runtime 0.8.4", "name": "zeroclaw-runtime", "manifest_path": "crates/zeroclaw-runtime/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-gateway#zeroclaw-gateway 0.8.4", "name": "zeroclaw-gateway", "manifest_path": "crates/zeroclaw-gateway/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-providers#zeroclaw-providers 0.8.4", "name": "zeroclaw-providers", "manifest_path": "crates/zeroclaw-providers/Cargo.toml"},
-    {"id": "path+file://${repo_root}/crates/zeroclaw-plugins/tests/fixtures/channel-fixture#zeroclaw-channel-plugin-fixture 0.1.0", "name": "zeroclaw-channel-plugin-fixture", "manifest_path": "crates/zeroclaw-plugins/tests/fixtures/channel-fixture/Cargo.toml"},
-    {"id": "path+file://${repo_root}/apps/tauri#zeroclaw-desktop 0.8.4", "name": "zeroclaw-desktop", "manifest_path": "apps/tauri/Cargo.toml"}
+    {"id": "path+file://${repo_root}#clawcrew 0.8.4", "name": "clawcrew", "manifest_path": "Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-api#clawcrew-api 0.8.4", "name": "clawcrew-api", "manifest_path": "crates/clawcrew-api/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-channels#clawcrew-channels 0.8.4", "name": "clawcrew-channels", "manifest_path": "crates/clawcrew-channels/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-config#clawcrew-config 0.8.4", "name": "clawcrew-config", "manifest_path": "crates/clawcrew-config/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-plugins#clawcrew-plugins 0.8.4", "name": "clawcrew-plugins", "manifest_path": "crates/clawcrew-plugins/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-runtime#clawcrew-runtime 0.8.4", "name": "clawcrew-runtime", "manifest_path": "crates/clawcrew-runtime/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-gateway#clawcrew-gateway 0.8.4", "name": "clawcrew-gateway", "manifest_path": "crates/clawcrew-gateway/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-providers#clawcrew-providers 0.8.4", "name": "clawcrew-providers", "manifest_path": "crates/clawcrew-providers/Cargo.toml"},
+    {"id": "path+file://${repo_root}/crates/clawcrew-plugins/tests/fixtures/channel-fixture#clawcrew-channel-plugin-fixture 0.1.0", "name": "clawcrew-channel-plugin-fixture", "manifest_path": "crates/clawcrew-plugins/tests/fixtures/channel-fixture/Cargo.toml"},
+    {"id": "path+file://${repo_root}/apps/tauri#clawcrew-desktop 0.8.4", "name": "clawcrew-desktop", "manifest_path": "apps/tauri/Cargo.toml"}
   ],
   "workspace_members": [
-    "path+file://${repo_root}#zeroclaw 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-api#zeroclaw-api 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-channels#zeroclaw-channels 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-config#zeroclaw-config 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-plugins#zeroclaw-plugins 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-runtime#zeroclaw-runtime 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-gateway#zeroclaw-gateway 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-providers#zeroclaw-providers 0.8.4",
-    "path+file://${repo_root}/crates/zeroclaw-plugins/tests/fixtures/channel-fixture#zeroclaw-channel-plugin-fixture 0.1.0",
-    "path+file://${repo_root}/apps/tauri#zeroclaw-desktop 0.8.4"
+    "path+file://${repo_root}#clawcrew 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-api#clawcrew-api 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-channels#clawcrew-channels 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-config#clawcrew-config 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-plugins#clawcrew-plugins 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-runtime#clawcrew-runtime 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-gateway#clawcrew-gateway 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-providers#clawcrew-providers 0.8.4",
+    "path+file://${repo_root}/crates/clawcrew-plugins/tests/fixtures/channel-fixture#clawcrew-channel-plugin-fixture 0.1.0",
+    "path+file://${repo_root}/apps/tauri#clawcrew-desktop 0.8.4"
   ],
   "resolve": {
     "nodes": [
-      {"id": "path+file://${repo_root}#zeroclaw 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/zeroclaw-api#zeroclaw-api 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/zeroclaw-channels#zeroclaw-channels 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/zeroclaw-config#zeroclaw-config 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/zeroclaw-gateway#zeroclaw-gateway 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/zeroclaw-providers#zeroclaw-providers 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/zeroclaw-runtime#zeroclaw-runtime 0.8.4"}]},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-api#zeroclaw-api 0.8.4", "deps": []},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-channels#zeroclaw-channels 0.8.4", "deps": []},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-config#zeroclaw-config 0.8.4", "deps": []},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-plugins#zeroclaw-plugins 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/zeroclaw-api#zeroclaw-api 0.8.4"}]},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-runtime#zeroclaw-runtime 0.8.4", "deps": []},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-gateway#zeroclaw-gateway 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/zeroclaw-providers#zeroclaw-providers 0.8.4"}]},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-providers#zeroclaw-providers 0.8.4", "deps": []},
-      {"id": "path+file://${repo_root}/crates/zeroclaw-plugins/tests/fixtures/channel-fixture#zeroclaw-channel-plugin-fixture 0.1.0", "deps": []},
-      {"id": "path+file://${repo_root}/apps/tauri#zeroclaw-desktop 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/zeroclaw-channels#zeroclaw-channels 0.8.4"}]}
+      {"id": "path+file://${repo_root}#clawcrew 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/clawcrew-api#clawcrew-api 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/clawcrew-channels#clawcrew-channels 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/clawcrew-config#clawcrew-config 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/clawcrew-gateway#clawcrew-gateway 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/clawcrew-providers#clawcrew-providers 0.8.4"}, {"pkg": "path+file://${repo_root}/crates/clawcrew-runtime#clawcrew-runtime 0.8.4"}]},
+      {"id": "path+file://${repo_root}/crates/clawcrew-api#clawcrew-api 0.8.4", "deps": []},
+      {"id": "path+file://${repo_root}/crates/clawcrew-channels#clawcrew-channels 0.8.4", "deps": []},
+      {"id": "path+file://${repo_root}/crates/clawcrew-config#clawcrew-config 0.8.4", "deps": []},
+      {"id": "path+file://${repo_root}/crates/clawcrew-plugins#clawcrew-plugins 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/clawcrew-api#clawcrew-api 0.8.4"}]},
+      {"id": "path+file://${repo_root}/crates/clawcrew-runtime#clawcrew-runtime 0.8.4", "deps": []},
+      {"id": "path+file://${repo_root}/crates/clawcrew-gateway#clawcrew-gateway 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/clawcrew-providers#clawcrew-providers 0.8.4"}]},
+      {"id": "path+file://${repo_root}/crates/clawcrew-providers#clawcrew-providers 0.8.4", "deps": []},
+      {"id": "path+file://${repo_root}/crates/clawcrew-plugins/tests/fixtures/channel-fixture#clawcrew-channel-plugin-fixture 0.1.0", "deps": []},
+      {"id": "path+file://${repo_root}/apps/tauri#clawcrew-desktop 0.8.4", "deps": [{"pkg": "path+file://${repo_root}/crates/clawcrew-channels#clawcrew-channels 0.8.4"}]}
     ]
   }
 }
@@ -113,64 +113,64 @@ assert_selection "empty change set" skip '[]' 'No covered Rust compilation or te
 printf '%s\n' 'docs/book/src/testing.md' > "$paths_file"
 assert_selection "skip" skip '[]' 'No covered Rust compilation or test paths changed.' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-channels/src/lib.rs' > "$paths_file"
-assert_selection "one package and reverse dependent" scoped '["zeroclaw","zeroclaw-channels"]' '' "$paths_file"
+printf '%s\n' 'crates/clawcrew-channels/src/lib.rs' > "$paths_file"
+assert_selection "one package and reverse dependent" scoped '["clawcrew","clawcrew-channels"]' '' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-api/src/lib.rs' > "$paths_file"
-assert_selection "plugin host from reverse-dependent closure" scoped '["zeroclaw","zeroclaw-api","zeroclaw-plugins"]' '' "$paths_file" true
+printf '%s\n' 'crates/clawcrew-api/src/lib.rs' > "$paths_file"
+assert_selection "plugin host from reverse-dependent closure" scoped '["clawcrew","clawcrew-api","clawcrew-plugins"]' '' "$paths_file" true
 
-printf '%s\n' 'crates/zeroclaw-providers/src/lib.rs' 'crates/zeroclaw-channels/src/lib.rs' > "$paths_file"
-assert_selection "multiple packages" scoped '["zeroclaw","zeroclaw-channels","zeroclaw-gateway","zeroclaw-providers"]' '' "$paths_file" true
+printf '%s\n' 'crates/clawcrew-providers/src/lib.rs' 'crates/clawcrew-channels/src/lib.rs' > "$paths_file"
+assert_selection "multiple packages" scoped '["clawcrew","clawcrew-channels","clawcrew-gateway","clawcrew-providers"]' '' "$paths_file" true
 
-printf '%s\n' 'crates/zeroclaw-providers/src/lib.rs' > "$paths_file"
-assert_selection "provider feature owner" scoped '["zeroclaw","zeroclaw-gateway","zeroclaw-providers"]' '' "$paths_file" true
+printf '%s\n' 'crates/clawcrew-providers/src/lib.rs' > "$paths_file"
+assert_selection "provider feature owner" scoped '["clawcrew","clawcrew-gateway","clawcrew-providers"]' '' "$paths_file" true
 
 printf '%s\n' 'src/lib.rs' 'tests/integration.rs' > "$paths_file"
-assert_selection "root feature owner" scoped '["zeroclaw"]' '' "$paths_file" true
+assert_selection "root feature owner" scoped '["clawcrew"]' '' "$paths_file" true
 
-printf '%s\n' 'crates/zeroclaw-gateway/src/api_plugins.rs' > "$paths_file"
-assert_selection "gateway feature owner" scoped '["zeroclaw","zeroclaw-gateway"]' '' "$paths_file" true
+printf '%s\n' 'crates/clawcrew-gateway/src/api_plugins.rs' > "$paths_file"
+assert_selection "gateway feature owner" scoped '["clawcrew","clawcrew-gateway"]' '' "$paths_file" true
 
-printf '%s\n' 'crates/zeroclaw-channels/src/lib.rs' 'crates/zeroclaw-channels/tests/one.rs' > "$paths_file"
-assert_selection "deduplication" scoped '["zeroclaw","zeroclaw-channels"]' '' "$paths_file"
+printf '%s\n' 'crates/clawcrew-channels/src/lib.rs' 'crates/clawcrew-channels/tests/one.rs' > "$paths_file"
+assert_selection "deduplication" scoped '["clawcrew","clawcrew-channels"]' '' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-channels/tests/fixture.md' > "$paths_file"
-assert_selection "test fixture" scoped '["zeroclaw","zeroclaw-channels"]' '' "$paths_file"
+printf '%s\n' 'crates/clawcrew-channels/tests/fixture.md' > "$paths_file"
+assert_selection "test fixture" scoped '["clawcrew","clawcrew-channels"]' '' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-channels/locales/en/cli.ftl' > "$paths_file"
-assert_selection "package locale resource" scoped '["zeroclaw","zeroclaw-channels"]' '' "$paths_file"
+printf '%s\n' 'crates/clawcrew-channels/locales/en/cli.ftl' > "$paths_file"
+assert_selection "package locale resource" scoped '["clawcrew","clawcrew-channels"]' '' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-channels/build.rs' > "$paths_file"
-assert_selection "package build script" scoped '["zeroclaw","zeroclaw-channels"]' '' "$paths_file"
+printf '%s\n' 'crates/clawcrew-channels/build.rs' > "$paths_file"
+assert_selection "package build script" scoped '["clawcrew","clawcrew-channels"]' '' "$paths_file"
 
 printf '%s\n' 'build.rs' > "$paths_file"
 assert_selection "root build script" full '[]' '' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-runtime/locales/en/cli.ftl' > "$paths_file"
-assert_selection "plugin-host package locale resource" scoped '["zeroclaw","zeroclaw-runtime"]' '' "$paths_file" true
+printf '%s\n' 'crates/clawcrew-runtime/locales/en/cli.ftl' > "$paths_file"
+assert_selection "plugin-host package locale resource" scoped '["clawcrew","clawcrew-runtime"]' '' "$paths_file" true
 
 printf '%s\n' 'locales/en/cli.ftl' > "$paths_file"
 assert_selection "root package locale resource" full '[]' '' "$paths_file"
 
-printf '%s\n' 'crates/zeroclaw-channels/assets/locales/en/cli.ftl' > "$paths_file"
-assert_selection "nested locale-like resource" full '[]' '' "$paths_file" false 'crates/zeroclaw-channels/assets/locales/en/cli.ftl'
+printf '%s\n' 'crates/clawcrew-channels/assets/locales/en/cli.ftl' > "$paths_file"
+assert_selection "nested locale-like resource" full '[]' '' "$paths_file" false 'crates/clawcrew-channels/assets/locales/en/cli.ftl'
 
-printf '%s\n' 'crates/zeroclaw-channels/fuzz/fuzz_targets/parser.rs' > "$paths_file"
-assert_selection "unclassified member Rust path" full '[]' '' "$paths_file" false 'crates/zeroclaw-channels/fuzz/fuzz_targets/parser.rs'
+printf '%s\n' 'crates/clawcrew-channels/fuzz/fuzz_targets/parser.rs' > "$paths_file"
+assert_selection "unclassified member Rust path" full '[]' '' "$paths_file" false 'crates/clawcrew-channels/fuzz/fuzz_targets/parser.rs'
 
-printf '%s\n' 'crates/zeroclaw-channels/assets/generated.bin' > "$paths_file"
-assert_selection "unclassified member asset" full '[]' '' "$paths_file" false 'crates/zeroclaw-channels/assets/generated.bin'
+printf '%s\n' 'crates/clawcrew-channels/assets/generated.bin' > "$paths_file"
+assert_selection "unclassified member asset" full '[]' '' "$paths_file" false 'crates/clawcrew-channels/assets/generated.bin'
 
-printf '%s\n' 'crates/zeroclaw-channels/src/lib.rs' 'crates/zeroclaw-runtime/assets/generated.bin' > "$paths_file"
-assert_selection "unclassified plugin-host path with scoped path" full '[]' '' "$paths_file" true 'crates/zeroclaw-runtime/assets/generated.bin'
+printf '%s\n' 'crates/clawcrew-channels/src/lib.rs' 'crates/clawcrew-runtime/assets/generated.bin' > "$paths_file"
+assert_selection "unclassified plugin-host path with scoped path" full '[]' '' "$paths_file" true 'crates/clawcrew-runtime/assets/generated.bin'
 
-printf '%s\n' 'crates/zeroclaw-plugins/tests/fixtures/channel-fixture/src/lib.rs' > "$paths_file"
+printf '%s\n' 'crates/clawcrew-plugins/tests/fixtures/channel-fixture/src/lib.rs' > "$paths_file"
 assert_selection "dynamically consumed plugin fixture" full '[]' 'Dynamically consumed plugin test fixtures require the full suite.' "$paths_file" true
 
 for plugin_path in \
-    'crates/zeroclaw-plugins/src/lib.rs' \
-    'crates/zeroclaw-runtime/src/lib.rs' \
-    'crates/zeroclaw-config/src/lib.rs' \
+    'crates/clawcrew-plugins/src/lib.rs' \
+    'crates/clawcrew-runtime/src/lib.rs' \
+    'crates/clawcrew-config/src/lib.rs' \
     'tests/plugin_channel_runtime_e2e.rs' \
     'Cargo.toml' \
     'Cargo.lock' \
@@ -182,7 +182,7 @@ for plugin_path in \
     printf '%s\n' "$output" | grep -Fx 'needs_plugin_host=true' >/dev/null
 done
 
-printf '%s\n' 'Cargo.toml' 'crates/zeroclaw-plugins/tests/fixtures/channel-fixture/src/lib.rs' > "$paths_file"
+printf '%s\n' 'Cargo.toml' 'crates/clawcrew-plugins/tests/fixtures/channel-fixture/src/lib.rs' > "$paths_file"
 assert_selection "mixed full trigger with plugin fixture" full '[]' '' "$paths_file" true
 
 printf '%s\n' 'Cargo.toml' > "$paths_file"
@@ -191,19 +191,19 @@ assert_selection "full workspace manifest" full '[]' '' "$paths_file" true
 printf '%s\n' 'crates/unknown/src/lib.rs' > "$paths_file"
 assert_selection "unknown path" full '[]' '' "$paths_file" false 'crates/unknown/src/lib.rs'
 
-printf '%s\n' 'crates/zeroclaw-channels/config/ambiguous.yaml' > "$paths_file"
-assert_selection "ambiguous package path" full '[]' '' "$paths_file" false 'crates/zeroclaw-channels/config/ambiguous.yaml'
+printf '%s\n' 'crates/clawcrew-channels/config/ambiguous.yaml' > "$paths_file"
+assert_selection "ambiguous package path" full '[]' '' "$paths_file" false 'crates/clawcrew-channels/config/ambiguous.yaml'
 
 printf '%s\n' 'Cargo.lock' > "$paths_file"
 assert_selection "lockfile only" full '[]' 'Cargo.lock changes require the full suite.' "$paths_file" true
 
-printf '%s\n' 'Cargo.lock' 'crates/zeroclaw-channels/Cargo.toml' > "$paths_file"
+printf '%s\n' 'Cargo.lock' 'crates/clawcrew-channels/Cargo.toml' > "$paths_file"
 assert_selection "manifest plus lockfile" full '[]' 'Cargo.lock changes require the full suite.' "$paths_file" true
 
-printf '%s\n' 'Cargo.lock' 'crates/zeroclaw-channels/Cargo.toml' 'crates/zeroclaw-providers/src/lib.rs' > "$paths_file"
+printf '%s\n' 'Cargo.lock' 'crates/clawcrew-channels/Cargo.toml' 'crates/clawcrew-providers/src/lib.rs' > "$paths_file"
 assert_selection "lockfile with multiple packages" full '[]' 'Cargo.lock changes require the full suite.' "$paths_file" true
 
-printf '%s\n' 'Cargo.lock' 'crates/zeroclaw-channels/src/lib.rs' > "$paths_file"
+printf '%s\n' 'Cargo.lock' 'crates/clawcrew-channels/src/lib.rs' > "$paths_file"
 assert_selection "lockfile with source change" full '[]' 'Cargo.lock changes require the full suite.' "$paths_file" true
 
 assert_selection "desktop exclusion" skip '[]' 'No covered Rust compilation or test paths changed.' <(printf '%s\n' 'apps/tauri/src/main.rs')
@@ -215,7 +215,7 @@ assert_selection "cargo configuration" full '[]' '' "$paths_file" true
 printf '%s\n' '.github/actions/rust-cache/action.yml' > "$paths_file"
 assert_selection "workflow action" full '[]' '' "$paths_file" true
 
-printf '%s\n' 'wit/zeroclaw-plugin.wit' > "$paths_file"
+printf '%s\n' 'wit/clawcrew-plugin.wit' > "$paths_file"
 assert_selection "WIT interface" full '[]' '' "$paths_file" true
 
 printf '%s\n' 'rust-toolchain.toml' > "$paths_file"
@@ -230,10 +230,10 @@ assert_selection "label-gated workflow exercises plugin host path" full '[]' '' 
 printf '%s\n' '.github/workflows/pr-size-labeler.yml' > "$paths_file"
 assert_selection "known independent workflow only" skip '[]' 'No covered Rust compilation or test paths changed.' "$paths_file"
 
-printf '%s\n' '.github/workflows/pr-size-labeler.yml' 'crates/zeroclaw-channels/src/lib.rs' > "$paths_file"
-assert_selection "known independent workflow with package source" scoped '["zeroclaw","zeroclaw-channels"]' '' "$paths_file"
+printf '%s\n' '.github/workflows/pr-size-labeler.yml' 'crates/clawcrew-channels/src/lib.rs' > "$paths_file"
+assert_selection "known independent workflow with package source" scoped '["clawcrew","clawcrew-channels"]' '' "$paths_file"
 
-printf '%s\n' '.github/workflows/new-reusable-workflow.yml' 'crates/zeroclaw-channels/src/lib.rs' > "$paths_file"
+printf '%s\n' '.github/workflows/new-reusable-workflow.yml' 'crates/clawcrew-channels/src/lib.rs' > "$paths_file"
 assert_selection "unknown workflow with package source remains full" full '[]' '' "$paths_file"
 
 printf '%s\n' 'scripts/ci/windows_test_scope.py' > "$paths_file"
@@ -242,7 +242,7 @@ assert_selection "selector itself exercises plugin host path" full '[]' '' "$pat
 printf '%s\n' 'scripts/ci/windows_test_scope.test.sh' > "$paths_file"
 assert_selection "selector contract itself exercises plugin host path" full '[]' '' "$paths_file" true
 
-printf '%s\n' 'crates/zeroclaw-channels/src/$(touch should-not-exist).rs' > "$paths_file"
+printf '%s\n' 'crates/clawcrew-channels/src/$(touch should-not-exist).rs' > "$paths_file"
 output="$(run_selector pull_request "$paths_file" "$metadata_file")"
 if [ -e "$repo_root/should-not-exist" ] || printf '%s\n' "$output" | grep -q 'should-not-exist'; then
     echo "FAIL: changed path was executed or echoed" >&2
@@ -276,7 +276,7 @@ output="$(run_selector pull_request "$paths_file" "$metadata_file")"
 printf '%s\n' "$output" | grep -Fx 'mode=full' >/dev/null
 printf '%s\n' "$output" | grep -Fx 'needs_plugin_host=true' >/dev/null
 
-printf '%s\n' 'crates/zeroclaw-api/src/lib.rs' > "$paths_file"
+printf '%s\n' 'crates/clawcrew-api/src/lib.rs' > "$paths_file"
 output="$(python3 "$selector" --event pull_request --changed-paths-file "$paths_file" --repo-root "$repo_root")"
 printf '%s\n' "$output" | grep -Fx 'mode=full' >/dev/null
 printf '%s\n' "$output" | grep -Fx 'reason=Changed paths or Cargo metadata are unavailable; selecting full is safer.' >/dev/null
@@ -284,7 +284,7 @@ printf '%s\n' "$output" | grep -Fx 'needs_plugin_host=true' >/dev/null
 
 malformed_metadata="$fixture_dir/malformed.json"
 printf '%s\n' '{"packages": []}' > "$malformed_metadata"
-printf '%s\n' 'crates/zeroclaw-api/src/lib.rs' > "$paths_file"
+printf '%s\n' 'crates/clawcrew-api/src/lib.rs' > "$paths_file"
 output="$(run_selector pull_request "$paths_file" "$malformed_metadata")"
 printf '%s\n' "$output" | grep -Fx 'mode=full' >/dev/null
 printf '%s\n' "$output" | grep -F 'reason=Cargo metadata is malformed or unavailable' >/dev/null
@@ -296,7 +296,7 @@ printf '%s\n' "$output" | grep -Fx 'mode=full' >/dev/null
 printf '%s\n' "$output" | grep -Fx 'reason=Cargo metadata is malformed or unavailable (FileNotFoundError).' >/dev/null
 printf '%s\n' "$output" | grep -Fx 'needs_plugin_host=true' >/dev/null
 
-printf '%s\n' 'crates/zeroclaw-plugins/tests/fixtures/channel-fixture/src/lib.rs' > "$paths_file"
+printf '%s\n' 'crates/clawcrew-plugins/tests/fixtures/channel-fixture/src/lib.rs' > "$paths_file"
 output="$(run_selector pull_request "$paths_file" "$malformed_metadata")"
 printf '%s\n' "$output" | grep -Fx 'mode=full' >/dev/null
 printf '%s\n' "$output" | grep -F 'reason=Cargo metadata is malformed or unavailable' >/dev/null
@@ -307,21 +307,21 @@ printf '%s\n' "$output" | grep -Fx 'mode=full' >/dev/null
 printf '%s\n' "$output" | grep -Fx 'reason=Cargo metadata is malformed or unavailable (FileNotFoundError).' >/dev/null
 printf '%s\n' "$output" | grep -Fx 'needs_plugin_host=true' >/dev/null
 
-package_args="$(python3 "$selector" --package-args-json '["zeroclaw","zeroclaw-channels"]')"
-test "$package_args" = $'-p\nzeroclaw\n-p\nzeroclaw-channels'
+package_args="$(python3 "$selector" --package-args-json '["clawcrew","clawcrew-channels"]')"
+test "$package_args" = $'-p\nclawcrew\n-p\nclawcrew-channels'
 
 package_args_file="$repo_root/package-args"
-python3 "$selector" --package-args-json '["zeroclaw","zeroclaw-channels"]' > "$package_args_file"
+python3 "$selector" --package-args-json '["clawcrew","clawcrew-channels"]' > "$package_args_file"
 PACKAGE_ARGS_FILE="$package_args_file" python3 - <<'PY'
 import os
 from pathlib import Path
 
 actual = Path(os.environ["PACKAGE_ARGS_FILE"]).read_bytes()
-expected = b"-p\nzeroclaw\n-p\nzeroclaw-channels\n"
+expected = b"-p\nclawcrew\n-p\nclawcrew-channels\n"
 assert actual == expected, actual
 PY
 
-for invalid_packages in '[]' '{}' '["zeroclaw",""]' '["zeroclaw","zeroclaw"]' '["$(touch unsafe)"]'; do
+for invalid_packages in '[]' '{}' '["clawcrew",""]' '["clawcrew","clawcrew"]' '["$(touch unsafe)"]'; do
     if python3 "$selector" --package-args-json "$invalid_packages" >/dev/null 2>&1; then
         echo "FAIL: invalid package JSON was accepted: $invalid_packages" >&2
         exit 1
@@ -366,13 +366,13 @@ extraction = 'tar zxf "$archive" -C "$HOME/.cargo/bin"'
 skip_condition = "needs.windows-test-scope.outputs.mode != 'skip'"
 package_conversion = 'scripts/ci/windows_test_scope.py --package-args-json "$PACKAGES_JSON"'
 scoped_command = 'cargo nextest run --locked --no-fail-fast "${package_args[@]}"'
-full_command = 'cargo nextest run --locked --no-fail-fast --workspace --exclude zeroclaw-desktop'
+full_command = 'cargo nextest run --locked --no-fail-fast --workspace --exclude clawcrew-desktop'
 plugin_condition = 'if [[ "$NEEDS_PLUGIN_HOST" == "true" ]]; then'
-plugin_components_command = 'cargo nextest run --locked --no-fail-fast \\\n              -p zeroclaw-plugins'
+plugin_components_command = 'cargo nextest run --locked --no-fail-fast \\\n              -p clawcrew-plugins'
 plugin_root_command = 'cargo nextest run --locked --no-fail-fast \\\n              --features plugins-wasm-cranelift \\\n              --test plugin_channel_runtime_e2e'
-plugin_lib_command = "cargo nextest run --locked --no-fail-fast \\\n              -p zeroclaw-plugins \\\n              --no-default-features \\\n              --features plugins-wasm-cranelift \\\n              --lib"
-plugin_runtime_config_command = "cargo nextest run --locked --no-fail-fast \\\n              -p zeroclaw-runtime \\\n              --features plugins-wasm-cranelift \\\n              --lib \\\n              live_agent_plugin_tool_observes_config_reload_after_construction"
-plugin_runtime_admission_command = "cargo nextest run --locked --no-fail-fast \\\n              -p zeroclaw-runtime \\\n              --features plugins-wasm-cranelift \\\n              --lib \\\n              plugin_runtime::"
+plugin_lib_command = "cargo nextest run --locked --no-fail-fast \\\n              -p clawcrew-plugins \\\n              --no-default-features \\\n              --features plugins-wasm-cranelift \\\n              --lib"
+plugin_runtime_config_command = "cargo nextest run --locked --no-fail-fast \\\n              -p clawcrew-runtime \\\n              --features plugins-wasm-cranelift \\\n              --lib \\\n              live_agent_plugin_tool_observes_config_reload_after_construction"
+plugin_runtime_admission_command = "cargo nextest run --locked --no-fail-fast \\\n              -p clawcrew-runtime \\\n              --features plugins-wasm-cranelift \\\n              --lib \\\n              plugin_runtime::"
 assert "bash scripts/ci/windows_test_scope.test.sh" in scope_job
 metadata_fallback = 'if ! cargo metadata --locked --format-version 1 > "$metadata_file"; then'
 assert metadata_fallback in scope_job
@@ -392,9 +392,9 @@ assert plugin_components_command in windows_job
 assert plugin_lib_command in windows_job
 assert plugin_runtime_config_command in windows_job
 assert plugin_runtime_admission_command in windows_job
-assert "-p zeroclaw-gateway" in windows_job
+assert "-p clawcrew-gateway" in windows_job
 assert "--features plugins-wasm" in windows_job
-assert "--bin zeroclaw" in windows_job
+assert "--bin clawcrew" in windows_job
 assert "plugin_registry::" in windows_job
 for admission_filter in (
     "plugin_runtime::",
@@ -437,10 +437,10 @@ assert windows_job.index('plugin_lib_status=${PIPESTATUS[0]}') < windows_job.ind
 assert windows_job.index(plugin_runtime_config_command) < windows_job.index('plugin_runtime_config_status=${PIPESTATUS[0]}')
 assert windows_job.index('plugin_runtime_config_status=${PIPESTATUS[0]}') < windows_job.index(plugin_runtime_admission_command)
 assert windows_job.index(plugin_runtime_admission_command) < windows_job.index('plugin_runtime_admission_status=${PIPESTATUS[0]}')
-assert windows_job.index('plugin_runtime_admission_status=${PIPESTATUS[0]}') < windows_job.index("-p zeroclaw-gateway")
-assert windows_job.index("-p zeroclaw-gateway") < windows_job.index('plugin_gateway_status=${PIPESTATUS[0]}')
-assert windows_job.index('plugin_gateway_status=${PIPESTATUS[0]}') < windows_job.index("--bin zeroclaw")
-assert windows_job.index("--bin zeroclaw") < windows_job.index('plugin_cli_status=${PIPESTATUS[0]}')
+assert windows_job.index('plugin_runtime_admission_status=${PIPESTATUS[0]}') < windows_job.index("-p clawcrew-gateway")
+assert windows_job.index("-p clawcrew-gateway") < windows_job.index('plugin_gateway_status=${PIPESTATUS[0]}')
+assert windows_job.index('plugin_gateway_status=${PIPESTATUS[0]}') < windows_job.index("--bin clawcrew")
+assert windows_job.index("--bin clawcrew") < windows_job.index('plugin_cli_status=${PIPESTATUS[0]}')
 assert windows_job.index('plugin_cli_status=${PIPESTATUS[0]}') < windows_job.index(plugin_root_command)
 assert windows_job.index(plugin_root_command) < windows_job.index('plugin_root_status=${PIPESTATUS[0]}')
 scoped_case = windows_job.split("\n            scoped)\n", 1)[1].split(

@@ -24,17 +24,17 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, OnceLock};
 
 use tempfile::TempDir;
-use zeroclaw_config::providers::{ChannelRef, ModelProviderRef};
-use zeroclaw_config::schema::{
+use clawcrew_config::providers::{ChannelRef, ModelProviderRef};
+use clawcrew_config::schema::{
     AliasedAgentConfig, AnthropicModelProviderConfig, Config, PluginChannelConfig,
     PluginEntryConfig, RiskProfileConfig,
 };
-use zeroclaw_plugins::PluginCapability;
-use zeroclaw_plugins::host::PluginHost;
-use zeroclaw_plugins::instance::PluginInstanceScope;
+use clawcrew_plugins::PluginCapability;
+use clawcrew_plugins::host::PluginHost;
+use clawcrew_plugins::instance::PluginInstanceScope;
 
 const MANIFEST: &str =
-    "crates/zeroclaw-plugins/tests/fixtures/channel-egress-fixture/plugin-manifest.toml";
+    "crates/clawcrew-plugins/tests/fixtures/channel-egress-fixture/plugin-manifest.toml";
 
 // ── fixture provisioning ──────────────────────────────────────────
 
@@ -49,7 +49,7 @@ fn fixture() -> PathBuf {
     FIXTURE
         .get_or_init(|| {
             let fixture_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("crates/zeroclaw-plugins/tests/fixtures/channel-egress-fixture");
+                .join("crates/clawcrew-plugins/tests/fixtures/channel-egress-fixture");
             let target_dir =
                 PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("channel-egress-fixture");
             let status = Command::new(env!("CARGO"))
@@ -59,7 +59,7 @@ fn fixture() -> PathBuf {
                     "--locked",
                     "--quiet",
                     "--package",
-                    "zeroclaw-channel-egress-plugin-fixture",
+                    "clawcrew-channel-egress-plugin-fixture",
                     "--target",
                     "wasm32-wasip2",
                     "--target-dir",
@@ -73,7 +73,7 @@ fn fixture() -> PathBuf {
             );
 
             let wasm =
-                target_dir.join("wasm32-wasip2/debug/zeroclaw_channel_egress_plugin_fixture.wasm");
+                target_dir.join("wasm32-wasip2/debug/clawcrew_channel_egress_plugin_fixture.wasm");
             assert!(
                 wasm.is_file(),
                 "channel egress fixture WASM was not produced"
@@ -228,7 +228,7 @@ async fn construct_and_probe(config: Config) -> (usize, Option<String>) {
         .validate()
         .expect("the activation declaration is valid operator config");
     let channels =
-        zeroclaw_runtime::plugin_runtime::configured_plugin_channels(Arc::new(config), None).await;
+        clawcrew_runtime::plugin_runtime::configured_plugin_channels(Arc::new(config), None).await;
     assert_eq!(
         channels.len(),
         1,

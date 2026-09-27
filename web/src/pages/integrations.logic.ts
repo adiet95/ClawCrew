@@ -9,7 +9,7 @@
 // built-in tool, which the Tools page manages.
 //
 // MAINTENANCE: keys mirror the descriptor `display_name`s and values mirror the
-// schema `#[prefix]` section keys (crates/zeroclaw-config/src/schema.rs:
+// schema `#[prefix]` section keys (crates/clawcrew-config/src/schema.rs:
 // Browser→`browser`, "Google Workspace"→`google_workspace`; Cron→the /cron
 // page). Renaming either in the schema requires updating this table, or the
 // deep-link silently falls back to /tools.

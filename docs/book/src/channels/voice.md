@@ -12,7 +12,7 @@ Full-duplex SIP voice powered by Telnyx. The agent talks over a real phone call 
 
 {{#secret-config channels.clawdtalk.<alias>.api_key}}
 
-**Pair with:** a `telnyx` model provider for the brain and ensure your Telnyx account has a SIP connection with the correct webhook URL pointed at the ZeroClaw gateway.
+**Pair with:** a `telnyx` model provider for the brain and ensure your Telnyx account has a SIP connection with the correct webhook URL pointed at the ClawCrew gateway.
 
 ## Voice Call (Twilio / Telnyx / Plivo)
 
@@ -32,12 +32,12 @@ The agent doesn't send audio anywhere; wake detection is local. Only post-wake s
 
 {{#config-fields channels.voice_wake}}
 
-> **Build flag:** Voice Wake is gated by the `voice-wake` cargo feature on `zeroclaw-channels`. Build with `--features voice-wake` to include it.
+> **Build flag:** Voice Wake is gated by the `voice-wake` cargo feature on `clawcrew-channels`. Build with `--features voice-wake` to include it.
 > On Android, Voice Wake requires Android 8 (API level 26) or newer.
 
 ## TTS (outbound speech synthesis)
 
-TTS is an output service channels call into, not its own inbound channel. Global defaults live under `tts`. TTS provider instances are configured under `providers.tts.<type>.<alias>` (OpenAI, ElevenLabs, Google, Edge, Piper) and selected per agent via the agent's `tts_provider`. See [Model Providers](../providers/overview.md) for the provider entries and per-agent wiring. Provider API keys are secrets; set them through the gateway, zerocode, or `zeroclaw config set`, never in plaintext.
+TTS is an output service channels call into, not its own inbound channel. Global defaults live under `tts`. TTS provider instances are configured under `providers.tts.<type>.<alias>` (OpenAI, ElevenLabs, Google, Edge, Piper) and selected per agent via the agent's `tts_provider`. See [Model Providers](../providers/overview.md) for the provider entries and per-agent wiring. Provider API keys are secrets; set them through the gateway, zerocode, or `clawcrew config set`, never in plaintext.
 
 ---
 

@@ -1,14 +1,14 @@
 # Skill: github-issue
 
-File a structured GitHub issue for ZeroClaw interactively from Claude Code.
+File a structured GitHub issue for ClawCrew interactively from Claude Code.
 
 ## When to Use
 
-Trigger when the user wants to create or route a ZeroClaw GitHub issue through the repository's current issue forms. Keywords: "file issue", "report bug", "feature request", "RFC", "tracker", "docs issue", "support issue", "contributor task", "open issue", "create issue", "github issue".
+Trigger when the user wants to create or route a ClawCrew GitHub issue through the repository's current issue forms. Keywords: "file issue", "report bug", "feature request", "RFC", "tracker", "docs issue", "support issue", "contributor task", "open issue", "create issue", "github issue".
 
 ## Instructions
 
-You are filing a GitHub issue against the ZeroClaw repository using structured issue forms. Follow this workflow exactly.
+You are filing a GitHub issue against the ClawCrew repository using structured issue forms. Follow this workflow exactly.
 
 ### Step 1: Route the Request and Read the Template
 
@@ -23,7 +23,7 @@ Read `.github/ISSUE_TEMPLATE/config.yml` first. It is contact-link metadata, not
 
 Discover the issue forms from the current repository. Enumerate `.github/ISSUE_TEMPLATE/*.yml` excluding `config.yml`, then parse each form's `name`, `description`, `title`, `labels`, and `body`.
 
-Choose the best form from the parsed inventory. First distinguish ordinary tracked work from an RFC: unless the request clearly crosses one of the four triggers accepted in [#9496](https://github.com/zeroclaw-labs/zeroclaw/issues/9496), keep it on the ordinary issue or PR path. Then choose the ordinary form by intent: bug, feature, docs, support, tracker, or contributor task. Do not collapse every non-RFC into a Feature Request. When the ordinary type is unclear, use AskUserQuestion with the parsed form names and descriptions. Do not ask the user to self-adjudicate an uncertain architecture boundary; record a possible trigger in the selected form so a maintainer can promote it.
+Choose the best form from the parsed inventory. First distinguish ordinary tracked work from an RFC: unless the request clearly crosses one of the four triggers accepted in [#9496](https://github.com/clawcrew-labs/clawcrew/issues/9496), keep it on the ordinary issue or PR path. Then choose the ordinary form by intent: bug, feature, docs, support, tracker, or contributor task. Do not collapse every non-RFC into a Feature Request. When the ordinary type is unclear, use AskUserQuestion with the parsed form names and descriptions. Do not ask the user to self-adjudicate an uncertain architecture boundary; record a possible trigger in the selected form so a maintainer can promote it.
 
 Then read the selected issue template to understand the required fields:
 
@@ -48,7 +48,7 @@ git diff --stat HEAD~1 2>/dev/null
 uname -s -r -m                          # OS info
 sw_vers 2>/dev/null                     # macOS version
 rustc --version 2>/dev/null             # Rust version
-cargo metadata --format-version=1 --no-deps 2>/dev/null | jq -r '.packages[] | select(.name=="zeroclaw") | .version' 2>/dev/null   # ZeroClaw version
+cargo metadata --format-version=1 --no-deps 2>/dev/null | jq -r '.packages[] | select(.name=="clawcrew") | .version' 2>/dev/null   # ClawCrew version
 git rev-parse --short HEAD              # commit SHA fallback
 ```
 
@@ -89,7 +89,7 @@ If the user requests changes, update the draft and re-present. Iterate until the
 Before final submission, analyze the collected content for scope creep:
 - Does the bug report describe multiple independent defects?
 - Does the feature request bundle unrelated changes?
-- Is an RFC/design proposal being filed as an ordinary feature request? Check the reverse too, which is the more common error: ordinary features, schema or data migrations, configuration field and default changes, and bounded refactors are **not** RFCs. Route to the RFC form only when the proposal crosses one of the four triggers accepted in [#9496](https://github.com/zeroclaw-labs/zeroclaw/issues/9496); when unsure, file the feature request and note why it might cross one.
+- Is an RFC/design proposal being filed as an ordinary feature request? Check the reverse too, which is the more common error: ordinary features, schema or data migrations, configuration field and default changes, and bounded refactors are **not** RFCs. Route to the RFC form only when the proposal crosses one of the four triggers accepted in [#9496](https://github.com/clawcrew-labs/clawcrew/issues/9496); when unsure, file the feature request and note why it might cross one.
 - Is an active coordination surface being filed as one ordinary bug or feature instead of a roadmap/tracker?
 - Is a docs-only gap being mixed with a behavior change that should have its own bug or feature issue?
 
@@ -157,7 +157,7 @@ Return the resulting issue URL to the user.
 - **Always discover and read the current template files**: enumerate issue forms from `.github/ISSUE_TEMPLATE/*.yml` excluding `config.yml`, then parse the selected template. Never assume field names, options, labels, render modes, or structure.
 - **Use `config.yml` as a routing gate**: route private security reports, quick support, Discussions, and docs/process contacts before drafting a durable public issue.
 - **Never include personal/sensitive data** in the issue. Redact secrets, tokens, emails, real names, private URLs, and sensitive logs before public drafting. Security vulnerabilities must use the private route instead.
-- **Use neutral project-scoped placeholders** per ZeroClaw's privacy contract.
+- **Use neutral project-scoped placeholders** per ClawCrew's privacy contract.
 - **One concept per issue**: enforce the scope guard.
 - **Auto-detect, don't guess**: use real command output for environment fields.
 - **Quote observed output verbatim**: error messages, stack traces, warnings, and command output must be copy-pasted into the relevant fields (`Steps to reproduce`, `Observed behavior`, `Logs`) exactly as they appeared. Do not paraphrase. Do not summarize. The maintainer searching for this bug later will grep for the exact string; paraphrase breaks that search. If the output is long, include the head and tail with a `...` marker in the middle rather than rewriting it.

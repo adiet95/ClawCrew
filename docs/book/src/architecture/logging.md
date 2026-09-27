@@ -1,6 +1,6 @@
 # Logging architecture
 
-ZeroClaw has exactly one logging surface: the `zeroclaw_log::record!` macro. Every emission in the workspace, agent loop activity, channel I/O, cron runs, tool calls, memory ops, session lifecycle, errors, flows through it. The macro fires a `tracing` event that the installed subscriber feeds to two sibling layers: the stderr fmt layer (terminal output) and the `LogCaptureLayer`. The fmt layer prints colored, alias-prefixed lines on stderr (muted unless `--verbose`). The `LogCaptureLayer` materializes a structured `LogEvent` and fans it out, via `writer::record_event`, to:
+ClawCrew has exactly one logging surface: the `clawcrew_log::record!` macro. Every emission in the workspace, agent loop activity, channel I/O, cron runs, tool calls, memory ops, session lifecycle, errors, flows through it. The macro fires a `tracing` event that the installed subscriber feeds to two sibling layers: the stderr fmt layer (terminal output) and the `LogCaptureLayer`. The fmt layer prints colored, alias-prefixed lines on stderr (muted unless `--verbose`). The `LogCaptureLayer` materializes a structured `LogEvent` and fans it out, via `writer::record_event`, to:
 
 1. The optional Observer bridge (`observer_bridge::forward`) for the subset of actions that map to typed Prometheus / OTel events, but only when a caller has installed a binding with `set_observer_bridge`. The current production bootstrap does not install one.
 2. The process-wide broadcast channel for live subscribers such as the dashboard's SSE stream.
@@ -12,14 +12,14 @@ When the Observer bridge is bound, its projection and the broadcast send happen 
 
 Every log event carries two completely separate channels of structured data. Confusing them is the single most common mistake at a call site, so internalize the split before anything else:
 
-| | **Attribution** (`zeroclaw.*`) | **Attrs** (`attributes.*`) |
+| | **Attribution** (`clawcrew.*`) | **Attrs** (`attributes.*`) |
 |---|---|---|
 | **Answers** | *Who* did it and *under what context* | *What* specifically happened |
 | **Examples** | `channel`, `agent_alias`, `model_provider`, `tool`, `session_key`, `cron_job_id` | `bytes_received`, `tokens_used`, `status_code`, error payloads |
 | **Source** | **Spans.** Opened at entry points, walked by the layer. | **The call site.** `Event::with_attrs(json!({...}))`. |
 | **Appears at the call site?** | **Never.** Not a `record!` argument. | Yes, that's the only place it can come from. |
 
-The rule that falls out of this: **if a value identifies who or what scope an event belongs to, it comes from a span and must never appear at the call site.** Attribution flows in automatically from `attribution_span!` / `scope!` wrappers opened higher up the stack; the layer walks the span scope leaf→root when an event fires and merges every contribution into the event's `zeroclaw.*` block. The call site that fires `record!` names none of it.
+The rule that falls out of this: **if a value identifies who or what scope an event belongs to, it comes from a span and must never appear at the call site.** Attribution flows in automatically from `attribution_span!` / `scope!` wrappers opened higher up the stack; the layer walks the span scope leaf→root when an event fires and merges every contribution into the event's `clawcrew.*` block. The call site that fires `record!` names none of it.
 
 Because attribution is the load-bearing half of this split and the half that trips people up, it comes first.
 
@@ -32,13 +32,13 @@ The mechanism, end to end:
 1. A "thing" (channel, provider, agent, tool, cron job, memory backend, …) implements `Attributable` once, next to its struct.
 2. Its entry point wraps work in `attribution_span!(self)`, which opens a tracing span carrying that thing's role and alias.
 3. Every `record!` fired anywhere inside that span, directly or nested arbitrarily deep, inherits the attribution automatically.
-4. When the event fires, the layer walks the span scope **leaf→root**, merges every `Attributable`'s contribution, and writes the merged `zeroclaw.*` block. The call site named none of it.
+4. When the event fires, the layer walks the span scope **leaf→root**, merges every `Attributable`'s contribution, and writes the merged `clawcrew.*` block. The call site named none of it.
 
 This is the whole point of the design: per-thing logging code is zero. You impl the trait once and wrap the entry point once; every emission underneath is attributed for free.
 
 ### The `Attributable` trait
 
-Lives in `crates/zeroclaw-api/src/attribution.rs` so every crate can implement it without depending on `zeroclaw-log`:
+Lives in `crates/clawcrew-api/src/attribution.rs` so every crate can implement it without depending on `clawcrew-log`:
 
 ```rust
 pub trait Attributable {
@@ -78,9 +78,9 @@ pub enum Role {
 Wrap an entry-point's work with `attribution_span!(thing)`. The macro returns a `Span` carrying the thing's role and alias as structured fields. `.instrument(span)` the future (or `let _g = span.entered()` in sync code). **A spawned task that does not re-establish the span loses attribution**: every `tokio::spawn` body that emits must carry the same `attribution_span!` / `scope!` the parent used, or its emissions land un-attributed.
 
 ```rust
-use zeroclaw_log::Instrument;
+use clawcrew_log::Instrument;
 
-let span = zeroclaw_log::attribution_span!(self);  // self impls Attributable
+let span = clawcrew_log::attribution_span!(self);  // self impls Attributable
 async move {
     // every record! inside automatically carries the alias-bound fields
     record!(INFO, Event::new(module_path!(), Action::Start), "channel online");
@@ -88,38 +88,38 @@ async move {
 }.instrument(span).await
 ```
 
-The layer walks the span scope leaf→root when an event fires, merges every `Attributable`'s contribution into the event's `zeroclaw.*` attribution block, and emits the composite (`channel = "telegram.clamps"`, `channel_type = "telegram"`, `channel_alias = "clamps"`) without the call site naming any of those keys.
+The layer walks the span scope leaf→root when an event fires, merges every `Attributable`'s contribution into the event's `clawcrew.*` attribution block, and emits the composite (`channel = "telegram.clamps"`, `channel_type = "telegram"`, `channel_alias = "clamps"`) without the call site naming any of those keys.
 
 ### The `scope!` macro, non-role context
 
 `attribution_span!` is for role-bearing `Attributable` things. For per-scope identifiers that aren't tied to one (sender id, message id, turn id, request id), use `scope!`:
 
 ```rust
-zeroclaw_log::scope!(
+clawcrew_log::scope!(
     sender: msg.sender.as_str(),
     message_id: msg.id.as_str(),
     => async move { process_message(msg).await }
 ).await
 ```
 
-`scope!` straddles the attribution/attrs line deliberately: field keys that match the alias-bound `ATTRIBUTION_FIELDS` / `COMPOSITE_PREFIXES` (in `crates/zeroclaw-log/src/event.rs`) land in the typed `zeroclaw.*` attribution slot; everything else lands in the event `attributes` map for every descendant emission. Either way the value rides on every nested `record!` without being a call-site argument.
+`scope!` straddles the attribution/attrs line deliberately: field keys that match the alias-bound `ATTRIBUTION_FIELDS` / `COMPOSITE_PREFIXES` (in `crates/clawcrew-log/src/event.rs`) land in the typed `clawcrew.*` attribution slot; everything else lands in the event `attributes` map for every descendant emission. Either way the value rides on every nested `record!` without being a call-site argument.
 
 ## The `record!` macro and its call-site contract
 
-The `tracing` crate is `zeroclaw-log`'s implementation detail: the `record!` / `scope!` / `attribution_span!` macros expand to `zeroclaw_log::__private::tracing` so a call site never names a tracing type. The log-event macros themselves (`tracing::{trace,debug,info,warn,error}`, `log::*`, `std::dbg`, plus bare `anyhow::anyhow!`) are **hard-banned workspace-wide** as `disallowed-macros` in `clippy.toml`. With `-D warnings` in CI, any direct `tracing::info!` etc. **fails the build**, with a clippy message naming `::zeroclaw_log::record!` as the replacement. This is not a convention; it is enforced.
+The `tracing` crate is `clawcrew-log`'s implementation detail: the `record!` / `scope!` / `attribution_span!` macros expand to `clawcrew_log::__private::tracing` so a call site never names a tracing type. The log-event macros themselves (`tracing::{trace,debug,info,warn,error}`, `log::*`, `std::dbg`, plus bare `anyhow::anyhow!`) are **hard-banned workspace-wide** as `disallowed-macros` in `clippy.toml`. With `-D warnings` in CI, any direct `tracing::info!` etc. **fails the build**, with a clippy message naming `::clawcrew_log::record!` as the replacement. This is not a convention; it is enforced.
 
-The only exemptions are the few files inside `crates/zeroclaw-log/` that bootstrap the pipeline and carry a local `#![allow(clippy::disallowed_macros)]`. A handful of crates (`zeroclaw-api`, `zeroclaw-spawn`, `zeroclaw-providers`, `zeroclaw-hardware`, `zeroclaw-log`) still list `tracing` / `tracing-subscriber` in `Cargo.toml`, but only for span and subscriber plumbing, not for emitting log macros. The dependency being present does not license calling the banned macros. (`tokio::spawn` is banned the same way via `disallowed-methods`; use `::zeroclaw_spawn::spawn!` so spawned tasks inherit the caller's attribution span.)
+The only exemptions are the few files inside `crates/clawcrew-log/` that bootstrap the pipeline and carry a local `#![allow(clippy::disallowed_macros)]`. A handful of crates (`clawcrew-api`, `clawcrew-spawn`, `clawcrew-providers`, `clawcrew-hardware`, `clawcrew-log`) still list `tracing` / `tracing-subscriber` in `Cargo.toml`, but only for span and subscriber plumbing, not for emitting log macros. The dependency being present does not license calling the banned macros. (`tokio::spawn` is banned the same way via `disallowed-methods`; use `::clawcrew_spawn::spawn!` so spawned tasks inherit the caller's attribution span.)
 
 The macro is locked-shape: it takes a level, a single `Event` expression, and a message literal.
 
 ```rust
-use zeroclaw_log::{record, Event, Action, EventCategory, EventOutcome};
+use clawcrew_log::{record, Event, Action, EventCategory, EventOutcome};
 
 record!(INFO, Event::new(module_path!(), Action::Start), "starting step");
 record!(WARN, Event::new(module_path!(), Action::Fail).with_outcome(EventOutcome::Failure).with_attrs(serde_json::json!({"exit_code": 137})), "tool failed");
 ```
 
-`module_path!()` is the canonical source of the event name: it's the Rust module path of the call site (e.g. `zeroclaw_channels::telegram`), so events are searchable, jump-to-source-able, and impossible to typo. The same convention is used at every `record!` site in the workspace.
+`module_path!()` is the canonical source of the event name: it's the Rust module path of the call site (e.g. `clawcrew_channels::telegram`), so events are searchable, jump-to-source-able, and impossible to typo. The same convention is used at every `record!` site in the workspace.
 
 The macro injects `file!()` and `line!()` automatically. The `LogCaptureLayer` attaches them to the event's `attributes` map as `_file` and `_line` so operators jump to source from a log viewer.
 
@@ -160,7 +160,7 @@ record!(WARN, Event::new(module_path!(), Action::Fail).with_attrs(serde_json::js
 
 ## `Event`, `Action`, `EventOutcome`, `EventCategory`
 
-All four are closed enums defined in `crates/zeroclaw-log/src/event.rs`. Adding a value is the only point of change: call sites do not invent strings.
+All four are closed enums defined in `crates/clawcrew-log/src/event.rs`. Adding a value is the only point of change: call sites do not invent strings.
 
 - `Action`: closed verb set, snake-cased on disk via `strum::IntoStaticStr`: `Start`, `Complete`, `Fail`, `Cancel`, `Skip`, `Timeout`, `Retry`, `Inbound`, `Outbound`, `Send`, `Receive`, `Connect`, `Disconnect`, `Reconnect`, `Spawn`, `Kill`, `Tick`, `Trigger`, `Schedule`, `Approve`, `Reject`, `Defer`, `Read`, `Write`, `Delete`, `List`, `Query`, `Invoke`, `Dispatch`, `Resolve`, `Register`, `Unregister`, `Load`, `Save`, `Migrate`, `Validate`, `Note`.
 - `EventOutcome`: `Success`, `Failure`, `Unknown`. `Unknown` is the default and is skipped on serialization (omitted from the on-disk `event.outcome`), so a row with no `outcome` key is implicitly `Unknown`.
@@ -168,7 +168,7 @@ All four are closed enums defined in `crates/zeroclaw-log/src/event.rs`. Adding 
 
 ## Tool input/output propagation
 
-The central tool executor (`crates/zeroclaw-runtime/src/agent/tool_execution.rs::execute_one_tool`) wraps every `Tool::execute(args)` call with invoke/complete/fail events. Each event's name is `module_path!()` (the executor's own module), not a hardcoded string; the `Action` and severity distinguish them:
+The central tool executor (`crates/clawcrew-runtime/src/agent/tool_execution.rs::execute_one_tool`) wraps every `Tool::execute(args)` call with invoke/complete/fail events. Each event's name is `module_path!()` (the executor's own module), not a hardcoded string; the `Action` and severity distinguish them:
 
 1. Before running: `record!(DEBUG, Event::new(module_path!(), Action::Invoke).with_category(EventCategory::Tool).with_attrs(...))` with `tool`, `tool_call_id`, and the full `input` in attrs.
 2. Runs `execute(args).await`.
@@ -176,15 +176,15 @@ The central tool executor (`crates/zeroclaw-runtime/src/agent/tool_execution.rs:
 4. On tool-reported failure (`!r.success`): `record!(WARN, ... Action::Fail)` with `Outcome::Failure`, the duration, and `tool` / `tool_call_id` / `input` / `error` / `output` in attrs.
 5. On `Err` from `execute`: `record!(ERROR, ... Action::Fail)` with `Outcome::Failure`, the duration, and the debug-formatted error in attrs.
 
-These events are emitted inside a `scope!`-style span (`target = "zeroclaw_log_internal_scope"`, field `tool = <name>`) opened around the call, so the `tool` field rides on every descendant emission too. Per-tool `Tool::execute` impls add zero logging code.
+These events are emitted inside a `scope!`-style span (`target = "clawcrew_log_internal_scope"`, field `tool = <name>`) opened around the call, so the `tool` field rides on every descendant emission too. Per-tool `Tool::execute` impls add zero logging code.
 
 ## `LogCaptureLayer` and the on-disk schema
 
-The layer in `crates/zeroclaw-log/src/layer.rs` is a `tracing-subscriber` Layer that:
+The layer in `crates/clawcrew-log/src/layer.rs` is a `tracing-subscriber` Layer that:
 
-1. On span creation/record with target `"zeroclaw_log_internal_attribution"` (the target the `attribution_span!` macro opens with): parses the role + alias fields into a `ZeroclawAttribution` snapshot stored on the span's extensions.
-2. On span creation/record with target `"zeroclaw_log_internal_scope"` (`scope!`-opened): parses ad-hoc kvps and stashes them similarly.
-3. On event emission with target `"zeroclaw_log_event"` (the target the `record!` macro fires through): builds a `LogEvent` from the `zc_*` field set, walks the span scope leaf→root merging every attribution snapshot it finds, parses the `zc_attrs` JSON blob into the event `attributes`, attaches `_file`/`_line` from auto-captured source location, and hands the final event to `writer::record_event`, which fans out in this order:
+1. On span creation/record with target `"clawcrew_log_internal_attribution"` (the target the `attribution_span!` macro opens with): parses the role + alias fields into a `ZeroclawAttribution` snapshot stored on the span's extensions.
+2. On span creation/record with target `"clawcrew_log_internal_scope"` (`scope!`-opened): parses ad-hoc kvps and stashes them similarly.
+3. On event emission with target `"clawcrew_log_event"` (the target the `record!` macro fires through): builds a `LogEvent` from the `zc_*` field set, walks the span scope leaf→root merging every attribution snapshot it finds, parses the `zc_attrs` JSON blob into the event `attributes`, attaches `_file`/`_line` from auto-captured source location, and hands the final event to `writer::record_event`, which fans out in this order:
    - Observer bridge (`observer_bridge.rs`) for mapped Prometheus / OTel typed events when an Observer is bound.
    - Broadcast hook (`broadcast.rs`) for current SSE/dashboard subscribers when a sender is installed.
    - JSONL persistence (`writer.rs`), offered last to the asynchronous writer queue only when `log_persistence` is enabled.
@@ -198,10 +198,10 @@ The on-disk JSON shape (`LogEvent` in `event.rs`):
   "severity_number": 9,
   "severity_text": "INFO",
   "event": { "category": "channel", "action": "inbound", "outcome": "success" },
-  "service": { "name": "zeroclaw", "version": "0.8.5" },
+  "service": { "name": "clawcrew", "version": "0.8.5" },
   "trace_id": "<turn id>",
   "span_id": "<sub-span id>",
-  "zeroclaw": {
+  "clawcrew": {
     "channel": "telegram.clamps",
     "channel_type": "telegram",
     "channel_alias": "clamps",
@@ -285,7 +285,7 @@ whenever the active file's bytes are replaced or its path changes:
 - schema migration rewrites the active file through a temporary file and atomic rename.
 - a daemon config reload can install a new persistence path.
 
-After one of those boundaries, restart pagination from the newest page. The legacy timestamp/ID cursor remains for compatibility but is deprecated under [#8012](https://github.com/zeroclaw-labs/zeroclaw/issues/8012) because lexicographic ID ordering can skip tied events.
+After one of those boundaries, restart pagination from the newest page. The legacy timestamp/ID cursor remains for compatibility but is deprecated under [#8012](https://github.com/clawcrew-labs/clawcrew/issues/8012) because lexicographic ID ordering can skip tied events.
 
 Enumeration and reading are not atomic, so a rotation can land between them: the listing names the pre-rotation active file, the rename turns that file into an archive, and the scan reads the fresh replacement instead. The rotated-away events would then sit unlisted between two segments the page did read, unreachable forever because pagination only walks toward older history. The reader re-checks the archive set after the read and redoes the page when it moved. Checking afterwards rather than before is what closes the window, because a check before opening leaves room for a rotation between the check and the open. The same race exists inside enumeration itself: the archives are listed first and the active path is stat'd second, and a rotation landing between those steps hides the data from both halves, because the vacuum between the rename and the next append leaves the active path absent. So the re-check is skipped only for a page that stops short of a *listed* active file; archives are immutable, so such a scan cannot have raced anything, but a listing with no active file at all is verified like any other.
 
@@ -312,25 +312,25 @@ When persistence is enabled and the active path exists, `writer::init_from_confi
 
 Migration is best-effort. Its cheap schema check stops at the first non-empty row. Migration runs when that row is malformed or has `timestamp` without `@timestamp`; any other parseable JSON is treated as current, even when it is an unknown or invalid schema, so later legacy rows can remain unmigrated. If migration returns an error, initialization warns and continues, so later v2 appends can coexist with old rows that the v2 reader cannot deserialize. Rotated archives are not migrated.
 
-`LogEvent` is the schema source of truth. For each schema change, assess migration compatibility, active-file deserialization, HTTP and RPC serialization/consumers, and the architecture and operator documentation; update only the boundaries whose behavior or compatibility changes. The RPC log surfaces live in `crates/zeroclaw-runtime/src/rpc/types.rs` and `dispatch.rs`. A migration that replaces the active file invalidates byte-offset cursors, while an additive compatible change that does not rewrite existing bytes does not.
+`LogEvent` is the schema source of truth. For each schema change, assess migration compatibility, active-file deserialization, HTTP and RPC serialization/consumers, and the architecture and operator documentation; update only the boundaries whose behavior or compatibility changes. The RPC log surfaces live in `crates/clawcrew-runtime/src/rpc/types.rs` and `dispatch.rs`. A migration that replaces the active file invalidates byte-offset cursors, while an additive compatible change that does not rewrite existing bytes does not.
 
 ## `LogConfig` vs `ObservabilityConfig`
 
-`zeroclaw-log` defines its own minimal `LogConfig` (in `crates/zeroclaw-log/src/config.rs`): `log_persistence`, `log_persistence_path`, `log_persistence_max_entries`, `log_persistence_max_bytes`, `log_persistence_rotate_daily`, `log_persistence_retention_max_files`, `log_persistence_retention_max_age_days`, `log_persistence_max_entries_per_segment`, `log_tool_io`, `log_tool_io_truncate_bytes`, `log_tool_io_denylist`. This breaks what would otherwise be a dep cycle: `zeroclaw-config::ObservabilityConfig` carries the full schema (with TOML deserialization and validation), and the runtime converts to `LogConfig` at startup and after daemon config reload via `crates/zeroclaw-runtime/src/observability/runtime_trace.rs::to_log_config`. The result: `zeroclaw-config` can `record!` without inverting the dep tree, while log persistence and rotation policy changes still take effect on the next daemon reload.
+`clawcrew-log` defines its own minimal `LogConfig` (in `crates/clawcrew-log/src/config.rs`): `log_persistence`, `log_persistence_path`, `log_persistence_max_entries`, `log_persistence_max_bytes`, `log_persistence_rotate_daily`, `log_persistence_retention_max_files`, `log_persistence_retention_max_age_days`, `log_persistence_max_entries_per_segment`, `log_tool_io`, `log_tool_io_truncate_bytes`, `log_tool_io_denylist`. This breaks what would otherwise be a dep cycle: `clawcrew-config::ObservabilityConfig` carries the full schema (with TOML deserialization and validation), and the runtime converts to `LogConfig` at startup and after daemon config reload via `crates/clawcrew-runtime/src/observability/runtime_trace.rs::to_log_config`. The result: `clawcrew-config` can `record!` without inverting the dep tree, while log persistence and rotation policy changes still take effect on the next daemon reload.
 
 ## Subscriber installation
 
 The daemon installs the global subscriber via:
 
 ```rust
-zeroclaw_log::install_global_subscriber(
+clawcrew_log::install_global_subscriber(
     recording_filter.as_deref(),   // Option<&str> — the --log-level flag, if set
     &default_filter,               // &str — fallback filter when no flag and no RUST_LOG
     cli.verbose,                   // bool — gates the stderr fmt (terminal) layer
 );
 ```
 
-Two independent axes: the **recording floor** (what reaches `LogCaptureLayer`, resolved as flag → `RUST_LOG` → default) and **terminal display** (the stderr fmt layer, muted entirely unless `verbose` is true). That single call sets up the agent-alias-prefixed terminal formatter + the `LogCaptureLayer` over a `tracing-subscriber::Registry`. `src/main.rs` is the only place that calls it. Tests use `zeroclaw_log::try_install_capture_subscriber()` + `zeroclaw_log::subscribe_or_install()` to drain emitted events through the broadcast hook without any tracing types named in the test crate.
+Two independent axes: the **recording floor** (what reaches `LogCaptureLayer`, resolved as flag → `RUST_LOG` → default) and **terminal display** (the stderr fmt layer, muted entirely unless `verbose` is true). That single call sets up the agent-alias-prefixed terminal formatter + the `LogCaptureLayer` over a `tracing-subscriber::Registry`. `src/main.rs` is the only place that calls it. Tests use `clawcrew_log::try_install_capture_subscriber()` + `clawcrew_log::subscribe_or_install()` to drain emitted events through the broadcast hook without any tracing types named in the test crate.
 
 ## When to extend the closed enums
 

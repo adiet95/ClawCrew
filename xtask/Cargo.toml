@@ -36,12 +36,12 @@ cargo_metadata = "0.18"
 schemars = { version = "1.2" }
 tokio = { version = "1.50", default-features = false, features = ["rt-multi-thread", "macros", "net"] }
 tower-http = { version = "0.6", default-features = false, features = ["fs"] }
-zeroclaw-api = { workspace = true }
-zeroclaw-config = { workspace = true }
-zeroclaw-hardware = { workspace = true }
-zeroclaw-providers = { workspace = true }
-zeroclaw-runtime = { workspace = true, features = ["schema-export"] }
-zeroclaw-gateway = { workspace = true, features = ["schema-export"] }
+clawcrew-api = { workspace = true }
+clawcrew-config = { workspace = true }
+clawcrew-hardware = { workspace = true }
+clawcrew-providers = { workspace = true }
+clawcrew-runtime = { workspace = true, features = ["schema-export"] }
+clawcrew-gateway = { workspace = true, features = ["schema-export"] }
 zerocode = { workspace = true }
 
 [dev-dependencies]

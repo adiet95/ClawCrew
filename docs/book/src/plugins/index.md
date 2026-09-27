@@ -1,6 +1,6 @@
 # Plugins
 
-ZeroClaw's plugin system lets you add capabilities to the agent without
+ClawCrew's plugin system lets you add capabilities to the agent without
 touching the core binary. This page explains the technology decision: what a
 plugin is made of, why it is WebAssembly, and how the host keeps an untrusted
 component contained. The guides below it walk through building each kind of
@@ -28,16 +28,16 @@ contract reference, see [Plugin protocol](../developing/plugin-protocol.md).
 
 A plugin runs arbitrary third-party code inside a process that holds your API
 keys, your conversation history, and shell access. The isolation boundary has
-to be real, not advisory. ZeroClaw uses the WASI Component Model on `wasmtime`
+to be real, not advisory. ClawCrew uses the WASI Component Model on `wasmtime`
 because it gives four properties no dynamic-library or subprocess scheme
 matches at once:
 
 1. **Capability-based sandboxing.** A WebAssembly component has no ambient
    authority. It cannot open files, sockets, or environment variables unless
-   the host explicitly wires that capability into its linker. ZeroClaw's host
+   the host explicitly wires that capability into its linker. ClawCrew's host
    builds every plugin store with a WASI context that has no filesystem
    preopens and no network (`PluginState` in
-   `crates/zeroclaw-plugins/src/component.rs`). What a plugin can reach is
+   `crates/clawcrew-plugins/src/component.rs`). What a plugin can reach is
    exactly the set of host imports its world declares plus whatever its
    manifest permissions add, and nothing else.
 2. **Metered execution.** The engine is built with fuel metering enabled, and
@@ -49,7 +49,7 @@ matches at once:
    constructed without them, so no load path can produce an unsandboxed
    plugin.
 3. **A typed, language-agnostic ABI.** The contract between host and plugin is
-   a set of WIT interface files (`wit/v0/` in the ZeroClaw repository), not a
+   a set of WIT interface files (`wit/v0/` in the ClawCrew repository), not a
    Rust API. The host generates its bindings from those files with wasmtime's
    `bindgen!`; a plugin generates the mirror-image guest bindings with
    `wit-bindgen` in Rust or the equivalent tooling in any language that
@@ -66,7 +66,7 @@ matches at once:
 A plugin on disk is a directory holding a manifest and a compiled component:
 
 ```text
-~/.zeroclaw/plugins/
+~/.clawcrew/plugins/
 └── my-plugin/
     ├── manifest.toml     # identity, capabilities, permissions, signature
     └── my-plugin.wasm    # wasm32-wasip2 component
@@ -76,7 +76,7 @@ The manifest declares two orthogonal things:
 
 - **Capabilities**: what the plugin *is*. One or more of `tool`, `channel`,
   `memory`, `observer`, `skill` (the `PluginCapability` enum in
-  `crates/zeroclaw-plugins/src/lib.rs`). Each WASM capability selects the WIT
+  `crates/clawcrew-plugins/src/lib.rs`). Each WASM capability selects the WIT
   world the component must export. The `skill` capability is the odd one out:
   it marks a markdown [skill bundle](../tools/skill-bundles.md) riding the
   install machinery, not code, and needs no component.
@@ -97,7 +97,7 @@ The manifest declares two orthogonal things:
 
 `wit/v0/` defines one world per WASM capability. Every world imports the host
 `logging` interface, whose `log-record` events land in the structured log
-carrying the [span attribution](../ops/observability.md#zeroclaw-attribution)
+carrying the [span attribution](../ops/observability.md#clawcrew-attribution)
 of the host call site, and exports `plugin-info` (self-reported name and
 version) plus its primary interface:
 
@@ -116,7 +116,7 @@ a break.
 
 ## Execution model
 
-The host (`crates/zeroclaw-plugins/src/component.rs`) owns one async
+The host (`crates/clawcrew-plugins/src/component.rs`) owns one async
 `wasmtime::Engine` for the process. Loading is backend-dependent: a build with
 the Cranelift JIT compiles `.wasm` on load; a runtime-only build deserializes
 a precompiled `.cwasm`. Each plugin instantiation gets:
@@ -160,14 +160,14 @@ not yet reachable from a running daemon:
 |------------|--------------|----------------|
 | `tool` | `WasmTool` | Registered end to end; discovered tool plugins appear in the agent's tool set |
 | `skill` | markdown loader | Registered end to end; skills load namespaced as `plugin:<plugin>/<skill>` |
-| `channel` | `WasmChannel`, complete and unit-covered | Alias-owned construction and runtime config resolution landed ([#10146](https://github.com/zeroclaw-labs/zeroclaw/pull/10146)); the per-vendor host listener that drains each transport into the channel's `inbound` queue is a follow-up |
+| `channel` | `WasmChannel`, complete and unit-covered | Alias-owned construction and runtime config resolution landed ([#10146](https://github.com/clawcrew-labs/clawcrew/pull/10146)); the per-vendor host listener that drains each transport into the channel's `inbound` queue is a follow-up |
 | `memory` | `WasmMemory`, implements the full `Memory` trait | The runtime does not yet construct it as a configurable backend |
 | `observer` | none | `PluginCapability::Observer` is reserved; no WIT world or adapter exists yet |
 
 ## Configuration
 
 Static plugin-host settings use the same schema mirror as everything else.
-Per-instance values currently use generic TOML or `zeroclaw config set`; the
+Per-instance values currently use generic TOML or `clawcrew config set`; the
 plugin manifest schema is not yet rendered as a zerocode or gateway form. Take
 care when hand-editing: a syntax slip in a section (for example
 `[plugins.entries]` where `[[plugins.entries]]` is meant) currently makes the
@@ -177,21 +177,21 @@ defaults, which reads back as `plugins.enabled = false` with no warning
 
 ```bash
 # turn the system on
-zeroclaw config set plugins.enabled true
+clawcrew config set plugins.enabled true
 
 # load auto-discovered tool and skill plugins at runtime (default: false)
-zeroclaw config set plugins.auto_discover true
+clawcrew config set plugins.auto_discover true
 
-# where plugins are discovered (default: ~/.zeroclaw/plugins)
-zeroclaw config set plugins.plugins_dir /srv/zeroclaw/plugins
+# where plugins are discovered (default: ~/.clawcrew/plugins)
+clawcrew config set plugins.plugins_dir /srv/clawcrew/plugins
 
 # signature policy: disabled | permissive | strict
-zeroclaw config set plugins.security.signature_mode strict
+clawcrew config set plugins.security.signature_mode strict
 
 # per-call sandbox limits
-zeroclaw config set plugins.limits.call_fuel 1000000000
-zeroclaw config set plugins.limits.call_timeout_ms 30000
-zeroclaw config set plugins.limits.max_memory_mb 256
+clawcrew config set plugins.limits.call_fuel 1000000000
+clawcrew config set plugins.limits.call_timeout_ms 30000
+clawcrew config set plugins.limits.max_memory_mb 256
 ```
 
 `plugins.limits.max_connections_per_instance` (default 16) caps how many
@@ -216,15 +216,15 @@ only auto-discovered tools and skills.
 Per-instance settings live under `plugins.entries`, keyed by a versioned
 `zpi1_…` string derived from the host-owned package, capability, and binding
 identity. Installation prints and seeds the keys for the package's default
-tool binding; `zeroclaw plugin info <package>` prints that tool key again. Those
+tool binding; `clawcrew plugin info <package>` prints that tool key again. Those
 automatic surfaces are tool-only. Alias-owned channel construction derives the
 key from its actual configured alias rather than inventing a package-name
 binding. That runtime path landed in
-[#10146](https://github.com/zeroclaw-labs/zeroclaw/pull/10146): a daemon now
+[#10146](https://github.com/clawcrew-labs/clawcrew/pull/10146): a daemon now
 constructs an explicitly declared `[channels.plugin.<alias>]` instance and
 resolves its typed config from that alias. Automatic `plugin info` key display
 and install-time seeding for channel instances remain manual until the grant
-ceremony in [#9584](https://github.com/zeroclaw-labs/zeroclaw/pull/9584).
+ceremony in [#9584](https://github.com/clawcrew-labs/clawcrew/pull/9584).
 Full-identity keys let different packages and capability
 worlds safely reuse aliases such as `main` without sharing credentials. The
 canonical operator values are a secret-marked string map and
@@ -265,7 +265,7 @@ recipe, including the release decision to ship this enforcement without a
 compatibility shim.
 
 This is a strict pre-1.0 key format: legacy entries named only after a package
-or binding are not consulted. For an existing tool package, run `zeroclaw
+or binding are not consulted. For an existing tool package, run `clawcrew
 plugin info <package>` to obtain its full-instance key, rename the old entry to
 that key, and save the config. Fresh tool installs seed it automatically.
 
@@ -274,7 +274,7 @@ Effective grants are checked separately from manifest requests. If
 make startup fail closed. When the empty object is valid, a tool omits the empty
 `__config` key and channel config/secret imports return `access-denied`. The
 canonical host field list and defaults are in the
-[Config reference](../reference/config.md); `zeroclaw config list` shows the live
+[Config reference](../reference/config.md); `clawcrew config list` shows the live
 stored values.
 
 ## Where the trust boundary actually is

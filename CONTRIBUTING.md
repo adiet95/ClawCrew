@@ -1,4 +1,4 @@
-# Contributing to ZeroClaw
+# Contributing to ClawCrew
 
 Thanks for your interest. Every kind of contribution helps — code, docs, bug reports, design feedback. This file is the first stop; the full contributor guide lives in the [docs book](docs/book/src/contributing/how-to.md).
 
@@ -26,7 +26,7 @@ All PRs target **`master`**. PRs targeting `main` will be rejected.
 
 ## First-time contributors
 
-1. **Find an issue.** Look for [`good first issue`](https://github.com/zeroclaw-labs/zeroclaw/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) labels — these are scoped for newcomers and include enough context to get moving.
+1. **Find an issue.** Look for [`good first issue`](https://github.com/clawcrew-labs/clawcrew/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) labels — these are scoped for newcomers and include enough context to get moving.
 2. **Pick a small scope.** Typo fixes, doc improvements, test additions, and small bug fixes are the fastest path to a merged PR.
 3. **Fork → branch → change → test → PR.** PRs target `master`. Use `feat/*` or `fix/*` branch names.
 4. **Open a draft PR early** if you get stuck and ask questions in the description.
@@ -49,8 +49,8 @@ Do not rely on maintainers to check the test status or determine whether you hav
 
 ```bash
 # Clone
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 
 # Enable the pre-push hook (runs fmt, clippy, tests before every push)
 git config core.hooksPath .githooks
@@ -63,8 +63,8 @@ cargo test --locked
 ./scripts/ci/rust_quality_gate.sh
 
 # Rustdoc warnings (required CI lint step; fatal via .cargo/config.toml).
-# Excludes zeroclaw-desktop — same surface as docs-deploy / xtask build_api.
-cargo doc --no-deps --workspace --exclude zeroclaw-desktop
+# Excludes clawcrew-desktop — same surface as docs-deploy / xtask build_api.
+cargo doc --no-deps --workspace --exclude clawcrew-desktop
 
 # Full CI parity in Docker
 ./dev/ci.sh all
@@ -74,39 +74,39 @@ Pre-push hook opt-ins (set the env var to enable for one push):
 
 | Variable | Effect |
 |---|---|
-| `ZEROCLAW_STRICT_LINT=1` | Strict lint pass on the full repo |
-| `ZEROCLAW_DOCS_LINT=1` | Markdown gate on changed lines |
-| `ZEROCLAW_DOCS_LINKS=1` | Link check on added links only |
+| `CLAWCREW_STRICT_LINT=1` | Strict lint pass on the full repo |
+| `CLAWCREW_DOCS_LINT=1` | Markdown gate on changed lines |
+| `CLAWCREW_DOCS_LINKS=1` | Link check on added links only |
 
 Skip the hook for rapid iteration with `git push --no-verify`. CI runs the same checks regardless.
 
 ## Local secret management
 
-ZeroClaw supports layered secret management for local development.
+ClawCrew supports layered secret management for local development.
 
 **Storage options:**
 
 1. **Environment variables** (recommended for development) — copy `.env.example` to `.env` and fill in values. `.env` is git-ignored.
-2. **Config file** (`~/.zeroclaw/config.toml`) — when `secrets.encrypt = true` (default), values are encrypted with the key at `~/.zeroclaw/.secret_key`. Use `zeroclaw quickstart` for guided setup.
+2. **Config file** (`~/.clawcrew/config.toml`) — when `secrets.encrypt = true` (default), values are encrypted with the key at `~/.clawcrew/.secret_key`. Use `clawcrew quickstart` for guided setup.
 
 **API key resolution order:**
 
 1. Explicit key passed from config or CLI.
-2. `ZEROCLAW_<lowercase_dotted_path>` env-var override (lands on the in-memory `Config` at load time; see below).
+2. `CLAWCREW_<lowercase_dotted_path>` env-var override (lands on the in-memory `Config` at load time; see below).
 
-Set credentials in your config file (`~/.zeroclaw/config.toml` by default; custom workspaces override the path) under `[providers.models.<type>.<alias>]`, or inject at runtime via the V0.8.0 schema-mirror grammar:
+Set credentials in your config file (`~/.clawcrew/config.toml` by default; custom workspaces override the path) under `[providers.models.<type>.<alias>]`, or inject at runtime via the V0.8.0 schema-mirror grammar:
 
 ```sh
-ZEROCLAW_providers__models__anthropic__default__api_key=sk-ant-...
-ZEROCLAW_providers__models__openrouter__prod_v2__model=anthropic/claude-sonnet-4-6
-ZEROCLAW_gateway__request_timeout_secs=120
+CLAWCREW_providers__models__anthropic__default__api_key=sk-ant-...
+CLAWCREW_providers__models__openrouter__prod_v2__model=anthropic/claude-sonnet-4-6
+CLAWCREW_gateway__request_timeout_secs=120
 ```
 
-The lowercase tail mirrors the dotted TOML path 1:1; each `__` (double underscore) is a path separator (`.` in TOML) and each single `_` is either a snake-case joiner inside a field name (`api_key` → `api-key`) or a literal char inside an alias key (`prod_v2`). Aliases are `[a-z0-9][a-z0-9_]{0,62}` — lowercase letters, digits, and single underscores; no leading underscore, no hyphen, no uppercase. Bootstrap variables (`ZEROCLAW_WORKSPACE`, `ZEROCLAW_CONFIG_DIR`) keep their UPPERCASE form; the case rule disambiguates them from the schema-mirror surface.
+The lowercase tail mirrors the dotted TOML path 1:1; each `__` (double underscore) is a path separator (`.` in TOML) and each single `_` is either a snake-case joiner inside a field name (`api_key` → `api-key`) or a literal char inside an alias key (`prod_v2`). Aliases are `[a-z0-9][a-z0-9_]{0,62}` — lowercase letters, digits, and single underscores; no leading underscore, no hyphen, no uppercase. Bootstrap variables (`CLAWCREW_WORKSPACE`, `CLAWCREW_CONFIG_DIR`) keep their UPPERCASE form; the case rule disambiguates them from the schema-mirror surface.
 
-V0.8.0 eradicated every per-provider env-var fallback (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, …), the generic `ZEROCLAW_API_KEY` / `API_KEY`, and the legacy `ZEROCLAW_PROVIDER` / `PROVIDER` / `ZEROCLAW_MODEL` dispatchers. Legacy names have no runtime effect — they're silently ignored. See `docs/book/src/reference/env-vars.md` for the migration table and the `💉` visibility behavior.
+V0.8.0 eradicated every per-provider env-var fallback (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, …), the generic `CLAWCREW_API_KEY` / `API_KEY`, and the legacy `CLAWCREW_PROVIDER` / `PROVIDER` / `CLAWCREW_MODEL` dispatchers. Legacy names have no runtime effect — they're silently ignored. See `docs/book/src/reference/env-vars.md` for the migration table and the `💉` visibility behavior.
 
-**Never commit:** `.env`, API keys / tokens / passwords / OAuth tokens / webhook signing secrets, `~/.zeroclaw/.secret_key`, or any personal identifier in tests or fixtures. The full content discipline is in **[Privacy & PII](docs/book/src/contributing/privacy.md)**.
+**Never commit:** `.env`, API keys / tokens / passwords / OAuth tokens / webhook signing secrets, `~/.clawcrew/.secret_key`, or any personal identifier in tests or fixtures. The full content discipline is in **[Privacy & PII](docs/book/src/contributing/privacy.md)**.
 
 **Pre-commit secret scan.** `.githooks/pre-commit` runs `gitleaks protect --staged --redact` when `gitleaks` is installed; if it's not installed, the hook prints a warning and continues. Install one of:
 
@@ -154,7 +154,7 @@ For maintainer-facing content (PR workflow, reviewer playbook, release runbook, 
 
 ## Reporting
 
-- **Bugs** — use the bug template; include OS, `zeroclaw --version`, and `zeroclaw doctor` output.
+- **Bugs** — use the bug template; include OS, `clawcrew --version`, and `clawcrew doctor` output.
 - **Features** — use the feature template; focus on use case and constraints.
 - **Security** — see `SECURITY.md` for responsible disclosure. Do not file public issues for vulnerabilities.
 

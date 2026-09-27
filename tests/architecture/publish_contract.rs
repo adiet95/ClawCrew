@@ -24,9 +24,9 @@ use std::fs;
 use std::path::{Component, Path, PathBuf};
 use syn::visit::{self, Visit};
 
-/// The crate the world installs. Renamed from `zeroclawlabs` so that
-/// `cargo install zeroclaw` matches the binary name.
-const ROOT_PACKAGE: &str = "zeroclaw";
+/// The crate the world installs. Renamed from `clawcrewlabs` so that
+/// `cargo install clawcrew` matches the binary name.
+const ROOT_PACKAGE: &str = "clawcrew";
 
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -114,7 +114,7 @@ fn workspace_version() -> String {
         .to_owned()
 }
 
-/// Crates in the coordinated ZeroClaw release.
+/// Crates in the coordinated ClawCrew release.
 ///
 /// Independent-version workspace members (for example a hardware binding that
 /// is awaiting removal) are not silently pulled into a v0.8.x release merely
@@ -197,7 +197,7 @@ struct Include {
 ///
 /// Handles the four spellings that appear in this workspace. The naive "first
 /// string literal" scan this replaced silently missed the `concat!` form and let
-/// seven escaping includes through in `zeroclaw-hardware`; `bindgen!` was missed
+/// seven escaping includes through in `clawcrew-hardware`; `bindgen!` was missed
 /// in turn because it is not an `include_*` macro at all, yet reads a directory
 /// from disk at compile time exactly like one:
 ///
@@ -386,7 +386,7 @@ fn root_package_is_the_installable_crate() {
     assert!(
         root.publishable,
         "the root package must remain publishable; `publish = false` here silently \
-         removes ZeroClaw from crates.io"
+         removes ClawCrew from crates.io"
     );
 }
 
@@ -687,25 +687,25 @@ fn published_build_scripts_never_read_outside_their_package() {
 /// gitignored build output, so it cannot be in a registry tarball at all unless
 /// the crate grows a full `include` allowlist — no path fix helps. The feature is
 /// declared a non-user-selectable meta toggle in the root manifest's
-/// `[package.metadata.zeroclaw] non_row_features`, is off by default in both the
+/// `[package.metadata.clawcrew] non_row_features`, is off by default in both the
 /// gateway and the root crate, and its `build.rs` fails loudly with an actionable
 /// message ("run: cargo web build") rather than producing a broken binary. It is
 /// therefore source-checkout-only by design.
 ///
 /// Do not add entries here to silence a new violation — fix the include instead.
 const ESCAPE_EXCEPTIONS: &[(&str, &str)] = &[(
-    "crates/zeroclaw-gateway/src/static_files.rs",
+    "crates/clawcrew-gateway/src/static_files.rs",
     "../../web/dist",
 )];
 
 #[test]
 fn repo_relative_key_normalizes_windows_separators() {
     let root = Path::new("repository");
-    let source = root.join(r"crates\zeroclaw-gateway\src\static_files.rs");
+    let source = root.join(r"crates\clawcrew-gateway\src\static_files.rs");
 
     assert_eq!(
         repo_relative_key(&source, root),
-        "crates/zeroclaw-gateway/src/static_files.rs"
+        "crates/clawcrew-gateway/src/static_files.rs"
     );
 }
 
@@ -790,8 +790,8 @@ fn published_crates_never_include_files_outside_their_own_directory() {
          and then fails from the published tarball. Feature-gated ones are especially dangerous: \
          `cargo publish --dry-run` verifies default features only, so they pass preflight and \
          ship broken.\n\
-         Fix by including through an in-crate symlink (see crates/zeroclaw-hardware/firmware \
-         and crates/zeroclaw-tools/locales) rather than reaching up out of the crate.",
+         Fix by including through an in-crate symlink (see crates/clawcrew-hardware/firmware \
+         and crates/clawcrew-tools/locales) rather than reaching up out of the crate.",
         violations.join("\n"),
     );
 }

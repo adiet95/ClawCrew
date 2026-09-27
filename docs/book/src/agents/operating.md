@@ -12,7 +12,7 @@ On the CLI, the agent alias is required, there is no default agent:
 #### sh
 
 ```sh
-zeroclaw agent -a <alias> -m "hello"
+clawcrew agent -a <alias> -m "hello"
 ```
 
 </div>
@@ -62,7 +62,7 @@ files by hand.
 
 ## Operating multiple agents at once
 
-`zeroclaw daemon` brings up every enabled agent together, each answering on its
+`clawcrew daemon` brings up every enabled agent together, each answering on its
 own channels. Adding an agent is additive: define a new `[agents.<alias>]`
 block, wire its references, and it joins the running set, the existing agents
 are untouched.

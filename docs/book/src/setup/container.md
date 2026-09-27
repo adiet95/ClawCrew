@@ -1,14 +1,14 @@
 # Docker & Containers
 
-Run ZeroClaw in Docker, Podman, Kubernetes, or any OCI runtime.
+Run ClawCrew in Docker, Podman, Kubernetes, or any OCI runtime.
 
 ## Official images
 
 Pushed to GitHub Container Registry (`ghcr.io`) on every stable release:
 
-- `ghcr.io/zeroclaw-labs/zeroclaw:latest`: latest stable
-- `ghcr.io/zeroclaw-labs/zeroclaw:v0.7.5`: pinned
-- `ghcr.io/zeroclaw-labs/zeroclaw:debian`: Debian-based image (larger, broader glibc support)
+- `ghcr.io/clawcrew-labs/clawcrew:latest`: latest stable
+- `ghcr.io/clawcrew-labs/clawcrew:v0.7.5`: pinned
+- `ghcr.io/clawcrew-labs/clawcrew:debian`: Debian-based image (larger, broader glibc support)
 
 Multi-arch: `linux/amd64`, `linux/arm64`.
 
@@ -25,7 +25,7 @@ For the local platform:
 #### sh
 
 ```sh
-docker build -f Dockerfile.alpine -t zeroclaw:alpine .
+docker build -f Dockerfile.alpine -t clawcrew:alpine .
 ```
 
 </div>
@@ -37,10 +37,10 @@ For a multi-platform registry image, create a builder once and push the manifest
 #### sh
 
 ```sh
-docker buildx create --use --name zeroclaw-multiarch
+docker buildx create --use --name clawcrew-multiarch
 docker buildx build -f Dockerfile.alpine \
   --platform linux/amd64,linux/arm64 \
-  -t registry.example.com/zeroclaw:alpine \
+  -t registry.example.com/clawcrew:alpine \
   --push .
 ```
 
@@ -58,7 +58,7 @@ docker compose -f docker-compose.yml -f docker-compose.alpine.yml up --build
 
 </div>
 
-The Alpine image uses the same `/zeroclaw-data` mount, schema-mirror environment variables, dashboard path, and gateway port as the existing images.
+The Alpine image uses the same `/clawcrew-data` mount, schema-mirror environment variables, dashboard path, and gateway port as the existing images.
 
 ## Minimum run
 
@@ -68,10 +68,10 @@ The Alpine image uses the same `/zeroclaw-data` mount, schema-mirror environment
 
 ```sh
 docker run -d \
-  --name zeroclaw \
-  -v zeroclaw-data:/zeroclaw-data \
+  --name clawcrew \
+  -v clawcrew-data:/clawcrew-data \
   -p 42617:42617 \
-  ghcr.io/zeroclaw-labs/zeroclaw:latest
+  ghcr.io/clawcrew-labs/clawcrew:latest
 ```
 
 </div>
@@ -82,44 +82,44 @@ The official image already binds `[::]` with `allow_public_bind = true` and
 still pin both gateway bind settings so persisted or custom configs cannot
 silently restore a loopback-only listener.
 
-The image expects persistent state at `/zeroclaw-data`. On first run, it bootstraps a default config: you still need to run quickstart before it's useful:
+The image expects persistent state at `/clawcrew-data`. On first run, it bootstraps a default config: you still need to run quickstart before it's useful:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-docker exec -it zeroclaw zeroclaw quickstart
+docker exec -it clawcrew clawcrew quickstart
 ```
 
 </div>
 
 ## Running zerocode (the TUI)
 
-The image ships the [zerocode](../zerocode/overview.md) terminal interface alongside the `zeroclaw` binary. The default entrypoint is `zeroclaw`, so launch zerocode by overriding it with `--entrypoint zerocode` and an interactive TTY (`-it`). Both published image variants carry it:
+The image ships the [zerocode](../zerocode/overview.md) terminal interface alongside the `clawcrew` binary. The default entrypoint is `clawcrew`, so launch zerocode by overriding it with `--entrypoint zerocode` and an interactive TTY (`-it`). Both published image variants carry it:
 
 <div class="os-tabs-src">
 
 #### distroless (`:latest`)
 
 ```sh
-docker run -it --entrypoint zerocode ghcr.io/zeroclaw-labs/zeroclaw:latest
+docker run -it --entrypoint zerocode ghcr.io/clawcrew-labs/clawcrew:latest
 ```
 
 #### debian
 
 ```sh
-docker run -it --entrypoint zerocode ghcr.io/zeroclaw-labs/zeroclaw:debian
+docker run -it --entrypoint zerocode ghcr.io/clawcrew-labs/clawcrew:debian
 ```
 
 </div>
 
-zerocode connects to a running ZeroClaw daemon, so point it at one:
+zerocode connects to a running ClawCrew daemon, so point it at one:
 
-- **Same container's daemon:** run it against the container that already runs the daemon (`docker exec -it zeroclaw zerocode`), which reaches the daemon over the local IPC socket.
+- **Same container's daemon:** run it against the container that already runs the daemon (`docker exec -it clawcrew zerocode`), which reaches the daemon over the local IPC socket.
 - **A remote daemon:** connect over WebSocket Secure with `zerocode --connect wss://<host>:<port>`; see [Remote setup (WSS)](../zerocode/remote.md). This is the portable way to drive a containerized or remote daemon from your own terminal.
 
-Persist `/zeroclaw-data` (as in [Minimum run](#minimum-run)) so the config and identity zerocode reads are the same ones the daemon uses.
+Persist `/clawcrew-data` (as in [Minimum run](#minimum-run)) so the config and identity zerocode reads are the same ones the daemon uses.
 
 ## Compose
 
@@ -127,18 +127,18 @@ A minimal `docker-compose.yml`:
 
 ```yaml
 services:
-  zeroclaw:
-    image: ghcr.io/zeroclaw-labs/zeroclaw:latest
+  clawcrew:
+    image: ghcr.io/clawcrew-labs/clawcrew:latest
     restart: unless-stopped
     ports:
       - "127.0.0.1:42617:42617"      # gateway, host loopback only
     volumes:
-      - ./data:/zeroclaw-data
+      - ./data:/clawcrew-data
     environment:
       # host selects the container interface; allow_public_bind acknowledges
       # the non-loopback listener and silences the startup warning.
-      - ZEROCLAW_gateway__host=0.0.0.0
-      - ZEROCLAW_gateway__allow_public_bind=true
+      - CLAWCREW_gateway__host=0.0.0.0
+      - CLAWCREW_gateway__allow_public_bind=true
 ```
 
 After the container starts, run quickstart:
@@ -148,7 +148,7 @@ After the container starts, run quickstart:
 #### sh
 
 ```sh
-docker compose exec zeroclaw zeroclaw quickstart
+docker compose exec clawcrew clawcrew quickstart
 ```
 
 </div>
@@ -188,19 +188,19 @@ the container, use the current Debian image and bind a host data directory:
 
 ```yaml
 services:
-  zeroclaw:
-    image: ghcr.io/zeroclaw-labs/zeroclaw:debian
-    container_name: zeroclaw
+  clawcrew:
+    image: ghcr.io/clawcrew-labs/clawcrew:debian
+    container_name: clawcrew
     restart: unless-stopped
     ports:
       - "127.0.0.1:42617:42617"
     volumes:
-      - ./data:/zeroclaw-data
+      - ./data:/clawcrew-data
     environment:
-      - ZEROCLAW_gateway__host=0.0.0.0
-      - ZEROCLAW_gateway__allow_public_bind=true
+      - CLAWCREW_gateway__host=0.0.0.0
+      - CLAWCREW_gateway__allow_public_bind=true
     healthcheck:
-      test: ["CMD", "zeroclaw", "status", "--format=exit-code"]
+      test: ["CMD", "clawcrew", "status", "--format=exit-code"]
       interval: 60s
       timeout: 10s
       retries: 3
@@ -208,7 +208,7 @@ services:
 ```
 
 The current Debian image carries the packaged dashboard outside
-`/zeroclaw-data`, so the bind mount does not hide it and no
+`/clawcrew-data`, so the bind mount does not hide it and no
 `gateway.web_dist_dir` override is needed. The gateway overrides use the
 schema-mirror spellings shown by {{#env-var-name gateway.host}} and
 {{#env-var-name gateway.allow_public_bind}}. They take precedence over a
@@ -255,20 +255,20 @@ A quadlet is a `*.container` file (siblings: `.pod`, `.volume`, `.network`, `.ku
 
 Rootful units live in `/etc/containers/systemd/`; rootless in `~/.config/containers/systemd/`.
 
-`/etc/containers/systemd/zeroclaw.container`:
+`/etc/containers/systemd/clawcrew.container`:
 
 ```ini
 [Unit]
-Description=ZeroClaw agent runtime
+Description=ClawCrew agent runtime
 After=network-online.target
 Wants=network-online.target
 
 [Container]
 # Pin a release in production; :latest is distroless (no shell — use :debian to exec a shell).
-Image=ghcr.io/zeroclaw-labs/zeroclaw:latest
-ContainerName=zeroclaw
+Image=ghcr.io/clawcrew-labs/clawcrew:latest
+ContainerName=clawcrew
 PublishPort=127.0.0.1:42617:42617
-Volume=zeroclaw-data:/zeroclaw-data
+Volume=clawcrew-data:/clawcrew-data
 # Published on host loopback only; drop the 127.0.0.1: prefix to serve other
 # hosts, and enable pairing or a tunnel before you do. If you mount a
 # localhost-default config, override both gateway.host and
@@ -291,9 +291,9 @@ Deploy (idempotent, safe to re-run; re-applying converges the running container,
 #### sh
 
 ```sh
-sudo cp zeroclaw.container /etc/containers/systemd/
-sudo systemctl daemon-reload      # generator turns .container into zeroclaw.service
-sudo systemctl restart zeroclaw
+sudo cp clawcrew.container /etc/containers/systemd/
+sudo systemctl daemon-reload      # generator turns .container into clawcrew.service
+sudo systemctl restart clawcrew
 ```
 
 </div>
@@ -305,33 +305,33 @@ Then onboard once, and manage it like any service:
 #### sh
 
 ```sh
-sudo podman exec -it zeroclaw zeroclaw quickstart
-systemctl status zeroclaw
-journalctl -u zeroclaw -f
+sudo podman exec -it clawcrew clawcrew quickstart
+systemctl status clawcrew
+journalctl -u clawcrew -f
 ```
 
 </div>
 
 There is no `systemctl enable` step for generated units: the `[Install] WantedBy=` line is what brings it up on boot.
 
-- **Version pinning vs `:latest`.** Pin a tag or digest (`Image=ghcr.io/zeroclaw-labs/zeroclaw:v0.7.5` or `...@sha256:...`) for reproducible, auditable deploys; upgrading is then a reviewable tag bump in the committed `.container` file. `Pull=newer` + `AutoUpdate=registry` instead give rolling upgrades, driven by `podman-auto-update.timer` (`sudo systemctl enable --now podman-auto-update.timer`). Pick reproducibility or currency; the deploy loop is the same either way.
-- **Rootless variant.** Drop the file in `~/.config/containers/systemd/`, use `systemctl --user daemon-reload && systemctl --user restart zeroclaw`, and run `loginctl enable-linger $USER` so it survives logout (same lingering note as [Service & daemon](../ops/service.md)).
+- **Version pinning vs `:latest`.** Pin a tag or digest (`Image=ghcr.io/clawcrew-labs/clawcrew:v0.7.5` or `...@sha256:...`) for reproducible, auditable deploys; upgrading is then a reviewable tag bump in the committed `.container` file. `Pull=newer` + `AutoUpdate=registry` instead give rolling upgrades, driven by `podman-auto-update.timer` (`sudo systemctl enable --now podman-auto-update.timer`). Pick reproducibility or currency; the deploy loop is the same either way.
+- **Rootless variant.** Drop the file in `~/.config/containers/systemd/`, use `systemctl --user daemon-reload && systemctl --user restart clawcrew`, and run `loginctl enable-linger $USER` so it survives logout (same lingering note as [Service & daemon](../ops/service.md)).
 - **WSL2.** Modern WSL2 runs systemd (`[boot] systemd=true` in `/etc/wsl.conf`, then `wsl --shutdown`), so this exact quadlet pattern works inside a WSL distro: no Windows-specific dialect.
 
 ## Config inside containers
 
-The image expects config under `/zeroclaw-data/.zeroclaw/`. Mount your local config in:
+The image expects config under `/clawcrew-data/.clawcrew/`. Mount your local config in:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-docker run -d --name zeroclaw \
-  -v $(pwd)/my-config.toml:/zeroclaw-data/.zeroclaw/config.toml:ro \
-  -v zeroclaw-state:/zeroclaw-data/workspace \
+docker run -d --name clawcrew \
+  -v $(pwd)/my-config.toml:/clawcrew-data/.clawcrew/config.toml:ro \
+  -v clawcrew-state:/clawcrew-data/workspace \
   -p 42617:42617 \
-  ghcr.io/zeroclaw-labs/zeroclaw:latest
+  ghcr.io/clawcrew-labs/clawcrew:latest
 ```
 
 </div>
@@ -357,37 +357,37 @@ Configure a tunnel by setting the top-level `[tunnel]` `tunnel_provider` (overri
 
 ## Kubernetes
 
-Sample Kubernetes manifests are provided in the [`deploy-k8s/`](https://github.com/zeroclaw-labs/zeroclaw/tree/master/deploy-k8s) directory. Typical manifest fragment:
+Sample Kubernetes manifests are provided in the [`deploy-k8s/`](https://github.com/clawcrew-labs/clawcrew/tree/master/deploy-k8s) directory. Typical manifest fragment:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: zeroclaw
+  name: clawcrew
 spec:
   replicas: 1
   strategy:
-    type: Recreate         # ZeroClaw is single-instance per workspace
+    type: Recreate         # ClawCrew is single-instance per workspace
   template:
     spec:
       containers:
-        - name: zeroclaw
-          image: ghcr.io/zeroclaw-labs/zeroclaw:v0.7.5
+        - name: clawcrew
+          image: ghcr.io/clawcrew-labs/clawcrew:v0.7.5
           ports:
             - containerPort: 42617
           volumeMounts:
             - name: data
-              mountPath: /zeroclaw-data
+              mountPath: /clawcrew-data
           # `containerPort` does not publish to the host; a Service or Ingress
           # governs exposure here. If you mount a localhost-default config,
           # override both gateway.host and gateway.allow_public_bind together.
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: zeroclaw-data
+            claimName: clawcrew-data
 ```
 
-**Scaling:** ZeroClaw is single-writer per workspace. Don't scale horizontally; run one instance per agent.
+**Scaling:** ClawCrew is single-writer per workspace. Don't scale horizontally; run one instance per agent.
 
 ## Re-authenticating after logout
 
@@ -398,7 +398,7 @@ If you log out of the web UI while running in a container, the existing paircode
 #### sh
 
 ```sh
-docker exec -it zeroclaw zeroclaw gateway get-paircode --new
+docker exec -it clawcrew clawcrew gateway get-paircode --new
 ```
 
 </div>
@@ -410,7 +410,7 @@ For Compose deployments, use `docker compose exec` instead:
 #### sh
 
 ```sh
-docker compose exec zeroclaw zeroclaw gateway get-paircode --new
+docker compose exec clawcrew clawcrew gateway get-paircode --new
 ```
 
 </div>
@@ -419,8 +419,8 @@ docker compose exec zeroclaw zeroclaw gateway get-paircode --new
 
 - **macOS hostname quirks (Docker Desktop, colima, Rancher Desktop).** `host.docker.internal` works out of the box on **Docker Desktop** for macOS. On **colima**, it is only reachable if you installed with `colima start --network-address` (otherwise the container can't see the host at all; connect via the VM's gateway IP, usually `192.168.5.2`, or tunnel through a shared network). **Rancher Desktop** behaves like Docker Desktop for recent versions but has had `host.docker.internal` resolve-failures on older releases. If provider calls fail with `connection refused` to `host.docker.internal`, verify with `docker run --rm alpine getent hosts host.docker.internal`: empty output means the hostname isn't resolvable and you need an explicit IP.
 - **Host-side services.** If a provider is Ollama on the host, `uri = "http://host.docker.internal:11434"` (under `[providers.models.ollama.<alias>]`) works on Docker Desktop. On Linux Docker you may need `--add-host=host.docker.internal:host-gateway`.
-- **Memory persistence.** Agent memory (the SQLite `brain.db`) lives under the config directory at `/zeroclaw-data/.zeroclaw/agents/<alias>/workspace/memory/`, with shared instance databases under `/zeroclaw-data/data/`. Mounting `/zeroclaw-data` persists all of it; skip the volume and every restart loses conversation history.
-- **Bind-mounting `/zeroclaw-data`.** A host bind mount on `/zeroclaw-data` replaces the entire image directory, including the default config and (previously) the dashboard bundle. The dashboard is now installed at `/usr/share/zeroclawlabs/web/dist`, outside the mount, so a bind mount no longer hides it. On first run, mount an empty host directory and the container bootstraps a fresh config; the gateway auto-detects the dashboard from its image path.
+- **Memory persistence.** Agent memory (the SQLite `brain.db`) lives under the config directory at `/clawcrew-data/.clawcrew/agents/<alias>/workspace/memory/`, with shared instance databases under `/clawcrew-data/data/`. Mounting `/clawcrew-data` persists all of it; skip the volume and every restart loses conversation history.
+- **Bind-mounting `/clawcrew-data`.** A host bind mount on `/clawcrew-data` replaces the entire image directory, including the default config and (previously) the dashboard bundle. The dashboard is now installed at `/usr/share/clawcrewlabs/web/dist`, outside the mount, so a bind mount no longer hides it. On first run, mount an empty host directory and the container bootstraps a fresh config; the gateway auto-detects the dashboard from its image path.
 - **No hardware passthrough by default.** GPIO / USB need explicit `--device` flags (`--device /dev/ttyUSB0`), and the container user needs matching GID for `dialout`/`gpio` groups.
 
 ## Next

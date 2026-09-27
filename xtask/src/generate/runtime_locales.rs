@@ -3,7 +3,7 @@
 //! `locales.toml` stays the single place a locale is added. The runtime used to
 //! embed it with `include_str!("../../../locales.toml")`, which reaches outside
 //! the crate directory. `cargo package` copies only the package directory, so
-//! that read makes `zeroclaw-runtime` unpublishable. Generating a committed
+//! that read makes `clawcrew-runtime` unpublishable. Generating a committed
 //! table inside the crate keeps the registry canonical while putting the data
 //! where packaging can see it, the same trade the installer surfaces make.
 

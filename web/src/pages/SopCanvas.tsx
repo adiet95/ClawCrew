@@ -25,7 +25,7 @@ import {
 type XY = { x: number; y: number };
 
 // Node box dimensions read from the shared geometry registry
-// (`zeroclaw-sop-graph::LayoutGeometry`). Per-graph placement pitch/origin come
+// (`clawcrew-sop-graph::LayoutGeometry`). Per-graph placement pitch/origin come
 // off `graph.layout.geometry` in seedPositions; the box size is fixed-canonical
 // and only drives local rendering math, so it binds to the canonical fallback.
 const NODE_W = CANONICAL_LAYOUT_GEOMETRY.node_w;

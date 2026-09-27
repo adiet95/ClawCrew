@@ -162,7 +162,7 @@ fn patch_page(
         ));
     }
     block.push_str(&format!(
-        "        <meta property=\"og:type\" content=\"article\">\n        <meta property=\"og:site_name\" content=\"ZeroClaw Docs\">\n        <meta property=\"og:title\" content=\"{t}\">\n        <meta property=\"og:description\" content=\"{d}\">\n        <meta property=\"og:url\" content=\"{u}\">\n        <meta name=\"twitter:card\" content=\"summary\">\n        <meta name=\"twitter:title\" content=\"{t}\">\n        <meta name=\"twitter:description\" content=\"{d}\">\n",
+        "        <meta property=\"og:type\" content=\"article\">\n        <meta property=\"og:site_name\" content=\"ClawCrew Docs\">\n        <meta property=\"og:title\" content=\"{t}\">\n        <meta property=\"og:description\" content=\"{d}\">\n        <meta property=\"og:url\" content=\"{u}\">\n        <meta name=\"twitter:card\" content=\"summary\">\n        <meta name=\"twitter:title\" content=\"{t}\">\n        <meta name=\"twitter:description\" content=\"{d}\">\n",
         t = escape(&title),
         d = escape(&description),
         u = escape(&canonical)
@@ -400,7 +400,7 @@ fn sitemap_xml(site: &str, urls: &[String]) -> String {
 mod tests {
     use super::*;
 
-    const PAGE: &str = "<!DOCTYPE HTML>\n<html lang=\"en\">\n    <head>\n        <title>Introduction - ZeroClaw Docs</title>\n        <meta name=\"description\" content=\"Documentation for the ZeroClaw personal AI assistant.\">\n    </head>\n    <body>\n        <main>\n            <h1>Introduction</h1>\n            <p>ZeroClaw is an <strong>agent runtime</strong> &amp; a single Rust binary you run yourself.</p>\n        </main>\n    </body>\n</html>\n";
+    const PAGE: &str = "<!DOCTYPE HTML>\n<html lang=\"en\">\n    <head>\n        <title>Introduction - ClawCrew Docs</title>\n        <meta name=\"description\" content=\"Documentation for the ClawCrew personal AI assistant.\">\n    </head>\n    <body>\n        <main>\n            <h1>Introduction</h1>\n            <p>ClawCrew is an <strong>agent runtime</strong> &amp; a single Rust binary you run yourself.</p>\n        </main>\n    </body>\n</html>\n";
 
     fn page_with_block() -> String {
         let placement = Placement {
@@ -437,10 +437,10 @@ mod tests {
             "hreflang=\"x-default\" href=\"https://docs.example/v0.8.5/en/introduction.html\""
         ));
         assert!(out.contains(
-            "<meta name=\"description\" content=\"ZeroClaw is an agent runtime &amp; a single Rust binary you run yourself.\">"
+            "<meta name=\"description\" content=\"ClawCrew is an agent runtime &amp; a single Rust binary you run yourself.\">"
         ));
         assert!(
-            out.contains("<meta property=\"og:title\" content=\"Introduction - ZeroClaw Docs\">")
+            out.contains("<meta property=\"og:title\" content=\"Introduction - ClawCrew Docs\">")
         );
         assert!(!out.contains("noindex"));
         // The block sits inside <head>.

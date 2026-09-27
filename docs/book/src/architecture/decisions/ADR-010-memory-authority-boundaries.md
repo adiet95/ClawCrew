@@ -7,15 +7,15 @@ relates-to:
   - ADR-005
   - docs/book/src/foundations/fnd-002-documentation-standards.md
   - docs/book/src/architecture/memory-payload-lifecycle.md
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/9048
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/9103
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/6850
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/9072
-  - crates/zeroclaw-api/src/memory_traits.rs
-  - crates/zeroclaw-memory
-  - crates/zeroclaw-infra/src/session_backend.rs
-  - crates/zeroclaw-infra/src/session_store.rs
-  - crates/zeroclaw-infra/src/acp_session_store.rs
+  - https://github.com/clawcrew-labs/clawcrew/issues/9048
+  - https://github.com/clawcrew-labs/clawcrew/issues/9103
+  - https://github.com/clawcrew-labs/clawcrew/issues/6850
+  - https://github.com/clawcrew-labs/clawcrew/pull/9072
+  - crates/clawcrew-api/src/memory_traits.rs
+  - crates/clawcrew-memory
+  - crates/clawcrew-infra/src/session_backend.rs
+  - crates/clawcrew-infra/src/session_store.rs
+  - crates/clawcrew-infra/src/acp_session_store.rs
 ---
 
 # ADR-010: Separate Conversation History, Curated Memory, And Enrichment Authority
@@ -26,9 +26,9 @@ relates-to:
 
 Current runtime, gateway, and channel paths can persist conversation turns both in session stores and as `MemoryCategory::Conversation` entries. That gives one transcript two possible owners with different retention, recall, export, deletion, and scoping behavior. An old conversation row can also re-enter a later prompt as if it were curated cross-session knowledge.
 
-External integrations create a second authority risk. A connector can improve search or supply derived context, but treating its index as another durable store allows connector state, outages, or weaker scoping to compete with ZeroClaw's canonical data.
+External integrations create a second authority risk. A connector can improve search or supply derived context, but treating its index as another durable store allows connector state, outages, or weaker scoping to compete with ClawCrew's canonical data.
 
-Accepted RFCs [#9048](https://github.com/zeroclaw-labs/zeroclaw/issues/9048) and [#9103](https://github.com/zeroclaw-labs/zeroclaw/issues/9103) resolve these questions together. This record extends ADR-005 without rewriting it: the backend-neutral `Memory` contract and SQLite default remain valid, while this ADR assigns authority to session history, curated memory, and enrichment separately.
+Accepted RFCs [#9048](https://github.com/clawcrew-labs/clawcrew/issues/9048) and [#9103](https://github.com/clawcrew-labs/clawcrew/issues/9103) resolve these questions together. This record extends ADR-005 without rewriting it: the backend-neutral `Memory` contract and SQLite default remain valid, while this ADR assigns authority to session history, curated memory, and enrichment separately.
 
 ## Decision
 
@@ -44,7 +44,7 @@ When current input or session history conflicts with curated memory, the current
 
 Agent-curated long-term memory contains selected facts, preferences, decisions, conventions, and learned procedures that are intentionally retained across sessions. Writes must be deliberate or produced by an explicit bounded consolidation policy, preserve useful provenance, and retain every applicable agent, session, tenant, and principal boundary.
 
-Curated memory uses the backend-neutral `Memory` contract from ADR-005. A configured backend is the authoritative durable store for that memory. Prompt assembly, consolidation, governance, and feedback remain lifecycle-policy concerns above the storage implementation; issue [#6850](https://github.com/zeroclaw-labs/zeroclaw/issues/6850) tracks that boundary.
+Curated memory uses the backend-neutral `Memory` contract from ADR-005. A configured backend is the authoritative durable store for that memory. Prompt assembly, consolidation, governance, and feedback remain lifecycle-policy concerns above the storage implementation; issue [#6850](https://github.com/clawcrew-labs/clawcrew/issues/6850) tracks that boundary.
 
 This ADR does not decide whether per-agent Markdown is the canonical operator-visible curated-memory representation or a projection of another configured backend. That remains a separate implementation decision; no second durable authority may be introduced implicitly.
 
@@ -98,12 +98,12 @@ Negative consequences:
 - [ADR-005: Memory storage is backend-neutral with SQLite as the default](./ADR-005-pluggable-memory-backends.md)
 - [FND-002: Documentation standards](../../foundations/fnd-002-documentation-standards.md)
 - [Memory and payload lifecycle](../memory-payload-lifecycle.md)
-- [RFC #9048: Separate conversation history from agent-curated long-term memory](https://github.com/zeroclaw-labs/zeroclaw/issues/9048)
-- [RFC #9103: Separate authoritative memory storage from optional enrichment connectors](https://github.com/zeroclaw-labs/zeroclaw/issues/9103)
-- [Memory lifecycle policy #6850](https://github.com/zeroclaw-labs/zeroclaw/issues/6850)
-- [Enrichment implementation PR #9072](https://github.com/zeroclaw-labs/zeroclaw/pull/9072)
-- `crates/zeroclaw-api/src/memory_traits.rs`
-- `crates/zeroclaw-memory`
-- `crates/zeroclaw-infra/src/session_backend.rs`
-- `crates/zeroclaw-infra/src/session_store.rs`
-- `crates/zeroclaw-infra/src/acp_session_store.rs`
+- [RFC #9048: Separate conversation history from agent-curated long-term memory](https://github.com/clawcrew-labs/clawcrew/issues/9048)
+- [RFC #9103: Separate authoritative memory storage from optional enrichment connectors](https://github.com/clawcrew-labs/clawcrew/issues/9103)
+- [Memory lifecycle policy #6850](https://github.com/clawcrew-labs/clawcrew/issues/6850)
+- [Enrichment implementation PR #9072](https://github.com/clawcrew-labs/clawcrew/pull/9072)
+- `crates/clawcrew-api/src/memory_traits.rs`
+- `crates/clawcrew-memory`
+- `crates/clawcrew-infra/src/session_backend.rs`
+- `crates/clawcrew-infra/src/session_store.rs`
+- `crates/clawcrew-infra/src/acp_session_store.rs`

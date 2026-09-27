@@ -226,7 +226,7 @@ path = pathlib.Path(sys.argv[1])
 report = json.loads(path.read_text(encoding="utf-8"))
 profile = next(item for item in report["profiles"] if item["id"] == "hardware-probe")
 profile["enabled_features"] = [
-    item for item in profile["enabled_features"] if item["name"] != "zeroclaw-tools"
+    item for item in profile["enabled_features"] if item["name"] != "clawcrew-tools"
 ]
 profile["counts"]["enabled_features"] -= 1
 path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -376,14 +376,14 @@ done
 [[ "$format" == $'{p}\tfeatures:{f}' ]] || exit 97
 [[ "$target" == "${FAKE_EXPECT_TARGET:-}" ]] || exit 98
 case "${package}|${no_default}|${features}" in
-    'zeroclaw|true|') profile=foundation ;;
-    'zeroclaw|true|agent-runtime') profile=agent-runtime ;;
-    'zeroclaw|false|') profile=root-default ;;
-    'zeroclaw|true|agent-runtime,channel-matrix') profile=standard-distribution ;;
-    'zeroclaw|true|ci-all') profile=ci-all ;;
-    'zeroclaw|true|agent-runtime,probe,zeroclaw-tools/probe') profile=hardware-probe ;;
-    'zeroclaw-channels|true|') profile=channels-minimal ;;
-    'zeroclaw-channels|false|') profile=channels-default ;;
+    'clawcrew|true|') profile=foundation ;;
+    'clawcrew|true|agent-runtime') profile=agent-runtime ;;
+    'clawcrew|false|') profile=root-default ;;
+    'clawcrew|true|agent-runtime,channel-matrix') profile=standard-distribution ;;
+    'clawcrew|true|ci-all') profile=ci-all ;;
+    'clawcrew|true|agent-runtime,probe,clawcrew-tools/probe') profile=hardware-probe ;;
+    'clawcrew-channels|true|') profile=channels-minimal ;;
+    'clawcrew-channels|false|') profile=channels-default ;;
     *) exit 99 ;;
 esac
 [[ "$profile" != "${FAKE_CARGO_FAIL_PROFILE:-}" ]] || exit 100
@@ -646,7 +646,7 @@ assert_contains "$test_root/duplicate.err" 'duplicate capture files'
 cp -R "$fixture_root/raw" "$test_root/raw-truncated"
 replace_text \
     "$test_root/raw-truncated/hardware-probe.tree" \
-    $'zeroclaw v0.8.4\tfeatures:agent-runtime,probe' \
+    $'clawcrew v0.8.4\tfeatures:agent-runtime,probe' \
     $'other-root v0.8.4\tfeatures:agent-runtime,probe'
 set +e
 run_normalize "$test_root/raw-truncated" "$test_root/should-not-exist.json" 2>"$test_root/truncated.err"
@@ -658,8 +658,8 @@ assert_contains "$test_root/truncated.err" 'selected root package'
 cp -R "$fixture_root/raw" "$test_root/raw-forwarding"
 replace_text \
     "$test_root/raw-forwarding/hardware-probe.tree" \
-    $'zeroclaw-tools v0.8.4\tfeatures:probe' \
-    $'zeroclaw-tools v0.8.4\tfeatures:'
+    $'clawcrew-tools v0.8.4\tfeatures:probe' \
+    $'clawcrew-tools v0.8.4\tfeatures:'
 set +e
 run_normalize "$test_root/raw-forwarding" "$test_root/should-not-exist.json" 2>"$test_root/forwarding.err"
 status=$?

@@ -4,13 +4,13 @@ title: First-party extension surfaces use trait contracts
 date: 2026-07-04
 status: accepted
 relates-to:
-  - crates/zeroclaw-api/src/model_provider.rs
-  - crates/zeroclaw-api/src/channel.rs
-  - crates/zeroclaw-api/src/tool.rs
-  - crates/zeroclaw-api/src/memory_traits.rs
-  - crates/zeroclaw-api/src/observability_traits.rs
-  - crates/zeroclaw-api/src/runtime_traits.rs
-  - crates/zeroclaw-api/src/peripherals_traits.rs
+  - crates/clawcrew-api/src/model_provider.rs
+  - crates/clawcrew-api/src/channel.rs
+  - crates/clawcrew-api/src/tool.rs
+  - crates/clawcrew-api/src/memory_traits.rs
+  - crates/clawcrew-api/src/observability_traits.rs
+  - crates/clawcrew-api/src/runtime_traits.rs
+  - crates/clawcrew-api/src/peripherals_traits.rs
   - docs/book/src/architecture/crates.md
   - docs/book/src/developing/tool-inventory.md
 ---
@@ -24,12 +24,12 @@ architecture docs.
 
 This record was drafted from
 [FND-002 §6.3](../../foundations/fnd-002-documentation-standards.md#63-foundational-adr-backlog),
-the current `zeroclaw-api` trait surfaces, and the crate and
+the current `clawcrew-api` trait surfaces, and the crate and
 tool-boundary docs. It was not recovered from an older ADR file.
 
 ## Context
 
-ZeroClaw needs many extension families: model providers, messaging
+ClawCrew needs many extension families: model providers, messaging
 channels, tools, memory backends, observability sinks, runtime adapters,
 and hardware peripherals. Each family has different IO, error,
 configuration, security, and lifecycle constraints, but each must still
@@ -42,7 +42,7 @@ channels, tool policy would leak into providers, channel authentication
 would leak into the agent loop, and memory or logging behavior would be
 copied across unrelated crates.
 
-The repository already uses `zeroclaw-api` as the public contract layer.
+The repository already uses `clawcrew-api` as the public contract layer.
 The architecture docs describe that crate as the kernel ABI and state
 that the runtime depends on traits rather than concrete
 implementations.
@@ -50,7 +50,7 @@ implementations.
 ## Decision
 
 First-party extension families use explicit Rust trait contracts in
-`zeroclaw-api` and are wired through the existing factory, registry,
+`clawcrew-api` and are wired through the existing factory, registry,
 composition, or host-provided boundary for that surface.
 
 The primary contracts include:
@@ -108,10 +108,10 @@ Follow-up decisions:
 - [Architecture: Crates](../crates.md)
 - [Built-in tool inventory](../../developing/tool-inventory.md)
 - [Plugin protocol](../../developing/plugin-protocol.md)
-- `crates/zeroclaw-api/src/model_provider.rs`
-- `crates/zeroclaw-api/src/channel.rs`
-- `crates/zeroclaw-api/src/tool.rs`
-- `crates/zeroclaw-api/src/memory_traits.rs`
-- `crates/zeroclaw-api/src/observability_traits.rs`
-- `crates/zeroclaw-api/src/runtime_traits.rs`
-- `crates/zeroclaw-api/src/peripherals_traits.rs`
+- `crates/clawcrew-api/src/model_provider.rs`
+- `crates/clawcrew-api/src/channel.rs`
+- `crates/clawcrew-api/src/tool.rs`
+- `crates/clawcrew-api/src/memory_traits.rs`
+- `crates/clawcrew-api/src/observability_traits.rs`
+- `crates/clawcrew-api/src/runtime_traits.rs`
+- `crates/clawcrew-api/src/peripherals_traits.rs`
