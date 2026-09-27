@@ -1,15 +1,8 @@
 import os
-import shutil
 from PIL import Image
 
-logo_path = r"C:\Users\adiet\.gemini\antigravity\brain\7c9b6e8b-fc91-41cf-91b5-5c772f2874f2\clawcrew_logo_notext_1790505530947.jpg"
-img = Image.open(logo_path).convert("RGBA")
-
-# Ensure transparent background if possible (or just keep it as is, it's white)
-# Actually, the user's generated image is JPG, so no alpha channel.
-# Let's save a base PNG version.
 base_png_path = "base_logo.png"
-img.save(base_png_path, "PNG")
+img = Image.open(base_png_path).convert("RGBA")
 
 # Let's define the paths and target sizes for icons
 tauri_icons_dir = os.path.join("apps", "tauri", "icons")
@@ -40,9 +33,9 @@ icons_to_replace = [
     (os.path.join(web_dist_dir, "logo.png"), (512, 512)),
     
     # Docs
-    (os.path.join(docs_assets_dir, "zeroclaw-image.png"), (512, 512)),
-    (os.path.join(docs_assets_dir, "zeroclaw.png"), (512, 512)),
-    (os.path.join(docs_assets_dir, "zeroclaw-banner.png"), (800, 400)), # Resized for banner
+    (os.path.join(docs_assets_dir, "clawcrew-image.png"), (512, 512)),
+    (os.path.join(docs_assets_dir, "clawcrew.png"), (512, 512)),
+    # banner is already generated specifically by create_logo.py
 ]
 
 for path, size in icons_to_replace:
@@ -57,13 +50,10 @@ if os.path.exists(ico_path):
     img.save(ico_path, format="ICO", sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
     print(f"Replaced {ico_path}")
 
-# For .icns file, just use the png as icns is macOS and hard to generate from python without specific libraries.
-# Usually Tauri falls back to png or ico if we just replace the icon.png. But let's copy the base png to icon.icns as a hack, or just leave it for now.
-# Actually, pillow can't save .icns natively. We will leave it or overwrite with png hoping mac understands it.
 
 # GitHub assets
 gh_assets = [
-    os.path.join(".github", "assets", "zeroclaw-logo.png"),
+    os.path.join(".github", "assets", "clawcrew-logo.png"),
 ]
 for p in gh_assets:
     if os.path.exists(p):
