@@ -1,13 +1,13 @@
 # MCP
 
-ZeroClaw is an MCP client: it connects to external [Model Context Protocol](https://modelcontextprotocol.io) servers and exposes their tools to the agent. Each MCP tool is namespaced as `<server>__<tool>` (for example `filesystem__read_file`), so tools from different servers never collide.
+ClawCrew is an MCP client: it connects to external [Model Context Protocol](https://modelcontextprotocol.io) servers and exposes their tools to the agent. Each MCP tool is namespaced as `<server>__<tool>` (for example `filesystem__read_file`), so tools from different servers never collide.
 
 ## Configure MCP
 
-MCP support is enabled by default, but no external MCP tools are exposed until at least one server is configured under `mcp.servers` and an agent is granted that server through its `mcp_bundles` (see Per-agent server scoping below). Configure through the gateway, zerocode, or `zeroclaw config set`:
+MCP support is enabled by default, but no external MCP tools are exposed until at least one server is configured under `mcp.servers` and an agent is granted that server through its `mcp_bundles` (see Per-agent server scoping below). Configure through the gateway, zerocode, or `clawcrew config set`:
 
 ```sh
-zeroclaw config set mcp.servers.filesystem.command npx
+clawcrew config set mcp.servers.filesystem.command npx
 ```
 
 Set `mcp.enabled = false` to disable MCP tool loading without removing server definitions.
@@ -48,13 +48,13 @@ A server is reached over one of three transports (the `transport` field):
 
 `env` (stdio) and `headers` (http/sse) are stored as secrets; `headers` commonly carries the `Authorization: Bearer …` token for the upstream server.
 
-Add a server through the gateway, zerocode, or `zeroclaw config set` (for example `zeroclaw config set mcp.servers.filesystem.command npx`). A stdio server needs `command` plus optional `args`/`env`; an http/sse server needs `url` plus optional `headers`. The per-field commands are in the field table below.
+Add a server through the gateway, zerocode, or `clawcrew config set` (for example `clawcrew config set mcp.servers.filesystem.command npx`). A stdio server needs `command` plus optional `args`/`env`; an http/sse server needs `url` plus optional `headers`. The per-field commands are in the field table below.
 
 ### Example: Parallel Search
 
 [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp)
 provides public web search and page extraction without a Parallel account or API
-key. Free access is rate limited. Its Streamable HTTP endpoint uses ZeroClaw's
+key. Free access is rate limited. Its Streamable HTTP endpoint uses ClawCrew's
 `http` transport:
 
 ```toml
@@ -62,7 +62,7 @@ key. Free access is rate limited. Its Streamable HTTP endpoint uses ZeroClaw's
 name = "parallel"
 transport = "http"
 url = "https://search.parallel.ai/mcp"
-headers = { "User-Agent" = "ZeroClaw" }
+headers = { "User-Agent" = "ClawCrew" }
 
 [mcp_bundles.web]
 servers = ["parallel"]
@@ -71,10 +71,10 @@ servers = ["parallel"]
 mcp_bundles = ["web"]
 ```
 
-The `User-Agent` identifies ZeroClaw project-wide so Parallel can measure
+The `User-Agent` identifies ClawCrew project-wide so Parallel can measure
 aggregate integration usage to understand adoption and support it. Keep this
 header on HTTP requests if the transport changes. Preserve existing headers;
-if you already set a `User-Agent`, append `ZeroClaw` to its existing project and
+if you already set a `User-Agent`, append `ClawCrew` to its existing project and
 HTTP client tokens instead of replacing them.
 
 Merge these entries into your existing `config.toml`, using the alias of the
@@ -118,7 +118,7 @@ file is a hard connection error for that server. The path must resolve to a
 regular file no larger than 1 MiB. Symlinks are followed, so certificate
 rotation and mounted-secret layouts that publish the bundle through a symlink
 work as configured; the resolved file is validated after it is opened, and a
-symlink that resolves to a directory, device, or FIFO is rejected. ZeroClaw
+symlink that resolves to a directory, device, or FIFO is rejected. ClawCrew
 never disables verification or silently
 falls back when this field is set. The configured server URL and any message
 endpoint advertised by an SSE server must use `https://`; plaintext URLs and
@@ -189,7 +189,7 @@ See [Autonomy levels](../security/autonomy.md) for the full per-profile field su
 
 ## MCP Resources and Prompts
 
-In addition to MCP **tools**, ZeroClaw exposes MCP **resources** and **prompts**
+In addition to MCP **tools**, ClawCrew exposes MCP **resources** and **prompts**
 from connected servers.
 
 ### Tools
@@ -211,7 +211,7 @@ against them return a clear "does not support" error.
 Each MCP server entry accepts an optional `pinned_resources` field: a list of
 resource URIs to read once at startup and inject into the system prompt. Set it
 through the same config surfaces used to define the server (the gateway, zerocode,
-or `zeroclaw config set`, as shown under [Configure MCP](#configure-mcp)), naming
+or `clawcrew config set`, as shown under [Configure MCP](#configure-mcp)), naming
 the resources you want the agent to always have on hand. The field defaults to
 empty, so servers without it are unaffected.
 
@@ -221,7 +221,7 @@ Pinned content is read once per run (no live refresh) and is labeled
 ### Embedded resource blobs in tool results
 
 When an MCP `tools/call` result includes a content item shaped as
-`type: "resource"` with a nested `blob` (base64), ZeroClaw does **not** dump that
+`type: "resource"` with a nested `blob` (base64), ClawCrew does **not** dump that
 base64 into the model context. Instead it materializes the bytes under the
 session workspace `uploads/` directory (same shared helper and 10 MB limit as
 ACP inbound `resource.blob`) and replaces the model-facing tool output with
@@ -277,25 +277,25 @@ profile), and narrows correctly when delegating to subagents.
 ## Example: Build Remote Agent (`gbr`)
 
 [Build Remote Agent](https://grokbuildremote.com/) is a pairing device: a phone
-app spectates (and can inject into) this ZeroClaw host through free MIT
+app spectates (and can inject into) this ClawCrew host through free MIT
 `gbr-agent`. Protocol `gbr/1`. Independent product by Linespotting AB. Not
 affiliated with xAI or SpaceX.
 
 Run `gbr-agent` on the **host**. Do not copy it into a sandbox. Attach only
 loopback Bot API `http://127.0.0.1:8788` or stdio `gbr-mcp`. Phone is spectator
-and veto. Never paste mailbox keys as plaintext in `config.toml`. ZeroClaw chat
+and veto. Never paste mailbox keys as plaintext in `config.toml`. ClawCrew chat
 channels are not `gbr/1`.
 
 Loopback limits *network* exposure. It is **not** process authentication.
 Another local process can call `:8788` unless you set `GBR_BOT_REQUIRE_KEY=1`
-and give `gbr-mcp` the matching mailbox key through ZeroClaw secret-managed
+and give `gbr-mcp` the matching mailbox key through ClawCrew secret-managed
 MCP `env` (not a plaintext mailbox key in `config.toml`).
 
 `gbr-mcp` logs tool-call arguments to `~/.gbr/logs/gbr-mcp-YYYY-MM-DD.jsonl`
 at info, default retention 7 days. Secret redaction does not strip ordinary
 inject text. For the safe baseline set `GBR_MCP_LOG_BODIES=0` on the `gbr`
 server `env` in ZeroCode Config. Delete or disable those logs if you do not
-want a second persistence surface outside ZeroClaw history.
+want a second persistence surface outside ClawCrew history.
 
 Omission of `mcp_bundles` is not a grant: define the server **and** grant it.
 
@@ -336,7 +336,7 @@ node bin/gbr-mcp.js --diagnose
 The source tag is pinned, but this release has no npm lockfile, so dependency versions are resolved at install time. `--ignore-scripts` prevents dependency lifecycle scripts from running during installation; it does not make the downloaded dependencies trusted or prevent their code from running when the MCP server starts.
 
 The `export` lines above apply only to this diagnostic shell. They do not
-configure the ZeroClaw-spawned `gbr` server. Define the server and grant it:
+configure the ClawCrew-spawned `gbr` server. Define the server and grant it:
 
 ```toml
 [[mcp.servers]]
@@ -358,11 +358,11 @@ store) or a 1Password `op://vault/item/field` reference. Do not put the raw
 key in `config.toml`. The CLI equivalent is:
 
 ```sh
-zeroclaw config set mcp.servers.gbr.env.GBR_MAILBOX_KEY
-zeroclaw config set mcp.servers.gbr.env.GBR_MCP_LOG_BODIES 0
+clawcrew config set mcp.servers.gbr.env.GBR_MAILBOX_KEY
+clawcrew config set mcp.servers.gbr.env.GBR_MCP_LOG_BODIES 0
 ```
 
-All MCP environment values use ZeroClaw's masked secret prompt, so the
+All MCP environment values use ClawCrew's masked secret prompt, so the
 trailing `0` is not consumed as the value. Enter `0` at that prompt.
 
 Restart the affected session after changing bundles or `env`. HTTP without MCP,

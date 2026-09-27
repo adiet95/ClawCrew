@@ -15,7 +15,7 @@ re-enabled from branch protection with no code change).
 
 ## Branching Model
 
-ZeroClaw uses a single default branch: `master`. All contributor PRs target
+ClawCrew uses a single default branch: `master`. All contributor PRs target
 `master` directly. There is no `dev` or promotion branch.
 
 Maintainers with merge authority: `JordanTheJet`, `Audacity88`, `WareWolf-MoonWall`, `Nillth`, and `tidux`.
@@ -65,15 +65,15 @@ tag push.
 1. Contributor opens or updates a PR targeting `master`.
 2. `ci.yml` runs:
    - `lint`: `cargo fmt --all -- --check`, `cargo clippy --workspace
-     --exclude zeroclaw-desktop --all-targets --features ci-all -- -D warnings`
+     --exclude clawcrew-desktop --all-targets --features ci-all -- -D warnings`
      (PRs only).
    - `build`: matrix across `x86_64-unknown-linux-gnu`,
      `aarch64-apple-darwin`, `x86_64-pc-windows-msvc`.
    - `check`: matrix: all features + no default features.
    - `check-32bit`: `i686-unknown-linux-gnu`, no default features.
    - `bench`: benchmarks compile check.
-   - `test`: the default-feature workspace suite and the `zeroclaw-hardware` library suite with `hardware` enabled on `ubuntu-latest`. Physical-device tests remain ignored unless explicitly selected outside ordinary CI.
-   - `memory-postgres-test`: feature-enabled `zeroclaw-memory` tests plus serial database-backed acceptance tests against an ephemeral PostgreSQL 17 service.
+   - `test`: the default-feature workspace suite and the `clawcrew-hardware` library suite with `hardware` enabled on `ubuntu-latest`. Physical-device tests remain ignored unless explicitly selected outside ordinary CI.
+   - `memory-postgres-test`: feature-enabled `clawcrew-memory` tests plus serial database-backed acceptance tests against an ephemeral PostgreSQL 17 service.
    - `security`: `cargo deny check`.
    - `CI Required Gate`: composite job; branch protection requires this.
 3. With `ci:windows` attached, `windows-tests.yml` runs `windows-test-scope` and `windows-test` against the PR merge revision. The selector chooses `skip`, `scoped`, or `full` plus `needs_plugin_host`; scoped runs use package arguments and full runs cover the workspace. The selected Windows job also runs the feature-enabled hardware library suite, preserving its separate exit status, failure inventory, and duration. The label opts into selection, not an unconditional full suite. Unrelated label additions do not rerun or cancel these jobs; removal prevents future runs without cancelling active work. The advisory Windows job is outside `CI Required Gate`, uses restore-only cache behavior on PRs, and is visibly non-blocking. Direct changes to the root, gateway, or provider packages, plus changes to plugin, runtime, plugin config, WIT, root plugin activation, plugin backend filter, dependency, selector, selector-contract, `ci.yml`, or `windows-tests.yml` paths, set `needs_plugin_host=true`; malformed or unavailable paths select baseline `full` and true. A workspace member crate's own top-level `locales/` directory selects the owning package and reverse dependents; repository-root, nested, and other ambiguous package assets remain `full`. Missing or malformed Cargo metadata also selects baseline `full` with `needs_plugin_host=true` because the dependency closure cannot be established safely. The controlling-file cases make workflow revisions exercise the plugin-host path they own. Ordinary `scoped` and `full` selections do not install the plugin target or run the feature-enabled host tests. When the PR changes `platform-tests.yml`, that workflow checks formatting, then runs the same full workspace nextest selection on `macos-14` and `windows-latest` as non-blocking checks. The nightly schedule is the full-platform backstop, and maintainers can manually dispatch the workflow against other platform-sensitive branches. `--no-fail-fast` inventories all platform failures.

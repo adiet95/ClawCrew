@@ -78,7 +78,7 @@ const GROUP_ORDER = [
 ] as const;
 
 // Foundation order is gateway-provided: the server returns sections
-// pre-ordered by `zeroclaw_config::sections::QUICKSTART_SECTIONS`
+// pre-ordered by `clawcrew_config::sections::QUICKSTART_SECTIONS`
 // (single canonical source). The dashboard preserves response order for
 // the Foundation group instead of carrying its own copy of the list.
 
@@ -730,7 +730,7 @@ export default function Config() {
 // Shows existing aliases as clickable rows + an inline "new alias" input.
 /// Help block shown above every alias-input field. Mirrors the wizard's
 /// `AliasHelpBox` text — keep both in sync if the validator's rules
-/// (`zeroclaw_config::helpers::validate_alias_key`) ever change.
+/// (`clawcrew_config::helpers::validate_alias_key`) ever change.
 function ConfigAliasHelpBox() {
   return (
     <div

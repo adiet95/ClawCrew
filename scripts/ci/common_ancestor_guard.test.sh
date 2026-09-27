@@ -9,8 +9,8 @@ trap 'rm -rf "$fixture_dir"' EXIT
 
 repo="${fixture_dir}/repo"
 git init --quiet --initial-branch=master "$repo"
-git -C "$repo" config user.name "ZeroClaw Test"
-git -C "$repo" config user.email "zeroclaw-test@example.invalid"
+git -C "$repo" config user.name "ClawCrew Test"
+git -C "$repo" config user.email "clawcrew-test@example.invalid"
 git -C "$repo" commit --quiet --allow-empty -m "base"
 base_sha="$(git -C "$repo" rev-parse HEAD)"
 git -C "$repo" update-ref refs/remotes/origin/master "$base_sha"

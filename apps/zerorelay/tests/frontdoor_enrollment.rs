@@ -4,12 +4,12 @@
 //! two JSON POSTs to the relay, so this drives exactly the bytes the page sends
 //! and asserts on exactly the bytes it would receive. What sits behind those
 //! POSTs is real - a real `RelayServer` with the frontdoor enabled, a real
-//! daemon bridge splicing DATA frames into a real `zeroclaw_runtime::enroll`
+//! daemon bridge splicing DATA frames into a real `clawcrew_runtime::enroll`
 //! endpoint, which consumes a real pairing code and issues a real certificate
 //! from a real CA.
 //!
 //! The point of using the real endpoint rather than a stub is that a stub can
-//! agree with a wrong implementation. The CSR must satisfy `zeroclaw_tls`'s
+//! agree with a wrong implementation. The CSR must satisfy `clawcrew_tls`'s
 //! issuer, the pinned TLS leg must satisfy rustls against the daemon's actual
 //! certificate, and the pairing code must satisfy the daemon's actual guard.
 #![allow(clippy::disallowed_methods)]
@@ -24,7 +24,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
 use tokio_rustls::TlsAcceptor;
 use tokio_tungstenite::tungstenite::{ClientRequestBuilder, Message};
-use zeroclaw_relay_proto::{
+use clawcrew_relay_proto::{
     Control, INITIAL_WINDOW, PEER_HINT_ENROLL, SUBPROTOCOL, decode_data, encode_data,
 };
 use zerorelay::{RelayConfig, RelayServer};
@@ -101,53 +101,53 @@ struct Daemon {
     addr: std::net::SocketAddr,
     ca_cert_pem: String,
     pairing_code: String,
-    ledger: Arc<zeroclaw_runtime::security::cert_ledger::CertLedger>,
+    ledger: Arc<clawcrew_runtime::security::cert_ledger::CertLedger>,
     _cancel: tokio_util::sync::CancellationToken,
 }
 
 /// Start the REAL daemon enrollment endpoint on loopback.
 async fn start_daemon_enrollment() -> Daemon {
     let _ = rustls::crypto::ring::default_provider().install_default();
-    let (ca_cert_pem, ca_key_pem) = zeroclaw_tls::testing::gen_ca();
+    let (ca_cert_pem, ca_key_pem) = clawcrew_tls::testing::gen_ca();
     // The enrollment leaf must carry the name the relay-routed client verifies
     // against on the pinned leg (`127.0.0.1`).
     let (leaf_pem, leaf_key_pem) =
-        zeroclaw_tls::testing::gen_server_cert(&ca_cert_pem, &ca_key_pem, &["127.0.0.1".into()]);
+        clawcrew_tls::testing::gen_server_cert(&ca_cert_pem, &ca_key_pem, &["127.0.0.1".into()]);
     let acceptor = TlsAcceptor::from(Arc::new(server_config_from_pem(&leaf_pem, &leaf_key_pem)));
 
     let ledger = Arc::new(
-        zeroclaw_runtime::security::cert_ledger::CertLedger::open_in_memory(None).unwrap(),
+        clawcrew_runtime::security::cert_ledger::CertLedger::open_in_memory(None).unwrap(),
     );
-    let pairing = Arc::new(zeroclaw_config::pairing::PairingGuard::new(
+    let pairing = Arc::new(clawcrew_config::pairing::PairingGuard::new(
         true,
         &[],
-        zeroclaw_config::pairing::PairingCodePolicy::default(),
+        clawcrew_config::pairing::PairingCodePolicy::default(),
     ));
     let pairing_code = pairing.pairing_code().expect("a pairing code");
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
-    let server = Arc::new(zeroclaw_runtime::enroll::EnrollServer {
+    let server = Arc::new(clawcrew_runtime::enroll::EnrollServer {
         bind_addr: addr,
         acceptor,
         ca_cert_pem: ca_cert_pem.clone(),
         ca_key_pem: zeroize::Zeroizing::new(ca_key_pem),
         ledger: ledger.clone(),
         pairing,
-        pairing_code_policy: Arc::new(zeroclaw_config::pairing::PairingCodePolicy::default),
+        pairing_code_policy: Arc::new(clawcrew_config::pairing::PairingCodePolicy::default),
         static_client_pins_configured: false,
         allow_unpaired_until: None,
-        relay_profile: zeroclaw_runtime::enroll::RelayProfile {
+        relay_profile: clawcrew_runtime::enroll::RelayProfile {
             relay_url: "relay.test:9000".into(),
             node_id: "test-node".into(),
             relay_cert_pin: String::new(),
         },
         bridge_ports: None,
-        relay_attempt_bucket: zeroclaw_runtime::enroll::RelayAttemptBucket::default(),
+        relay_attempt_bucket: clawcrew_runtime::enroll::RelayAttemptBucket::default(),
         paircode_admin_data_dir: None,
     });
     let cancel = tokio_util::sync::CancellationToken::new();
-    tokio::spawn(zeroclaw_runtime::enroll::serve_on(
+    tokio::spawn(clawcrew_runtime::enroll::serve_on(
         listener,
         server,
         cancel.clone(),
@@ -166,9 +166,9 @@ async fn start_daemon_enrollment() -> Daemon {
 async fn start_relay_with_frontdoor() -> std::net::SocketAddr {
     let _ = rustls::crypto::ring::default_provider().install_default();
     let dir = tempfile::tempdir().unwrap();
-    let mats = zeroclaw_tls::ensure_server_materials(dir.path(), &[]).unwrap();
-    let certs = zeroclaw_tls::load_certs(mats.server_cert_path.to_str().unwrap()).unwrap();
-    let key = zeroclaw_tls::load_private_key(mats.server_key_path.to_str().unwrap()).unwrap();
+    let mats = clawcrew_tls::ensure_server_materials(dir.path(), &[]).unwrap();
+    let certs = clawcrew_tls::load_certs(mats.server_cert_path.to_str().unwrap()).unwrap();
+    let key = clawcrew_tls::load_private_key(mats.server_key_path.to_str().unwrap()).unwrap();
     let server_cfg = rustls::ServerConfig::builder_with_provider(Arc::new(
         rustls::crypto::ring::default_provider(),
     ))
@@ -462,9 +462,9 @@ async fn browser_enrollment_issues_a_real_certificate_through_the_relay() {
         .next()
         .unwrap()
         .unwrap();
-    let expected_sas = zeroclaw_tls::enrollment_sas(
+    let expected_sas = clawcrew_tls::enrollment_sas(
         &daemon.pairing_code,
-        &zeroclaw_tls::cert_sha256_fingerprint(ca_der.as_ref()),
+        &clawcrew_tls::cert_sha256_fingerprint(ca_der.as_ref()),
     );
     assert!(
         expected_sas.len() == 9 && expected_sas.contains('-'),
@@ -473,7 +473,7 @@ async fn browser_enrollment_issues_a_real_certificate_through_the_relay() {
 
     // Step 2: the operator confirmed the SAS; the browser sends its CSR. The key
     // is generated client-side and never leaves - only the CSR is transmitted.
-    let (csr_pem, _key_pem) = zeroclaw_tls::testing::gen_client_csr("zeroclaw-browser");
+    let (csr_pem, _key_pem) = clawcrew_tls::testing::gen_client_csr("clawcrew-browser");
     let (status, body) = frontdoor_request(
         relay,
         "POST",
@@ -518,7 +518,7 @@ async fn browser_enrollment_issues_a_real_certificate_through_the_relay() {
         .next()
         .unwrap()
         .unwrap();
-    let fingerprint = zeroclaw_tls::cert_sha256_fingerprint(cert_der.as_ref());
+    let fingerprint = clawcrew_tls::cert_sha256_fingerprint(cert_der.as_ref());
     let entry = daemon
         .ledger
         .lookup_by_fingerprint(&fingerprint)
@@ -527,7 +527,7 @@ async fn browser_enrollment_issues_a_real_certificate_through_the_relay() {
     assert_eq!(entry.device_id, device_id);
     assert_eq!(
         daemon.ledger.status_of(&fingerprint).unwrap(),
-        Some(zeroclaw_runtime::security::cert_ledger::CertStatus::Active),
+        Some(clawcrew_runtime::security::cert_ledger::CertStatus::Active),
         "a delivered enrollment must leave an active ledger row"
     );
 }
@@ -550,7 +550,7 @@ async fn a_bad_pairing_code_is_refused_with_the_daemon_status() {
     let trust: serde_json::Value = serde_json::from_str(&body).unwrap();
     let ca_chain_pem = trust["ca_chain_pem"].as_str().unwrap().to_string();
 
-    let (csr_pem, _key) = zeroclaw_tls::testing::gen_client_csr("zeroclaw-browser");
+    let (csr_pem, _key) = clawcrew_tls::testing::gen_client_csr("clawcrew-browser");
     let (status, body) = frontdoor_request(
         relay,
         "POST",
@@ -585,10 +585,10 @@ async fn the_enroll_post_refuses_a_ca_the_daemon_cannot_prove() {
     register_bridge_daemon(relay, "browser-node", daemon.addr).await;
 
     // A perfectly valid CA - just not this daemon's.
-    let (other_ca_pem, _other_key) = zeroclaw_tls::testing::gen_ca();
+    let (other_ca_pem, _other_key) = clawcrew_tls::testing::gen_ca();
     assert_ne!(other_ca_pem, daemon.ca_cert_pem);
 
-    let (csr_pem, _key) = zeroclaw_tls::testing::gen_client_csr("zeroclaw-browser");
+    let (csr_pem, _key) = clawcrew_tls::testing::gen_client_csr("clawcrew-browser");
     let (status, body) = frontdoor_request(
         relay,
         "POST",
@@ -620,7 +620,7 @@ async fn the_enroll_post_refuses_a_ca_the_daemon_cannot_prove() {
     .await;
     assert_eq!(status, 200);
     let trust: serde_json::Value = serde_json::from_str(&body).unwrap();
-    let (csr_pem, _key) = zeroclaw_tls::testing::gen_client_csr("zeroclaw-browser");
+    let (csr_pem, _key) = clawcrew_tls::testing::gen_client_csr("clawcrew-browser");
     let (status, body) = frontdoor_request(
         relay,
         "POST",
@@ -653,10 +653,10 @@ async fn the_enroll_post_refuses_a_ca_the_daemon_cannot_prove() {
 #[tokio::test]
 async fn a_daemon_that_swaps_the_ca_in_its_response_is_refused() {
     let _ = rustls::crypto::ring::default_provider().install_default();
-    let (ca_cert_pem, ca_key_pem) = zeroclaw_tls::testing::gen_ca();
-    let (other_ca_pem, _other_key) = zeroclaw_tls::testing::gen_ca();
+    let (ca_cert_pem, ca_key_pem) = clawcrew_tls::testing::gen_ca();
+    let (other_ca_pem, _other_key) = clawcrew_tls::testing::gen_ca();
     let (leaf_pem, leaf_key_pem) =
-        zeroclaw_tls::testing::gen_server_cert(&ca_cert_pem, &ca_key_pem, &["127.0.0.1".into()]);
+        clawcrew_tls::testing::gen_server_cert(&ca_cert_pem, &ca_key_pem, &["127.0.0.1".into()]);
     let acceptor = TlsAcceptor::from(Arc::new(server_config_from_pem(&leaf_pem, &leaf_key_pem)));
 
     // A stub endpoint: correct identity, dishonest body.
@@ -727,7 +727,7 @@ async fn a_daemon_that_swaps_the_ca_in_its_response_is_refused() {
     let trust: serde_json::Value = serde_json::from_str(&body).unwrap();
     assert_eq!(trust["ca_chain_pem"].as_str().unwrap(), ca_cert_pem);
 
-    let (csr_pem, _key) = zeroclaw_tls::testing::gen_client_csr("zeroclaw-browser");
+    let (csr_pem, _key) = clawcrew_tls::testing::gen_client_csr("clawcrew-browser");
     let (status, body) = frontdoor_request(
         relay,
         "POST",
@@ -773,7 +773,7 @@ async fn the_frontdoor_serves_the_page_and_not_the_deleted_tls_routes() {
 
     let (status, body) = frontdoor_request(relay, "GET", "/", None).await;
     assert_eq!(status, 200);
-    assert!(body.contains("ZeroClaw browser enrollment"), "got: {body}");
+    assert!(body.contains("ClawCrew browser enrollment"), "got: {body}");
     assert!(body.contains("/app.js"));
 
     let (status, body) = frontdoor_request(relay, "GET", "/app.js", None).await;
@@ -792,9 +792,9 @@ async fn the_frontdoor_serves_the_page_and_not_the_deleted_tls_routes() {
 async fn a_disabled_frontdoor_serves_nothing() {
     let _ = rustls::crypto::ring::default_provider().install_default();
     let dir = tempfile::tempdir().unwrap();
-    let mats = zeroclaw_tls::ensure_server_materials(dir.path(), &[]).unwrap();
-    let certs = zeroclaw_tls::load_certs(mats.server_cert_path.to_str().unwrap()).unwrap();
-    let key = zeroclaw_tls::load_private_key(mats.server_key_path.to_str().unwrap()).unwrap();
+    let mats = clawcrew_tls::ensure_server_materials(dir.path(), &[]).unwrap();
+    let certs = clawcrew_tls::load_certs(mats.server_cert_path.to_str().unwrap()).unwrap();
+    let key = clawcrew_tls::load_private_key(mats.server_key_path.to_str().unwrap()).unwrap();
     let server_cfg = rustls::ServerConfig::builder_with_provider(Arc::new(
         rustls::crypto::ring::default_provider(),
     ))
@@ -813,8 +813,8 @@ async fn a_disabled_frontdoor_serves_nothing() {
 
     let (status, body) = frontdoor_request(addr, "GET", "/", None).await;
     assert_eq!(status, 404);
-    assert!(body.contains("zeroclaw.relay.v1"), "got: {body}");
-    assert!(!body.contains("ZeroClaw browser enrollment"));
+    assert!(body.contains("clawcrew.relay.v1"), "got: {body}");
+    assert!(!body.contains("ClawCrew browser enrollment"));
 
     let (status, _) = frontdoor_request(
         addr,

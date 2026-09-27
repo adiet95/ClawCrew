@@ -15,7 +15,7 @@ Each skill lives in its own directory with a `SKILL.md` file. Claude Code loads 
 | `squash-merge` | Landing an approved PR into `master` with preserved commit history and the purple **Merged** badge |
 | `changelog-generation` | Preparing `CHANGELOG-next.md` for a release: summarises merges since the last tag |
 | `skill-creator` | Creating, editing, or benchmarking the skills themselves |
-| `zeroclaw` | Operating the running ZeroClaw instance (CLI + gateway API) |
+| `clawcrew` | Operating the running ClawCrew instance (CLI + gateway API) |
 
 ## PR review workflow
 
@@ -62,7 +62,7 @@ Label definitions live in [Labels](./labels.md); the triage labels the skill app
 
 ## Squash-merge strategy
 
-ZeroClaw uses squash-merge for all PRs. The `squash-merge` skill produces both the purple **Merged** badge *and* a conventional-commits formatted squash message with full commit history in the body.
+ClawCrew uses squash-merge for all PRs. The `squash-merge` skill produces both the purple **Merged** badge *and* a conventional-commits formatted squash message with full commit history in the body.
 
 ### Why the skill exists
 

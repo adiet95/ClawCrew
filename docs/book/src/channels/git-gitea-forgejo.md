@@ -16,7 +16,7 @@ On Codeberg, register a normal second account for the bot and invite it to the t
 
 As the bot account: **Settings → Applications → Manage Access Tokens** (Codeberg: `https://codeberg.org/user/settings/applications`).
 
-1. Give the token a name (e.g. `zeroclaw`).
+1. Give the token a name (e.g. `clawcrew`).
 2. **Select scopes.** The channel needs, at minimum:
    - `read:user`: the channel resolves its own bot identity from `/user` at startup.
    - **Repository** read plus issue/PR write. On Forgejo/Codeberg the scopes are grouped `read:repository` + `write:repository` and `read:issue` + `write:issue`. If the UI only offers coarse `repository` / `issue` scopes, tick those.
@@ -73,4 +73,4 @@ On startup the channel calls `/user` to resolve its bot login, logs an `IDENTITY
 - **Back to the channel:** [Git channel](./git.md) for event routing, streaming, rate budget, and safety.
 - **Restrict who can reach the agent:** [Peer Groups](./peer-groups.md).
 - **Drive automation from forge events:** [Standard Operating Procedures](../sop/index.md) and the [Git SOP fan-in](../sop/fan-in/git.md).
-- **New to ZeroClaw?** [Quickstart](../getting-started/quickstart.md) and [Concepts](../getting-started/concepts.md).
+- **New to ClawCrew?** [Quickstart](../getting-started/quickstart.md) and [Concepts](../getting-started/concepts.md).

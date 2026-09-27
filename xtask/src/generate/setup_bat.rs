@@ -40,7 +40,7 @@ const ZONE_LAYOUTS: [ZoneLayout; 3] = [
     },
     ZoneLayout {
         zone: ZONE_POST_INSTALL,
-        range_start: "echo %BOLD%%GREEN%  ZeroClaw setup complete!%RESET%",
+        range_start: "echo %BOLD%%GREEN%  ClawCrew setup complete!%RESET%",
         range_end: "echo   Alternative install via Scoop:",
     },
 ];
@@ -130,7 +130,7 @@ echo     1. PATH is ready in this terminal and future terminals\n\
 if /I \"%MODE%\"==\"minimal\" (\n\
 echo     2. Minimal build excludes quickstart ^({QUICKSTART_COMMAND} is unavailable^)\n\
 echo     3. Configure model providers with the supported config surface\n\
-echo     4. Use reduced CLI path: zeroclaw agent --message \"Hello\"\n\
+echo     4. Use reduced CLI path: clawcrew agent --message \"Hello\"\n\
 ) else (\n\
 echo     2. Run: {QUICKSTART_COMMAND}\n\
 echo     3. Configure a model provider during Quickstart\n\

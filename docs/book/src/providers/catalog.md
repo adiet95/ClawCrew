@@ -1,6 +1,6 @@
 # Provider Catalog
 
-Every model-provider family ZeroClaw ships with. For each: config shape, notes on auth and endpoint behavior, and the slot key to use under `[providers.models.<type>.<alias>]`.
+Every model-provider family ClawCrew ships with. For each: config shape, notes on auth and endpoint behavior, and the slot key to use under `[providers.models.<type>.<alias>]`.
 
 See [Configuration](./configuration.md) for universal fields (`api_key`, `uri`, `model`, ...) and resolution order.
 
@@ -32,7 +32,7 @@ Local Hailo-accelerated inference through Hailo-Ollama's native `/api/chat` and
 `/api/tags` endpoints. The explicit compatibility mode normalizes and bounds
 history, disables streaming and thinking, and serializes access through a shared
 per-endpoint hardware gate. Ambiguous post-connect transport failures, including
-request timeouts, quarantine that endpoint until ZeroClaw restarts. The native
+request timeouts, quarantine that endpoint until ClawCrew restarts. The native
 Hailo-Ollama service has no authentication contract; an alias may nevertheless
 attach a Bearer `api_key` or `extra_headers` when the operator places a trusted
 authenticating proxy or bridge in front of it. Native tool calling and vision
@@ -67,20 +67,20 @@ compatibility change and revalidate `grok agent stdio` before deploying them.
 
 Grok Build CLI (checked through `0.2.118`) still advertises
 `promptCapabilities.image = false` on ACP `initialize`. That is not an env-var
-override on either side: ZeroClaw never rewrites Grok's advertisement. The
-only ZeroClaw control is the shared per-alias config field `vision`.
+override on either side: ClawCrew never rewrites Grok's advertisement. The
+only ClawCrew control is the shared per-alias config field `vision`.
 
 | Layer | Behavior on `0.2.118` |
 | ----- | --------------------- |
 | ACP advertise | `promptCapabilities.image = false` |
-| Default `grok_cli` | `vision` unset → ZeroClaw treats the alias as non-vision; image markers stay text |
-| `vision = true` | ZeroClaw reports vision on the alias and **sends** ACP `{type: image, data, mimeType}` blocks (does not change Grok's advertise) |
+| Default `grok_cli` | `vision` unset → ClawCrew treats the alias as non-vision; image markers stay text |
+| `vision = true` | ClawCrew reports vision on the alias and **sends** ACP `{type: image, data, mimeType}` blocks (does not change Grok's advertise) |
 | Model recognition | Live probe: image blocks are accepted by `session/prompt` (no protocol error) but the agent answered as if **no image was received** |
 
 ```toml
 [providers.models.grok_cli.default]
 model = "grok-4.5"
-working_directory = "/srv/zeroclaw/grok-workspace"
+working_directory = "/srv/clawcrew/grok-workspace"
 # Optional experiment only: send ACP image blocks despite image=false advertise.
 # Does not make Grok Build 0.2.118 reliably see or describe the image.
 # vision = true
@@ -90,7 +90,7 @@ Leave `vision` unset for production `grok_cli` aliases. Do not route channel
 attachments that require real image understanding to `grok_cli` until a deployed
 CLI both advertises `image = true` and a live smoke shows the model using the
 image content. When that holds, drop any temporary `vision = true` opt-in and
-revisit whether ZeroClaw should follow the advertise bit instead of a local
+revisit whether ClawCrew should follow the advertise bit instead of a local
 override (`GrokCliModelProvider::acp_prompt_content`).
 
 #### Ubuntu 24.04: keep the Grok sandbox when `bwrap` needs user namespaces
@@ -101,7 +101,7 @@ target host. On Ubuntu 24.04 hosts with
 initialization with `bwrap: setting up uid map: Permission denied`. This is a
 host sandbox setup failure, not an ACP, stdout, or authentication failure.
 
-Keep the ZeroClaw default `--sandbox strict` (or an explicit `workspace`
+Keep the ClawCrew default `--sandbox strict` (or an explicit `workspace`
 profile) and grant only the actual Grok executable permission to create a user
 namespace. This is a host-administrator change; it preserves the global user
 namespace restriction and does not turn off Grok's sandbox.
@@ -153,13 +153,13 @@ bounded budget.
 ```toml
 [providers.models.grok_cli.default]
 model = "grok-4.5"
-working_directory = "/srv/zeroclaw/grok-workspace"
+working_directory = "/srv/clawcrew/grok-workspace"
 env_passthrough = ["XAI_API_KEY"]
 # Optional: 4 MiB by default; accepted range is 1-64 MiB.
 max_acp_stdout_bytes = 8388608
 ```
 
-Export `XAI_API_KEY` into the daemon environment before starting ZeroClaw. The
+Export `XAI_API_KEY` into the daemon environment before starting ClawCrew. The
 ACP client selects `xai.api_key` only when that name is listed in
 `env_passthrough` and a non-empty value is present in the process environment at
 **child spawn** (not snapshotted into the long-lived provider handle). Otherwise
@@ -178,7 +178,7 @@ and CA variables on the built-in allowlist remain available; all other names
 are blocked unless that provider alias lists them in `env_passthrough`. This
 field is for the explicit `XAI_API_KEY` authentication bridge and environment
 variables required by explicitly enabled Grok tools, such as cloud CLI
-credentials. Values are read from the ZeroClaw process environment at spawn
+credentials. Values are read from the ClawCrew process environment at spawn
 time and are not stored in provider config. The default list is empty. Keep it
 narrow because every listed secret is exposed to Grok and any tools enabled for
 that alias. Other provider-owned `XAI_*` names and all `GROK_*` names are
@@ -221,7 +221,7 @@ or hooks may add capabilities. Use a dedicated, reviewed `working_directory`
 for channel agents.
 
 When an allow rule does **not** pre-authorize the tool, Grok still sends
-`session/request_permission` and ZeroClaw's default reject-once policy fails
+`session/request_permission` and ClawCrew's default reject-once policy fails
 the tool closed. In practice this matters for shell/`execute` tools under the
 default `--sandbox strict`: a CLI `--allow=Bash(...)` rule can still escalate
 to the ACP host on current Grok Build, so a tool-enabled shell alias should
@@ -250,7 +250,7 @@ ACP stdout frames, aggregate stdout, assistant text, and stderr processing are
 bounded while the child is running. Stderr is drained but its content is never
 stored, logged, or returned. Public provider errors stay stable and do not echo
 child-controlled protocol free-text. After every one-shot request (success,
-timeout, cancellation, or protocol error), ZeroClaw terminates the child
+timeout, cancellation, or protocol error), ClawCrew terminates the child
 **process group** on Unix or the **Job Object** on Windows and reaps the direct
 child. That covers ordinary descendants; a process that creates a new session
 or process group can escape group kill on Unix. Windows Job Object coverage is
@@ -265,7 +265,7 @@ whose permission rules, MCP servers, plugins, and hooks have been reviewed for
 the channel trust boundary. Use a separate alias and workspace for an
 operator-approved coding/ops agent.
 
-**Reply-intent precheck (classifier):** ZeroClaw runs a short REPLY /
+**Reply-intent precheck (classifier):** ClawCrew runs a short REPLY /
 `NO_REPLY[*]` classification before the full agent loop. Prefer a **stable
 chat-completions API** for that precheck (for example the HTTP/OAuth
 `xai` slot, or any other non-CLI model alias), and keep **`grok_cli` only for
@@ -324,7 +324,7 @@ model_provider = "grok_cli.ops"
 | Full answer | `model_provider` → `grok_cli.default` | Grok Build ACP; prompt only on stdin |
 | OS sandbox | Default `--sandbox strict` (or `extra_args` override) | Read CWD + system paths; write CWD + `~/.grok` + tmp; child network blocked on Linux. Built-ins are not a permanent credential boundary - use custom `deny` for secrets |
 | App permissions | Empty built-in tool set + fail-closed ACP default | Explicit bypass flags select `allow_once`; discovered Grok rules may also pre-authorize configured tools |
-| Channel delivery | ZeroClaw `thread_replies` / channel config | Single in-thread reply path |
+| Channel delivery | ClawCrew `thread_replies` / channel config | Single in-thread reply path |
 | Optional gate | Slack `mention_only` + `strict_mention_in_thread` | Drop unmentioned group/thread traffic before the agent (see [Slack](../channels/slack.md)); independent of the classifier |
 
 Keep channel-facing aliases at the defaults and give them dedicated, reviewed
@@ -332,16 +332,16 @@ workspaces. Permission rules, MCP servers, plugins, and hooks discovered by
 Grok, along with permission/sandbox/tool flags in `extra_args`, are trusted
 operator policy and can widen the subprocess boundary.
 
-#### Grok CLI OS sandbox (how to use it from ZeroClaw)
+#### Grok CLI OS sandbox (how to use it from ClawCrew)
 
 This is **Grok Build’s process sandbox** (Landlock / Seatbelt / seccomp on the
-`grok` subprocess). It is **not** ZeroClaw’s tool sandbox on
-`[risk_profiles.*.sandbox_*]`: that wraps ZeroClaw tools after native tool
+`grok` subprocess). It is **not** ClawCrew’s tool sandbox on
+`[risk_profiles.*.sandbox_*]`: that wraps ClawCrew tools after native tool
 calls. If an operator opts a provider alias into Grok tools, Grok's
 `--sandbox` is the effective confinement for that work. See also
-[Sandboxing](../security/sandboxing.md) for ZeroClaw’s risk-profile sandbox.
+[Sandboxing](../security/sandboxing.md) for ClawCrew’s risk-profile sandbox.
 
-ZeroClaw always supplies an explicit sandbox flag. The default is `strict`.
+ClawCrew always supplies an explicit sandbox flag. The default is `strict`.
 Set `--sandbox=<profile>` in that provider alias's `extra_args` to choose a
 different profile; ambient Grok config or `GROK_SANDBOX` cannot silently relax
 the provider-owned default.
@@ -373,7 +373,7 @@ recommend a custom profile with a kernel-enforced `deny` list for secrets.
 Use `read-only` only when the agent must read outside the workspace without
 writing project files.
 
-**Custom profile example** (define in workspace, select from ZeroClaw):
+**Custom profile example** (define in workspace, select from ClawCrew):
 
 ```toml
 # <agent-workspace>/.grok/sandbox.toml
@@ -384,7 +384,7 @@ extends = "strict"
 ```
 
 ```toml
-# ZeroClaw config.toml
+# ClawCrew config.toml
 [providers.models.grok_cli.default]
 working_directory = "/path/to/agents/default/workspace"
 extra_args = ["--sandbox=channel-bot"]
@@ -500,7 +500,7 @@ For a worked example per family, see [Configuration](./configuration.md). If you
 Each of these is a standard OpenAI-compatible slot: set `model` and `api_key`, leave
 `uri` off (the typed endpoint supplies it). None of them ship a public model index,
 so the model picker stays empty until you paste a credential. Once a key is set,
-ZeroClaw lists models from the provider's live `/models` endpoint. The model IDs
+ClawCrew lists models from the provider's live `/models` endpoint. The model IDs
 below are illustrative; confirm the current catalog in the vendor dashboard.
 
 **Morph**: slot `morph`. Fast apply-edits models (`morph-v3-large`, `morph-v3-fast`, or
@@ -555,8 +555,8 @@ api_key = "..."
 
 The `nearai` slot uses `https://cloud-api.near.ai/v1` by default and sends
 `Authorization: Bearer <api_key>`. To bridge an existing `NEARAI_API_KEY`
-shell variable into ZeroClaw's schema-mirror env surface, set
-`ZEROCLAW_providers__models__nearai__tee__api_key="$NEARAI_API_KEY"`.
+shell variable into ClawCrew's schema-mirror env surface, set
+`CLAWCREW_providers__models__nearai__tee__api_key="$NEARAI_API_KEY"`.
 
 Crusoe Managed Inference example:
 
@@ -566,7 +566,7 @@ model   = "deepseek-ai/DeepSeek-V4-Flash"   # bare Crusoe catalog ID; see /v1/mo
 api_key = "..."
 ```
 
-The `crusoe` slot uses `https://api.inference.crusoecloud.com/v1` by default and sends `Authorization: Bearer <api_key>`. Model IDs are the vendor-prefixed catalog IDs returned by Crusoe's authenticated `/v1/models` endpoint; use that live result to select an available model. The `crusoe/` prefix some tools use is not sent; ZeroClaw passes the `model` field verbatim. The slot has no public model index, so the model picker stays empty until you paste a credential; once a key is set, ZeroClaw lists models from Crusoe's live `/v1/models` endpoint. Credentials come only from config (`api_key`); there is no per-provider `CRUSOE_API_KEY` environment variable. To bridge an existing `CRUSOE_API_KEY` shell variable into ZeroClaw's schema-mirror env surface, set `ZEROCLAW_providers__models__crusoe__default__api_key="$CRUSOE_API_KEY"`.
+The `crusoe` slot uses `https://api.inference.crusoecloud.com/v1` by default and sends `Authorization: Bearer <api_key>`. Model IDs are the vendor-prefixed catalog IDs returned by Crusoe's authenticated `/v1/models` endpoint; use that live result to select an available model. The `crusoe/` prefix some tools use is not sent; ClawCrew passes the `model` field verbatim. The slot has no public model index, so the model picker stays empty until you paste a credential; once a key is set, ClawCrew lists models from Crusoe's live `/v1/models` endpoint. Credentials come only from config (`api_key`); there is no per-provider `CRUSOE_API_KEY` environment variable. To bridge an existing `CRUSOE_API_KEY` shell variable into ClawCrew's schema-mirror env surface, set `CLAWCREW_providers__models__crusoe__default__api_key="$CRUSOE_API_KEY"`.
 
 ---
 

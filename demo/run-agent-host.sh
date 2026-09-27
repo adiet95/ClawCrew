@@ -11,7 +11,7 @@ echo
 
 # Ensure config
 mkdir -p demo/data/config
-cp -n demo/zeroclaw.toml.example demo/data/config/config.toml 2>/dev/null || true
+cp -n demo/clawcrew.toml.example demo/data/config/config.toml 2>/dev/null || true
 
 # Load .env if present (for API keys).
 if [[ -f demo/.env ]]; then
@@ -43,8 +43,8 @@ echo
 
 # Keep demo/.env as the source of truth for secrets. These schema-mirror env
 # overrides feed the current runtime config without persisting secrets to TOML.
-export ZEROCLAW_providers__models__openrouter__agent_demo__api_key="${OPENROUTER_API_KEY}"
-export ZEROCLAW_channels__telegram__default__bot_token="${TELEGRAM_BOT_TOKEN}"
+export CLAWCREW_providers__models__openrouter__agent_demo__api_key="${OPENROUTER_API_KEY}"
+export CLAWCREW_channels__telegram__default__bot_token="${TELEGRAM_BOT_TOKEN}"
 
-exec cargo run --bin zeroclaw --no-default-features --features "agent-runtime hardware dev-sim channel-telegram" \
+exec cargo run --bin clawcrew --no-default-features --features "agent-runtime hardware dev-sim channel-telegram" \
   -- channel start --config-dir demo/data/config "$@"

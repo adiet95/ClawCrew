@@ -1,6 +1,6 @@
 # Operations: Overview
 
-How to run ZeroClaw in production. The surface is intentionally small: one
+How to run ClawCrew in production. The surface is intentionally small: one
 binary, one config file, and one install root with a handful of runtime stores.
 Most "operations" is "systemd and journald".
 
@@ -14,12 +14,12 @@ This section covers:
 
 ## The shape of a deployment
 
-A typical always-on ZeroClaw install is:
+A typical always-on ClawCrew install is:
 
 {{#include ../_snippets/deployment-shape.md}}
 
 Everything except the binary can move. The data dir defaults to
-`~/.zeroclaw/data/` (the legacy `~/.zeroclaw/workspace/` name is still
+`~/.clawcrew/data/` (the legacy `~/.clawcrew/workspace/` name is still
 accepted); config paths resolve per environment (Homebrew vs. bootstrap vs.
 XDG), and log destinations are platform-native by default. For the full store
 map, see [Runtime state and persistence](../architecture/runtime-state-and-persistence.md).
@@ -37,19 +37,19 @@ Is the process running?
 #### Linux
 
 ```sh
-systemctl --user is-active zeroclaw
+systemctl --user is-active clawcrew
 ```
 
 #### macOS
 
 ```sh
-launchctl list | grep -c com.zeroclaw.daemon
+launchctl list | grep -c com.clawcrew.daemon
 ```
 
 #### Windows
 
 ```cmd
-schtasks /Query /TN "ZeroClaw Daemon" /FO LIST | findstr Status
+schtasks /Query /TN "ClawCrew Daemon" /FO LIST | findstr Status
 ```
 
 </div>
@@ -93,7 +93,7 @@ A channel reads `starting` with a null `last_ok` until it confirms it can actual
 
 ### 3. Provider reliability
 
-Providers surface as components in the same `/health` snapshot. For request-level signal (latency, success rate, token counts), scrape `/metrics` (see below) and read `zeroclaw_llm_requests_total` and `zeroclaw_request_latency_seconds`.
+Providers surface as components in the same `/health` snapshot. For request-level signal (latency, success rate, token counts), scrape `/metrics` (see below) and read `clawcrew_llm_requests_total` and `clawcrew_request_latency_seconds`.
 
 ### 4. Tool-call volume and metrics
 
@@ -110,16 +110,16 @@ curl -s http://localhost:42617/metrics
 </div>
 
 ```
-zeroclaw_tool_calls_total{success="true",tool="shell"} 342
-zeroclaw_tool_calls_total{success="false",tool="shell"} 6
-zeroclaw_tool_calls_total{success="true",tool="file_write"} 89
+clawcrew_tool_calls_total{success="true",tool="shell"} 342
+clawcrew_tool_calls_total{success="false",tool="shell"} 6
+clawcrew_tool_calls_total{success="true",tool="file_write"} 89
 ```
 
-The `zeroclaw_tool_calls_total` counter is labelled by `tool` and `success` (`"true"`/`"false"`). A rising `success="false"` count for one tool is worth looking at: either a policy block, a misbehaving agent, or a flaky tool. Other useful series include `zeroclaw_llm_requests_total`, `zeroclaw_errors_total`, `zeroclaw_active_sessions`, and `zeroclaw_tokens_input_total` / `zeroclaw_tokens_output_total`.
+The `clawcrew_tool_calls_total` counter is labelled by `tool` and `success` (`"true"`/`"false"`). A rising `success="false"` count for one tool is worth looking at: either a policy block, a misbehaving agent, or a flaky tool. Other useful series include `clawcrew_llm_requests_total`, `clawcrew_errors_total`, `clawcrew_active_sessions`, and `clawcrew_tokens_input_total` / `clawcrew_tokens_output_total`.
 
 ## Capacity
 
-A single ZeroClaw instance can handle:
+A single ClawCrew instance can handle:
 
 - Multiple concurrent conversations across all channels
 - Tool calls at whatever rate the provider and sandbox allow
@@ -133,25 +133,25 @@ For multi-tenant hosting, see the proposal in #2765 (closed, historical, the arc
 
 What to back up:
 
-- `~/.zeroclaw/data/memory/*.db`: SQLite conversation memory (`brain.db`, plus `audit.db`)
-- `~/.zeroclaw/data/sessions/`: persisted session state
-- `~/.zeroclaw/.secret_key`: master key for the encrypted secrets store (if used). **Without it, the config's encrypted secrets are unrecoverable.**
+- `~/.clawcrew/data/memory/*.db`: SQLite conversation memory (`brain.db`, plus `audit.db`)
+- `~/.clawcrew/data/sessions/`: persisted session state
+- `~/.clawcrew/.secret_key`: master key for the encrypted secrets store (if used). **Without it, the config's encrypted secrets are unrecoverable.**
 
-A plain `tar czf zeroclaw-$(date +%F).tar.gz ~/.zeroclaw` covers everything. Restic, borg, or Duplicacy work fine for incremental backups.
+A plain `tar czf clawcrew-$(date +%F).tar.gz ~/.clawcrew` covers everything. Restic, borg, or Duplicacy work fine for incremental backups.
 
-`~/.zeroclaw/data/memory/response_cache.db` is a regenerable LLM response cache; it's safe to include in a full-directory backup or to exclude to save space. Tool receipts are in-band HMAC tokens in the conversation history (see [Tool receipts](../security/tool-receipts.md)), not an on-disk log, so there is nothing separate to back up for them.
+`~/.clawcrew/data/memory/response_cache.db` is a regenerable LLM response cache; it's safe to include in a full-directory backup or to exclude to save space. Tool receipts are in-band HMAC tokens in the conversation history (see [Tool receipts](../security/tool-receipts.md)), not an on-disk log, so there is nothing separate to back up for them.
 
 ## Updates
 
 The service does not auto-update. Subscribe to the release feed (GitHub releases or the Discord `#releases` channel: see [Contributing → Communication](../contributing/communication.md)). Typical update cadence:
 
 1. Read the release notes
-2. Back up `~/.zeroclaw/`
+2. Back up `~/.clawcrew/`
 3. Update the binary (`brew upgrade`, bootstrap re-run, or `cargo install --force`)
-4. `zeroclaw service restart`
+4. `clawcrew service restart`
 5. Verify the `/health` endpoint reports `status: "ok"` with no component in `error`
 
-If the new version requires config migrations, the startup log emits a warning and the binary usually auto-migrates. Check `zeroclaw config list` to spot-check values after upgrade, and `zeroclaw config migrate` to apply any pending schema migrations manually.
+If the new version requires config migrations, the startup log emits a warning and the binary usually auto-migrates. Check `clawcrew config list` to spot-check values after upgrade, and `clawcrew config migrate` to apply any pending schema migrations manually.
 
 ## See also
 

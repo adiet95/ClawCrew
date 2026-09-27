@@ -4,9 +4,9 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde_json::json;
 use std::sync::{Arc, Mutex};
-use zeroclaw::tools::{Tool, ToolOutput, ToolResult};
+use clawcrew::tools::{Tool, ToolOutput, ToolResult};
 
-zeroclaw_api::mock_tool_attribution!(EchoTool, CountingTool, FailingTool, RecordingTool);
+clawcrew_api::mock_tool_attribution!(EchoTool, CountingTool, FailingTool, RecordingTool);
 
 /// Simple tool that echoes its input argument.
 pub struct EchoTool;

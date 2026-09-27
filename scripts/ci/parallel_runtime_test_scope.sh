@@ -11,10 +11,10 @@ while IFS= read -r path; do
         scripts/ci/parallel_runtime_test_*.sh)
             scope=all
             ;;
-        crates/zeroclaw-runtime/*)
+        crates/clawcrew-runtime/*)
             scope=all
             ;;
-        crates/zeroclaw-channels/*)
+        crates/clawcrew-channels/*)
             if [ "$scope" = none ]; then
                 scope=channels
             fi

@@ -20,7 +20,7 @@ setup_fixture() {
   local root="$TMP_ROOT/$name"
   local remote="$root/translations.git"
   local seed="$root/seed"
-  local repo="$root/zeroclaw"
+  local repo="$root/clawcrew"
 
   mkdir -p "$root"
   git init --quiet --bare "$remote"
@@ -58,7 +58,7 @@ assert_equal() {
 }
 
 success_root="$(setup_fixture success)"
-success_repo="$success_root/zeroclaw"
+success_repo="$success_root/clawcrew"
 success_remote="$success_root/translations.git"
 base_commit="$(git -C "$success_repo/docs/book/po" rev-parse HEAD)"
 git -C "$success_repo/docs/book/po" checkout --quiet --detach "$base_commit"
@@ -78,7 +78,7 @@ assert_equal "$remote_main" "$remote_tag" "tag should point at refreshed remote 
 assert_equal "$remote_main" "$pinned_head" "main repo should pin the refreshed tag"
 
 stale_root="$(setup_fixture stale)"
-stale_repo="$stale_root/zeroclaw"
+stale_repo="$stale_root/clawcrew"
 stale_seed="$stale_root/seed"
 stale_remote="$stale_root/translations.git"
 stale_base="$(git -C "$stale_repo/docs/book/po" rev-parse HEAD)"

@@ -13,7 +13,7 @@ Throughout this walkthrough the existing single agent is called `primary` (subst
 
 ## Add a second agent
 
-Add another agent through the gateway dashboard, zerocode, or `zeroclaw config set`. The runtime creates `<install>/agents/<alias>/workspace/` on first agent-loop entry. On every start the agent loop injects the workspace identity files that exist into the system prompt: `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, then `BOOTSTRAP.md` (first run only) and `MEMORY.md` (main session only). `HEARTBEAT.md` is also a workspace personality file but it is read by the heartbeat engine, not injected into the prompt. The dashboard's personality editor exposes `SOUL.md`, `IDENTITY.md`, `USER.md`, `AGENTS.md`, `TOOLS.md`, `HEARTBEAT.md`, and `MEMORY.md` for editing. Create and edit those files to give the agent its persona. (`BOOTSTRAP.md` is a first-run scaffold the agent reads once and removes; the editor does not expose it.)
+Add another agent through the gateway dashboard, zerocode, or `clawcrew config set`. The runtime creates `<install>/agents/<alias>/workspace/` on first agent-loop entry. On every start the agent loop injects the workspace identity files that exist into the system prompt: `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, then `BOOTSTRAP.md` (first run only) and `MEMORY.md` (main session only). `HEARTBEAT.md` is also a workspace personality file but it is read by the heartbeat engine, not injected into the prompt. The dashboard's personality editor exposes `SOUL.md`, `IDENTITY.md`, `USER.md`, `AGENTS.md`, `TOOLS.md`, `HEARTBEAT.md`, and `MEMORY.md` for editing. Create and edit those files to give the agent its persona. (`BOOTSTRAP.md` is a first-run scaffold the agent reads once and removes; the editor does not expose it.)
 
 {{#config-where agents}}
 
@@ -23,7 +23,7 @@ Without a channel the agent has nowhere to listen. Bind one via the agent's `cha
 
 ## Cross-agent file access
 
-By default, an agent can only read and write within its own workspace dir. You can grant one agent read or write access into another agent's workspace (configured via the gateway, zerocode, or `zeroclaw config set`). Effective behavior, e.g. `researcher` granted write to `primary` and read to `archivist`:
+By default, an agent can only read and write within its own workspace dir. You can grant one agent read or write access into another agent's workspace (configured via the gateway, zerocode, or `clawcrew config set`). Effective behavior, e.g. `researcher` granted write to `primary` and read to `archivist`:
 
 - `file_read` from `researcher` can read both `<install>/agents/primary/workspace/` and `<install>/agents/archivist/workspace/`.
 - `file_write` and `file_edit` from `researcher` can write into `<install>/agents/primary/workspace/` but **not** `<install>/agents/archivist/workspace/`.
@@ -78,14 +78,14 @@ Every configured agent lives under an `agents.<alias>` entry with its risk profi
 
 {{#config-where agents}}
 
-> The `zeroclaw agents` lifecycle commands perform the full owned-state cascade only in builds with `gateway` and `agent-runtime` enabled, including the standard distributed binary. A reduced-feature CLI still changes config but prints that owned state was not cascaded. Use the gateway dashboard or a binary with both features enabled for the operations below when owned state exists.
+> The `clawcrew agents` lifecycle commands perform the full owned-state cascade only in builds with `gateway` and `agent-runtime` enabled, including the standard distributed binary. A reduced-feature CLI still changes config but prints that owned state was not cascaded. Use the gateway dashboard or a binary with both features enabled for the operations below when owned state exists.
 
 ## Rename an agent
 
 Use the rename control for the agent under **Config > Agents** in the gateway dashboard, or run:
 
 ```sh
-zeroclaw agents rename researcher analyst
+clawcrew agents rename researcher analyst
 ```
 
 Both surfaces rewrite references to the alias, persist the config, move the default per-alias workspace, and re-point owned memory, cron, ACP, and session state. Custom workspace paths do not move because they are not derived from the alias. The reserved `default` alias cannot be renamed from or to.
@@ -97,8 +97,8 @@ Read any warnings in the response. The config rename commits before workspace an
 Use the delete control under **Config > Agents**, or preview and apply the CLI operation:
 
 ```sh
-zeroclaw agents delete researcher --dry-run
-zeroclaw agents delete researcher --yes
+clawcrew agents delete researcher --dry-run
+clawcrew agents delete researcher --yes
 ```
 
 1. Review the impact preview and clear every blocker it reports. Common config blockers are an enabled heartbeat owned by the agent and an enabled channel binding that no other enabled agent owns. The preview also lists soft references that the cascade will remove automatically.
@@ -117,7 +117,7 @@ The owned-state cascade attempts to:
 
 These side effects are best-effort. An export or archive-file write can fail while later cleanup continues. Verify the applicable `workspace/`, `cascade/*.json`, and `manifest.json` entries instead of assuming the archive is complete. The CLI prints surfaced cascade warnings. The delete API also returns them, but the dashboard does not currently display them; dashboard operators must check the gateway logs as well.
 
-> Do not replace this flow with direct TOML edits, `zeroclaw config set`, manual workspace deletion, or SQL deletion. Those paths do not run the gateway's reference and owned-state cascade.
+> Do not replace this flow with direct TOML edits, `clawcrew config set`, manual workspace deletion, or SQL deletion. Those paths do not run the gateway's reference and owned-state cascade.
 
 There is no automated restore command. Keep the deletion archive until you no longer need it for inspection or manual recovery.
 
@@ -130,8 +130,8 @@ Look at the merged log stream; every line should now carry `[<alias>]` or `[syst
 #### sh
 
 ```sh
-zeroclaw daemon 2>&1 | grep '\[researcher\]'   # researcher's lines only
-zeroclaw daemon 2>&1 | grep '\[system\]'       # boot/migration/scheduler lines only
+clawcrew daemon 2>&1 | grep '\[researcher\]'   # researcher's lines only
+clawcrew daemon 2>&1 | grep '\[system\]'       # boot/migration/scheduler lines only
 ```
 
 </div>

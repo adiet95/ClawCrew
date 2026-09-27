@@ -32,7 +32,7 @@ import {
 
 // ── Risk-profile tool access ────────────────────────────────────────────
 // Per-profile allow/exclude state for the tool-access matrix in each expanded
-// tool card. zeroclaw's gate (crates/zeroclaw-config policy + runtime):
+// tool card. clawcrew's gate (crates/clawcrew-config policy + runtime):
 //   • allowed_tools omitted or []  → unrestricted (every tool allowed)
 //   • deny_all_tools = true        → deny-all (nothing allowed)
 //   • allowed_tools [list]         → only those tools allowed — and any
@@ -90,7 +90,7 @@ function parseDenyAll(raw: unknown): boolean {
 // Mirrors the runtime auto-admit exception: under a nonempty allowlist, any
 // name containing `__` (the `<server>__<tool>` MCP convention) is admitted
 // even when not listed. See ToolPermissionGrid.logic.ts and
-// crates/zeroclaw-tools/src/tool_search.rs.
+// crates/clawcrew-tools/src/tool_search.rs.
 function isMcpAutoAdmitted(tool: string, allowed: string[]): boolean {
   return allowed.length > 0 && tool.includes('__');
 }

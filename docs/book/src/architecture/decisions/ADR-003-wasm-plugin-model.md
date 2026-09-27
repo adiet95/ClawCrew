@@ -5,8 +5,8 @@ date: 2026-03-15
 status: superseded-by-ADR-009
 relates-to:
   - ADR-009
-  - crates/zeroclaw-plugins
-  - crates/zeroclaw-api
+  - crates/clawcrew-plugins
+  - crates/clawcrew-api
 ---
 
 # ADR-003: WASM Plugins Use Extism As The Initial Execution Bridge
@@ -20,9 +20,9 @@ WIT and direct `wasmtime` model supersedes it in
 
 ## Context
 
-ZeroClaw compiled many tools and channels into a single binary. Every
+ClawCrew compiled many tools and channels into a single binary. Every
 user paid the compile time and binary size for capabilities they might
-never use. Third-party developers could not extend ZeroClaw without
+never use. Third-party developers could not extend ClawCrew without
 forking the repository and writing Rust code against internal APIs.
 
 The Intentional Architecture RFC defined a microkernel target where
@@ -46,7 +46,7 @@ The original evaluation considered three WASM runtime options:
 
 ## Decision
 
-ZeroClaw would use Extism 1.x as the initial WASM plugin runtime behind
+ClawCrew would use Extism 1.x as the initial WASM plugin runtime behind
 the `plugins-wasm` feature flag.
 
 Plugins were WASM modules exporting two JSON functions:
@@ -65,7 +65,7 @@ The runtime provided two permission-gated host functions:
   `PluginPermission::EnvRead`.
 
 Extism's built-in HTTP support was deliberately not used because it
-would bypass ZeroClaw's permission enforcement.
+would bypass ClawCrew's permission enforcement.
 
 Each plugin shipped a `manifest.toml` alongside its `.wasm` file. The
 manifest declared name, version, capabilities such as `tool`, `channel`,
@@ -78,7 +78,7 @@ enforcement modes: `disabled`, `permissive`, and `strict`.
 
 Plugin authors depended on `extism-pdk` and compiled to
 `wasm32-wasip1`. The protocol used documented JSON contracts rather than
-a ZeroClaw-specific guest SDK crate.
+a ClawCrew-specific guest SDK crate.
 
 ## Consequences
 
@@ -99,7 +99,7 @@ Negative:
 - Extism added binary size behind the feature flag.
 - Plugin authors depended on `extism-pdk`, an external SDK.
 - The initial bridge made tool plugins functional before channel plugins.
-- Extism calls were synchronous while ZeroClaw's `Tool` trait was async,
+- Extism calls were synchronous while ClawCrew's `Tool` trait was async,
   so calls used blocking-task bridging.
 
 Known gaps:
@@ -121,10 +121,10 @@ authors.
 - Historical source path:
   `docs/architecture/decisions/adr-003-wasm-extism-plugin-model.md`
 - Historical implementation paths:
-  `crates/zeroclaw-plugins/src/runtime.rs`,
-  `crates/zeroclaw-plugins/src/wasm_tool.rs`,
-  `crates/zeroclaw-plugins/src/host.rs`, and
-  `crates/zeroclaw-plugins/src/signature.rs`
+  `crates/clawcrew-plugins/src/runtime.rs`,
+  `crates/clawcrew-plugins/src/wasm_tool.rs`,
+  `crates/clawcrew-plugins/src/host.rs`, and
+  `crates/clawcrew-plugins/src/signature.rs`
 - Tracking issues from the original ADR:
-  [#5918](https://github.com/zeroclaw-labs/zeroclaw/issues/5918) and
-  [#5919](https://github.com/zeroclaw-labs/zeroclaw/issues/5919)
+  [#5918](https://github.com/clawcrew-labs/clawcrew/issues/5918) and
+  [#5919](https://github.com/clawcrew-labs/clawcrew/issues/5919)

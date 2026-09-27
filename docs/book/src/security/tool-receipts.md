@@ -65,7 +65,7 @@ The `zc-receipt-` prefix exists so the leak detector doesn't redact them (receip
 #### sh
 
 ```sh
-RUST_LOG=zeroclaw_runtime::agent=debug zeroclaw daemon
+RUST_LOG=clawcrew_runtime::agent=debug clawcrew daemon
 ```
 
 </div>

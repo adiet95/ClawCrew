@@ -1,8 +1,8 @@
 // `apps/zerocode` is a standalone TUI client, not daemon-path code.
-// It speaks JSON-RPC to whatever ZeroClaw daemon is at the configured
+// It speaks JSON-RPC to whatever ClawCrew daemon is at the configured
 // address; the daemon owns attribution, the TUI owns its session id.
 // Bare `tokio::spawn` is the right primitive here — the workspace-wide
-// `zeroclaw_spawn::spawn!` rule is daemon-path only (see `clippy.toml`'s
+// `clawcrew_spawn::spawn!` rule is daemon-path only (see `clippy.toml`'s
 // commentary, which records this crate as the sole exemption).
 #![allow(clippy::disallowed_methods)]
 
@@ -98,18 +98,18 @@ impl ShutdownSignals {
 #[derive(Parser)]
 #[command(
     name = "zerocode",
-    about = "Interactive TUI config manager for ZeroClaw",
+    about = "Interactive TUI config manager for ClawCrew",
     version,
     long_version = concat!(
         env!("CARGO_PKG_VERSION"),
-        "\n\nThis version must exactly match the running zeroclaw daemon. ",
+        "\n\nThis version must exactly match the running clawcrew daemon. ",
         "The TUI and daemon share a wire protocol with no cross-version ",
         "compatibility guarantee; mismatched versions may fail to connect ",
         "or behave unpredictably."
     )
 )]
 struct Cli {
-    /// Path to the ZeroClaw config directory
+    /// Path to the ClawCrew config directory
     #[arg(long)]
     config_dir: Option<PathBuf>,
 
@@ -1129,8 +1129,8 @@ fn ephemeral_daemon_command(
 ) -> std::process::Command {
     let exe = std::env::current_exe()
         .ok()
-        .and_then(|p| p.parent().map(|d| d.join("zeroclaw")))
-        .unwrap_or_else(|| PathBuf::from("zeroclaw"));
+        .and_then(|p| p.parent().map(|d| d.join("clawcrew")))
+        .unwrap_or_else(|| PathBuf::from("clawcrew"));
 
     let mut cmd = std::process::Command::new(&exe);
     configure_ephemeral_daemon_command(&mut cmd, config_dir, socket);
@@ -1163,7 +1163,7 @@ fn configure_ephemeral_daemon_command(
         .arg(config_dir)
         // The TUI waits on this exact endpoint, so the child must bind it
         // instead of independently deriving a potentially different path.
-        .env("ZEROCLAW_SOCKET", socket);
+        .env("CLAWCREW_SOCKET", socket);
 }
 
 pub(crate) struct SpawnedDaemon {
@@ -2115,11 +2115,11 @@ mod connection_tests {
 
     #[test]
     fn ephemeral_daemon_command_sets_selected_socket() {
-        let mut cmd = std::process::Command::new("zeroclaw");
+        let mut cmd = std::process::Command::new("clawcrew");
         configure_ephemeral_daemon_command(
             &mut cmd,
-            std::path::Path::new("/tmp/zeroclaw-config"),
-            std::path::Path::new("/tmp/zeroclaw.sock"),
+            std::path::Path::new("/tmp/clawcrew-config"),
+            std::path::Path::new("/tmp/clawcrew.sock"),
         );
 
         assert_eq!(
@@ -2130,14 +2130,14 @@ mod connection_tests {
                 "daemon",
                 "--ephemeral",
                 "--config-dir",
-                "/tmp/zeroclaw-config",
+                "/tmp/clawcrew-config",
             ]
         );
         assert_eq!(
             cmd.get_envs()
-                .find(|(name, _)| *name == OsStr::new("ZEROCLAW_SOCKET"))
+                .find(|(name, _)| *name == OsStr::new("CLAWCREW_SOCKET"))
                 .and_then(|(_, value)| value),
-            Some(OsStr::new("/tmp/zeroclaw.sock"))
+            Some(OsStr::new("/tmp/clawcrew.sock"))
         );
     }
 

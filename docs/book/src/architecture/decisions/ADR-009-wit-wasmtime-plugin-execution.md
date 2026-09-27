@@ -5,7 +5,7 @@ date: 2026-07-04
 status: accepted
 relates-to:
   - ADR-003
-  - crates/zeroclaw-plugins
+  - crates/clawcrew-plugins
   - wit/v0
   - docs/book/src/foundations/fnd-001-intentional-architecture.md
 ---
@@ -19,7 +19,7 @@ a WIT-defined WASM Component Model surface hosted directly by `wasmtime`.
 ## Context
 
 Extism was a useful bootstrap for proving that external WASM plugins
-could appear as ZeroClaw tools. It also gave the project a simple JSON
+could appear as ClawCrew tools. It also gave the project a simple JSON
 protocol and a permission-gated host-function model.
 
 As the microkernel architecture matured, the plugin surface needed a
@@ -30,25 +30,25 @@ stronger compatibility boundary:
 - the host needed release-target-specific execution backends;
 - host imports needed to attach to permissions at link time;
 - plugin authors needed a durable ABI instead of ad hoc JSON exports;
-- store limits and WASI host surfaces needed to be owned by ZeroClaw.
+- store limits and WASI host surfaces needed to be owned by ClawCrew.
 
 The WASM Component Model and WIT provide that boundary. Direct
 `wasmtime` integration gives the host enough control to select backends,
 attach WASI Preview 2 surfaces, enforce resource limits, and bridge
-guest worlds into ZeroClaw's Rust traits.
+guest worlds into ClawCrew's Rust traits.
 
 ## Decision
 
-ZeroClaw's plugin ABI is based on WASM components described by WIT
+ClawCrew's plugin ABI is based on WASM components described by WIT
 interfaces under `wit/v0`. The host uses direct `wasmtime` component
-model plumbing in `crates/zeroclaw-plugins`, with per-world bridges for
+model plumbing in `crates/clawcrew-plugins`, with per-world bridges for
 tools, channels, and memory backends.
 
 The execution model is:
 
 - `wit/v0/tool.wit`, `channel.wit`, and `memory.wit` define the guest
   contracts.
-- `crates/zeroclaw-plugins/src/component.rs` owns shared component host
+- `crates/clawcrew-plugins/src/component.rs` owns shared component host
   plumbing, store state, resource limits, WIT bindings, and WASI wiring.
 - `wasm_tool.rs`, `wasm_channel.rs`, and `wasm_memory.rs` bridge those
   worlds back into the Rust `Tool`, `Channel`, and `Memory` traits.
@@ -124,10 +124,10 @@ Follow-up:
 - [Plugin protocol](../../developing/plugin-protocol.md)
 - `wit/v0/`
 - `wit/VERSIONING.md`
-- `crates/zeroclaw-plugins/src/component.rs`
-- `crates/zeroclaw-plugins/src/wasm_tool.rs`
-- `crates/zeroclaw-plugins/src/wasm_channel.rs`
-- `crates/zeroclaw-plugins/src/wasm_memory.rs`
-- `crates/zeroclaw-plugins/src/host.rs`
-- `crates/zeroclaw-plugins/src/signature.rs`
-- `crates/zeroclaw-infra/src/net_guard.rs`
+- `crates/clawcrew-plugins/src/component.rs`
+- `crates/clawcrew-plugins/src/wasm_tool.rs`
+- `crates/clawcrew-plugins/src/wasm_channel.rs`
+- `crates/clawcrew-plugins/src/wasm_memory.rs`
+- `crates/clawcrew-plugins/src/host.rs`
+- `crates/clawcrew-plugins/src/signature.rs`
+- `crates/clawcrew-infra/src/net_guard.rs`

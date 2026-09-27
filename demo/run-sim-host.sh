@@ -7,7 +7,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo "=== ZeroClaw ESP32 Smart Room – Host (low storage) mode ==="
+echo "=== ClawCrew ESP32 Smart Room – Host (low storage) mode ==="
 echo
 
 if ! command -v socat >/dev/null 2>&1; then
@@ -27,7 +27,7 @@ fi
 
 # Make sure a config exists for the agent later
 mkdir -p demo/data/config
-cp -n demo/zeroclaw.toml.example demo/data/config/config.toml 2>/dev/null || true
+cp -n demo/clawcrew.toml.example demo/data/config/config.toml 2>/dev/null || true
 
 bind_addr="${1:-127.0.0.1:8080}"
 if [[ $# -gt 0 ]]; then
@@ -43,4 +43,4 @@ echo "Then send the printed /bind code to Telegram, paste the primer from demo/P
 echo
 
 # Default to localhost bind for host-mode safety (user can override with extra args if wanted).
-exec cargo run -p zeroclaw-hardware --example esp32_sim --features "hardware dev-sim" -- "${bind_addr}" "$@"
+exec cargo run -p clawcrew-hardware --example esp32_sim --features "hardware dev-sim" -- "${bind_addr}" "$@"

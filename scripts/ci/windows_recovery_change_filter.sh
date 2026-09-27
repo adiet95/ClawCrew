@@ -12,7 +12,7 @@ fi
 
 # Include the TaskRecord owner and module wiring, not just authority.rs. Cargo
 # and toolchain changes can alter sysinfo or the Windows API dependency.
-pattern='^crates/zeroclaw-runtime/src/(control_plane/|lib\.rs$)|(^|/)Cargo\.(toml|lock)$|(^|/)build\.rs$|(^|/)rust-toolchain(\.toml)?$|^\.cargo/|^\.github/actions/|^\.github/workflows/ci\.yml$|^scripts/ci/windows_recovery_change_filter(\.test)?\.sh$'
+pattern='^crates/clawcrew-runtime/src/(control_plane/|lib\.rs$)|(^|/)Cargo\.(toml|lock)$|(^|/)build\.rs$|(^|/)rust-toolchain(\.toml)?$|^\.cargo/|^\.github/actions/|^\.github/workflows/ci\.yml$|^scripts/ci/windows_recovery_change_filter(\.test)?\.sh$'
 if grep -Eq "$pattern" "$paths"; then
     echo 'windows_recovery=true'
 else

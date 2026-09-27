@@ -27,7 +27,7 @@ jobs:
     name: Compare AUR Version To Release
     runs-on: ubuntu-latest
     env:
-      AUR_PACKAGE: zeroclawlabs
+      AUR_PACKAGE: clawcrewlabs
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 

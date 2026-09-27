@@ -1,13 +1,13 @@
 <!-- Canonical plugin manifest field reference. Edit here; reuse via {{#include}}. -->
 The manifest is the file named `manifest.toml` in the plugin directory. Its
 fields are the serde surface of `PluginManifest` in
-`crates/zeroclaw-plugins/src/lib.rs`, which is the source of truth:
+`crates/clawcrew-plugins/src/lib.rs`, which is the source of truth:
 
 | Field | Required | Meaning |
 |-------|----------|---------|
 | `name` | yes | Unique canonical package slug and the package component of each derived instance config key. It is not itself an operator config key. Use 1–128 lowercase ASCII characters; start and end with `[a-z0-9]`, with only `[a-z0-9._-]` between. Discovery rejects invalid or duplicate names. |
 | `version` | yes | Version string, e.g. `0.1.0`. |
-| `description` | no | Human-readable description shown by `zeroclaw plugin list`. |
+| `description` | no | Human-readable description shown by `clawcrew plugin list`. |
 | `author` | no | Author name or organization. |
 | `wasm_path` | for WASM capabilities | Component file name, relative to the plugin directory. Required unless the only capability is `skill`. Discovery skips the plugin if the named file does not exist. |
 | `wasm_sha256` | in strict mode for WASM capabilities | Hexadecimal SHA-256 of the exact component bytes. When present it is always enforced; strict signature policy requires it so the signed manifest binds the admitted executable. |

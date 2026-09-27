@@ -352,7 +352,7 @@ beforeEach(() => {
   deleteFailures = new Set();
   configPutHandler = null;
   sessionsResponder = null;
-  storage.setItem('zeroclaw_active_session.ops', 'A');
+  storage.setItem('clawcrew_active_session.ops', 'A');
   listedSessions = [
     {
       session_id: 'A', session_key: 'gw_A', name: 'First', message_count: 0,
@@ -402,7 +402,7 @@ for (const scenario of ['unknown', 'disabled'] as const) {
     await act(async () => { send.props.onClick(); });
 
     assert.equal(mounted.context().sessionId, 'A');
-    assert.equal(storage.getItem('zeroclaw_active_session.ops'), 'A');
+    assert.equal(storage.getItem('clawcrew_active_session.ops'), 'A');
     assert.equal(runtime.sockets.length, 1);
     assert.ok(mounted.context().messages.some((message) =>
       message.content.includes('session storage is confirmed')));
@@ -668,8 +668,8 @@ test('delete preserves inactive state and moves an active session exactly once',
   runtime.queueMessages('A', () => Promise.resolve(messagesResponse('A', true)));
   const cHydration = new Deferred<SessionMessagesResponse>();
   runtime.queueMessages('C', () => cHydration.promise);
-  storage.setItem('zeroclaw_chat_history_v1:B', '{"messages":[]}');
-  storage.setItem('zeroclaw_chat_history_v1:A', '{"messages":[]}');
+  storage.setItem('clawcrew_chat_history_v1:B', '{"messages":[]}');
+  storage.setItem('clawcrew_chat_history_v1:A', '{"messages":[]}');
   const mounted = await mountChat(runtime);
   await openSocket(runtime, 0);
   await settle();
@@ -677,14 +677,14 @@ test('delete preserves inactive state and moves an active session exactly once',
   await act(async () => { await mounted.context().removeSession('B'); });
   assert.equal(mounted.context().sessionId, 'A');
   assert.equal(runtime.sockets.length, 1);
-  assert.equal(storage.getItem('zeroclaw_chat_history_v1:B'), null);
+  assert.equal(storage.getItem('clawcrew_chat_history_v1:B'), null);
 
   await act(async () => { await mounted.context().removeSession('A'); });
   await settle();
   assert.equal(mounted.context().sessionId, 'C');
   assert.equal(mounted.context().hydrated, false);
   assert.equal(mounted.context().sessionPersistence, null);
-  assert.equal(storage.getItem('zeroclaw_chat_history_v1:A'), null);
+  assert.equal(storage.getItem('clawcrew_chat_history_v1:A'), null);
   assert.equal(runtime.sockets[1]?.sessionId, 'C');
   await unmount(mounted.renderer);
 });
@@ -710,7 +710,7 @@ test('deleting an active row the gateway no longer has is treated as deleted', a
   runtime.queueMessages('C', () => Promise.resolve(messagesResponse('C', true)));
   runtime.queueDelete('A', () => deleteSession('A'));
   missingSessions.add('A');
-  storage.setItem('zeroclaw_chat_history_v1:A', '{"messages":[]}');
+  storage.setItem('clawcrew_chat_history_v1:A', '{"messages":[]}');
   const mounted = await mountChat(runtime);
   await openSocket(runtime, 0);
   await settle();
@@ -719,7 +719,7 @@ test('deleting an active row the gateway no longer has is treated as deleted', a
   await settle();
   assert.deepEqual(runtime.deleteCalls, ['A']);
   assert.equal(mounted.context().sessionId, 'C');
-  assert.equal(storage.getItem('zeroclaw_chat_history_v1:A'), null);
+  assert.equal(storage.getItem('clawcrew_chat_history_v1:A'), null);
   assert.equal(runtime.sockets[1]?.sessionId, 'C');
   await unmount(mounted.renderer);
 });
@@ -730,7 +730,7 @@ test('a non-404 delete failure keeps the active row and its cache', async () => 
   runtime.queueMessages('A', () => Promise.resolve(messagesResponse('A', true)));
   runtime.queueDelete('A', () => deleteSession('A'));
   deleteFailures.add('A');
-  storage.setItem('zeroclaw_chat_history_v1:A', '{"messages":[]}');
+  storage.setItem('clawcrew_chat_history_v1:A', '{"messages":[]}');
   const mounted = await mountChat(runtime);
   await openSocket(runtime, 0);
   await settle();
@@ -741,7 +741,7 @@ test('a non-404 delete failure keeps the active row and its cache', async () => 
     ));
   });
   assert.equal(mounted.context().sessionId, 'A');
-  assert.equal(storage.getItem('zeroclaw_chat_history_v1:A'), '{"messages":[]}');
+  assert.equal(storage.getItem('clawcrew_chat_history_v1:A'), '{"messages":[]}');
   assert.equal(runtime.sockets.length, 1);
   await unmount(mounted.renderer);
 });
@@ -861,7 +861,7 @@ test('a deferred inactive delete replaces the target if it becomes active', asyn
 
   assert.equal(mounted.context().sessionId, 'C');
   assert.equal(mounted.context().sessionPersistence, null);
-  assert.equal(storage.getItem('zeroclaw_active_session.ops'), 'C');
+  assert.equal(storage.getItem('clawcrew_active_session.ops'), 'C');
   assert.deepEqual(runtime.sockets.map((socket) => socket.sessionId), ['A', 'B', 'C']);
   await unmount(mounted.renderer);
 });
@@ -898,7 +898,7 @@ test('a deferred delete replaces its target after an A to B to A round trip', as
 
   assert.equal(mounted.context().sessionId, 'C');
   assert.equal(mounted.context().sessionPersistence, null);
-  assert.equal(storage.getItem('zeroclaw_active_session.ops'), 'C');
+  assert.equal(storage.getItem('clawcrew_active_session.ops'), 'C');
   assert.deepEqual(runtime.sockets.map((socket) => socket.sessionId), ['A', 'B', 'A', 'C']);
   await unmount(mounted.renderer);
 });

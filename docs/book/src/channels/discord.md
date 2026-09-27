@@ -1,6 +1,6 @@
 # Discord
 
-Run your ZeroClaw agent as a Discord bot. This guide walks you through it
+Run your ClawCrew agent as a Discord bot. This guide walks you through it
 click by click, no prior bot experience needed. By the end you'll have a bot
 sitting in your server that replies when people talk to it.
 
@@ -11,7 +11,7 @@ sitting in your server that replies when people talk to it.
 ## Quickstart
 
 Five steps: make the bot, copy its token, turn on two switches, invite it, and
-start ZeroClaw.
+start ClawCrew.
 
 ### 1. Create the bot
 
@@ -36,7 +36,7 @@ Still on the **Bot** page, scroll to **Privileged Gateway Intents** and toggle
 Click **Save Changes**. If you skip this, the bot connects but never sees any
 messages, which is the single most common "my bot does nothing" cause.
 
-### 3. Tell ZeroClaw about the bot
+### 3. Tell ClawCrew about the bot
 
 Put the token from step 1 into your config. The token is a secret, so set it
 through a surface that encrypts it rather than typing it into `config.toml`:
@@ -54,11 +54,11 @@ through a surface that encrypts it rather than typing it into `config.toml`:
 4. Copy the URL at the bottom, open it in your browser, pick your server, and
    **Authorize**.
 
-The bot now shows up in your member list (offline until you start ZeroClaw).
+The bot now shows up in your member list (offline until you start ClawCrew).
 
 ### 5. Start and test
 
-Start ZeroClaw (`zeroclaw service restart` or `zeroclaw daemon`), then send a
+Start ClawCrew (`clawcrew service restart` or `clawcrew daemon`), then send a
 message in a channel the bot can see. It should reply. If it doesn't, jump to
 [Troubleshooting](#troubleshooting).
 

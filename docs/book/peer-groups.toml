@@ -1,7 +1,7 @@
 # Peer-group snippet parameters. One row per channel that documents peer-group
 # gating. The generator (`cargo mdbook peer-groups`) renders one snippet per
 # entry from a single template; channel pages include their snippet. Keys are
-# validated against the canonical channel inventory in zeroclaw-config, so a
+# validated against the canonical channel inventory in clawcrew-config, so a
 # typo'd or removed channel fails the build loudly.
 #
 # Fields:

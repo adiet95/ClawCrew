@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# PROVIDE: clawcrew
+# REQUIRE: NETWORKING DAEMON
+# KEYWORD: shutdown
+#
+# Basic single-instance rc.d script for clawcrew. Install as
+# /usr/local/etc/rc.d/clawcrew and replace @@CLAWCREW_USER@@ with the account
+# that owns ~/.clawcrew (see dist/freebsd/README.md).
+#
+# For unattended or remote operation (idempotent start, thorough stop, and a
+# `ssh host service clawcrew start` that does not hang), use the hardened
+# variant clawcrew-hardened.rc in this directory instead of this one.
+
+. /etc/rc.subr
+
+name="clawcrew"
+rcvar="clawcrew_enable"
+
+load_rc_config $name
+
+: ${clawcrew_enable:="NO"}
+# NOTE: do NOT name this ${name}_user — rc.subr would then run its own user
+# switch (su) and collide with daemon -u ("failed to set user environment").
+: ${clawcrew_runas:="@@CLAWCREW_USER@@"}
+
+rundir="/var/run/clawcrew"
+pidfile="${rundir}/clawcrew.pid"
+logfile="/var/log/${name}.log"
+launcher="/usr/local/libexec/clawcrew-run.sh"
+
+command="/usr/sbin/daemon"
+# -r supervise+restart the child; -P write the SUPERVISOR pid; -o route the
+# child's stdout/stderr to the logfile; -u run as an unprivileged user.
+# daemon -u (not `su -m`) so SIGTERM is forwarded to clawcrew on stop.
+command_args="-r -P ${pidfile} -o ${logfile} -u ${clawcrew_runas} ${launcher}"
+
+start_precmd="clawcrew_precmd"
+
+clawcrew_precmd()
+{
+    # rundir + logfile stay root-owned: rc.d (root) writes the daemon -P pidfile
+    # here and trusts it later, so the unprivileged service user must not be
+    # able to forge the supervisor pidfile. daemon -o opens the logfile before
+    # dropping to ${clawcrew_runas}, so root ownership is fine.
+    install -d -o root -g wheel -m 755 "${rundir}"
+    [ -e "${logfile}" ] || install -o root -g wheel -m 640 /dev/null "${logfile}"
+    return 0
+}
+
+run_rc_command "$1"

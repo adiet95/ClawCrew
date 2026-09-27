@@ -173,7 +173,7 @@ jobs:
             ALL_CONTRIBUTORS=$(printf "%s\n%s" "$GIT_AUTHORS" "$CO_AUTHORS" \
               | sort -uf \
               | grep -v '^$' \
-              | grep -viE '\[bot\]$|^dependabot|^github-actions|^copilot|^ZeroClaw Bot|^ZeroClaw Runner|^ZeroClaw Agent|^blacksmith' \
+              | grep -viE '\[bot\]$|^dependabot|^github-actions|^copilot|^ClawCrew Bot|^ClawCrew Runner|^ClawCrew Agent|^blacksmith' \
               | while IFS= read -r name; do echo "- ${name}"; done || true)
 
             BODY=$(cat <<NOTES_EOF
@@ -214,56 +214,56 @@ jobs:
           # ensuring compatibility with Ubuntu 22.04+ (#3573).
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-musl
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
             use_cross: true
           - os: ubuntu-22.04
             target: aarch64-unknown-linux-gnu
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
             cross_compiler: gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
             linker_env: CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER
             linker: aarch64-linux-gnu-gcc
           - os: ubuntu-22.04
             target: aarch64-unknown-linux-musl
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
             use_cross: true
           - os: ubuntu-22.04
             target: armv7-unknown-linux-gnueabihf
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
             cross_compiler: gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
             linker_env: CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER
             linker: arm-linux-gnueabihf-gcc
           - os: ubuntu-22.04
             target: arm-unknown-linux-gnueabihf
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
             cross_compiler: gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
             linker_env: CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABIHF_LINKER
             linker: arm-linux-gnueabihf-gcc
           - os: macos-14
             target: aarch64-apple-darwin
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
           - os: macos-15-intel
             target: x86_64-apple-darwin
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
           - os: ubuntu-latest
             target: aarch64-linux-android
-            artifact: zeroclaw
+            artifact: clawcrew
             ext: tar.gz
             ndk: true
             experimental: true
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact: zeroclaw.exe
+            artifact: clawcrew.exe
             ext: zip
     continue-on-error: ${{ matrix.experimental || false }}
     steps:
@@ -364,7 +364,7 @@ jobs:
           done
           cp -r web/dist staging/web/dist
           cd staging
-          tar czf ../zeroclaw-${{ matrix.target }}.${{ matrix.ext }} ${{ matrix.artifact }} $extra web/dist
+          tar czf ../clawcrew-${{ matrix.target }}.${{ matrix.ext }} ${{ matrix.artifact }} $extra web/dist
 
       - name: Package (Windows)
         if: runner.os == 'Windows'
@@ -381,12 +381,12 @@ jobs:
           done
           cp -r web/dist staging/web/dist
           cd staging
-          7z a ../zeroclaw-${{ matrix.target }}.${{ matrix.ext }} ${{ matrix.artifact }} $extra web/dist
+          7z a ../clawcrew-${{ matrix.target }}.${{ matrix.ext }} ${{ matrix.artifact }} $extra web/dist
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: zeroclaw-${{ matrix.target }}
-          path: zeroclaw-${{ matrix.target }}.${{ matrix.ext }}
+          name: clawcrew-${{ matrix.target }}
+          path: clawcrew-${{ matrix.target }}.${{ matrix.ext }}
           retention-days: 14
 
   build-desktop:
@@ -397,7 +397,7 @@ jobs:
     # then the universal app build on top.
     timeout-minutes: 180
     env:
-      MACOS_DMG_PATH: desktop-assets/ZeroClaw.dmg
+      MACOS_DMG_PATH: desktop-assets/ClawCrew.dmg
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -441,8 +441,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          kernel="$GITHUB_WORKSPACE/apps/tauri/binaries/zeroclaw-universal-apple-darwin"
-          smoke_root="$RUNNER_TEMP/zeroclaw-desktop-smoke"
+          kernel="$GITHUB_WORKSPACE/apps/tauri/binaries/clawcrew-universal-apple-darwin"
+          smoke_root="$RUNNER_TEMP/clawcrew-desktop-smoke"
           smoke_cwd="$smoke_root/cwd"
           smoke_home="$smoke_root/home"
           xdg_data_home="$smoke_root/xdg-data"
@@ -550,8 +550,8 @@ jobs:
             exit 1
           fi
           mv "${dmg_candidates[0]}" "$MACOS_DMG_PATH"
-          find target -name '*.app.tar.gz' -exec cp {} desktop-assets/ZeroClaw-macos.app.tar.gz \; 2>/dev/null || true
-          find target -name '*.app.tar.gz.sig' -exec cp {} desktop-assets/ZeroClaw-macos.app.tar.gz.sig \; 2>/dev/null || true
+          find target -name '*.app.tar.gz' -exec cp {} desktop-assets/ClawCrew-macos.app.tar.gz \; 2>/dev/null || true
+          find target -name '*.app.tar.gz.sig' -exec cp {} desktop-assets/ClawCrew-macos.app.tar.gz.sig \; 2>/dev/null || true
           echo "--- Desktop assets ---"
           ls -lh desktop-assets/
 
@@ -637,8 +637,8 @@ jobs:
       - name: Prepare desktop release assets
         run: |
           mkdir -p desktop-assets
-          find target -name '*.deb' -exec cp {} desktop-assets/ZeroClaw-linux-amd64.deb \; 2>/dev/null || true
-          find target -name '*.AppImage' -exec cp {} desktop-assets/ZeroClaw-linux-x86_64.AppImage \; 2>/dev/null || true
+          find target -name '*.deb' -exec cp {} desktop-assets/ClawCrew-linux-amd64.deb \; 2>/dev/null || true
+          find target -name '*.AppImage' -exec cp {} desktop-assets/ClawCrew-linux-x86_64.AppImage \; 2>/dev/null || true
           echo "--- Desktop assets ---"
           ls -lh desktop-assets/
 
@@ -689,8 +689,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p desktop-assets
-          find target -name '*.msi' -exec cp {} desktop-assets/ZeroClaw-windows-x64.msi \; 2>/dev/null || true
-          find target -name '*-setup.exe' -exec cp {} desktop-assets/ZeroClaw-windows-x64-setup.exe \; 2>/dev/null || true
+          find target -name '*.msi' -exec cp {} desktop-assets/ClawCrew-windows-x64.msi \; 2>/dev/null || true
+          find target -name '*-setup.exe' -exec cp {} desktop-assets/ClawCrew-windows-x64-setup.exe \; 2>/dev/null || true
           echo "--- Desktop assets ---"
           ls -lh desktop-assets/
 
@@ -714,7 +714,7 @@ jobs:
         with:
           path: .
           format: spdx-json
-          output-file: zeroclaw-${{ needs.validate.outputs.tag }}-sbom.spdx.json
+          output-file: clawcrew-${{ needs.validate.outputs.tag }}-sbom.spdx.json
           upload-artifact: false
 
       - name: Generate SBOM — CycloneDX
@@ -722,15 +722,15 @@ jobs:
         with:
           path: .
           format: cyclonedx-json
-          output-file: zeroclaw-${{ needs.validate.outputs.tag }}-sbom.cdx.json
+          output-file: clawcrew-${{ needs.validate.outputs.tag }}-sbom.cdx.json
           upload-artifact: false
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-sboms
           path: |
-            zeroclaw-${{ needs.validate.outputs.tag }}-sbom.spdx.json
-            zeroclaw-${{ needs.validate.outputs.tag }}-sbom.cdx.json
+            clawcrew-${{ needs.validate.outputs.tag }}-sbom.spdx.json
+            clawcrew-${{ needs.validate.outputs.tag }}-sbom.cdx.json
           retention-days: 14
 
   publish:
@@ -753,7 +753,7 @@ jobs:
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: zeroclaw-*
+          pattern: clawcrew-*
           path: artifacts
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -786,24 +786,24 @@ jobs:
           TAG: ${{ needs.validate.outputs.tag }}
         run: |
           required_assets=(
-            "zeroclaw-x86_64-unknown-linux-gnu.tar.gz"
-            "zeroclaw-x86_64-unknown-linux-musl.tar.gz"
-            "zeroclaw-aarch64-unknown-linux-gnu.tar.gz"
-            "zeroclaw-aarch64-unknown-linux-musl.tar.gz"
-            "zeroclaw-armv7-unknown-linux-gnueabihf.tar.gz"
-            "zeroclaw-arm-unknown-linux-gnueabihf.tar.gz"
-            "zeroclaw-aarch64-apple-darwin.tar.gz"
-            "zeroclaw-x86_64-apple-darwin.tar.gz"
+            "clawcrew-x86_64-unknown-linux-gnu.tar.gz"
+            "clawcrew-x86_64-unknown-linux-musl.tar.gz"
+            "clawcrew-aarch64-unknown-linux-gnu.tar.gz"
+            "clawcrew-aarch64-unknown-linux-musl.tar.gz"
+            "clawcrew-armv7-unknown-linux-gnueabihf.tar.gz"
+            "clawcrew-arm-unknown-linux-gnueabihf.tar.gz"
+            "clawcrew-aarch64-apple-darwin.tar.gz"
+            "clawcrew-x86_64-apple-darwin.tar.gz"
             # aarch64-linux-android is experimental (continue-on-error): it is
-            # attached to the release when it builds (matched by the zeroclaw-*
+            # attached to the release when it builds (matched by the clawcrew-*
             # artifact download above) but must not block publish when the
             # allowed-to-fail leg fails. Treated like the desktop-linux/windows
             # bundles. Promote it back into required_assets only when the
             # Android build leg drops `experimental: true`.
-            "zeroclaw-x86_64-pc-windows-msvc.zip"
-            "ZeroClaw.dmg"
-            "zeroclaw-${TAG}-sbom.spdx.json"
-            "zeroclaw-${TAG}-sbom.cdx.json"
+            "clawcrew-x86_64-pc-windows-msvc.zip"
+            "ClawCrew.dmg"
+            "clawcrew-${TAG}-sbom.spdx.json"
+            "clawcrew-${TAG}-sbom.cdx.json"
           )
           missing=0
           for asset in "${required_assets[@]}"; do
@@ -849,13 +849,13 @@ jobs:
           set -euo pipefail
 
           assets_dir="$PWD/release-assets"
-          tmp_dir="$(mktemp -d "$RUNNER_TEMP/zeroclaw-verification.XXXXXX")"
-          staged_archive="$RUNNER_TEMP/zeroclaw-${TAG}-verification.tar.gz"
+          tmp_dir="$(mktemp -d "$RUNNER_TEMP/clawcrew-verification.XXXXXX")"
+          staged_archive="$RUNNER_TEMP/clawcrew-${TAG}-verification.tar.gz"
           trap 'rm -rf "$tmp_dir" "$staged_archive"' EXIT
 
           gh attestation trusted-root > "$tmp_dir/trusted_root.jsonl"
           {
-            printf '# ZeroClaw offline attestation bundles\n\n'
+            printf '# ClawCrew offline attestation bundles\n\n'
             printf -- '- Source commit: `%s`\n' "$GITHUB_SHA"
             printf -- '- Signer workflow: `%s`\n\n' "$SIGNER_WORKFLOW"
             printf 'Artifact | SHA256 | Bundle\n'
@@ -910,7 +910,7 @@ jobs:
           # corrupt archive therefore never reaches the consolidated asset
           # directory that the checksum and release-upload steps later glob, and
           # the EXIT trap clears the staged copy on every failure path.
-          final_archive="$assets_dir/zeroclaw-${TAG}-verification.tar.gz"
+          final_archive="$assets_dir/clawcrew-${TAG}-verification.tar.gz"
           rm -f "$staged_archive"
           tar -C "$tmp_dir" -czf "$staged_archive" .
           tar -tzf "$staged_archive"
@@ -949,7 +949,7 @@ jobs:
         continue-on-error: true
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
-          subject-path: release-assets/zeroclaw-${{ needs.validate.outputs.tag }}-verification.tar.gz
+          subject-path: release-assets/clawcrew-${{ needs.validate.outputs.tag }}-verification.tar.gz
 
       - name: Write release notes
         env:
@@ -979,8 +979,8 @@ jobs:
           **Online**
           \`\`\`bash
           gh attestation verify <artifact> \\
-            --repo zeroclaw-labs/zeroclaw \\
-            --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \\
+            --repo clawcrew-labs/clawcrew \\
+            --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \\
             --source-digest ${SOURCE_DIGEST}
           \`\`\`
           VERIFY_EOF
@@ -990,25 +990,25 @@ jobs:
 
           **Offline**
           In a connected staging environment, download \`<artifact>\`, \`SHA256SUMS\`, and
-          \`zeroclaw-${TAG}-verification.tar.gz\`. Verify the archive and checksums online:
+          \`clawcrew-${TAG}-verification.tar.gz\`. Verify the archive and checksums online:
           \`\`\`bash
-          gh attestation verify zeroclaw-${TAG}-verification.tar.gz \\
-            --repo zeroclaw-labs/zeroclaw \\
-            --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \\
+          gh attestation verify clawcrew-${TAG}-verification.tar.gz \\
+            --repo clawcrew-labs/clawcrew \\
+            --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \\
             --source-digest ${SOURCE_DIGEST}
           gh attestation verify SHA256SUMS \\
-            --repo zeroclaw-labs/zeroclaw \\
-            --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \\
+            --repo clawcrew-labs/clawcrew \\
+            --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \\
             --source-digest ${SOURCE_DIGEST}
-          awk -v file="zeroclaw-${TAG}-verification.tar.gz" '\$2 == file { print }' SHA256SUMS | sha256sum -c -
+          awk -v file="clawcrew-${TAG}-verification.tar.gz" '\$2 == file { print }' SHA256SUMS | sha256sum -c -
           mkdir verification
-          tar -xzf zeroclaw-${TAG}-verification.tar.gz -C verification
+          tar -xzf clawcrew-${TAG}-verification.tar.gz -C verification
           \`\`\`
           Move those files into the offline environment, then run:
           \`\`\`bash
           gh attestation verify <artifact> \\
-            --repo zeroclaw-labs/zeroclaw \\
-            --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \\
+            --repo clawcrew-labs/clawcrew \\
+            --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \\
             --source-digest ${SOURCE_DIGEST} \\
             --bundle verification/<artifact>.attestation.jsonl \\
             --custom-trusted-root verification/trusted_root.jsonl
@@ -1076,8 +1076,8 @@ jobs:
           curl -fsSL -X POST \
             -H "Authorization: token $PAT" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/zeroclaw-labs/zeroclaw-website/dispatches \
-            -d '{"event_type":"new-release","client_payload":{"install_script_url":"https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh"}}'
+            https://api.github.com/repos/clawcrew-labs/clawcrew-website/dispatches \
+            -d '{"event_type":"new-release","client_payload":{"install_script_url":"https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh"}}'
 
   deploy-docs:
     name: Deploy Versioned Docs
@@ -1142,18 +1142,18 @@ jobs:
       id-token: write   # required for keyless cosign OIDC signing of container images
     environment:
       name: docker
-      url: https://github.com/${{ github.repository }}/pkgs/container/zeroclaw
+      url: https://github.com/${{ github.repository }}/pkgs/container/clawcrew
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: zeroclaw-x86_64-unknown-linux-gnu
+          name: clawcrew-x86_64-unknown-linux-gnu
           path: artifacts/
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: zeroclaw-aarch64-unknown-linux-gnu
+          name: clawcrew-aarch64-unknown-linux-gnu
           path: artifacts/
 
       - name: Prepare Docker context with pre-built binaries
@@ -1185,8 +1185,8 @@ jobs:
         # Signs by digest so the signature is immutable regardless of tag mutations.
         # Consumers verify with:
         #   cosign verify --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-        #     --certificate-identity-regexp "^https://github.com/zeroclaw-labs/zeroclaw/" \
-        #     ghcr.io/zeroclaw-labs/zeroclaw@<digest>
+        #     --certificate-identity-regexp "^https://github.com/clawcrew-labs/clawcrew/" \
+        #     ghcr.io/clawcrew-labs/clawcrew@<digest>
         env:
           DIGEST: ${{ steps.build-push.outputs.digest }}
         run: |
@@ -1256,7 +1256,7 @@ jobs:
     uses: ./.github/workflows/tweet-release.yml
     with:
       release_tag: ${{ needs.validate.outputs.tag }}
-      release_url: https://github.com/zeroclaw-labs/zeroclaw/releases/tag/${{ needs.validate.outputs.tag }}
+      release_url: https://github.com/clawcrew-labs/clawcrew/releases/tag/${{ needs.validate.outputs.tag }}
     secrets: inherit
 
   discord:
@@ -1266,5 +1266,5 @@ jobs:
     uses: ./.github/workflows/discord-release.yml
     with:
       release_tag: ${{ needs.validate.outputs.tag }}
-      release_url: https://github.com/zeroclaw-labs/zeroclaw/releases/tag/${{ needs.validate.outputs.tag }}
+      release_url: https://github.com/clawcrew-labs/clawcrew/releases/tag/${{ needs.validate.outputs.tag }}
     secrets: inherit

@@ -2,7 +2,7 @@
 
 A **fan-in** is an external event source that starts SOP runs. Each source delivers events to the SOP engine through `dispatch_sop_event`, which matches every event against every loaded SOP's triggers and starts runs for those that match.
 
-One ZeroClaw instance can bind several fan-ins at once: an MQTT topic, a filesystem path, and an AMQP routing key can all feed the same engine without separate processes. Each source has a dedicated guide below.
+One ClawCrew instance can bind several fan-ins at once: an MQTT topic, a filesystem path, and an AMQP routing key can all feed the same engine without separate processes. Each source has a dedicated guide below.
 
 ## How dispatch works
 
@@ -39,9 +39,9 @@ Each source has a dedicated guide in the sidebar. Live sources (delivered by a r
 |---|---|---|
 | SOP never starts from a live source | trigger pattern mismatch or a failing `condition` | Verify the trigger pattern matches the delivered event; check the `condition` against the payload |
 | SOP started but a step did not execute | headless trigger without an active agent loop | Run an agent loop for `ExecuteStep`, or design the run to pause on approvals |
-| Webhook trigger never fires | exact trigger path mismatch, SOP subsystem unavailable, or authentication rejected | Run `zeroclaw daemon` with `sop.sops_dir` configured, match the full request path exactly, and provide the configured bearer/secret headers |
+| Webhook trigger never fires | exact trigger path mismatch, SOP subsystem unavailable, or authentication rejected | Run `clawcrew daemon` with `sop.sops_dir` configured, match the full request path exactly, and provide the configured bearer/secret headers |
 | Peripheral or calendar trigger never fires | event source not wired into the dispatcher | Use a live source ([Webhook](./webhook.md), [MQTT](./mqtt.md), [Filesystem](./filesystem.md), [AMQP](./amqp.md)) or start the run with [`sop_execute`](./manual.md) |
-| Cron trigger never fires | maintenance tick not running (no `zeroclaw daemon` or `zeroclaw channel start`; standalone `gateway start` does not run it), `sops_dir` unset/empty, or `maintenance_interval_secs = 0` | Run `zeroclaw daemon` (or `zeroclaw channel start`) with `sop.sops_dir` set to a non-empty value (unset by default; the documented value is `shared/sops`) and `sop.maintenance_interval_secs` non-zero (default `60`) |
+| Cron trigger never fires | maintenance tick not running (no `clawcrew daemon` or `clawcrew channel start`; standalone `gateway start` does not run it), `sops_dir` unset/empty, or `maintenance_interval_secs = 0` | Run `clawcrew daemon` (or `clawcrew channel start`) with `sop.sops_dir` set to a non-empty value (unset by default; the documented value is `shared/sops`) and `sop.maintenance_interval_secs` non-zero (default `60`) |
 
 ## See also
 

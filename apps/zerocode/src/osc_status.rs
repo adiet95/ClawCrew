@@ -7,7 +7,7 @@
 //! needs attention.
 //!
 //! Both channels are terminal conventions, not an integration with any one
-//! tool. Nothing here knows what is reading it, and no consumer needs ZeroClaw
+//! tool. Nothing here knows what is reading it, and no consumer needs ClawCrew
 //! to know about it.
 //!
 //! **OSC 2 — window title.** Human-facing. Leads with a status glyph, since the
@@ -58,7 +58,7 @@ use std::sync::{
     Mutex, TryLockError,
     atomic::{AtomicU8, AtomicUsize, Ordering},
 };
-use zeroclaw_api::lifecycle::{LifecycleActivity, LifecycleState};
+use clawcrew_api::lifecycle::{LifecycleActivity, LifecycleState};
 
 use crate::turn_status::TurnStatus;
 

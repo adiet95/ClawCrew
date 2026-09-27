@@ -1,7 +1,7 @@
 // Resolves an entity reference (agent alias, channel composite, model
 // provider composite, profile / bundle alias) to its `/config/...` edit
 // surface. The route shape follows `Section::shape()` in
-// `crates/zeroclaw-config/src/sections.rs`:
+// `crates/clawcrew-config/src/sections.rs`:
 //
 //   alias    → /config/<section>/<id>
 //   typed    → /config/<section>/<type>/<alias>   (id = `<type>.<alias>`)

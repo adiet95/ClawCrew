@@ -15,20 +15,20 @@ use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 
 use tempfile::TempDir;
-use zeroclaw_api::channel::SendMessage;
-use zeroclaw_api::webhook::{PluginWebhookRegistry, RawWebhook, WebhookOutcome};
-use zeroclaw_config::multi_agent::{PeerGroupConfig, PeerUsername};
-use zeroclaw_config::providers::{ChannelRef, ModelProviderRef};
-use zeroclaw_config::schema::{
+use clawcrew_api::channel::SendMessage;
+use clawcrew_api::webhook::{PluginWebhookRegistry, RawWebhook, WebhookOutcome};
+use clawcrew_config::multi_agent::{PeerGroupConfig, PeerUsername};
+use clawcrew_config::providers::{ChannelRef, ModelProviderRef};
+use clawcrew_config::schema::{
     AliasedAgentConfig, AnthropicModelProviderConfig, Config, PluginChannelConfig,
     PluginEntryConfig, RiskProfileConfig,
 };
-use zeroclaw_plugins::PluginCapability;
-use zeroclaw_plugins::host::PluginHost;
-use zeroclaw_plugins::instance::PluginInstanceScope;
+use clawcrew_plugins::PluginCapability;
+use clawcrew_plugins::host::PluginHost;
+use clawcrew_plugins::instance::PluginInstanceScope;
 
 const MANIFEST: &str =
-    "crates/zeroclaw-plugins/tests/fixtures/channel-fixture/plugin-manifest.toml";
+    "crates/clawcrew-plugins/tests/fixtures/channel-fixture/plugin-manifest.toml";
 
 /// Build the channel component once per test binary.
 ///
@@ -39,7 +39,7 @@ fn fixture() -> PathBuf {
     FIXTURE
         .get_or_init(|| {
             let fixture_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("crates/zeroclaw-plugins/tests/fixtures/channel-fixture");
+                .join("crates/clawcrew-plugins/tests/fixtures/channel-fixture");
             let target_dir =
                 PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("plugin-channel-runtime-fixture");
             let status = Command::new(env!("CARGO"))
@@ -49,7 +49,7 @@ fn fixture() -> PathBuf {
                     "--locked",
                     "--quiet",
                     "--package",
-                    "zeroclaw-channel-plugin-fixture",
+                    "clawcrew-channel-plugin-fixture",
                     "--target",
                     "wasm32-wasip2",
                     "--target-dir",
@@ -62,7 +62,7 @@ fn fixture() -> PathBuf {
                 "channel fixture must build; install the wasm32-wasip2 target"
             );
 
-            let wasm = target_dir.join("wasm32-wasip2/debug/zeroclaw_channel_plugin_fixture.wasm");
+            let wasm = target_dir.join("wasm32-wasip2/debug/clawcrew_channel_plugin_fixture.wasm");
             assert!(wasm.is_file(), "channel fixture WASM was not produced");
             wasm
         })
@@ -171,7 +171,7 @@ async fn configured_channel_reaches_real_guest_and_shared_listener_contract() {
 
     let registry = Arc::new(PluginWebhookRegistry::new());
     let webhook_generation = registry.start_generation();
-    let channels = zeroclaw_runtime::plugin_runtime::configured_plugin_channels_with_webhooks(
+    let channels = clawcrew_runtime::plugin_runtime::configured_plugin_channels_with_webhooks(
         Arc::new(config),
         None,
         Some(&webhook_generation),
@@ -199,7 +199,7 @@ async fn configured_channel_reaches_real_guest_and_shared_listener_contract() {
     // goes away, which is the contract the shared supervisor relies on.
     let (tx, mut rx) = tokio::sync::mpsc::channel(1);
     let listener_channel = Arc::clone(&channel);
-    let listener = zeroclaw_spawn::spawn!(async move { listener_channel.listen(tx).await });
+    let listener = clawcrew_spawn::spawn!(async move { listener_channel.listen(tx).await });
     let sink = registry
         .get("fixture")
         .expect("validated guest route is published atomically");
@@ -212,7 +212,7 @@ async fn configured_channel_reaches_real_guest_and_shared_listener_contract() {
             "channel-secret".to_string(),
         )],
         body: br#"{"id":"runtime-1","sender":"tester","reply_target":"room","content":"from webhook"}"#.to_vec(),
-        cancellation: zeroclaw_api::webhook::WebhookCancellation::new(),
+        cancellation: clawcrew_api::webhook::WebhookCancellation::new(),
         idempotency: None,
         reply,
     })
@@ -236,7 +236,7 @@ async fn configured_channel_reaches_real_guest_and_shared_listener_contract() {
         query: "challenge=runtime-echo".to_string(),
         headers: vec![("x-fixture-secret".to_string(), "channel-secret".to_string())],
         body: Vec::new(),
-        cancellation: zeroclaw_api::webhook::WebhookCancellation::new(),
+        cancellation: clawcrew_api::webhook::WebhookCancellation::new(),
         idempotency: None,
         reply,
     })
@@ -269,7 +269,7 @@ async fn a_channel_whose_guest_rejects_its_config_is_not_activated() {
     let config = activation_config(&plugins, "operations", "9");
 
     let channels =
-        zeroclaw_runtime::plugin_runtime::configured_plugin_channels(Arc::new(config), None).await;
+        clawcrew_runtime::plugin_runtime::configured_plugin_channels(Arc::new(config), None).await;
 
     assert!(
         channels.is_empty(),
@@ -322,7 +322,7 @@ async fn duplicate_guest_routes_reject_every_claimant_before_registry_mutation()
 
     let registry = Arc::new(PluginWebhookRegistry::new());
     let webhook_generation = registry.start_generation();
-    let channels = zeroclaw_runtime::plugin_runtime::configured_plugin_channels_with_webhooks(
+    let channels = clawcrew_runtime::plugin_runtime::configured_plugin_channels_with_webhooks(
         Arc::new(config),
         None,
         Some(&webhook_generation),
@@ -348,7 +348,7 @@ async fn a_channel_without_an_enabled_owner_is_not_activated() {
     config.agents.get_mut("operator").unwrap().enabled = false;
 
     let channels =
-        zeroclaw_runtime::plugin_runtime::configured_plugin_channels(Arc::new(config), None).await;
+        clawcrew_runtime::plugin_runtime::configured_plugin_channels(Arc::new(config), None).await;
 
     assert!(
         channels.is_empty(),

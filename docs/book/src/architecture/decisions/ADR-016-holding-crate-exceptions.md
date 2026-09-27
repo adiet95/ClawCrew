@@ -5,26 +5,26 @@ date: 2026-09-02
 status: proposed
 relates-to:
   - ADR-007
-  - crates/zeroclaw-runtime/AGENTS.md
+  - crates/clawcrew-runtime/AGENTS.md
   - docs/book/src/foundations/fnd-001-intentional-architecture.md
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/10557
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/10410
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/10179
+  - https://github.com/clawcrew-labs/clawcrew/pull/10557
+  - https://github.com/clawcrew-labs/clawcrew/pull/10410
+  - https://github.com/clawcrew-labs/clawcrew/pull/10179
 ---
 
 # ADR-016: Holding-Crate Exceptions Are Bounded, Recorded, and Granted by the Core Team
 
 ## Context
 
-`crates/zeroclaw-runtime/AGENTS.md` declares that crate a transitional holding area, instructs contributors not to add new functionality there, and names the subsystems awaiting extraction. The instruction is unconditional and has no exception process.
+`crates/clawcrew-runtime/AGENTS.md` declares that crate a transitional holding area, instructs contributors not to add new functionality there, and names the subsystems awaiting extraction. The instruction is unconditional and has no exception process.
 
 That combination has no answer for the ordinary case: accepted work lands on a subsystem that still lives in the holding crate, and the crate it is supposed to move to has not been built. The contract forbids the only available home, and the destination does not exist yet. Three pull requests reached that state and resolved it three different ways.
 
-The cron precondition gate went through [#10220](https://github.com/zeroclaw-labs/zeroclaw/pull/10220), then a proposed one-off exception, and finally the full extraction in [#10557](https://github.com/zeroclaw-labs/zeroclaw/pull/10557). The extraction was the right outcome, but it was reached by building two complete alternatives and discarding one. A contributor should be able to establish whether extraction is required before implementing it twice.
+The cron precondition gate went through [#10220](https://github.com/clawcrew-labs/clawcrew/pull/10220), then a proposed one-off exception, and finally the full extraction in [#10557](https://github.com/clawcrew-labs/clawcrew/pull/10557). The extraction was the right outcome, but it was reached by building two complete alternatives and discarding one. A contributor should be able to establish whether extraction is required before implementing it twice.
 
-[#10410](https://github.com/zeroclaw-labs/zeroclaw/pull/10410) kept shared config and agent-lifecycle coordination in the runtime rather than invent a lifecycle crate ahead of the planned daemon extraction. The rationale offered for that placement is that moving the code to `zeroclaw-infra` would invert an existing dependency, since config already depends on infra, and that extracting early would establish a boundary the roadmap does not intend. That is the argument for an exception there, not a settled conclusion: the placement has not been accepted, and #10410 needs its own explicit disposition under whatever process this record establishes.
+[#10410](https://github.com/clawcrew-labs/clawcrew/pull/10410) kept shared config and agent-lifecycle coordination in the runtime rather than invent a lifecycle crate ahead of the planned daemon extraction. The rationale offered for that placement is that moving the code to `clawcrew-infra` would invert an existing dependency, since config already depends on infra, and that extracting early would establish a boundary the roadmap does not intend. That is the argument for an exception there, not a settled conclusion: the placement has not been accepted, and #10410 needs its own explicit disposition under whatever process this record establishes.
 
-[#10179](https://github.com/zeroclaw-labs/zeroclaw/pull/10179) hit the same rule, but its transport had no receiving caller. Retirement, or an explicit ownership decision, was the better answer there than any exception.
+[#10179](https://github.com/clawcrew-labs/clawcrew/pull/10179) hit the same rule, but its transport had no receiving caller. Retirement, or an explicit ownership decision, was the better answer there than any exception.
 
 Those three cases differ in kind, not just in size. Extraction was proportionate for one, would have produced the wrong boundary for another, and was beside the point for the third. A single unconditional instruction cannot separate them, and silence about exceptions has meant each contributor guesses.
 
@@ -87,5 +87,5 @@ The holding-crate instruction keeps its force. This does not weaken it; it suppl
 
 ADR-016 remains proposed until:
 
-- `crates/zeroclaw-runtime/AGENTS.md` states the exception rule and carries an active-exception table;
+- `crates/clawcrew-runtime/AGENTS.md` states the exception rule and carries an active-exception table;
 - at least one exception has been granted or refused through this process, demonstrating it is usable rather than only written down.

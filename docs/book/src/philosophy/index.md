@@ -1,6 +1,6 @@
 # Philosophy
 
-ZeroClaw is built on four opinions, in priority order.
+ClawCrew is built on four opinions, in priority order.
 
 - [You own it](./you-own-it.md) is the foundational constraint.
 - [Security-first, with escape hatches](./security-first.md) follows from local-first.

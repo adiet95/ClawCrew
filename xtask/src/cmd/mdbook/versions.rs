@@ -301,7 +301,7 @@ pub fn gen_root_index() -> anyhow::Result<()> {
          <meta charset=\"utf-8\">\n\
          <meta http-equiv=\"refresh\" content=\"0; url={dest}\">\n\
          <link rel=\"canonical\" href=\"{dest}\">\n\
-         <title>ZeroClaw Docs</title>\n"
+         <title>ClawCrew Docs</title>\n"
     );
     Ok(())
 }

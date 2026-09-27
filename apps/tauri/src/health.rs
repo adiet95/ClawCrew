@@ -1,4 +1,4 @@
-//! Background health polling for the ZeroClaw gateway.
+//! Background health polling for the ClawCrew gateway.
 
 use crate::gateway_client::GatewayClient;
 use crate::state::SharedState;
@@ -35,7 +35,7 @@ pub fn spawn_health_poller<R: Runtime>(app: AppHandle<R>, state: SharedState) {
             // Keep the service-toggle and status menu items in sync with live state.
             crate::tray::sync_service_menu(service_enabled, connected);
 
-            let _ = app.emit("zeroclaw://status-changed", healthy);
+            let _ = app.emit("clawcrew://status-changed", healthy);
 
             tokio::time::sleep(POLL_INTERVAL).await;
         }

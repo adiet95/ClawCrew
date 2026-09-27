@@ -11,14 +11,14 @@ Two tools sit nearby. They are not interchangeable.
 - **`spawn_subagent`**: runs the SAME agent again under its own identity for a focused subtask. The child sees the parent's full permissions envelope minus any narrowing. Use when the parent wants to scope an internal subtask out of its main conversation history without changing identity.
 - **`delegate`**: hands the request off to a DIFFERENT configured agent (named by alias). The target agent runs under its own identity and model provider, but delegation is gated: the caller's risk profile must set `delegation_policy mode = "allow"` (default is `"forbidden"`), and the target must be reachable as either a same-profile peer or an explicit `delegates` entry. Explicit entries choose `mode = "bounded"` or `mode = "independent"`, which determines whether the caller's tool ceiling still applies. Use when another configured specialist should own the work. See [Delegation gating](#delegation-gating) below.
 
-This page documents `spawn_subagent` end to end. `delegate` lives at `crates/zeroclaw-runtime/src/tools/delegate.rs` and is a separate surface.
+This page documents `spawn_subagent` end to end. `delegate` lives at `crates/clawcrew-runtime/src/tools/delegate.rs` and is a separate surface.
 
 ## How a SubAgent is instantiated
 
-Two spawn sites converge on `SubAgentSpawn` (`crates/zeroclaw-runtime/src/subagent/mod.rs:97`):
+Two spawn sites converge on `SubAgentSpawn` (`crates/clawcrew-runtime/src/subagent/mod.rs:97`):
 
-1. **From an agent loop**: the model calls the `spawn_subagent` tool with a `prompt` string. The tool is registered like any other in the registry (`crates/zeroclaw-runtime/src/tools/mod.rs`, `SpawnSubagentTool::new`).
-2. **From cron**: `JobType::Agent` jobs run through `run_agent_job` (`crates/zeroclaw-runtime/src/cron/scheduler.rs`) which builds the same `SubAgentContext` but flags the child as a top-level run (not a SubAgent) so it can itself spawn one level of subagent.
+1. **From an agent loop**: the model calls the `spawn_subagent` tool with a `prompt` string. The tool is registered like any other in the registry (`crates/clawcrew-runtime/src/tools/mod.rs`, `SpawnSubagentTool::new`).
+2. **From cron**: `JobType::Agent` jobs run through `run_agent_job` (`crates/clawcrew-runtime/src/cron/scheduler.rs`) which builds the same `SubAgentContext` but flags the child as a top-level run (not a SubAgent) so it can itself spawn one level of subagent.
 
 Both paths invoke:
 
@@ -38,7 +38,7 @@ Synchronous, in-process, single tokio runtime. Nothing crosses the process bound
    - **Depth-1 cap.** If the calling run was itself a SubAgent (`AgentRunOverrides.is_subagent == true`), refuse with `"spawn_subagent: a subagent may not spawn its own subagents (depth-1 cap)"`. SubAgents cannot recurse.
    - **Risk-profile tool gate.** If the parent's `[risk_profiles.<alias>].deny_all_tools` is `true`, or `allowed_tools` is non-empty and does not list `spawn_subagent`, or `excluded_tools` lists it, refuse with a message naming the parent alias. An omitted or empty `allowed_tools` leaves the tool available (the legacy unrestricted state).
 3. The tool calls `SubAgentSpawn::for_agent` + `build`. Failures (unknown parent alias, escalating override) surface as `ToolResult { success: false, error: "subagent spawn failed: ..." }`.
-4. The tool constructs `AgentRunOverrides { security, memory: None, is_subagent: true, suppress_memory_inject: true }` (the child's `SubTurn` origin already skips engine memory injection; the flag makes the opt-out explicit) and awaits `crate::agent::run` (`crates/zeroclaw-runtime/src/agent/loop_.rs`, `pub async fn run`) inside a tracing scope keyed `subagent-<uuid>`. The parent's `tool` execution **blocks** until the child returns.
+4. The tool constructs `AgentRunOverrides { security, memory: None, is_subagent: true, suppress_memory_inject: true }` (the child's `SubTurn` origin already skips engine memory injection; the flag makes the opt-out explicit) and awaits `crate::agent::run` (`crates/clawcrew-runtime/src/agent/loop_.rs`, `pub async fn run`) inside a tracing scope keyed `subagent-<uuid>`. The parent's `tool` execution **blocks** until the child returns.
 5. The child agent loop runs to completion. Its tool registry is built fresh, with `is_subagent_caller: true` flowing into its own `SpawnSubagentTool` so any attempt to recurse is rejected at the same depth-1 gate.
 6. The child returns `Result<String>`. The parent's `spawn_subagent` tool wraps it:
    - Success: `ToolResult { success: true, output: <child's final response>, error: None }`. Empty output is replaced with the literal `"subagent completed without output"`.
@@ -67,9 +67,9 @@ A SubAgent inherits the parent's permissions verbatim unless the spawn site supp
 
 Inheritance axis by axis:
 
-1. **`SecurityPolicy`**: inherited by `Arc<SecurityPolicy>` cloning. Override path (`SubAgentOverrides::policy = Some(policy)`) runs `SecurityPolicy::ensure_no_escalation_beyond` (`crates/zeroclaw-config/src/policy.rs`) and rejects any field that adds privilege the parent doesn't have. Validated axes include autonomy level, allowed_roots (rw + ro + write-only), allowed_commands, workspace_only, forbidden_paths in the parent ⊆ child direction, shell_env_passthrough, `max_actions_per_hour`, `max_cost_per_day_cents`, `shell_timeout_secs`, `block_high_risk_commands`, and `require_approval_for_medium_risk`. Rejections chain a precise `EscalationViolation` so diagnostics name the offending field.
+1. **`SecurityPolicy`**: inherited by `Arc<SecurityPolicy>` cloning. Override path (`SubAgentOverrides::policy = Some(policy)`) runs `SecurityPolicy::ensure_no_escalation_beyond` (`crates/clawcrew-config/src/policy.rs`) and rejects any field that adds privilege the parent doesn't have. Validated axes include autonomy level, allowed_roots (rw + ro + write-only), allowed_commands, workspace_only, forbidden_paths in the parent ⊆ child direction, shell_env_passthrough, `max_actions_per_hour`, `max_cost_per_day_cents`, `shell_timeout_secs`, `block_high_risk_commands`, and `require_approval_for_medium_risk`. Rejections chain a precise `EscalationViolation` so diagnostics name the offending field.
 2. **Action / cost budgets**: `PerSenderTracker` is shared between parent and child by `Arc` clone. Inherit-verbatim path: the child holds the same `Arc<SecurityPolicy>` so writes to `record_action()` / `record_cost()` hit the same bucket. Override path: `SubAgentSpawn::build` copies the parent's `tracker` field into the narrowed child policy explicitly. **A SubAgent cannot bypass `max_actions_per_hour` or `max_cost_per_day_cents` by spawning**, the limit is shared.
-3. **Tool registry**: the child's registry is built fresh by `tools::all_tools_with_runtime` under the inherited policy. The registry then passes through `apply_policy_tool_filter` (`crates/zeroclaw-runtime/src/agent/loop_.rs`), which drops any tool whose name fails either gate:
+3. **Tool registry**: the child's registry is built fresh by `tools::all_tools_with_runtime` under the inherited policy. The registry then passes through `apply_policy_tool_filter` (`crates/clawcrew-runtime/src/agent/loop_.rs`), which drops any tool whose name fails either gate:
    - The policy's `allowed_tools` / `excluded_tools` (sourced from the parent's `risk_profile`).
    - The caller-supplied `allowed_tools` argument to `agent::run`.
    `spawn_subagent` is in the registry but its `is_subagent_caller` flag is set to `true` for the child, so the depth-1 refusal fires before any spawn work. The same `is_subagent_caller` flag drops `model_switch` from the child's registry entirely: a SubAgent inherits the parent's model verbatim (see axis 5) and must not be able to switch the active model out from under the parent, so the tool is simply not offered to it.
@@ -96,7 +96,7 @@ What's NOT verifiable from these docs:
 
 ### `spawn_subagent`: refusal strings the model sees
 
-These are exact, sourced from `crates/zeroclaw-runtime/src/tools/spawn_subagent.rs`. The model receives them as the tool's error string and reacts. The user-visible bot reply is whatever the model writes next; it commonly references or echoes the refusal.
+These are exact, sourced from `crates/clawcrew-runtime/src/tools/spawn_subagent.rs`. The model receives them as the tool's error string and reacts. The user-visible bot reply is whatever the model writes next; it commonly references or echoes the refusal.
 
 1. Empty/missing `prompt` argument: `Missing or empty 'prompt' parameter`
 2. Caller is itself a SubAgent (depth-1 cap): `spawn_subagent: a subagent may not spawn its own subagents (depth-1 cap)`
@@ -108,15 +108,15 @@ On success, the tool's output IS the child's final response text. If the child r
 
 ### `spawn_subagent`: how to verify it actually fired
 
-Tail your log. The tool-spawned child runs inside a `scope!` that emits a tracing span named `zeroclaw_scope` (with target `zeroclaw_log_internal_scope`) carrying `agent_alias=<parent>` and `session_key=<uuid>`. Every log line emitted during the child run carries those fields. The parent's own turn has its own `session_key`; a NEW `session_key` value appearing mid-turn for the same `agent_alias` is the signal that a SubAgent ran. The child's conversation-history session path is `subagent-<uuid>` (filesystem-ish identifier, distinct from the tracing field).
+Tail your log. The tool-spawned child runs inside a `scope!` that emits a tracing span named `clawcrew_scope` (with target `clawcrew_log_internal_scope`) carrying `agent_alias=<parent>` and `session_key=<uuid>`. Every log line emitted during the child run carries those fields. The parent's own turn has its own `session_key`; a NEW `session_key` value appearing mid-turn for the same `agent_alias` is the signal that a SubAgent ran. The child's conversation-history session path is `subagent-<uuid>` (filesystem-ish identifier, distinct from the tracing field).
 
-Cron-launched agent jobs use a different, more explicit span name: `subagent` (literal) with fields `category="cron"`, `agent_alias=<owning agent>`, `cron_job_id=<id>`, `run_id=<uuid>`, `spawn_site="cron"`. Cron paths are trivially greppable: `grep 'spawn_site="cron"' zeroclaw.log`. Note that cron-launched runs are top-level (`is_subagent=false`); they may themselves call `spawn_subagent` once.
+Cron-launched agent jobs use a different, more explicit span name: `subagent` (literal) with fields `category="cron"`, `agent_alias=<owning agent>`, `cron_job_id=<id>`, `run_id=<uuid>`, `spawn_site="cron"`. Cron paths are trivially greppable: `grep 'spawn_site="cron"' clawcrew.log`. Note that cron-launched runs are top-level (`is_subagent=false`); they may themselves call `spawn_subagent` once.
 
 This is a thin signal for the agent-loop spawn path. A dedicated "subagent started / completed" record routed through `attribution_span!(tool)` is tracked as a code-side follow-up, once the agent loop wraps tool execution in an attribution span, every `record!` inside the tool will carry `tool=spawn_subagent` automatically and the question becomes a trivial grep.
 
 ### Delegation gating
 
-`delegate` enforces two gates in `crates/zeroclaw-runtime/src/tools/delegate.rs` before a target agent runs, in this order:
+`delegate` enforces two gates in `crates/clawcrew-runtime/src/tools/delegate.rs` before a target agent runs, in this order:
 
 1. **`delegation_policy.mode`**: the caller's risk profile must permit delegation. `[risk_profiles.<alias>].delegation_policy` is `{ mode = "forbidden" }` by default; set `mode = "allow"` to permit delegation at all. When forbidden, the refusal is:
    ```text
@@ -175,12 +175,12 @@ If the target agent's `[runtime_profiles.<target>].agentic = true`, `delegate` b
 
 This policy lives on the target, not the caller. Same-profile peers use the shared risk profile. Explicit cross-profile delegates use the target's risk profile after the reachability and delegation-policy gates. Bounded agentic delegates receive only the caller-capped tool registry intersected with the target's tool policy; independent agentic delegates receive the target-owned tool registry. A missing target risk profile refuses before the sub-loop starts. A configured profile that leaves zero executable child tools still permits a normal model turn with no tools.
 
-When the target's configured Reliable provider chain mixes native-tool-capable and text-only candidates, `strict_tool_parsing = false` uses one text/XML tool protocol for the whole agentic turn so every reachable fallback can execute tools. If effective tools remain and `strict_tool_parsing = true`, ZeroClaw rejects the mixed chain before making a provider request because strict parsing forbids that text/XML fallback protocol. Uniform chains are unchanged: all-native chains use native tool transport, while deliberately all-text chains follow the configured text-tool policy.
+When the target's configured Reliable provider chain mixes native-tool-capable and text-only candidates, `strict_tool_parsing = false` uses one text/XML tool protocol for the whole agentic turn so every reachable fallback can execute tools. If effective tools remain and `strict_tool_parsing = true`, ClawCrew rejects the mixed chain before making a provider request because strict parsing forbids that text/XML fallback protocol. Uniform chains are unchanged: all-native chains use native tool transport, while deliberately all-text chains follow the configured text-tool policy.
 
 ### `delegate`: output strings the model sees
 
 User-visible failure strings are localized Fluent messages. Their English source
-of truth is `crates/zeroclaw-runtime/locales/en/cli.ftl`; examples below show
+of truth is `crates/clawcrew-runtime/locales/en/cli.ftl`; examples below show
 the current English catalog values, not a wire-level string contract. The
 remaining listed strings are protocol/tool outputs unless this section labels
 them as Fluent keys.
@@ -205,7 +205,7 @@ them as Fluent keys.
 9. Unknown target agent: error is `Unknown agent '<target>'. Available agents: <comma-separated list>`.
 10. Depth exceeded (controlled by the parent's `runtime_profile.max_delegation_depth`, default 3): error is `Delegation depth limit reached (<depth>/<max>).`
 11. Unknown action: error is `Unknown action '<value>'. Use delegate/check_result/list_results/cancel_task/await_sessions.`
-12. Target whose risk profile has `always_ask` entries: an independent target returns `delegate target "<target>" cannot run in independent mode from "<caller>": risk profile "<profile>" has always_ask entries (<list>). See ZeroClaw docs, "Delegation & SubAgents" > "What's not supported".` A bounded agentic target returns the same error with `cannot run in bounded agentic mode`.
+12. Target whose risk profile has `always_ask` entries: an independent target returns `delegate target "<target>" cannot run in independent mode from "<caller>": risk profile "<profile>" has always_ask entries (<list>). See ClawCrew docs, "Delegation & SubAgents" > "What's not supported".` A bounded agentic target returns the same error with `cannot run in bounded agentic mode`.
 13. Agentic target with a missing target risk profile: error is `Agent '<target>' is agentic but risk_profile '<target_profile>' is not configured`.
 14. Agentic target with zero executable child tools: no error is emitted for the empty tool set itself; the target receives a normal model turn without tools.
 
@@ -240,4 +240,4 @@ them as Fluent keys.
 3. **Per-spawn time budget.** There is no `timeout_secs` argument. The parent blocks for the full duration of the child run; cancellation has to flow through the broader interruption scope.
 4. **Streaming progress back to the parent.** The parent sees the child's final response as a single string after completion.
 5. **A `[agents.<alias>].subagent_*` config block.** The validator and override type ship today; the operator-facing config surface that plumbs caller-defined narrowing is not in this release. Both spawn sites pass `SubAgentOverrides::default()` until that surface lands.
-6. **`delegate` targets with `always_ask`.** Independent delegation and bounded agentic delegation are blocked when the target agent's risk profile has non-empty `always_ask` entries. The runtime refuses before starting the target, including background and parallel delegation. Non-agentic bounded delegation remains available because it cannot execute child tools. This blocker remains until approval forwarding for child agent loops is supported by a future ZeroClaw version.
+6. **`delegate` targets with `always_ask`.** Independent delegation and bounded agentic delegation are blocked when the target agent's risk profile has non-empty `always_ask` entries. The runtime refuses before starting the target, including background and parallel delegation. Non-agentic bounded delegation remains available because it cannot execute child tools. This blocker remains until approval forwarding for child agent loops is supported by a future ClawCrew version.

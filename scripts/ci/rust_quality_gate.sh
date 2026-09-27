@@ -10,18 +10,18 @@ fi
 echo "==> rust quality: cargo fmt --all -- --check"
 cargo fmt --all -- --check
 
-CLIPPY_WORKSPACE_ARGS=(--workspace --exclude zeroclaw-desktop --all-targets)
+CLIPPY_WORKSPACE_ARGS=(--workspace --exclude clawcrew-desktop --all-targets)
 
 if [ "$MODE" = "strict" ]; then
     # Local `--strict` path: same lint set and feature surface as required
     # CI (both compile with `--features ci-all`).
-    echo "==> rust quality: cargo clippy --locked --workspace --exclude zeroclaw-desktop --all-targets --features ci-all -- -D warnings"
+    echo "==> rust quality: cargo clippy --locked --workspace --exclude clawcrew-desktop --all-targets --features ci-all -- -D warnings"
     cargo clippy --locked "${CLIPPY_WORKSPACE_ARGS[@]}" --features ci-all -- -D warnings
 else
     # Local `--correctness` path: deny `clippy::correctness` only on the
     # default-feature surface. Fast local feedback; full-surface validation
     # runs via `--strict` or in CI.
-    echo "==> rust quality: cargo clippy --locked --workspace --exclude zeroclaw-desktop --all-targets -- -D clippy::correctness"
+    echo "==> rust quality: cargo clippy --locked --workspace --exclude clawcrew-desktop --all-targets -- -D clippy::correctness"
     cargo clippy --locked "${CLIPPY_WORKSPACE_ARGS[@]}" -- -D clippy::correctness
 fi
 
@@ -43,7 +43,7 @@ PROTECTED_METHODS='\.(chat|stream_chat|simple_chat|chat_with_system|chat_with_hi
 #   - `self.<method>(...)` self-calls (same Attributable instance;
 #     dispatcher wrap would be a redundant attribution layer).
 #   - `self.as_ref().<method>(...)` blanket-impl forwarders (used by
-#     `impl ModelProvider for Arc<T>` in zeroclaw-api — must call
+#     `impl ModelProvider for Arc<T>` in clawcrew-api — must call
 #     inner directly to avoid infinite recursion through the dispatcher).
 #   - Method calls that follow a ProviderDispatch construction within
 #     the prior 3 lines. The dispatcher's borrowed/owned variants
@@ -65,8 +65,8 @@ fi
 
 VIOLATIONS=$(printf '%s\n' "$RG_OUTPUT" | awk -F: '
     BEGIN {
-        allowed["crates/zeroclaw-providers/src/dispatch.rs"] = 1
-        allowed["crates/zeroclaw-providers/tests/dispatch_integration.rs"] = 1
+        allowed["crates/clawcrew-providers/src/dispatch.rs"] = 1
+        allowed["crates/clawcrew-providers/tests/dispatch_integration.rs"] = 1
     }
     function read_file_lines(file,    cmd, raw_line, lineno) {
         cmd = "cat " file " 2>/dev/null"
@@ -177,7 +177,7 @@ if [ -n "$VIOLATIONS" ]; then
     echo "❌ Direct ModelProvider method calls found outside the dispatcher:"
     echo "$VIOLATIONS"
     echo
-    echo "Route the call through zeroclaw_providers::ProviderDispatch:"
+    echo "Route the call through clawcrew_providers::ProviderDispatch:"
     echo "    ProviderDispatch::new(provider.clone()).<method>(...)        // Arc<dyn ModelProvider>"
     echo "    ProviderDispatch::from_ref(&*provider).<method>(...)         // &dyn ModelProvider"
     echo

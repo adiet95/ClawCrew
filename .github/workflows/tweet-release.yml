@@ -135,7 +135,7 @@ jobs:
             fi
             if ! TWEET="$(scripts/ci/release_post_text.sh \
                 --notes "$NOTES_FILE" --tag "$RELEASE_TAG" --prev "$PREV_STABLE" \
-                --site-feed https://www.zeroclaw.com/blog/rss.xml --fallback-link "$RELEASE_URL")"; then
+                --site-feed https://www.clawcrew.com/blog/rss.xml --fallback-link "$RELEASE_URL")"; then
               echo "::warning::Release notes for ${RELEASE_TAG} carry no In brief or Highlights section; using the commit list"
               TWEET=""
             fi
@@ -165,7 +165,7 @@ jobs:
             fi
 
             # Build tweet — feature-focused style
-            TWEET=$(printf "🦀 ZeroClaw %s\n\n%s\n\nZero overhead. Zero compromise. 100%% Rust.\n\n#zeroclaw #rust #ai #opensource" \
+            TWEET=$(printf "🦀 ClawCrew %s\n\n%s\n\nZero overhead. Zero compromise. 100%% Rust.\n\n#clawcrew #rust #ai #opensource" \
               "$RELEASE_TAG" "$FEAT_LIST")
           fi
 
@@ -352,7 +352,7 @@ jobs:
           if resp.status_code == 201:
               data = resp.json()
               tweet_id = data["data"]["id"]
-              print(f"Tweet posted: https://x.com/zeroclawlabs/status/{tweet_id}")
+              print(f"Tweet posted: https://x.com/clawcrewlabs/status/{tweet_id}")
           else:
               print(f"Failed to post tweet: {resp.status_code}", file=sys.stderr)
               print(resp.text, file=sys.stderr)

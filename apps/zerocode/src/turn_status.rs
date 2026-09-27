@@ -1,7 +1,7 @@
 //! Status of the current agent turn, surfaced in the input-bar title.
 
 use std::time::Instant;
-use zeroclaw_api::lifecycle::{LifecycleActivity, LifecycleState};
+use clawcrew_api::lifecycle::{LifecycleActivity, LifecycleState};
 
 /// Public so tests and the input bar can pattern-match.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]

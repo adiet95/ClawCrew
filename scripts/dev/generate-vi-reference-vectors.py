@@ -2,10 +2,10 @@
 """Generate SD-JWT test vectors from the Verifiable Intent reference implementation.
 
 The expected values in the fixture are produced by the reference at commit
-356c29635f1c44df7de02edb58699ca9f29bece6, not by ZeroClaw. Regenerate with:
+356c29635f1c44df7de02edb58699ca9f29bece6, not by ClawCrew. Regenerate with:
 
     python3 scripts/dev/generate-vi-reference-vectors.py /path/to/verifiable-intent \
-        > crates/zeroclaw-runtime/tests/fixtures/vi-reference-vectors.json
+        > crates/clawcrew-runtime/tests/fixtures/vi-reference-vectors.json
 
 Every field except `sd_jwt.serialized` is deterministic and re-running must produce a
 byte-identical file. ECDSA draws a random nonce, so the signed SD-JWT differs on each
@@ -40,7 +40,7 @@ def verify_reference_source(reference_root: Path, expected_commit: str) -> None:
     """Refuse to generate unless the imported source is exactly the pinned revision.
 
     The fixture this script writes records the reference commit, and that record
-    is the reason the vectors are evidence at all rather than a ZeroClaw round
+    is the reason the vectors are evidence at all rather than a ClawCrew round
     trip. Without this check any checkout produces a file carrying the claim, so
     the claim is verified rather than asserted.
 
@@ -199,7 +199,7 @@ def main(reference_root: Path) -> int:
     document = {
         "_README": (
             "Expected values produced by the agent-intent/verifiable-intent reference "
-            "implementation, not by ZeroClaw. See the generator named below."
+            "implementation, not by ClawCrew. See the generator named below."
         ),
         "reference_commit": REFERENCE_COMMIT,
         "generator": "scripts/dev/generate-vi-reference-vectors.py",

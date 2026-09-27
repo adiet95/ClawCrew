@@ -1,5 +1,5 @@
 //! Hand-maintained mirrors for every type that crosses the JSON-RPC
-//! wire between `zerocode` and the ZeroClaw daemon.
+//! wire between `zerocode` and the ClawCrew daemon.
 
 use std::collections::HashMap;
 
@@ -181,7 +181,7 @@ pub enum MemoryBackendKind {
 
 // ── Config explorer wire shapes ────────────────────────────────
 
-/// Schema field-kind tag mirroring `zeroclaw_config::traits::PropKind`.
+/// Schema field-kind tag mirroring `clawcrew_config::traits::PropKind`.
 /// Carries the canonical eight variants — adding one in the schema
 /// must mirror here too; `wire_drift::prop_kind_variants_round_trip`
 /// fails when they diverge.
@@ -201,7 +201,7 @@ pub enum PropKind {
 
 impl PropKind {
     /// Wire name string, matching the canonical
-    /// `zeroclaw_config::traits::PropKind::wire_name`. Used by the
+    /// `clawcrew_config::traits::PropKind::wire_name`. Used by the
     /// config explorer to render type hints.
     pub fn wire_name(self) -> &'static str {
         match self {
@@ -219,8 +219,8 @@ impl PropKind {
 }
 
 /// Alias namespace for `PropKind::AliasRef` fields. Wire mirror of
-/// `zeroclaw_config::traits::AliasSource`; zerocode does not depend on
-/// `zeroclaw-config`.
+/// `clawcrew_config::traits::AliasSource`; zerocode does not depend on
+/// `clawcrew-config`.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum AliasSource {
@@ -237,7 +237,7 @@ pub enum AliasSource {
 }
 
 /// Schema-defined config tab grouping. Mirrors
-/// `zeroclaw_config::traits::ConfigTab`. `Default` is `None` — the
+/// `clawcrew_config::traits::ConfigTab`. `Default` is `None` — the
 /// "flat list, no tab bar" state.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, Default)]
 pub enum ConfigTab {
@@ -304,7 +304,7 @@ impl std::fmt::Display for ConfigTab {
 }
 
 /// Single config-property descriptor returned by `config/list` and
-/// `config/sections`. Mirrors `zeroclaw_config::traits::ConfigFieldEntry`.
+/// `config/sections`. Mirrors `clawcrew_config::traits::ConfigFieldEntry`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigFieldEntry {
     pub path: String,
@@ -329,7 +329,7 @@ pub struct ConfigFieldEntry {
 }
 
 /// Section-page shape returned by `config/sections`. Mirrors
-/// `zeroclaw_config::sections::SectionShape`.
+/// `clawcrew_config::sections::SectionShape`.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum SectionShape {
@@ -399,7 +399,7 @@ pub enum ElicitationShape {
 impl ElicitationShape {
     /// Best-effort decoder. The daemon always emits the
     /// `single_select_schema` / `multi_select_schema` shape from
-    /// `zeroclaw-api`, so a return of `None` means a future schema
+    /// `clawcrew-api`, so a return of `None` means a future schema
     /// shape we don't yet render — the TUI auto-cancels in that case.
     pub fn from_schema(schema: &Value) -> Option<Self> {
         let properties = schema.get("properties")?.as_object()?;

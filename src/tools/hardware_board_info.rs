@@ -1,1 +1,1 @@
-pub use zeroclaw_tools::hardware_board_info::*;
+pub use clawcrew_tools::hardware_board_info::*;

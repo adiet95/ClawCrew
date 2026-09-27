@@ -36,8 +36,8 @@ const storage = new MemoryStorage();
 const { getActiveSessionId, newSessionId, setActiveSessionId } =
   await import("./chatSessions.ts");
 
-const ACTIVE = "zeroclaw_active_session.ops";
-const LEGACY = "zeroclaw_session_id.ops";
+const ACTIVE = "clawcrew_active_session.ops";
+const LEGACY = "clawcrew_session_id.ops";
 
 beforeEach(() => {
   storage.clear();

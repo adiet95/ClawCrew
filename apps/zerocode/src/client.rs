@@ -163,10 +163,10 @@ pub mod method {
 // ── Socket path resolution ───────────────────────────────────────
 
 /// Resolve the daemon's local IPC endpoint path.
-/// CLI flag > `$ZEROCLAW_SOCKET` > `<config_dir>/data/daemon.sock` on Unix
-/// or a `\\.\pipe\zeroclaw-<hash>` derived name on Windows.
+/// CLI flag > `$CLAWCREW_SOCKET` > `<config_dir>/data/daemon.sock` on Unix
+/// or a `\\.\pipe\clawcrew-<hash>` derived name on Windows.
 pub fn resolve_socket_path(config_dir: &Path) -> Result<PathBuf> {
-    if let Ok(p) = std::env::var("ZEROCLAW_SOCKET") {
+    if let Ok(p) = std::env::var("CLAWCREW_SOCKET") {
         let p = p.trim();
         if !p.is_empty() {
             return Ok(PathBuf::from(p));
@@ -184,18 +184,18 @@ pub fn resolve_socket_path(config_dir: &Path) -> Result<PathBuf> {
         let mut hasher = DefaultHasher::new();
         data_dir.hash(&mut hasher);
         Ok(PathBuf::from(format!(
-            r"\\.\pipe\zeroclaw-{:x}",
+            r"\\.\pipe\clawcrew-{:x}",
             hasher.finish()
         )))
     }
 }
 
-/// Resolve config dir: CLI flag > `$ZEROCLAW_CONFIG_DIR` > home directory.
+/// Resolve config dir: CLI flag > `$CLAWCREW_CONFIG_DIR` > home directory.
 pub fn resolve_config_dir(cli_override: Option<&Path>) -> Result<PathBuf> {
     if let Some(dir) = cli_override {
         return Ok(dir.to_path_buf());
     }
-    if let Ok(d) = std::env::var("ZEROCLAW_CONFIG_DIR") {
+    if let Ok(d) = std::env::var("CLAWCREW_CONFIG_DIR") {
         let d = d.trim();
         if !d.is_empty() {
             return Ok(PathBuf::from(d));
@@ -204,12 +204,12 @@ pub fn resolve_config_dir(cli_override: Option<&Path>) -> Result<PathBuf> {
     #[cfg(unix)]
     {
         let home = std::env::var("HOME").context("HOME not set")?;
-        Ok(PathBuf::from(home).join(".zeroclaw"))
+        Ok(PathBuf::from(home).join(".clawcrew"))
     }
     #[cfg(windows)]
     {
         let profile = std::env::var("USERPROFILE").context("USERPROFILE not set")?;
-        Ok(PathBuf::from(profile).join(".zeroclaw"))
+        Ok(PathBuf::from(profile).join(".clawcrew"))
     }
 }
 
@@ -2488,8 +2488,8 @@ impl RpcClient {
     //
     // Thin RPC mirror of the gateway's `/api/quickstart/*` HTTP routes.
     // Same shapes both ways; the daemon-side handlers live in
-    // `zeroclaw_runtime::rpc::dispatch` and call into
-    // `zeroclaw_runtime::quickstart::{validate_only,apply}_with_surface`.
+    // `clawcrew_runtime::rpc::dispatch` and call into
+    // `clawcrew_runtime::quickstart::{validate_only,apply}_with_surface`.
 
     pub async fn quickstart_state(&self) -> Result<QuickstartStateResult> {
         self.call(method::QUICKSTART_STATE, serde_json::json!({}))
@@ -3294,7 +3294,7 @@ pub struct ConfigSectionEntry {
     pub help: String,
     pub completed: bool,
     /// Display group label (`"Foundation"`, `"Tools"`, …) from
-    /// `zeroclaw_config::sections::SectionGroup::label()`. Empty when
+    /// `clawcrew_config::sections::SectionGroup::label()`. Empty when
     /// the daemon predates group plumbing — the sections pane falls
     /// back to the flat ungrouped list.
     #[serde(default)]
@@ -3329,7 +3329,7 @@ pub struct CatalogModelsResult {
 }
 
 /// Per-token USD pricing strings as emitted by the catalog RPC. Field names
-/// match `zeroclaw_api::model_provider::ModelPricing`; only the rates the
+/// match `clawcrew_api::model_provider::ModelPricing`; only the rates the
 /// cost-rate sheet consumes are kept.
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -3459,15 +3459,15 @@ mod skill_frontmatter_tests {
 // ── Quickstart types ─────────────────────────────────────────────
 //
 // **Mirror** of the wire shapes defined in
-// `zeroclaw_runtime::rpc::types` (the daemon-side single source of
+// `clawcrew_runtime::rpc::types` (the daemon-side single source of
 // truth, which itself mirrors the gateway's HTTP route shapes). The
-// types live in `zeroclaw-runtime`, but that crate is not on the
+// types live in `clawcrew-runtime`, but that crate is not on the
 // `apps/zerocode` dependency tree — pulling it in would compile the
 // entire runtime into the TUI binary. Instead we duplicate the wire
 // shape here; the integration drift test enforces equality across
 // surfaces, so divergence is a CI failure rather than a silent bug.
 
-/// Mirror of `zeroclaw_runtime::quickstart::Surface` (`snake_case` on the wire).
+/// Mirror of `clawcrew_runtime::quickstart::Surface` (`snake_case` on the wire).
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum QuickstartSurface {
@@ -3477,7 +3477,7 @@ pub enum QuickstartSurface {
     Test,
 }
 
-/// Mirror of `zeroclaw_runtime::quickstart::QuickstartStep`.
+/// Mirror of `clawcrew_runtime::quickstart::QuickstartStep`.
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum QuickstartStep {
@@ -3490,7 +3490,7 @@ pub enum QuickstartStep {
     Agent,
 }
 
-/// Mirror of `zeroclaw_runtime::quickstart::QuickstartError`.
+/// Mirror of `clawcrew_runtime::quickstart::QuickstartError`.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct QuickstartError {
@@ -3499,7 +3499,7 @@ pub struct QuickstartError {
     pub message: String,
 }
 
-/// Mirror of `zeroclaw_runtime::quickstart::AppliedAgent`.
+/// Mirror of `clawcrew_runtime::quickstart::AppliedAgent`.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct AppliedAgent {
@@ -3511,7 +3511,7 @@ pub struct AppliedAgent {
     pub memory_backend: String,
 }
 
-/// Mirror of `zeroclaw_runtime::quickstart::FieldSection`.
+/// Mirror of `clawcrew_runtime::quickstart::FieldSection`.
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum QuickstartFieldSection {
@@ -3519,7 +3519,7 @@ pub enum QuickstartFieldSection {
     Channel,
 }
 
-/// Mirror of `zeroclaw_config::traits::PropKind` (wire form).
+/// Mirror of `clawcrew_config::traits::PropKind` (wire form).
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum QuickstartFieldKind {
@@ -3533,7 +3533,7 @@ pub enum QuickstartFieldKind {
     Object,
 }
 
-/// Mirror of `zeroclaw_runtime::quickstart::FieldDescriptor`.
+/// Mirror of `clawcrew_runtime::quickstart::FieldDescriptor`.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct QuickstartFieldDescriptor {
@@ -3553,7 +3553,7 @@ pub struct QuickstartFieldsResult {
     pub fields: Vec<QuickstartFieldDescriptor>,
 }
 
-/// Mirror of `zeroclaw_runtime::quickstart::QuickstartState`.
+/// Mirror of `clawcrew_runtime::quickstart::QuickstartState`.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct QuickstartStateResult {
@@ -3588,7 +3588,7 @@ pub struct QuickstartStateResult {
     pub personality_files: Vec<String>,
 }
 
-/// Mirror of `zeroclaw_config::presets::RiskPreset` / `RuntimePreset`.
+/// Mirror of `clawcrew_config::presets::RiskPreset` / `RuntimePreset`.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuickstartPresetMirror {
     pub preset_name: String,
@@ -3596,7 +3596,7 @@ pub struct QuickstartPresetMirror {
     pub help: String,
 }
 
-/// Mirror of `zeroclaw_runtime::rpc::types::QuickstartTypeOption`.
+/// Mirror of `clawcrew_runtime::rpc::types::QuickstartTypeOption`.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct QuickstartTypeOption {
@@ -3662,7 +3662,7 @@ impl SopStepKind {
 
 // SOP graph wire types. zerocode is an RPC-only surface: it deserializes these
 // off `sops/graph` rather than linking the backend crate that produces them.
-// The shape here MUST match `zeroclaw-sop-graph`'s serde projection byte for
+// The shape here MUST match `clawcrew-sop-graph`'s serde projection byte for
 // byte (field names, snake_case renames, defaults) or RPC decoding drifts.
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -4279,7 +4279,7 @@ pub struct LogsQueryResult {
     pub incomplete: bool,
 }
 
-/// Mirror of `zeroclaw_runtime::rpc::types::LogsGetResult`. Full log
+/// Mirror of `clawcrew_runtime::rpc::types::LogsGetResult`. Full log
 /// event payload returned by the lazy-load `logs/get` RPC.
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -4334,7 +4334,7 @@ pub struct SessionStateResult {
 }
 
 /// Session-scoped overrides mirror of
-/// `zeroclaw_runtime::rpc::session::SessionOverrides`. Sent on
+/// `clawcrew_runtime::rpc::session::SessionOverrides`. Sent on
 /// `session/configure`; every field is optional and omitted when `None`.
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -4414,10 +4414,10 @@ mod dashboard_status_tests {
             "server_version": "0.8.4",
             "protocol_version": 1,
             "active_sessions": 2,
-            "config_dir": "/tmp/zeroclaw-profile",
-            "config_file": "/tmp/zeroclaw-profile/config.toml",
+            "config_dir": "/tmp/clawcrew-profile",
+            "config_file": "/tmp/clawcrew-profile/config.toml",
             "config_kind": "temporary",
-            "local_ipc_endpoint": "/tmp/zeroclaw-profile/data/daemon.sock",
+            "local_ipc_endpoint": "/tmp/clawcrew-profile/data/daemon.sock",
             "shell_profile": {
                 "name": "pwsh",
                 "family": "powershell"
@@ -4426,15 +4426,15 @@ mod dashboard_status_tests {
 
         let status: StatusResult = serde_json::from_value(value).unwrap();
 
-        assert_eq!(status.config_dir.as_deref(), Some("/tmp/zeroclaw-profile"));
+        assert_eq!(status.config_dir.as_deref(), Some("/tmp/clawcrew-profile"));
         assert_eq!(
             status.config_file.as_deref(),
-            Some("/tmp/zeroclaw-profile/config.toml")
+            Some("/tmp/clawcrew-profile/config.toml")
         );
         assert_eq!(status.config_kind.as_deref(), Some("temporary"));
         assert_eq!(
             status.local_ipc_endpoint.as_deref(),
-            Some("/tmp/zeroclaw-profile/data/daemon.sock")
+            Some("/tmp/clawcrew-profile/data/daemon.sock")
         );
     }
 
@@ -4664,7 +4664,7 @@ pub struct MemorySearchResult {
     pub entries: Vec<MemoryEntryResult>,
 }
 
-/// Mirror of `zeroclaw_runtime::rpc::types::MemoryGetResult`. Full
+/// Mirror of `clawcrew_runtime::rpc::types::MemoryGetResult`. Full
 /// memory entry payload returned by the lazy-load `memory/get` RPC.
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -4793,7 +4793,7 @@ mod sop_method_tests {
     }
 
     /// Wire fixture mirrored by `sop::graph` serialization tests in
-    /// zeroclaw-runtime. If this shape drifts, fix both sides together.
+    /// clawcrew-runtime. If this shape drifts, fix both sides together.
     fn graph_fixture() -> serde_json::Value {
         json!({
             "nodes": [
@@ -6551,7 +6551,7 @@ mod plan_parse_tests {
 }
 
 /// Parser limits for the RELAY-PROTOCOL plane (client <-> relay outer session),
-/// derived from `zeroclaw-relay-proto` so transport and application bounds
+/// derived from `clawcrew-relay-proto` so transport and application bounds
 /// cannot drift apart.
 fn relay_ws_config() -> tokio_tungstenite::tungstenite::protocol::WebSocketConfig {
     let mut cfg = tokio_tungstenite::tungstenite::protocol::WebSocketConfig::default();
@@ -6561,7 +6561,7 @@ fn relay_ws_config() -> tokio_tungstenite::tungstenite::protocol::WebSocketConfi
 }
 
 /// Parser limits for the INNER RPC plane. This is NOT the relay budget: RPC
-/// carries attachments up to `zeroclaw_runtime::rpc::attachments::MAX_REQUEST_BYTES`
+/// carries attachments up to `clawcrew_runtime::rpc::attachments::MAX_REQUEST_BYTES`
 /// (20 MiB), so a relay-sized cap would truncate legitimate traffic. 32 MiB
 /// leaves encoding headroom above that limit while still replacing
 /// tungstenite's unbounded-by-default 64 MiB with an explicit ceiling.

@@ -24,7 +24,7 @@ export default function Pairing() {
   // the list can't be read (distinct from an empty registry).
   const [unauthorized, setUnauthorized] = useState(false);
 
-  const token = localStorage.getItem('zeroclaw_token') || '';
+  const token = localStorage.getItem('clawcrew_token') || '';
 
   const fetchDevices = useCallback(async () => {
     try {

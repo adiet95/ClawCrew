@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7-labs
 #
-# zerorelay - the ZeroClaw nominated relay (blind forwarder).
+# zerorelay - the ClawCrew nominated relay (blind forwarder).
 #
 # Build from the REPOSITORY ROOT (zerorelay is a workspace member):
 #   podman build -f apps/zerorelay/Dockerfile -t zerorelay:latest .
@@ -18,18 +18,18 @@
 # FINGERPRINT (sha256 hex), plus an optional shared-secret gate via --relay-token.
 
 # >>> generated:base-arg-rust-slim from dev/ci/container-base-images.toml by `cargo generate installers` - do not edit <<<
-ARG ZEROCLAW_BASE_RUST_SLIM=rust:1.98-slim@sha256:17d1ba895198f9934c6314ec5346a0d5115372f3243390c3d731e242f35c2f27
+ARG CLAWCREW_BASE_RUST_SLIM=rust:1.98-slim@sha256:17d1ba895198f9934c6314ec5346a0d5115372f3243390c3d731e242f35c2f27
 # >>> end generated:base-arg-rust-slim <<<
 # >>> generated:base-arg-distroless from dev/ci/container-base-images.toml by `cargo generate installers` - do not edit <<<
-ARG ZEROCLAW_BASE_DISTROLESS=gcr.io/distroless/cc-debian13:nonroot@sha256:c31ff9abcb1910f3ab25c7957bdaf0bfe12a01eb546e8df2282f1c8f682b606c
+ARG CLAWCREW_BASE_DISTROLESS=gcr.io/distroless/cc-debian13:nonroot@sha256:c31ff9abcb1910f3ab25c7957bdaf0bfe12a01eb546e8df2282f1c8f682b606c
 # >>> end generated:base-arg-distroless <<<
 
 # --- Stage 1: build only the relay binary ---
-FROM ${ZEROCLAW_BASE_RUST_SLIM} AS builder
+FROM ${CLAWCREW_BASE_RUST_SLIM} AS builder
 WORKDIR /app
 COPY . .
-RUN --mount=type=cache,id=zeroclaw-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,id=zeroclaw-cargo-git,target=/usr/local/cargo/git,sharing=locked \
+RUN --mount=type=cache,id=clawcrew-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,id=clawcrew-cargo-git,target=/usr/local/cargo/git,sharing=locked \
     --mount=type=cache,id=zerorelay-target,target=/app/target,sharing=locked \
     cargo build --release --locked -p zerorelay \
     && cp target/release/zerorelay /usr/local/bin/zerorelay
@@ -40,7 +40,7 @@ RUN --mount=type=cache,id=zeroclaw-cargo-registry,target=/usr/local/cargo/regist
 RUN mkdir -p /seed/data && chown -R 65532:65532 /seed/data
 
 # --- Stage 2: minimal distroless runtime (no shell) ---
-FROM ${ZEROCLAW_BASE_DISTROLESS} AS runtime
+FROM ${CLAWCREW_BASE_DISTROLESS} AS runtime
 COPY --from=builder /usr/local/bin/zerorelay /usr/local/bin/zerorelay
 # /data must exist in the image owned by nonroot (65532) or a fresh named
 # volume mounts root-owned and self-provisioning fails with

@@ -1,6 +1,6 @@
 # Plugins
 
-Use these pages when working with ZeroClaw's plugin system or on project
+Use these pages when working with ClawCrew's plugin system or on project
 tooling. For step-by-step plugin authoring, see the
 [Guides](../plugins/index.md).
 

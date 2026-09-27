@@ -3,27 +3,27 @@
 A skill bundle is the one plugin kind that ships no WebAssembly at all. It is
 a directory of markdown skills, packaged and distributed through the plugin
 machinery: same manifest, same discovery, same signature policy, same
-`zeroclaw plugin install`. Use it when the capability you are adding is
+`clawcrew plugin install`. Use it when the capability you are adding is
 instructions, prompts, and workflows rather than code, and you want plugin
 distribution semantics (signing, registry install, versioning) instead of
 loose files in a skills directory.
 
 > **Check your binary first.** Skill bundles ride the plugin machinery, and
 > the prebuilt release binaries the installer ships are built without the
-> `plugins-wasm` feature: on a stock binary `zeroclaw plugin ...` is an
+> `plugins-wasm` feature: on a stock binary `clawcrew plugin ...` is an
 > unrecognized subcommand and plugin-shipped skills do not load. To use the
 > bundles on this page, build from source with a plugin execution backend,
 > e.g. `cargo build --release --features plugins-wasm-cranelift`. If you
 > just want a shared directory of skills on a stock binary, use the native
 > bundles described in [Skills](../tools/skills.md) instead:
-> `zeroclaw skills bundle add <alias>` creates one and
-> `zeroclaw skills install <source> --bundle <alias>` installs into it,
+> `clawcrew skills bundle add <alias>` creates one and
+> `clawcrew skills install <source> --bundle <alias>` installs into it,
 > giving you the same skills without plugin distribution semantics.
 
 This guide is checked against the validation path in
-`crates/zeroclaw-plugins/src/host.rs` (`validate_skill_bundle`,
+`crates/clawcrew-plugins/src/host.rs` (`validate_skill_bundle`,
 `validate_skill_md_frontmatter`) and the loader in
-`crates/zeroclaw-runtime/src/skills/mod.rs`.
+`crates/clawcrew-runtime/src/skills/mod.rs`.
 
 For what a skill itself is and how agents use them, read
 [Skills](../tools/skills.md) first. This page covers only the bundle

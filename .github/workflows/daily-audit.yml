@@ -77,7 +77,7 @@ jobs:
             printf 'Review `deny.toml` for the current ignore list. If this advisory is a known\n'
             printf 'acceptable risk, add an entry with a `reason` field. If it requires a\n'
             printf 'dependency update, open a tracking issue and link it here.\n\n'
-            if [[ "$GITHUB_REPOSITORY" == "zeroclaw-labs/zeroclaw" ]]; then
+            if [[ "$GITHUB_REPOSITORY" == "clawcrew-labs/clawcrew" ]]; then
               printf 'cc @JordanTheJet @Audacity88\n'
             fi
           } > /tmp/issue-body.md

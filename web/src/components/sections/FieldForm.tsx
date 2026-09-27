@@ -192,7 +192,7 @@ function rendererFor(
       return entry.enum_variants && entry.enum_variants.length > 0
         ? "select"
         : "text";
-    // Schema-driven alias reference (zeroclaw-labs/zeroclaw#7594). Dormant
+    // Schema-driven alias reference (clawcrew-labs/clawcrew#7594). Dormant
     // until the backend declares `PropKind::AliasRef`; until then no entry has
     // this kind, so the per-section alias maps in FieldRow resolve refs.
     case "alias-ref":
@@ -637,7 +637,7 @@ function loadAgentOptions(): Promise<AgentOptionsResponse> {
 
 // Generic alias-source resolution with in-flight de-dupe, keyed by the wire
 // `alias_source` value. Backs the schema-driven `kind === 'alias-ref'` picker
-// from zeroclaw-labs/zeroclaw#7594. Dormant on backends that predate that PR
+// from clawcrew-labs/clawcrew#7594. Dormant on backends that predate that PR
 // (they never emit `alias_source`, so loadAliasSource is never called); when
 // the backend does declare it, this resolves the live values generically with
 // no per-path special-casing, superseding the per-section maps below.
@@ -668,7 +668,7 @@ export function clearFieldFormCatalogCaches() {
 // picks (including empty) and surfaces structured errors inline.
 //
 // Keys are snake_case to match `prop_fields()` emission (the macro at
-// crates/zeroclaw-macros/src/lib.rs:1056 passes through snake_case Rust
+// crates/clawcrew-macros/src/lib.rs:1056 passes through snake_case Rust
 // field name unchanged for the schema path).
 const AGENT_SINGLE_ALIAS_FIELDS: Record<string, keyof AgentOptionsResponse> = {
   "model_provider": "model_providers",
@@ -1846,7 +1846,7 @@ function FieldRow({
     };
   }, [agentNeedsOptions]);
 
-  // Generic alias-reference picker (zeroclaw-labs/zeroclaw#7594). Any field the
+  // Generic alias-reference picker (clawcrew-labs/clawcrew#7594). Any field the
   // schema types as `PropKind::AliasRef` carries `alias_source`; resolve its
   // values from the live config with no per-path special-casing. Dormant on
   // backends that predate #7594 — they never set `kind === 'alias-ref'`, so
@@ -2001,7 +2001,7 @@ function FieldRow({
             ]}
           />
         ) : renderer === "alias-ref" ? (
-          // Schema-driven alias-ref picker (zeroclaw-labs/zeroclaw#7594): a
+          // Schema-driven alias-ref picker (clawcrew-labs/clawcrew#7594): a
           // themed, click-to-open ComboBox of the live values (resolved from
           // `entry.alias_source`, with an agent-options fallback — see
           // `aliasRefOptions`). Uses the same primitive as the model-field picker

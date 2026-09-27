@@ -1,14 +1,14 @@
 # Cost tracking
 
-ZeroClaw records every token-bearing model call to an append-only ledger,
+ClawCrew records every token-bearing model call to an append-only ledger,
 including calls whose pricing is only partially available. It attributes spend
 to the originating agent, enforces daily / monthly budgets over the priced
 portion, and surfaces both spend and missing-pricing exposure to operators. The
 pricing rules live in config so operators can edit them without a rebuild.
 
 This page describes the schema, the lookup pipeline, and the operator
-surfaces. The code lives in `crates/zeroclaw-config/src/cost/` and
-`crates/zeroclaw-runtime/src/agent/cost.rs`.
+surfaces. The code lives in `crates/clawcrew-config/src/cost/` and
+`crates/clawcrew-runtime/src/agent/cost.rs`.
 
 ## Config schema
 
@@ -27,7 +27,7 @@ entry is keyed by the **upstream model id** as it appears in usage telemetry
 the provider's namespace and almost always contain hyphens.
 
 The schema marks every rate-sheet HashMap with `#[resource_key]` (in
-`crates/zeroclaw-macros/src/lib.rs`). That attribute opts the field out of
+`crates/clawcrew-macros/src/lib.rs`). That attribute opts the field out of
 `validate_alias_key` in `create_map_key` / `rename_map_key`, so the
 gateway's `POST /api/config/map-key` accepts hyphenated ids. Without it,
 `create_map_key` rejects every realistic model id and the rate-sheet UI
@@ -42,7 +42,7 @@ The per-provider-type slots under `[cost.rates.providers.models.<type>]`,
 expand from the same macros that drive the `[providers.*]` slot wrappers:
 
 ```rust
-// crates/zeroclaw-config/src/providers.rs
+// crates/clawcrew-config/src/providers.rs
 for_each_model_provider_slot!(emit_model_cost_rates_struct);
 for_each_tts_provider_slot!(emit_tts_cost_rates_struct, super::schema::TtsCostRates);
 for_each_transcription_provider_slot!(emit_transcription_cost_rates_struct, super::schema::TranscriptionCostRates);
@@ -66,12 +66,12 @@ The pipeline from `[cost.rates.*]` to a recorded `cost_usd` value is:
    `[providers.models.<type>.<alias>].pricing` table is merged in too;
    `[cost.rates.*]` wins on conflict because it's the forward-looking
    surface.
-   (See `crates/zeroclaw-channels/src/orchestrator/mod.rs`,
+   (See `crates/clawcrew-channels/src/orchestrator/mod.rs`,
    the closure under `cost_tracking: CostTracker::get_or_init_global(...).map(|tracker| ...)`.)
 
 2. **Recording inside the agent loop.** Every successful LLM response
    reaches `record_tool_loop_cost_usage(provider_name, model, usage)`
-   in `crates/zeroclaw-runtime/src/agent/cost.rs`. The function pulls
+   in `crates/clawcrew-runtime/src/agent/cost.rs`. The function pulls
    the pricing map slot for `provider_name`, calls `resolve_rates(map,
    model)`, multiplies by token counts, and stores a `CostRecord` via
    the global `CostTracker`.
@@ -94,7 +94,7 @@ The pipeline from `[cost.rates.*]` to a recorded `cost_usd` value is:
    cost and separately records only the token subset that could not be priced.
 
 4. **CostTracker is a process-global singleton** (`OnceLock` in
-   `crates/zeroclaw-config/src/cost/tracker.rs`). Reload applies the
+   `crates/clawcrew-config/src/cost/tracker.rs`). Reload applies the
    latest `CostConfig` to the existing tracker, and if cost tracking
    was disabled at boot, a later reload with `cost.enabled = true`
    constructs the tracker on demand. The orchestrator's pricing map is
@@ -122,7 +122,7 @@ Behavior:
   with no HTTP `/models` listing at all, such as a subprocess gateway like
   `kilocli`) falls back to the public [models.dev](https://models.dev)
   catalog (`api.json`), keyed by the family's models.dev name (see
-  `catalog_source_for` in `crates/zeroclaw-providers/src/catalog.rs`). The
+  `catalog_source_for` in `crates/clawcrew-providers/src/catalog.rs`). The
   fallback catalog is fetched fresh on each refresh cycle, so both sources
   track upstream price changes on the same hourly cadence.
 - **Config always wins.** Live prices fill *only* the dimensions a model has
@@ -141,7 +141,7 @@ Behavior:
   without the feature. Turning the last flagged provider off at runtime
   (config reload) clears the snapshot on the next refresh cycle, so live
   prices stop filling without a restart. The snapshot lives only in
-  `zeroclaw_providers::pricing` (see `crates/zeroclaw-providers/src/pricing.rs`);
+  `clawcrew_providers::pricing` (see `crates/clawcrew-providers/src/pricing.rs`);
   it is read by `record_tool_loop_cost_usage` and spawned once from the
   channels supervisor and the gateway startup.
 
@@ -193,7 +193,7 @@ limit:
   the request is dispatched.
 
 `allow_override = true` lets a request bypass `block` by passing an
-override token on the CLI (`zeroclaw --override`). Defaults to
+override token on the CLI (`clawcrew --override`). Defaults to
 `false`. `warn_at_percent` controls when the gateway surfaces a
 warning banner ahead of the hard limit; defaults to 80%.
 
@@ -216,7 +216,7 @@ profiles; the trade-off is losing the per-agent dimension everywhere.
 
 ### CLI status
 
-`zeroclaw status` prints today's and the current month's spend from the ledger.
+`clawcrew status` prints today's and the current month's spend from the ledger.
 When any model recorded `unpriced_tokens > 0` anywhere in the current UTC
 month, it also prints a pricing-unavailable warning listing the affected models
 and the total uncosted token count across them. The warning reads a
@@ -278,7 +278,7 @@ because no rate was set when they happened. Make a new chat request
 after the daemon reload and check **Cost overview > Session** plus
 **Spend by model**; both should populate for the new request.
 
-**`zeroclaw status` says pricing is unavailable even though some rates are configured.**
+**`clawcrew status` says pricing is unavailable even though some rates are configured.**
 Pricing is resolved per token-bearing dimension. For example, an input rate
 does not price output tokens, and a cached-input rate does not price uncached
 input. Add the dimensions named by the runtime warning. A configured `0.0`
@@ -290,7 +290,7 @@ standard input rate and does not trigger it either.
 v0.8.0 daemon mangled hyphenated HashMap keys in the dirty-save path,
 silently dropping every write to the rate sheet. If you see this on
 v0.8.0+ it's a real bug: the dirty-path resolution lives in
-`crates/zeroclaw-config/src/schema.rs::apply_dirty_path`; file an
+`crates/clawcrew-config/src/schema.rs::apply_dirty_path`; file an
 issue with the daemon version and the path that drifted.
 
 **`missing_pricing` warns spam the log.** The runtime emits this once per

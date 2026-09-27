@@ -1,6 +1,6 @@
 # Matrix
 
-Run ZeroClaw in Matrix rooms, including end-to-end encrypted (E2EE) rooms.
+Run ClawCrew in Matrix rooms, including end-to-end encrypted (E2EE) rooms.
 
 ## Who can talk to the agent
 
@@ -26,7 +26,7 @@ Before testing message flow:
 
 1. The bot account is joined to the target room.
 2. Credentials authenticate the bot account: either `user_id` + `password` (recommended, see [§2](#2-configuration)) or an `access_token` (token path, [§3](#3-token-path-alternative-obtaining-access_token-and-device_id)).
-3. `allowed_rooms` includes the target room (or is empty to allow all rooms the bot has joined). Entries are matched literally against the canonical room ID (`!room:server`) of each incoming message, so list canonical room IDs here: ZeroClaw does **not** resolve a `#alias:server` entry for this allowlist. (Aliases are resolved only for outbound delivery targets such as cron `delivery.to`.) Find a room's canonical ID in its client (in Element: Room settings → Advanced → Internal room ID).
+3. `allowed_rooms` includes the target room (or is empty to allow all rooms the bot has joined). Entries are matched literally against the canonical room ID (`!room:server`) of each incoming message, so list canonical room IDs here: ClawCrew does **not** resolve a `#alias:server` entry for this allowlist. (Aliases are resolved only for outbound delivery targets such as cron `delivery.to`.) Find a room's canonical ID in its client (in Element: Room settings → Advanced → Internal room ID).
 4. A peer group authorizes the sender (`external_peers = ["*"]` for open testing, see [§6](#b-sender-allowlist-peer-groups)).
 5. For E2EE rooms, the bot can decrypt: a `recovery_key` (recommended) restores keys automatically, or keys are shared to the bot device manually.
 
@@ -40,14 +40,14 @@ Matrix is configured as a `[channels.matrix.<alias>]` block. Set it through any 
 
 ### Recommended setup: password + recovery key
 
-The official, lowest-friction way to run Matrix is to let ZeroClaw log in
+The official, lowest-friction way to run Matrix is to let ClawCrew log in
 fresh and manage its own device identity:
 
-- **Omit `device_id`.** Let the homeserver assign one at login. ZeroClaw
+- **Omit `device_id`.** Let the homeserver assign one at login. ClawCrew
   saves the assigned id to `session.json` and reuses it on every restart, so
   there is no value for you to look up, copy, or keep in sync. Pinning a
   `device_id` by hand is the single most common source of broken key sharing.
-- **Omit `access_token`.** When it is unset, ZeroClaw falls back to password
+- **Omit `access_token`.** When it is unset, ClawCrew falls back to password
   login. A fresh login is also what the auto-recovery path ([§8](#8-auto-recovery-from-corrupted-local-state)) uses, so the
   bot self-heals from corrupted local state without operator action.
 - **Set `password`.** With `access_token` absent, `user_id` + `password`
@@ -82,10 +82,10 @@ rooms the bot answers in. Authorize senders with a [peer group](#who-can-talk-to
 ### About `user_id` and `device_id`
 
 - For the recommended password + recovery-key setup, set `user_id` and leave
-  `device_id` unset: the homeserver assigns and ZeroClaw persists it.
-- ZeroClaw reads identity from Matrix `/_matrix/client/v3/account/whoami`.
+  `device_id` unset: the homeserver assigns and ClawCrew persists it.
+- ClawCrew reads identity from Matrix `/_matrix/client/v3/account/whoami`.
 - Only on the `access_token` path do you set `device_id` manually: a token
-  login carries a device the server already minted, and ZeroClaw needs that
+  login carries a device the server already minted, and ClawCrew needs that
   exact id for E2EE session restore (see [§5H](#h-finding-device_id-for-an-existing-token) to find it).
 
 ### Threads and context
@@ -109,7 +109,7 @@ If your operator account already has a token, skip to [§4](#4-quick-validation)
 
 ### Step 1: Mint a token via password login
 
-Run this once. Replace `your.homeserver`, the bot username, password, and pick any short `device_id` string (alphanumeric, no spaces; this is the *server-side* device label that ZeroClaw will reuse on every restart):
+Run this once. Replace `your.homeserver`, the bot username, password, and pick any short `device_id` string (alphanumeric, no spaces; this is the *server-side* device label that ClawCrew will reuse on every restart):
 
 <div class="os-tabs-src">
 
@@ -129,22 +129,22 @@ Response:
 {"user_id": "@bot:example.com", "access_token": "syt_...", "device_id": "NEWDEVICE"}
 ```
 
-### Step 2: Apply both values to ZeroClaw
+### Step 2: Apply both values to ClawCrew
 
-Put `access_token`, `device_id`, and `user_id` from the response into your `[channels.matrix.<alias>]` block (see [§2](#2-configuration) for where to set them), then restart: `zeroclaw service restart`.
+Put `access_token`, `device_id`, and `user_id` from the response into your `[channels.matrix.<alias>]` block (see [§2](#2-configuration) for where to set them), then restart: `clawcrew service restart`.
 
 ### Notes
 
-- **Keep a copy of the token** when you first paste it. Secrets are encrypted at rest and `zeroclaw config get` will print `[masked]` for the token field; you can't retrieve it later. Stash it in a scratch note if you'll need it for the curl validation snippets in [§5C](#c-token-and-identity).
+- **Keep a copy of the token** when you first paste it. Secrets are encrypted at rest and `clawcrew config get` will print `[masked]` for the token field; you can't retrieve it later. Stash it in a scratch note if you'll need it for the curl validation snippets in [§5C](#c-token-and-identity).
 - **Reuse the same `device_id` on every restart**: changing it forces a new server-side device registration, which breaks key sharing and verification in encrypted rooms. The auto-recovery path in [§8](#8-auto-recovery-from-corrupted-local-state) handles the rare cases where wiping is genuinely the right call.
-- **Rotating the access token later** without re-running the wizard: update the `access_token` field in your config (see [§2](#2-configuration)), then `zeroclaw service restart`.
+- **Rotating the access token later** without re-running the wizard: update the `access_token` field in your config (see [§2](#2-configuration)), then `clawcrew service restart`.
 - **Token shows as expired or invalid** at startup: mint a new one with the same curl, repeat Step 2.
 
 ## 4. Quick validation
 
-Apply the field set in [§2](#2-configuration) if you haven't yet, then restart with `zeroclaw service restart` (background) or `zeroclaw daemon` (foreground). Send a plain-text message in the configured Matrix room. Confirm:
+Apply the field set in [§2](#2-configuration) if you haven't yet, then restart with `clawcrew service restart` (background) or `clawcrew daemon` (foreground). Send a plain-text message in the configured Matrix room. Confirm:
 
-- ZeroClaw logs show the Matrix listener starting with no repeated sync/auth errors.
+- ClawCrew logs show the Matrix listener starting with no repeated sync/auth errors.
 - In an encrypted room, the bot can read and reply to encrypted messages from allowed users.
 
 ## 5. Troubleshooting "no response"
@@ -162,7 +162,7 @@ The sender must be in the agent's peer set, see [Who can talk to the agent](#who
 
 ### C. Token and identity
 
-Secrets are encrypted at rest and not retrievable: `zeroclaw config get` prints `[masked]` for any secret field. To run the checks below, use the access token you minted in [§3](#3-token-path-alternative-obtaining-access_token-and-device_id) (or mint a fresh one) and your own homeserver URL.
+Secrets are encrypted at rest and not retrievable: `clawcrew config get` prints `[masked]` for any secret field. To run the checks below, use the access token you minted in [§3](#3-token-path-alternative-obtaining-access_token-and-device_id) (or mint a fresh one) and your own homeserver URL.
 
 Validate the token server-side:
 
@@ -179,7 +179,7 @@ curl -sS -H "Authorization: Bearer <access_token>" \
 
 - Returned `user_id` must match the bot account.
 - If `device_id` is missing from the response, set it manually (see [§5H](#h-finding-device_id-for-an-existing-token)).
-- Rotate the access token: update the `access_token` field in your config (see [§2](#2-configuration)), then `zeroclaw service restart`.
+- Rotate the access token: update the `access_token` field in your config (see [§2](#2-configuration)), then `clawcrew service restart`.
 
 ### D. E2EE-specific checks
 
@@ -191,23 +191,23 @@ curl -sS -H "Authorization: Bearer <access_token>" \
 
 ### E. Log levels
 
-ZeroClaw suppresses `matrix_sdk`, `matrix_sdk_base`, and `matrix_sdk_crypto` to `warn` by default; they're noisy at `info`. Restore SDK output for debugging:
+ClawCrew suppresses `matrix_sdk`, `matrix_sdk_base`, and `matrix_sdk_crypto` to `warn` by default; they're noisy at `info`. Restore SDK output for debugging:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-RUST_LOG=info,matrix_sdk=info,matrix_sdk_base=info,matrix_sdk_crypto=info zeroclaw daemon
+RUST_LOG=info,matrix_sdk=info,matrix_sdk_base=info,matrix_sdk_crypto=info clawcrew daemon
 ```
 
 </div>
 
 ### F. Message formatting (Markdown)
 
-- ZeroClaw sends Matrix replies as markdown-capable `m.room.message` text content.
+- ClawCrew sends Matrix replies as markdown-capable `m.room.message` text content.
 - Matrix clients that support `formatted_body` render emphasis, lists, and code blocks.
-- If formatting appears as plain text: check client capability first, then confirm ZeroClaw is running a build with markdown-enabled Matrix output.
+- If formatting appears as plain text: check client capability first, then confirm ClawCrew is running a build with markdown-enabled Matrix output.
 
 ### G. Fresh start test
 
@@ -217,7 +217,7 @@ After config changes, restart the daemon and send a new message. Old timeline hi
 
 You only need this on the `access_token` path ([§3](#3-token-path-alternative-obtaining-access_token-and-device_id)). The recommended password +
 recovery-key setup omits `device_id` entirely: the homeserver assigns one and
-ZeroClaw persists it, so there is nothing to look up. If you have switched to
+ClawCrew persists it, so there is nothing to look up. If you have switched to
 the recommended setup, skip this section.
 
 If you really must pin a `device_id` (because you are reusing an existing
@@ -225,7 +225,7 @@ access token rather than logging in with a password), use this to find the one
 bound to that token. For brand-new bots on the token path, see [§3](#3-token-path-alternative-obtaining-access_token-and-device_id): the
 password-login flow there returns both values together.
 
-ZeroClaw needs a stable `device_id` for E2EE session restore on the token path. Without it, a new device is registered every restart, breaking key sharing and device verification.
+ClawCrew needs a stable `device_id` for E2EE session restore on the token path. Without it, a new device is registered every restart, breaking key sharing and device verification.
 
 #### Option 1: `whoami` (easiest)
 
@@ -253,7 +253,7 @@ If `device_id` is missing, the token was created without a device login (e.g. vi
 1. Log in as the bot account in Element.
 2. Settings → Sessions.
 3. Copy the Device ID for the active session.
-4. Set `device_id` in your config (see [§2](#2-configuration)), then `zeroclaw service restart`. Keep `device_id` stable: changing it forces a new device registration, which breaks existing key sharing and verification.
+4. Set `device_id` in your config (see [§2](#2-configuration)), then `clawcrew service restart`. Keep `device_id` stable: changing it forces a new device registration, which breaks existing key sharing and verification.
 
 ### H (continued). Crypto-store deletion recovery
 
@@ -265,14 +265,14 @@ If `device_id` is missing, the token was created without a device login (e.g. vi
 
 A fresh login creates a new device with a new `device_id`, sidestepping the OTK conflict entirely (no UIA-gated device deletion required).
 
-1. Stop ZeroClaw.
+1. Stop ClawCrew.
 
    <div class="os-tabs-src">
 
    #### sh
 
    ```sh
-   zeroclaw service stop
+   clawcrew service stop
    ```
 
    </div>
@@ -300,7 +300,7 @@ A fresh login creates a new device with a new `device_id`, sidestepping the OTK 
    #### sh
 
    ```sh
-   rm -rf ~/.zeroclaw/state/matrix/
+   rm -rf ~/.clawcrew/state/matrix/
    ```
 
    </div>
@@ -314,7 +314,7 @@ A fresh login creates a new device with a new `device_id`, sidestepping the OTK 
    #### sh
 
    ```sh
-   zeroclaw service start
+   clawcrew service start
    ```
 
    </div>
@@ -330,7 +330,7 @@ A fresh login creates a new device with a new `device_id`, sidestepping the OTK 
 
 ### I. Recovery key (recommended for E2EE)
 
-A recovery key lets ZeroClaw automatically restore room keys and cross-signing secrets from server-side backup. Device resets, crypto-store deletions, and fresh installs all recover automatically: no emoji verification, no manual key sharing.
+A recovery key lets ClawCrew automatically restore room keys and cross-signing secrets from server-side backup. Device resets, crypto-store deletions, and fresh installs all recover automatically: no emoji verification, no manual key sharing.
 
 #### Step 1: Get your recovery key from Element
 
@@ -341,13 +341,13 @@ A recovery key lets ZeroClaw automatically restore room keys and cross-signing s
 5. Continue past the key display: Element then asks you to **re-enter the key** in a confirmation box to prove you saved it. Paste it and continue to finish setup. This is the same value you put in `recovery_key`.
 6. (Optional) Log out of the bot's Element session once the key is saved: click the account menu → **All settings** → Account, then **Remove this device**. Leaving it logged in is fine; removing it just keeps the device list tidy.
 
-#### Step 2: Add the recovery key to ZeroClaw
+#### Step 2: Add the recovery key to ClawCrew
 
-Apply the recovery key to ZeroClaw:
+Apply the recovery key to ClawCrew:
 
 {{#secret-config channels.matrix.<alias>.recovery_key}}
 
-Then `zeroclaw service restart`. The recovery key is encrypted at rest immediately.
+Then `clawcrew service restart`. The recovery key is encrypted at rest immediately.
 
 #### Step 3: Restart
 
@@ -356,7 +356,7 @@ Then `zeroclaw service restart`. The recovery key is encrypted at rest immediate
 #### sh
 
 ```sh
-zeroclaw service restart
+clawcrew service restart
 ```
 
 </div>
@@ -367,7 +367,7 @@ On startup you should see:
 Matrix E2EE recovery successful — room keys and cross-signing secrets restored from server backup.
 ```
 
-From now on, even if the local crypto store is deleted, ZeroClaw recovers automatically on next startup.
+From now on, even if the local crypto store is deleted, ClawCrew recovers automatically on next startup.
 
 ## 6. Debug logging
 
@@ -378,7 +378,7 @@ Matrix-channel-specific diagnostics:
 #### sh
 
 ```sh
-RUST_LOG=zeroclaw::channels::matrix=debug zeroclaw daemon
+RUST_LOG=clawcrew::channels::matrix=debug clawcrew daemon
 ```
 
 </div>
@@ -398,7 +398,7 @@ For SDK-level detail as well:
 #### sh
 
 ```sh
-RUST_LOG=zeroclaw::channels::matrix=debug,matrix_sdk_crypto=debug zeroclaw daemon
+RUST_LOG=clawcrew::channels::matrix=debug,matrix_sdk_crypto=debug clawcrew daemon
 ```
 
 </div>
@@ -409,10 +409,10 @@ RUST_LOG=zeroclaw::channels::matrix=debug,matrix_sdk_crypto=debug zeroclaw daemo
 - Start with permissive `external_peers = ["*"]`, tighten to explicit user IDs once verified.
 - Always use canonical room IDs in `allowed_rooms`: aliases are not resolved for the inbound allowlist (they are resolved only for outbound `delivery.to`).
 - **Threading:** when `channels.matrix.reply_in_thread` is `true` (default), every bot reply lives in a thread rooted at the user's message. Top-level user messages open a fresh thread; existing threads are continued. The main room timeline only carries the user-initiated messages.
-- **Thread root context:** the first inbound message ZeroClaw sees in any given thread is prefixed with `[Thread root from @sender]: <root body>` so the agent has the conversation that triggered the reply. Threads the bot itself started skip the preamble. Tracking is in-memory only; after a daemon restart, the next message in each active thread re-injects the preamble exactly once.
-- **Inline-reply media:** `channels.matrix.mention_only = true` makes the bot ignore naked media uploads (no text body to mention against). When the user inline-replies to such a dropped event with a question (`@bot can you see this?`), ZeroClaw walks the reply's `m.relates_to.m.in_reply_to.event_id`, fetches the parent event, and pulls its media into the current message: the agent's vision pipeline sees the image even though the original upload was filtered out.
+- **Thread root context:** the first inbound message ClawCrew sees in any given thread is prefixed with `[Thread root from @sender]: <root body>` so the agent has the conversation that triggered the reply. Threads the bot itself started skip the preamble. Tracking is in-memory only; after a daemon restart, the next message in each active thread re-injects the preamble exactly once.
+- **Inline-reply media:** `channels.matrix.mention_only = true` makes the bot ignore naked media uploads (no text body to mention against). When the user inline-replies to such a dropped event with a question (`@bot can you see this?`), ClawCrew walks the reply's `m.relates_to.m.in_reply_to.event_id`, fetches the parent event, and pulls its media into the current message: the agent's vision pipeline sees the image even though the original upload was filtered out.
 - **Attachments thread alongside text:** `room.send_attachment` calls carry an `AttachmentConfig::reply(...)` with `EnforceThread::Threaded` when a thread anchor is present, so PDFs / images / voice notes land inside the bot's thread instead of the main timeline.
-- **Outbound media markers:** the agent emits `[image:url|path]`, `[file:url|path]`, `[voice:url|path]`, `[video:...]`, `[audio:...]` (and uppercase / `[document:...]` aliases) inside its reply text; ZeroClaw fetches the bytes (HTTP for `http(s)://`, local read otherwise) and uploads as the appropriate Matrix message event. **Missing or unreadable targets are non-fatal:** the channel logs a warning, drops just that marker, and appends a `(note: I couldn't deliver the file at <path>.)` line so the operator sees what was attempted instead of a silently-dropped reply.
+- **Outbound media markers:** the agent emits `[image:url|path]`, `[file:url|path]`, `[voice:url|path]`, `[video:...]`, `[audio:...]` (and uppercase / `[document:...]` aliases) inside its reply text; ClawCrew fetches the bytes (HTTP for `http(s)://`, local read otherwise) and uploads as the appropriate Matrix message event. **Missing or unreadable targets are non-fatal:** the channel logs a warning, drops just that marker, and appends a `(note: I couldn't deliver the file at <path>.)` line so the operator sees what was attempted instead of a silently-dropped reply.
 - **Voice messages** (MSC3245): inbound `m.audio` events carrying the `org.matrix.msc3245.voice` field are saved to `{workspace_dir}/matrix_files/` and run through the agent's configured transcription provider so the agent gets both the transcript text and the source path. Outbound voice notes upload as `m.audio` with the voice flag + zero-waveform set, so Element renders the bubble as a voice note; in an encrypted room the audio is encrypted before upload like any other attachment. See [Model Providers](../providers/overview.md) for transcription provider setup.
 - **Spoken replies:** with `tts.enabled` and the owning agent's `tts_provider` set, a reply is synthesized and posted as a voice note *alongside* its text, in the same thread, so the room keeps a searchable transcript either way. Which replies get spoken is decided by configuration, never guessed from the reply text:
   - A sender in a `[peer_groups.*]` group with `output_modality = "voice"` on this channel. Matrix peers are named by user ID (`@user:server`, the form `peer-groups.toml` documents), matched case-insensitively with a leading `@` optional, and `["*"]` covers everyone. Both the reply path and the proactive path below accept the same shapes. Room IDs belong in `allowed_rooms` and are never peer identities.
@@ -420,9 +420,9 @@ RUST_LOG=zeroclaw::channels::matrix=debug,matrix_sdk_crypto=debug zeroclaw daemo
   - `output_modality = "mirror"`, the default, replies in kind: a voice message gets the text reply plus a voice note, a text message gets text only. The choice is made per message from the inbound event's voice flag (`org.matrix.msc3245.voice`), never from the transcript or from earlier messages in the room, so one sender's voice note cannot voice another sender's reply. A `text` group is always text-only. Because `mirror` is the default, a group that never set `output_modality` answers voice messages with a voice note alongside the text as soon as TTS is configured; set `output_modality = "text"` to keep text-only replies.
 - **Outbound voice markers:** the agent can also emit `[voice:<url|path>]` explicitly, which uploads that file as a voice note whatever the peer group says.
 - **Acknowledgement reactions:** controlled by `channels.matrix.ack_reactions` (default `true`). When on, the bot reacts with 👀 while processing and ✅ when done. Set to `false` to keep rooms reaction-free.
-- **Persistent sessions:** on first successful login, ZeroClaw writes `~/.zeroclaw/state/matrix/session.json` (user_id + device_id + access_token + optional refresh_token). Subsequent restarts call `restore_session()` from that blob: no re-login. The matrix-rust-sdk SQLite crypto store lives alongside it at `~/.zeroclaw/state/matrix/store/`. **Once `session.json` exists, rotating `access_token` in config has no effect until the file is deleted**: the saved token wins. Delete `session.json` to force a re-login from config values.
-- **Cross-signing:** when `recovery_key` matches what is sealed in your account's server-side secret storage, ZeroClaw runs `recovery().recover(key)` on every startup, the SDK imports your existing master / self-signing / user-signing keys, and the freshly registered device is automatically signed. **No bootstrap, no UIA, no key rotation.** If your account doesn't yet have cross-signing set up, generate the recovery key in Element (Settings → Security & Privacy → Secure Backup) before configuring `recovery_key`.
-- **Cron delivery:** `delivery.to` should be a plain room id (`!abc:server`) or alias (`#room:server`). Older configs that wrote `<sender>||<room>` are tolerated: ZeroClaw extracts the last `!`/`#`-prefixed segment and warns about the malformed value.
+- **Persistent sessions:** on first successful login, ClawCrew writes `~/.clawcrew/state/matrix/session.json` (user_id + device_id + access_token + optional refresh_token). Subsequent restarts call `restore_session()` from that blob: no re-login. The matrix-rust-sdk SQLite crypto store lives alongside it at `~/.clawcrew/state/matrix/store/`. **Once `session.json` exists, rotating `access_token` in config has no effect until the file is deleted**: the saved token wins. Delete `session.json` to force a re-login from config values.
+- **Cross-signing:** when `recovery_key` matches what is sealed in your account's server-side secret storage, ClawCrew runs `recovery().recover(key)` on every startup, the SDK imports your existing master / self-signing / user-signing keys, and the freshly registered device is automatically signed. **No bootstrap, no UIA, no key rotation.** If your account doesn't yet have cross-signing set up, generate the recovery key in Element (Settings → Security & Privacy → Secure Backup) before configuring `recovery_key`.
+- **Cron delivery:** `delivery.to` should be a plain room id (`!abc:server`) or alias (`#room:server`). Older configs that wrote `<sender>||<room>` are tolerated: ClawCrew extracts the last `!`/`#`-prefixed segment and warns about the malformed value.
 
 ### Streaming
 
@@ -464,7 +464,7 @@ for only one extension tool.
 
 ## 8. Auto-recovery from corrupted local state
 
-The matrix-rust-sdk default SQLite store is single-device and assumes the local view stays in sync with the homeserver. Two failure modes break that assumption irrecoverably; ZeroClaw detects each at startup and (when `password` + `user_id` are both configured) auto-wipes `~/.zeroclaw/state/matrix/` and re-authenticates so a fresh device is created server-side.
+The matrix-rust-sdk default SQLite store is single-device and assumes the local view stays in sync with the homeserver. Two failure modes break that assumption irrecoverably; ClawCrew detects each at startup and (when `password` + `user_id` are both configured) auto-wipes `~/.clawcrew/state/matrix/` and re-authenticates so a fresh device is created server-side.
 
 - **Orphan crypto state.** A `store/` directory exists but `session.json` doesn't (manual cleanup, interrupted prior install, etc.). Logging in fresh on top of orphaned crypto state reproduces `Duplicate one-time keys` / `SigningKeyChanged` conflicts that don't self-heal.
 - **`StateStoreDataKey::OneTimeKeyAlreadyUploaded` flag set.** The SDK persists this key into the state store the first time it sees a duplicate-OTK upload (per the SDK's own comment: "we forgot about some of our one-time keys. This will lead to UTDs."). It survives restarts; the only fix is wipe and re-register.
@@ -473,7 +473,7 @@ The matrix-rust-sdk default SQLite store is single-device and assumes the local 
 
 When **`recover()` itself fails** (typically `MAC check for the secret storage key failed`), the channel logs the homeserver's default secret-storage key id, whether the key event has passphrase info, the whitespace-stripped input length, and the full error chain: these point at *which* layer rejected the recovery key without leaking the value. Recovery failures are **non-fatal** (they don't trigger auto-wipe); the bot continues, the new device just won't be cross-signed.
 
-If `password` + `user_id` aren't configured, auto-recovery can't run: the channel bails with an actionable error pointing at the two choices: configure them, or `rm -rf ~/.zeroclaw/state/matrix/` manually.
+If `password` + `user_id` aren't configured, auto-recovery can't run: the channel bails with an actionable error pointing at the two choices: configure them, or `rm -rf ~/.clawcrew/state/matrix/` manually.
 
 ## See also
 

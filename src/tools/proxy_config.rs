@@ -1,1 +1,1 @@
-pub use zeroclaw_tools::proxy_config::*;
+pub use clawcrew_tools::proxy_config::*;

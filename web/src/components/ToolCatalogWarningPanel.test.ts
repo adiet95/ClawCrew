@@ -22,7 +22,7 @@ async function renderPanel({
 }): Promise<string> {
   Object.defineProperty(globalThis, 'window', {
     configurable: true,
-    value: { __ZEROCLAW_BASE__: '' },
+    value: { __CLAWCREW_BASE__: '' },
   });
   const { ToolCatalogWarningPanel } = await import('./ToolCatalogWarningPanel.ts');
   const html = renderToStaticMarkup(

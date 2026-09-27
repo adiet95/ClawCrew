@@ -1,6 +1,6 @@
 # WhatsApp
 
-ZeroClaw supports two WhatsApp backends under the same `channels.whatsapp` config family:
+ClawCrew supports two WhatsApp backends under the same `channels.whatsapp` config family:
 
 | Mode | Use it when | Required selector |
 |---|---|---|
@@ -31,7 +31,7 @@ header. An unknown alias returns `404`. Single-instance deployments need no chan
 
 ## Web mode
 
-WhatsApp Web mode links a regular WhatsApp account through the optional Web backend. It does not need a Meta Business account. It does need a ZeroClaw build with the `whatsapp-web` feature enabled and a persistent session database path.
+WhatsApp Web mode links a regular WhatsApp account through the optional Web backend. It does not need a Meta Business account. It does need a ClawCrew build with the `whatsapp-web` feature enabled and a persistent session database path.
 
 On first start, the Web backend pairs the account using QR or pair-code linking (`pair_phone` seeds pair-code linking; leave it unset for QR). Keep `session_path` on persistent storage; removing it forces a fresh device link. Bind the channel to an agent via that agent's `channels` list.
 
@@ -51,7 +51,7 @@ For Web mode, `dm_policy` and `group_policy` apply under **both** modes. `self_c
 | `mention_only` | `true`, `false` | both modes | Requires group messages to mention the bot |
 | `passive_group_context` | `true`, `false` | both modes | Records allowed unaddressed group messages as context only |
 
-`self_chat_mode` stays personal-only because the self-chat affordance is scoped to the personal branch by design. `mode` selects ZeroClaw's policy posture, not a WhatsApp account type: both modes drive the same linked-device session.
+`self_chat_mode` stays personal-only because the self-chat affordance is scoped to the personal branch by design. `mode` selects ClawCrew's policy posture, not a WhatsApp account type: both modes drive the same linked-device session.
 
 WhatsApp mirrors the linked account's outbound messages as `fromMe` events in either mode. Business mode drops these echoes before approval-reply handling or user-message dispatch, so they cannot start another agent turn. Personal mode retains its intentional self-chat and explicit operator-trigger handling; this business-mode rule does not remove those exceptions.
 
@@ -83,7 +83,7 @@ Each entry matches either the full group JID (`123456789012345@g.us`) or the JID
 ```toml
 [channels.whatsapp.myaccount]
 enabled = true
-session_path = "/var/lib/zeroclaw/wa.db"
+session_path = "/var/lib/clawcrew/wa.db"
 # Only operate in these two groups; all other groups are dropped.
 allowed_groups = ["120363012345678901@g.us", "120363098765432109"]
 ```
@@ -162,9 +162,9 @@ After configuring one mode, start the channel runner:
 #### sh
 
 ```sh
-zeroclaw channel start
+clawcrew channel start
 ```
 
 </div>
 
-Use `zeroclaw channel doctor` for a first check. For Web mode, also confirm the binary was built with `whatsapp-web`; for Cloud API mode, confirm the webhook tunnel and Meta verify token agree.
+Use `clawcrew channel doctor` for a first check. For Web mode, also confirm the binary was built with `whatsapp-web`; for Cloud API mode, confirm the webhook tunnel and Meta verify token agree.

@@ -1,5 +1,5 @@
-# Parity data for the ZeroClaw / OpenClaw / Hermes comparison columns of the
-# feature-and-support matrix. The ZeroClaw column is NOT here: it is walked from
+# Parity data for the ClawCrew / OpenClaw / Hermes comparison columns of the
+# feature-and-support matrix. The ClawCrew column is NOT here: it is walked from
 # the code registries at generation time. This file carries only the two
 # external columns the binary has no knowledge of.
 #
@@ -7,7 +7,7 @@
 # the code registries and rewrites the gitignored feature-matrix snippets before
 # mdBook renders. There is no separate drift-check command: a parity key here
 # that the source walk no longer produces is a hard error that fails the docs
-# build, and that build runs in CI. A walked ZeroClaw row with no entry here
+# build, and that build runs in CI. A walked ClawCrew row with no entry here
 # renders `Unknown` in the external columns; fill it in as parity is confirmed.
 #
 # Status vocabulary matches the page legend: supported | partial | experimental

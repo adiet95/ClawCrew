@@ -54,12 +54,12 @@ fn registry() -> Vec<Surface> {
         },
         Surface {
             name: "runtime-locales",
-            file: "crates/zeroclaw-runtime/src/generated_locales.rs",
+            file: "crates/clawcrew-runtime/src/generated_locales.rs",
             render: runtime_locales::render_file,
         },
         Surface {
             name: "tools-en-ftl",
-            file: "crates/zeroclaw-tools/locales/en/tools.ftl",
+            file: "crates/clawcrew-tools/locales/en/tools.ftl",
             render: tools_ftl::render_file,
         },
         Surface {
@@ -127,7 +127,7 @@ fn registry() -> Vec<Surface> {
         },
         Surface {
             name: "scoop",
-            file: "dist/scoop/zeroclaw.json",
+            file: "dist/scoop/clawcrew.json",
             render: |root, cur| packaging::render_scoop(root, cur),
         },
         Surface {

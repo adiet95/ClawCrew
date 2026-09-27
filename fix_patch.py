@@ -8,12 +8,12 @@ missing_fields = """
 """
 
 files = [
-    "crates/zeroclaw-runtime/src/tools/delegate.rs",
-    "crates/zeroclaw-runtime/src/tools/spawn_subagent.rs",
-    "crates/zeroclaw-runtime/src/control_plane/boot.rs",
-    "crates/zeroclaw-runtime/src/control_plane/reaper.rs",
-    "crates/zeroclaw-runtime/src/control_plane/task_store_sqlite/goal.rs",
-    "crates/zeroclaw-runtime/src/control_plane/task_store_sqlite.rs"
+    "crates/clawcrew-runtime/src/tools/delegate.rs",
+    "crates/clawcrew-runtime/src/tools/spawn_subagent.rs",
+    "crates/clawcrew-runtime/src/control_plane/boot.rs",
+    "crates/clawcrew-runtime/src/control_plane/reaper.rs",
+    "crates/clawcrew-runtime/src/control_plane/task_store_sqlite/goal.rs",
+    "crates/clawcrew-runtime/src/control_plane/task_store_sqlite.rs"
 ]
 
 for file in files:

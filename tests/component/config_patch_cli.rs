@@ -1,4 +1,4 @@
-//! Regression coverage for `zeroclaw config patch --json` output.
+//! Regression coverage for `clawcrew config patch --json` output.
 //!
 //! The CLI/HTTP parity test needs the in-process gateway router, whose
 //! `AppState` and deps only exist under the `gateway` feature. Those items are
@@ -18,16 +18,16 @@ use std::time::Duration;
 #[cfg(feature = "gateway")]
 use tower::ServiceExt;
 #[cfg(feature = "gateway")]
-use zeroclaw::gateway::{self, AppState};
+use clawcrew::gateway::{self, AppState};
 #[cfg(feature = "gateway")]
-use zeroclaw_api::attribution::Attributable;
-use zeroclaw_config::schema::Config;
+use clawcrew_api::attribution::Attributable;
+use clawcrew_config::schema::Config;
 #[cfg(feature = "gateway")]
-use zeroclaw_memory::NoneMemory;
+use clawcrew_memory::NoneMemory;
 #[cfg(feature = "gateway")]
-use zeroclaw_providers::ModelProvider;
+use clawcrew_providers::ModelProvider;
 #[cfg(feature = "gateway")]
-use zeroclaw_runtime::security::PairingGuard;
+use clawcrew_runtime::security::PairingGuard;
 
 #[cfg(feature = "gateway")]
 #[derive(Default)]
@@ -49,9 +49,9 @@ impl ModelProvider for MockModelProvider {
 
 #[cfg(feature = "gateway")]
 impl Attributable for MockModelProvider {
-    fn role(&self) -> zeroclaw_api::attribution::Role {
-        zeroclaw_api::attribution::Role::Provider(zeroclaw_api::attribution::ProviderKind::Model(
-            zeroclaw_api::attribution::ModelProviderKind::Custom,
+    fn role(&self) -> clawcrew_api::attribution::Role {
+        clawcrew_api::attribution::Role::Provider(clawcrew_api::attribution::ProviderKind::Model(
+            clawcrew_api::attribution::ModelProviderKind::Custom,
         ))
     }
 
@@ -62,7 +62,7 @@ impl Attributable for MockModelProvider {
 
 #[cfg(feature = "gateway")]
 fn test_state(config: Config) -> AppState {
-    let memory: Arc<dyn zeroclaw_memory::Memory> =
+    let memory: Arc<dyn clawcrew_memory::Memory> =
         Arc::new(NoneMemory::new("config-patch-cli-test"));
     AppState {
         config: Arc::new(RwLock::new(config)),
@@ -72,9 +72,9 @@ fn test_state(config: Config) -> AppState {
         temperature: None,
         mem: memory.clone(),
         memory_strategy: Arc::new(
-            zeroclaw_runtime::agent::memory_strategy::DefaultMemoryStrategy::with_config(
+            clawcrew_runtime::agent::memory_strategy::DefaultMemoryStrategy::with_config(
                 memory,
-                zeroclaw_config::schema::MemoryConfig::default(),
+                clawcrew_config::schema::MemoryConfig::default(),
                 std::path::PathBuf::new(),
             ),
         ),
@@ -82,7 +82,7 @@ fn test_state(config: Config) -> AppState {
         pairing: Arc::new(PairingGuard::new(
             false,
             &[],
-            zeroclaw_config::pairing::PairingCodePolicy::default(),
+            clawcrew_config::pairing::PairingCodePolicy::default(),
         )),
         trust_forwarded_headers: false,
         rate_limiter: Arc::new(gateway::GatewayRateLimiter::new(100, 100, 100)),
@@ -105,7 +105,7 @@ fn test_state(config: Config) -> AppState {
         nextcloud_talk_webhook_secret: HashMap::new(),
         #[cfg(feature = "channel-email")]
         gmail_push: None,
-        observer: Arc::new(zeroclaw_runtime::observability::NoopObserver),
+        observer: Arc::new(clawcrew_runtime::observability::NoopObserver),
         tools_registry: Arc::new(Vec::new()),
         tools_registry_by_agent: Arc::new(HashMap::new()),
         cost_tracker: None,
@@ -121,7 +121,7 @@ fn test_state(config: Config) -> AppState {
         session_queue: Arc::new(gateway::session_queue::SessionActorQueue::new(8, 30, 600)),
         device_registry: None,
         pending_pairings: None,
-        canvas_store: zeroclaw_runtime::tools::CanvasStore::new(),
+        canvas_store: clawcrew_runtime::tools::CanvasStore::new(),
         #[cfg(feature = "webauthn")]
         webauthn: None,
         cancel_tokens: Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),
@@ -133,9 +133,9 @@ fn test_state(config: Config) -> AppState {
 }
 
 fn run_cli_patch_output(config_dir: &std::path::Path, patch_doc: &[u8]) -> Output {
-    let bin = env!("CARGO_BIN_EXE_zeroclaw");
+    let bin = env!("CARGO_BIN_EXE_clawcrew");
     Command::new(bin)
-        .env("ZEROCLAW_CONFIG_DIR", config_dir)
+        .env("CLAWCREW_CONFIG_DIR", config_dir)
         .env("RUST_LOG", "off")
         .args(["config", "patch", "--json", "-"])
         .stdin(Stdio::piped())
@@ -153,15 +153,15 @@ fn run_cli_patch_output(config_dir: &std::path::Path, patch_doc: &[u8]) -> Outpu
             }
             child.wait_with_output()
         })
-        .expect("run zeroclaw config patch")
+        .expect("run clawcrew config patch")
 }
 
-/// Run `zeroclaw config patch - ` **without** `--json`, exercising the
+/// Run `clawcrew config patch - ` **without** `--json`, exercising the
 /// human-readable failure branch of `config_patch_fail_json_or_human`.
 fn run_cli_patch_output_human(config_dir: &std::path::Path, patch_doc: &[u8]) -> Output {
-    let bin = env!("CARGO_BIN_EXE_zeroclaw");
+    let bin = env!("CARGO_BIN_EXE_clawcrew");
     Command::new(bin)
-        .env("ZEROCLAW_CONFIG_DIR", config_dir)
+        .env("CLAWCREW_CONFIG_DIR", config_dir)
         .env("RUST_LOG", "off")
         .args(["config", "patch", "-"])
         .stdin(Stdio::piped())
@@ -179,7 +179,7 @@ fn run_cli_patch_output_human(config_dir: &std::path::Path, patch_doc: &[u8]) ->
             }
             child.wait_with_output()
         })
-        .expect("run zeroclaw config patch (human mode)")
+        .expect("run clawcrew config patch (human mode)")
 }
 
 /// Drive a failing patch in human mode and return stderr. Asserts the
@@ -754,7 +754,7 @@ fn config_patch_add_does_not_materialize_resource_keyed_rate_alias() {
 #[test]
 fn config_patch_replace_on_dotted_resource_id_does_not_plant_phantom_sibling() {
     let config_dir = tempfile::tempdir().expect("temp config dir");
-    let version = zeroclaw_config::migration::CURRENT_SCHEMA_VERSION;
+    let version = clawcrew_config::migration::CURRENT_SCHEMA_VERSION;
     std::fs::write(
         config_dir.path().join("config.toml"),
         format!(
@@ -783,15 +783,15 @@ fn config_patch_replace_on_dotted_resource_id_does_not_plant_phantom_sibling() {
 }
 
 fn run_cli_init(config_dir: &std::path::Path, section: &str) -> serde_json::Value {
-    let bin = env!("CARGO_BIN_EXE_zeroclaw");
+    let bin = env!("CARGO_BIN_EXE_clawcrew");
     let output = Command::new(bin)
-        .env("ZEROCLAW_CONFIG_DIR", config_dir)
+        .env("CLAWCREW_CONFIG_DIR", config_dir)
         .env("RUST_LOG", "off")
         .args(["config", "init", section, "--json"])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()
-        .expect("run zeroclaw config init");
+        .expect("run clawcrew config init");
     assert!(
         output.status.success(),
         "config init should succeed: {}",
@@ -802,15 +802,15 @@ fn run_cli_init(config_dir: &std::path::Path, section: &str) -> serde_json::Valu
 }
 
 fn run_cli_get(config_dir: &std::path::Path, path: &str) -> serde_json::Value {
-    let bin = env!("CARGO_BIN_EXE_zeroclaw");
+    let bin = env!("CARGO_BIN_EXE_clawcrew");
     let output = Command::new(bin)
-        .env("ZEROCLAW_CONFIG_DIR", config_dir)
+        .env("CLAWCREW_CONFIG_DIR", config_dir)
         .env("RUST_LOG", "off")
         .args(["config", "get", path, "--json"])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()
-        .expect("run zeroclaw config get");
+        .expect("run clawcrew config get");
     assert!(
         output.status.success(),
         "config get should succeed after reloading the saved file: {}",
@@ -822,15 +822,15 @@ fn run_cli_get(config_dir: &std::path::Path, path: &str) -> serde_json::Value {
 
 /// Run one non-interactive property write in a fresh CLI process.
 fn run_cli_set(config_dir: &std::path::Path, path: &str, value: &str) {
-    let bin = env!("CARGO_BIN_EXE_zeroclaw");
+    let bin = env!("CARGO_BIN_EXE_clawcrew");
     let output = Command::new(bin)
-        .env("ZEROCLAW_CONFIG_DIR", config_dir)
+        .env("CLAWCREW_CONFIG_DIR", config_dir)
         .env("RUST_LOG", "off")
         .args(["config", "set", "--no-interactive", path, value])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()
-        .expect("run zeroclaw config set");
+        .expect("run clawcrew config set");
     assert!(
         output.status.success(),
         "config set {path} should succeed in a new process: {}",
@@ -844,8 +844,8 @@ fn required_field_sections_can_be_completed_across_cli_processes() {
         (
             "gateway.tls",
             &[
-                ("gateway.tls.cert_path", "/tmp/zeroclaw-test-cert.pem"),
-                ("gateway.tls.key_path", "/tmp/zeroclaw-test-key.pem"),
+                ("gateway.tls.cert_path", "/tmp/clawcrew-test-cert.pem"),
+                ("gateway.tls.key_path", "/tmp/clawcrew-test-key.pem"),
             ],
         ),
         (
@@ -857,7 +857,7 @@ fn required_field_sections_can_be_completed_across_cli_processes() {
         ),
         (
             "tunnel.openvpn",
-            &[("tunnel.openvpn.config_file", "/tmp/zeroclaw-test.ovpn")],
+            &[("tunnel.openvpn.config_file", "/tmp/clawcrew-test.ovpn")],
         ),
     ];
 

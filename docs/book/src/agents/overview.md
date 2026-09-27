@@ -1,6 +1,6 @@
 # Agents
 
-Agents are the star of a ZeroClaw deployment. Everything else in this book, the
+Agents are the star of a ClawCrew deployment. Everything else in this book, the
 providers, the channels, the security profiles, the skills, the memory, exists
 so that an agent can use it. This section is the showcase; the rest of the docs
 are the credits.

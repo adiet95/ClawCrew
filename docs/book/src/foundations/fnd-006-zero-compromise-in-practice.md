@@ -3,13 +3,13 @@
 > Starting v0.7.0 · Type: Quality · Rev. 1
 >
 > **Canonical reference** · Ratified by the team · Rev. 1
-> Original RFC discussion: [#5653](https://github.com/zeroclaw-labs/zeroclaw/issues/5653)
+> Original RFC discussion: [#5653](https://github.com/clawcrew-labs/clawcrew/issues/5653)
 
 --------
 
 > A note to the team before you read this.
 >
-> This is the sixth document in ZeroClaw's maturity framework. The five before it
+> This is the sixth document in ClawCrew's maturity framework. The five before it
 > addressed architecture, documentation, governance, engineering infrastructure, and
 > collaboration, the structural and human scaffolding that surrounds the work. Each
 > one answered a different question about how we build this project together. If you
@@ -41,7 +41,7 @@
 
 ## The Maturity Framework Suite
 
-This RFC is the sixth in a set of documents that together form ZeroClaw's maturity
+This RFC is the sixth in a set of documents that together form ClawCrew's maturity
 framework. They are designed to be read as a whole, though each stands on its own.
 
 | RFC | Scope | Issue |
@@ -114,7 +114,7 @@ A contributor who has internalized the judgment behind the rules will apply it c
 to situations the rules did not anticipate, including the situations that matter most,
 which are always the ones nobody planned for.
 
-This distinction matters especially in this project's context. ZeroClaw is operated in
+This distinction matters especially in this project's context. ClawCrew is operated in
 an environment of powerful tools: AI code generation, CI gates that catch a wide range
 of common errors, IDE linters, automated security scanners. These tools are genuinely
 valuable. They define a floor, a minimum below which code should not be merged. But
@@ -148,15 +148,15 @@ These are measured facts, not estimates:
 
 | Metric | Value | What It Indicates |
 |--------|-------|-------------------|
-| `zeroclaw-config/src/schema.rs` | 16,800 lines | Now the largest file in the codebase; the original `loop_.rs` was called out at 9,500 lines in the architecture RFC; this surpasses it |
-| `zeroclaw-channels/src/orchestrator/mod.rs` | 11,813 lines | Second-largest file; a single module carrying concentrated responsibility |
-| `zeroclaw-runtime/src/onboard/wizard.rs` | 7,988 lines | A single workflow in a single file |
-| `zeroclaw-runtime/src/agent/loop_.rs` | 6,101 lines | Reduced from ~9,500 in the monolith: real, measurable progress; still large |
-| `zeroclaw-channels/src/orchestrator/telegram.rs` | 5,122 lines | One channel implementation; one file |
+| `clawcrew-config/src/schema.rs` | 16,800 lines | Now the largest file in the codebase; the original `loop_.rs` was called out at 9,500 lines in the architecture RFC; this surpasses it |
+| `clawcrew-channels/src/orchestrator/mod.rs` | 11,813 lines | Second-largest file; a single module carrying concentrated responsibility |
+| `clawcrew-runtime/src/onboard/wizard.rs` | 7,988 lines | A single workflow in a single file |
+| `clawcrew-runtime/src/agent/loop_.rs` | 6,101 lines | Reduced from ~9,500 in the monolith: real, measurable progress; still large |
+| `clawcrew-channels/src/orchestrator/telegram.rs` | 5,122 lines | One channel implementation; one file |
 | `.unwrap()` / `.expect()` calls in crates | 5,630 | Each one is a deferred judgment call about error handling, see §4.1 |
 | `.unwrap()` / `.expect()` calls in legacy `src/` | 240 | The migration carried the pattern forward at scale |
-| Public functions in `zeroclaw-api` | 371 | The entire foundational API surface; every other crate depends on this |
-| Doc comment lines in `zeroclaw-api` | ~27 | Roughly 14:1 ratio of undocumented public API, see §4.2 |
+| Public functions in `clawcrew-api` | 371 | The entire foundational API surface; every other crate depends on this |
+| Doc comment lines in `clawcrew-api` | ~27 | Roughly 14:1 ratio of undocumented public API, see §4.2 |
 | `#[allow(unused_imports)]` / `#[allow(dead_code)]` in legacy `src/` modules | ~30+ instances | The compiler has identified code that is no longer being used; it has been asked not to say so |
 | `TODO` / `FIXME` / `todo!()` / `unimplemented!()` across the full codebase | 20 | Notably low, suggests most debt is silent rather than marked |
 
@@ -173,7 +173,7 @@ be counted:
 
 - Whether the 5,630 `.unwrap()` calls are in critical paths or in test utilities
 - Whether the tests that exist are testing behavior or testing implementation details
-- Whether the public functions in `zeroclaw-api` can be correctly implemented by someone
+- Whether the public functions in `clawcrew-api` can be correctly implemented by someone
   reading only the signature and type
 - Whether a log message emitted during a production failure would contain enough context
   to diagnose the failure
@@ -188,7 +188,7 @@ together.
 
 The diagnosis should not obscure what is genuinely well-built.
 
-The trait layer in `zeroclaw-api` is the right architecture. `Provider`, `Channel`,
+The trait layer in `clawcrew-api` is the right architecture. `Provider`, `Channel`,
 `Tool`, `Memory`, `Observer`, `RuntimeAdapter`, and `Peripheral` are clean, well-reasoned
 abstractions. They are the right seams. The problem is not the design. It is that the
 design is not yet fully expressed in documentation, test coverage, and error handling
@@ -299,7 +299,7 @@ with no useful context and no opportunity to recover.
 The correct response is to fail fast, but specifically. Not a panic with a stack trace,
 not a vague "invalid config" message. A message that points at the specific field,
 explains what was expected, and tells the operator what to provide. A user who cannot
-start ZeroClaw because of a misconfiguration should leave the process with a clear
+start ClawCrew because of a misconfiguration should leave the process with a clear
 understanding of exactly what to fix.
 
 | Failure kind | What it means | Correct response |
@@ -344,7 +344,7 @@ concurrently, or what the subtle difference is between two functions with simila
 They are left to infer, from the name, the type signature, and the implementation body
 something that you could have told them in three sentences.
 
-The `zeroclaw-api` situation is specific enough to name directly. This is the one crate
+The `clawcrew-api` situation is specific enough to name directly. This is the one crate
 the entire architecture depends on. Every provider, channel, tool, memory backend,
 observer, runtime adapter, and peripheral implementation in the workspace is built
 against these traits and types. An undocumented interface in this foundation propagates
@@ -361,7 +361,7 @@ conditions that the AI did not know to anticipate, because nobody wrote them dow
 Documentation is not just for humans. It is the specification you provide to every tool
 that will ever work with your code, and to every person who will ever depend on it.
 
-At minimum, every public item in `zeroclaw-api` should carry:
+At minimum, every public item in `clawcrew-api` should carry:
 
 - **One sentence describing what it does.** Not what it is: what it does.
 - **An `# Errors` section** (if it returns `Result`): under what conditions does this
@@ -410,9 +410,9 @@ about.
 
 This connects directly to the crate structure the architecture RFC established. One of
 the purposes of crate decomposition was to create components that can be tested in
-isolation. `zeroclaw-tool-call-parser` should be testable with a `&str` input and no
-runtime. `zeroclaw-config` should be testable by constructing config structs directly.
-Trait implementations in `zeroclaw-api` should be testable against fake implementations
+isolation. `clawcrew-tool-call-parser` should be testable with a `&str` input and no
+runtime. `clawcrew-config` should be testable by constructing config structs directly.
+Trait implementations in `clawcrew-api` should be testable against fake implementations
 of the trait, not against the full production stack. When you find yourself unable to
 test a component without its entire environment, ask whether a dependency has entered
 the implementation that the architecture did not intend. The test is giving you the
@@ -447,7 +447,7 @@ is operating near a trust boundary. Failures here can be exploited, silently cor
 state, or produce incorrect behavior with security consequences. Debt near trust
 boundaries carries disproportionate risk relative to its size.
 
-**Blast radius.** Debt in `zeroclaw-api`, the foundation everything else depends on,
+**Blast radius.** Debt in `clawcrew-api`, the foundation everything else depends on,
 has a larger blast radius than debt in a single channel implementation. A wrong
 assumption in a foundational type propagates wherever that type is used. Debt in a leaf
 crate affects only that crate's consumers.
@@ -498,7 +498,7 @@ Three principles that should guide any code written near a trust boundary:
 arrives from outside your direct control: user input from any channel, API responses
 from providers, file contents from the filesystem, plugin outputs, tool results, hardware
 readings. At every trust boundary, validate before you process. Do not assume the shape,
-size, type, or content of data you did not produce. The ZeroClaw security model defines
+size, type, or content of data you did not produce. The ClawCrew security model defines
 these boundaries at the policy level. The implementation should reflect them at the code
 level, not because the policy will fail, but because defense in depth means each layer
 of the system is doing its part, rather than trusting that every other layer did theirs.
@@ -588,7 +588,7 @@ let _span = span!(
 
 Structured logging and meaningful span design are not style preferences. They are what
 make the observability infrastructure you have actually useful, not just during
-development, but in the hands of users running ZeroClaw on hardware you will never see,
+development, but in the hands of users running ClawCrew on hardware you will never see,
 in configurations you did not anticipate, encountering errors you did not plan for. The
 infrastructure creates the capability. The discipline in how contributors use it
 determines whether that capability translates into diagnosable systems.

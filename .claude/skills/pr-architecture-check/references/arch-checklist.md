@@ -12,11 +12,11 @@ files changed.
 > Plugins know about the API. Nothing knows about everything."
 > — FND-001 §4.1
 
-- Imports must flow inward toward `zeroclaw-api`
-- `zeroclaw-api` must have no dependencies on runtime, tools, channels, providers, or any implementation crate
-- Implementation crates (`zeroclaw-channels`, `zeroclaw-tools`, `zeroclaw-providers`, `zeroclaw-memory`) depend on `zeroclaw-api` — not on each other
-- `zeroclaw-runtime` depends on `zeroclaw-api` and foundation crates — it has no knowledge of specific channel, tool, or provider implementations
-- Plugins depend on `zeroclaw-api` (not the runtime)
+- Imports must flow inward toward `clawcrew-api`
+- `clawcrew-api` must have no dependencies on runtime, tools, channels, providers, or any implementation crate
+- Implementation crates (`clawcrew-channels`, `clawcrew-tools`, `clawcrew-providers`, `clawcrew-memory`) depend on `clawcrew-api` — not on each other
+- `clawcrew-runtime` depends on `clawcrew-api` and foundation crates — it has no knowledge of specific channel, tool, or provider implementations
+- Plugins depend on `clawcrew-api` (not the runtime)
 - New `use` / `extern crate` / `Cargo.toml` dependency additions that point outward (from API toward implementations) are violations
 
 **Check:** Review `Cargo.toml` changes and `use` statements in the diff. Flag any dependency that flows outward (from a lower-layer crate toward a higher-layer one).
@@ -30,14 +30,14 @@ files changed.
 - New functionality that crosses a trait boundary must go through the trait, not around it
 - No hardcoding around trait boundaries (e.g., matching on a specific provider name instead of using the `Provider` trait interface)
 - No type-casting or downcasting to bypass a trait abstraction
-- Extension points are defined in `zeroclaw-api`:
-  - `Provider` (`crates/zeroclaw-api/src/provider.rs`)
-  - `Channel` (`crates/zeroclaw-api/src/channel.rs`)
-  - `Tool` (`crates/zeroclaw-api/src/tool.rs`)
-  - `Memory` (`crates/zeroclaw-api/src/memory_traits.rs`)
-  - `Observer` (`crates/zeroclaw-api/src/observability_traits.rs`)
-  - `RuntimeAdapter` (`crates/zeroclaw-api/src/runtime_traits.rs`)
-  - `Peripheral` (`crates/zeroclaw-api/src/peripherals_traits.rs`)
+- Extension points are defined in `clawcrew-api`:
+  - `Provider` (`crates/clawcrew-api/src/provider.rs`)
+  - `Channel` (`crates/clawcrew-api/src/channel.rs`)
+  - `Tool` (`crates/clawcrew-api/src/tool.rs`)
+  - `Memory` (`crates/clawcrew-api/src/memory_traits.rs`)
+  - `Observer` (`crates/clawcrew-api/src/observability_traits.rs`)
+  - `RuntimeAdapter` (`crates/clawcrew-api/src/runtime_traits.rs`)
+  - `Peripheral` (`crates/clawcrew-api/src/peripherals_traits.rs`)
 
 **Check:** Look for string matching on implementation names, `downcast_ref`, concrete type assertions, or `match` arms that enumerate specific implementations where a trait method should be used.
 
@@ -49,7 +49,7 @@ files changed.
 
 - New providers, channels, tools, memory backends, observers, and peripherals must follow the factory registration pattern
 - New implementations should:
-  1. Implement the relevant trait from `zeroclaw-api`
+  1. Implement the relevant trait from `clawcrew-api`
   2. Register in the corresponding factory module
   3. Be discoverable via configuration, not hardcoded into the runtime
 - Adding a new implementation should not require modifying the runtime or other existing implementations
@@ -66,20 +66,20 @@ New code must land in the correct crate per the repository map:
 
 | Crate | Responsibility |
 |---|---|
-| `zeroclaw-api` | Public trait definitions only — no implementations, no heavy dependencies |
-| `zeroclaw-config` | Schema, config loading/merging |
-| `zeroclaw-macros` | `Configurable` derive macro |
-| `zeroclaw-providers` | Model provider implementations and resilient wrapper |
-| `zeroclaw-channels` | Messaging platform integrations, orchestrator, media pipeline |
-| `zeroclaw-tools` | Tool execution surface (shell, file, memory, browser) |
-| `zeroclaw-runtime` | Agent loop, security, cron, SOP, skills, observability |
-| `zeroclaw-memory` | Memory backends (markdown, sqlite, embeddings, vector merge) |
-| `zeroclaw-infra` | Shared infrastructure (debounce, session, stall watchdog) |
-| `zeroclaw-gateway` | Webhook/gateway server (separate binary) |
-| `zeroclaw-hardware` | USB discovery, peripherals, serial, GPIO |
-| `zeroclaw-tui` | TUI onboarding wizard |
-| `zeroclaw-plugins` | WASM plugin system |
-| `zeroclaw-tool-call-parser` | Tool call parsing |
+| `clawcrew-api` | Public trait definitions only — no implementations, no heavy dependencies |
+| `clawcrew-config` | Schema, config loading/merging |
+| `clawcrew-macros` | `Configurable` derive macro |
+| `clawcrew-providers` | Model provider implementations and resilient wrapper |
+| `clawcrew-channels` | Messaging platform integrations, orchestrator, media pipeline |
+| `clawcrew-tools` | Tool execution surface (shell, file, memory, browser) |
+| `clawcrew-runtime` | Agent loop, security, cron, SOP, skills, observability |
+| `clawcrew-memory` | Memory backends (markdown, sqlite, embeddings, vector merge) |
+| `clawcrew-infra` | Shared infrastructure (debounce, session, stall watchdog) |
+| `clawcrew-gateway` | Webhook/gateway server (separate binary) |
+| `clawcrew-hardware` | USB discovery, peripherals, serial, GPIO |
+| `clawcrew-tui` | TUI onboarding wizard |
+| `clawcrew-plugins` | WASM plugin system |
+| `clawcrew-tool-call-parser` | Tool call parsing |
 
 **Check:** Verify new modules/files are placed in the crate whose responsibility matches the functionality. Flag code that belongs in one crate but is placed in another.
 

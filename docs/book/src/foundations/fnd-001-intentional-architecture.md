@@ -1,9 +1,9 @@
-# FND-001: Intentional Architecture: ZeroClaw Microkernel Transition
+# FND-001: Intentional Architecture: ClawCrew Microkernel Transition
 
 > Starting v0.7.0 · Type: Architecture · Rev. 10
 >
 > **Canonical reference** · Ratified by the team · Rev. 10
-> Original RFC discussion and draft history: [#5574](https://github.com/zeroclaw-labs/zeroclaw/issues/5574)
+> Original RFC discussion and draft history: [#5574](https://github.com/clawcrew-labs/clawcrew/issues/5574)
 
 ---
 
@@ -16,7 +16,7 @@
 ## Table of Contents
 
 1. [A Development Philosophy: Vision First](#1-a-development-philosophy-vision-first)
-2. [The Vision: What ZeroClaw Is](#2-the-vision-what-zeroclaw-is)
+2. [The Vision: What ClawCrew Is](#2-the-vision-what-clawcrew-is)
 3. [Honest Assessment: Where We Are Today](#3-honest-assessment-where-we-are-today)
 4. [The Target Architecture](#4-the-target-architecture)
    - [4.4.1 Versioning Policy](#441-versioning-policy)
@@ -34,19 +34,19 @@
 |---|---|---|
 | 1 | 2026-04-09 | Initial draft |
 | 2 | 2026-04-09 | Added §4.4.1 Versioning Policy (unified workspace inheritance, stability tiers, product-level breaking change definition); added §4.4.2 Release Artifacts (feature flag fate, canonical release binary profile, release artifact matrix); added Discussion Questions for versioning strategy and observability defaults |
-| 3 | 2026-04-10 | Terminology correction per implementation feedback from PR #5559: "kernel" → "runtime" for the agent orchestration layer throughout; "kernel" now refers specifically to the irreducible foundation (`--no-default-features` build); §4.1 updated to describe the explicit two-layer architecture (foundation + runtime); §4.2–§4.3 dependency diagram and component map updated to show `zeroclaw-runtime`; Phase 2 renamed from "The Kernel" to "The Runtime"; binary size targets reframed as aspirational north stars with measured progress tracking rather than hard gates; §7 updated with actual Phase 1 measurement (6.6 MB foundation build) and explicit note that architectural decomposition enables optimization but optimization is a dedicated second pass |
+| 3 | 2026-04-10 | Terminology correction per implementation feedback from PR #5559: "kernel" → "runtime" for the agent orchestration layer throughout; "kernel" now refers specifically to the irreducible foundation (`--no-default-features` build); §4.1 updated to describe the explicit two-layer architecture (foundation + runtime); §4.2–§4.3 dependency diagram and component map updated to show `clawcrew-runtime`; Phase 2 renamed from "The Kernel" to "The Runtime"; binary size targets reframed as aspirational north stars with measured progress tracking rather than hard gates; §7 updated with actual Phase 1 measurement (6.6 MB foundation build) and explicit note that architectural decomposition enables optimization but optimization is a dedicated second pass |
 | 4 | 2026-06-02 | Updated §5.2 to target `wasm32-wasip2` to enable WIT files. Updated Phase 2 §D2 to replace Extism with wasmtime to enable ARM32 targets and WIT files |
 | 5 | 2026-06-29 | Amended §4.4.2 to replace the single always-on `plugins-wasm` row with the three-flag execution-backend taxonomy (`plugins-wasm` host plus `plugins-wasm-cranelift` / `plugins-wasm-pulley` backends), completing the RFC #6943 deconfliction |
-| 6 | 2026-06-30 | Removed the desktop installer from the release-artifact matrix, target architecture, roadmap, and success criteria ([#8544](https://github.com/zeroclaw-labs/zeroclaw/pull/8544)) |
-| 7 | 2026-07-04 | Restored the desktop installer and its release, architecture, roadmap, and success-criteria obligations ([#8565](https://github.com/zeroclaw-labs/zeroclaw/pull/8565)) |
-| 8 | 2026-07-20 | Made root `AGENTS.md` the compact project contract, routed maintained detail through the architecture map and coding-agent guidelines, and prevented crate policy from weakening project safety, privacy, or authorization requirements ([#9050](https://github.com/zeroclaw-labs/zeroclaw/pull/9050)) |
-| 9 | 2026-08-11 | Removed WATI from the current-state gateway inventory and v0.9.0 plugin-migration target after the channel was retired in [#9571](https://github.com/zeroclaw-labs/zeroclaw/pull/9571); the generic webhook/plugin boundary remains unchanged |
-| 10 | 2026-08-19 | Removed `aardvark-sys` and `zeroclaw-robot-kit` from the workspace-inheritance and independent-release guidance after both crates were retired in [#9853](https://github.com/zeroclaw-labs/zeroclaw/pull/9853); the published 0.1.0 releases stay on crates.io and are unaffected |
+| 6 | 2026-06-30 | Removed the desktop installer from the release-artifact matrix, target architecture, roadmap, and success criteria ([#8544](https://github.com/clawcrew-labs/clawcrew/pull/8544)) |
+| 7 | 2026-07-04 | Restored the desktop installer and its release, architecture, roadmap, and success-criteria obligations ([#8565](https://github.com/clawcrew-labs/clawcrew/pull/8565)) |
+| 8 | 2026-07-20 | Made root `AGENTS.md` the compact project contract, routed maintained detail through the architecture map and coding-agent guidelines, and prevented crate policy from weakening project safety, privacy, or authorization requirements ([#9050](https://github.com/clawcrew-labs/clawcrew/pull/9050)) |
+| 9 | 2026-08-11 | Removed WATI from the current-state gateway inventory and v0.9.0 plugin-migration target after the channel was retired in [#9571](https://github.com/clawcrew-labs/clawcrew/pull/9571); the generic webhook/plugin boundary remains unchanged |
+| 10 | 2026-08-19 | Removed `aardvark-sys` and `clawcrew-robot-kit` from the workspace-inheritance and independent-release guidance after both crates were retired in [#9853](https://github.com/clawcrew-labs/clawcrew/pull/9853); the published 0.1.0 releases stay on crates.io and are unaffected |
 
 Revision numbers in this canonical document follow the ratified repository
 history. The linked RFC issue also labels a configuration-discipline edit as
 draft Rev. 4, but that text was not included when this foundation document was
-ratified in [#5911](https://github.com/zeroclaw-labs/zeroclaw/pull/5911).
+ratified in [#5911](https://github.com/clawcrew-labs/clawcrew/pull/5911).
 Current configuration authority and environment-override behavior are documented
 in [Config lifecycle](../architecture/config-lifecycle.md) and [Environment Variables](../reference/env-vars.md).
 
@@ -82,7 +82,7 @@ This is not a waterfall process. It is a **decision hierarchy**. It means that w
 
 ### The Problem With Skipping the Top
 
-ZeroClaw was bootstrapped by AI tools working from OpenClaw's TypeScript codebase. AI code generation works at the **Implementation** layer. It writes functions, structs, and modules that do things. It does not set Vision. It does not make Architecture decisions. It does not define Design contracts.
+ClawCrew was bootstrapped by AI tools working from OpenClaw's TypeScript codebase. AI code generation works at the **Implementation** layer. It writes functions, structs, and modules that do things. It does not set Vision. It does not make Architecture decisions. It does not define Design contracts.
 
 The result is a codebase that is impressively functional but architecturally accidental. The code does what it needs to do today, but it was not designed. It accumulated. This pattern has a name in our industry: **the Big Ball of Mud**. It is the most common architecture in software, not because anyone chose it, but because it is what you get when you skip the top of the hierarchy.
 
@@ -90,23 +90,23 @@ This RFC is our chance to fix that, not by throwing away what works, but by grow
 
 ---
 
-## 2. The Vision: What ZeroClaw Is
+## 2. The Vision: What ClawCrew Is
 
 Before we talk about architecture, we need to be precise about what we are building. This is the Vision layer. Everything that follows must serve this.
 
-> **ZeroClaw is a personal AI assistant runtime that any person can run on any hardware, from a $10 embedded board to a cloud server, with zero configuration overhead, zero external service requirements, and zero compromise on capability or security.**
+> **ClawCrew is a personal AI assistant runtime that any person can run on any hardware, from a $10 embedded board to a cloud server, with zero configuration overhead, zero external service requirements, and zero compromise on capability or security.**
 
 Breaking that down into concrete commitments:
 
 **Zero overhead.** The core agent starts in milliseconds and uses less memory than a browser tab. This is not a marketing claim. It is an architectural constraint. Every decision we make must be tested against it.
 
-**Zero external requirements.** A user who downloads ZeroClaw and has an LLM provider configured should have a working, useful AI assistant without installing anything else. Channels, dashboards, and integrations are things you add when you want them, not things you need before it works.
+**Zero external requirements.** A user who downloads ClawCrew and has an LLM provider configured should have a working, useful AI assistant without installing anything else. Channels, dashboards, and integrations are things you add when you want them, not things you need before it works.
 
-**Zero compromise.** Lean does not mean weak. ZeroClaw must have a serious security model, real observability, and genuine extensibility. The tension between "small binary" and "full capability" is resolved through composition: a small core, extended by components you choose.
+**Zero compromise.** Lean does not mean weak. ClawCrew must have a serious security model, real observability, and genuine extensibility. The tension between "small binary" and "full capability" is resolved through composition: a small core, extended by components you choose.
 
-**For every skill level.** A student on a $10 Raspberry Pi and a team running a production deployment should both feel like ZeroClaw was designed for them. This means the default experience must be simple, and the advanced experience must be powerful, not two different products.
+**For every skill level.** A student on a $10 Raspberry Pi and a team running a production deployment should both feel like ClawCrew was designed for them. This means the default experience must be simple, and the advanced experience must be powerful, not two different products.
 
-**User-owned.** Your data, your hardware, your configuration. ZeroClaw does not require an account, does not phone home, and does not lock you into a platform.
+**User-owned.** Your data, your hardware, your configuration. ClawCrew does not require an account, does not phone home, and does not lock you into a platform.
 
 ---
 
@@ -116,7 +116,7 @@ This section is not criticism of anyone's work. It is a diagnosis, and you canno
 
 ### 3.1 The Structural Problem
 
-The entire ZeroClaw codebase currently lives in a single Rust crate. This means:
+The entire ClawCrew codebase currently lives in a single Rust crate. This means:
 
 - A Telegram channel and the core agent loop are compiled from the same source tree whether you use Telegram or not
 - The web dashboard (a full React application) is embedded in the binary using `rust-embed`, making every binary include the web UI even for users who only ever use the CLI
@@ -150,7 +150,7 @@ This diagnosis should not obscure what is genuinely well-designed:
 - **The observability system has strong foundations.** OpenTelemetry and Prometheus are implemented against a clean `Observer` trait. The remaining work is to standardize how production paths emit through that interface.
 - **The security model is thoughtful.** Pairing codes, autonomy levels, sandboxing, and policy enforcement show real design intent.
 
-We are not rewriting ZeroClaw. We are giving its existing good ideas a structure they can grow in.
+We are not rewriting ClawCrew. We are giving its existing good ideas a structure they can grow in.
 
 ---
 
@@ -162,18 +162,18 @@ A microkernel architecture separates a minimal, stable core from optional subsys
 
 For an AI agent runtime, the mapping reveals **two distinct internal layers** that the OS analogy conflates:
 
-| OS Microkernel Concept | ZeroClaw Equivalent |
+| OS Microkernel Concept | ClawCrew Equivalent |
 |---|---|
 | Kernel | **Foundation layer**: API traits, config, providers, memory backends, infra, tool-call parser. The irreducible core: builds with `--no-default-features`. Can exchange messages with an LLM and store memory. Nothing more. |
-| Init / runtime system | **Agent runtime layer**: Orchestration loop, security policy enforcement, plugin host, core tools, IPC API. The `zeroclaw-runtime` crate, gated by the `agent-runtime` feature. This is what makes ZeroClaw an *agent*, not just a library. |
+| Init / runtime system | **Agent runtime layer**: Orchestration loop, security policy enforcement, plugin host, core tools, IPC API. The `clawcrew-runtime` crate, gated by the `agent-runtime` feature. This is what makes ClawCrew an *agent*, not just a library. |
 | IPC | Local socket / IPC API between the runtime and external components |
 | Device drivers | Channel plugins (Telegram, Discord, etc.) |
 | Filesystem drivers | Memory backend plugins (SQLite, Markdown) |
 | User processes | Gateway binary, Tauri desktop app |
 
-The distinction matters: the **foundation** is the minimum that must exist for any ZeroClaw binary to function. The **runtime** is the minimum that must exist for it to function *as an agent*. Everything else is composed in.
+The distinction matters: the **foundation** is the minimum that must exist for any ClawCrew binary to function. The **runtime** is the minimum that must exist for it to function *as an agent*. Everything else is composed in.
 
-This two-layer split was identified during the Phase 1 workspace decomposition (PR #5559) and is reflected in the crate naming: `zeroclaw-runtime` (the crate) is gated by `agent-runtime` (the feature). The earlier revisions of this RFC used "kernel" loosely to refer to what is now correctly named the runtime layer. This revision corrects that terminology throughout.
+This two-layer split was identified during the Phase 1 workspace decomposition (PR #5559) and is reflected in the crate naming: `clawcrew-runtime` (the crate) is gated by `agent-runtime` (the feature). The earlier revisions of this RFC used "kernel" loosely to refer to what is now correctly named the runtime layer. This revision corrects that terminology throughout.
 
 ### 4.2 The Dependency Rule
 
@@ -182,33 +182,33 @@ The most important architectural rule in this design, the one that, if broken, c
 > **Dependencies flow inward. The runtime knows nothing about the plugins. Plugins know about the API. Nothing knows about everything.**
 
 ```
-    zeroclaw-api          ← defines all traits (Provider, Channel, Tool, ...)
+    clawcrew-api          ← defines all traits (Provider, Channel, Tool, ...)
          ▲                  no implementations, no heavy dependencies
          │ depends on
-  foundation crates       ← zeroclaw-config, zeroclaw-providers, zeroclaw-memory,
-         ▲                  zeroclaw-infra, zeroclaw-tool-call-parser
-         │ depends on        all depend on zeroclaw-api; no cross-dependencies
-    zeroclaw-runtime      ← implements the agent loop (agent-runtime feature)
-         ▲                  depends on zeroclaw-api + foundation crates
+  foundation crates       ← clawcrew-config, clawcrew-providers, clawcrew-memory,
+         ▲                  clawcrew-infra, clawcrew-tool-call-parser
+         │ depends on        all depend on clawcrew-api; no cross-dependencies
+    clawcrew-runtime      ← implements the agent loop (agent-runtime feature)
+         ▲                  depends on clawcrew-api + foundation crates
          │ depends on        knows nothing about specific channels or tools
-  plugin crates           ← zeroclaw-channel-discord, zeroclaw-tools-web, ...
-         ▲                  depend on zeroclaw-api (not the runtime)
+  plugin crates           ← clawcrew-channel-discord, clawcrew-tools-web, ...
+         ▲                  depend on clawcrew-api (not the runtime)
          │ depends on
-  zeroclaw binary         ← thin wiring layer
+  clawcrew binary         ← thin wiring layer
                              reads config, registers plugins, starts runtime
 ```
 
-If `zeroclaw-runtime` ever imports `TelegramChannel`, the architecture has been violated. The compiler will enforce this once crate boundaries are drawn.
+If `clawcrew-runtime` ever imports `TelegramChannel`, the architecture has been violated. The compiler will enforce this once crate boundaries are drawn.
 
 ### 4.3 Component Map
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    zeroclaw (binary crate)                          │
+│                    clawcrew (binary crate)                          │
 │  Reads config → registers only configured components → starts       │
 │                                                                     │
 │   ┌──────────────────────────────────────────────────────────────┐  │
-│   │              zeroclaw-runtime  (agent-runtime feature)       │  │
+│   │              clawcrew-runtime  (agent-runtime feature)       │  │
 │   │                                                              │  │
 │   │  Agent Loop · CLI Channel · Security Policy                  │  │
 │   │  Plugin Host · Local IPC API                                 │  │
@@ -217,18 +217,18 @@ If `zeroclaw-runtime` ever imports `TelegramChannel`, the architecture has been 
 │   │  ┌──────────────────────────────────────────────────────┐    │  │
 │   │  │   Foundation  (--no-default-features)                │    │  │
 │   │  │                                                      │    │  │
-│   │  │  zeroclaw-api · zeroclaw-config · zeroclaw-infra     │    │  │
-│   │  │  zeroclaw-providers · zeroclaw-memory                │    │  │
-│   │  │  zeroclaw-tool-call-parser                           │    │  │
+│   │  │  clawcrew-api · clawcrew-config · clawcrew-infra     │    │  │
+│   │  │  clawcrew-providers · clawcrew-memory                │    │  │
+│   │  │  clawcrew-tool-call-parser                           │    │  │
 │   │  │                                                      │    │  │
 │   │  │  Vision target: <5 MB RAM at runtime                 │    │  │
 │   │  └──────────────────────────────────────────────────────┘    │  │
 │   └──────────────────────────────────────────────────────────────┘  │
 │                              ▲                                      │
-│                   zeroclaw-api (traits only)                        │
+│                   clawcrew-api (traits only)                        │
 │                              ▲                                      │
 │   ┌──────────────┐  ┌────────┴────────┐  ┌─────────────────────┐    │
-│   │  zeroclaw-gw │  │  Channel plugins│  │   Tool plugins      │    │
+│   │  clawcrew-gw │  │  Channel plugins│  │   Tool plugins      │    │
 │   │  (opt-in     │  │                 │  │                     │    │
 │   │   binary)    │  │  channel-discord│  │  tools-web          │    │
 │   │              │  │  channel-slack  │  │  tools-integrations │    │
@@ -239,8 +239,8 @@ If `zeroclaw-runtime` ever imports `TelegramChannel`, the architecture has been 
 │          │                                                          │
 │          ▼                                                          │
 │   ┌─────────────────┐                                               │
-│   │ zeroclaw-desktop│   ← Tauri app (already exists in apps/tauri)  │
-│   │ System tray app │     bundles zeroclaw-gw as a sidecar          │
+│   │ clawcrew-desktop│   ← Tauri app (already exists in apps/tauri)  │
+│   │ System tray app │     bundles clawcrew-gw as a sidecar          │
 │   │ Native GUI      │                                               │
 │   └─────────────────┘                                               │
 └─────────────────────────────────────────────────────────────────────┘
@@ -250,21 +250,21 @@ If `zeroclaw-runtime` ever imports `TelegramChannel`, the architecture has been 
 
 The architecture enables a clean distribution story that requires no Rust toolchain from end users:
 
-| User wants | What they download | What `zeroclaw onboard` does |
+| User wants | What they download | What `clawcrew onboard` does |
 |---|---|---|
-| CLI only | `zeroclaw` runtime binary | Configure provider, done |
-| CLI + Discord | `zeroclaw` runtime binary | Download + install `channel-discord.wasm` |
-| Local web UI | `zeroclaw` + `zeroclaw-gw` | Configure both, open browser |
-| Desktop app | `zeroclaw-desktop` installer | Bundles runtime + gateway + UI |
-| Everything | `zeroclaw-desktop` or `zeroclaw --profile full` | Downloads all plugins |
+| CLI only | `clawcrew` runtime binary | Configure provider, done |
+| CLI + Discord | `clawcrew` runtime binary | Download + install `channel-discord.wasm` |
+| Local web UI | `clawcrew` + `clawcrew-gw` | Configure both, open browser |
+| Desktop app | `clawcrew-desktop` installer | Bundles runtime + gateway + UI |
+| Everything | `clawcrew-desktop` or `clawcrew --profile full` | Downloads all plugins |
 
-The `zeroclaw plugin install` command (backed by `PluginHost`, which already exists) becomes the package manager. The `zeroclaw onboard` wizard integrates it so non-technical users never see `cargo`.
+The `clawcrew plugin install` command (backed by `PluginHost`, which already exists) becomes the package manager. The `clawcrew onboard` wizard integrates it so non-technical users never see `cargo`.
 
 #### 4.4.1 Versioning Policy
 
-As ZeroClaw transitions from a single crate to a multi-crate workspace, two concerns must be kept separate from the start:
+As ClawCrew transitions from a single crate to a multi-crate workspace, two concerns must be kept separate from the start:
 
-- **The product version**: what `zeroclaw --version` reports, what GitHub Releases, changelogs, and package managers (Homebrew, apt, cargo-binstall) track. This is the version operators and users reason about.
+- **The product version**: what `clawcrew --version` reports, what GitHub Releases, changelogs, and package managers (Homebrew, apt, cargo-binstall) track. This is the version operators and users reason about.
 - **Component stability**: how mature and reliable a given component is. A single version number cannot carry this signal on its own.
 
 These are orthogonal. Conflating them creates misleading semver noise and erodes trust in the version number. This policy defines both.
@@ -277,14 +277,14 @@ All application crates, the kernel, the gateway, tool plugin crates, channel plu
 
 - Users, operators, and packagers deal with one version, not twelve
 - Release automation via `release-plz` is straightforward: one PR, one bump, one changelog entry
-- It reflects ZeroClaw's identity as a **product**, not a library ecosystem
+- It reflects ClawCrew's identity as a **product**, not a library ecosystem
 - The WIT interface version, not the Rust crate version, is the actual plugin ABI contract (see §5.2)
 
 Two crate classes are intentionally excluded from workspace inheritance and maintain independent versions on their own cadence:
 
 | Crate | Reason for independence |
 |---|---|
-| `zeroclaw-api` | Starts at `0.1.0`; its `1.0.0` release is a formal milestone deliverable of v1.0.0, signalling a stable Rust trait surface for plugin SDK authors |
+| `clawcrew-api` | Starts at `0.1.0`; its `1.0.0` release is a formal milestone deliverable of v1.0.0, signalling a stable Rust trait surface for plugin SDK authors |
 | WIT interface files (`wit/*.wit`) | Versioned via `@since` and `@unstable` annotations per the WASI component model spec; these are the primary plugin ABI contract and are independent of Cargo semver entirely |
 
 ---
@@ -307,8 +307,8 @@ The product version answers *"what release is this?"* A stability tier answers *
 
 | Tier | Meaning | Implication |
 |---|---|---|
-| **Stable** | Covered by the product's breaking-change policy. No breaking changes without a MAJOR version bump and a published migration guide. | Kernel (target: v0.8.0), `zeroclaw-api` WIT interface (target: v0.9.0), kernel IPC API (target: v1.0.0) |
-| **Beta** | Functional and tested. Breaking changes are permitted in MINOR releases but are announced in the changelog with upgrade notes. | `zeroclaw-gw` (v0.9.0 → v1.0.0), mature channel and tool plugins |
+| **Stable** | Covered by the product's breaking-change policy. No breaking changes without a MAJOR version bump and a published migration guide. | Kernel (target: v0.8.0), `clawcrew-api` WIT interface (target: v0.9.0), kernel IPC API (target: v1.0.0) |
+| **Beta** | Functional and tested. Breaking changes are permitted in MINOR releases but are announced in the changelog with upgrade notes. | `clawcrew-gw` (v0.9.0 → v1.0.0), mature channel and tool plugins |
 | **Experimental** | No stability guarantee. May break in PATCH releases. Must be clearly marked as `experimental` in docs and plugin registry manifests. | New tool integrations, new channel implementations, early hardware plugins |
 
 Stability tiers are **promoted, never demoted** through a deliberate team decision. Promotions are recorded in the changelog and, for architectural components, in an ADR. A component must hold its current tier for at least one full release cycle before promotion is considered.
@@ -317,14 +317,14 @@ Stability tiers are **promoted, never demoted** through a deliberate team decisi
 
 ##### Release automation
 
-Releases use [`release-plz`](https://release-plz.eplant.org/), which opens a release PR on push to `master`, bumps the workspace version, and generates a changelog from conventional commit titles. `release-plz` natively understands workspace inheritance and handles the crate publication order automatically. The independently versioned `zeroclaw-api` crate is managed separately using the same tool's per-crate configuration.
+Releases use [`release-plz`](https://release-plz.eplant.org/), which opens a release PR on push to `master`, bumps the workspace version, and generates a changelog from conventional commit titles. `release-plz` natively understands workspace inheritance and handles the crate publication order automatically. The independently versioned `clawcrew-api` crate is managed separately using the same tool's per-crate configuration.
 
 #### 4.4.2 Release Artifacts
 
 The microkernel transition changes the fundamental nature of the question "which features are compiled in?" Today that question has one answer: whatever feature flags you passed to `cargo build`. After the transition it splits into two separate concerns:
 
 - **What is in the kernel binary**: fixed at compile time, determined per platform, published to GitHub Releases
-- **What capabilities are available**: determined at runtime by which plugins are installed via `zeroclaw plugin install`
+- **What capabilities are available**: determined at runtime by which plugins are installed via `clawcrew plugin install`
 
 These are no longer the same question, and the current `[features]` section of `Cargo.toml` must be interpreted through that lens.
 
@@ -371,10 +371,10 @@ The binary published to GitHub Releases for each platform target is built with t
 | Plugin host (`plugins-wasm`, always-on) | `observability-otel` (operator opt-in) |
 | `observability-prometheus` | `voice-wake` (libasound2 dependency) |
 | `skill-creation` (zero-overhead) | `probe` (niche hardware debugging) |
-| IPC server | Web assets (moved to `zeroclaw-gw`) |
+| IPC server | Web assets (moved to `clawcrew-gw`) |
 | Platform sandbox where supported | `peripheral-rpi` (separate hardware build) |
 
-There is no longer a "build with everything" binary. That mental model is replaced by `zeroclaw plugin install --profile full`, which downloads the full plugin catalog after installing the lean kernel binary.
+There is no longer a "build with everything" binary. That mental model is replaced by `clawcrew plugin install --profile full`, which downloads the full plugin catalog after installing the lean kernel binary.
 
 ---
 
@@ -384,11 +384,11 @@ Each GitHub Release publishes the following artifacts:
 
 | Artifact | Targets | Notes |
 |---|---|---|
-| `zeroclaw` kernel binary | `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-gnu`, `armv7-unknown-linux-gnueabihf`, `x86_64-apple-darwin`, `aarch64-apple-darwin`, `x86_64-pc-windows-msvc` | Static musl build for Linux x86_64; GNU for ARM targets |
-| `zeroclaw` kernel binary (hardware) | `aarch64-unknown-linux-gnu`, `armv7-unknown-linux-gnueabihf` | Same targets, compiled with `peripheral-rpi` and `hardware` flags for Raspberry Pi deployments |
-| `zeroclaw-gw` gateway binary | Same platform matrix as kernel | Published alongside the kernel; users install separately |
-| WASM plugin files | `wasm32-wasip2` | Published to the plugin registry (not GitHub Releases); installable via `zeroclaw plugin install` |
-| `zeroclaw-desktop` installer | `x86_64` and `aarch64` for macOS, Windows, Linux (AppImage/deb) | Bundles kernel + gateway + full plugin set; built by the Tauri workflow |
+| `clawcrew` kernel binary | `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-gnu`, `armv7-unknown-linux-gnueabihf`, `x86_64-apple-darwin`, `aarch64-apple-darwin`, `x86_64-pc-windows-msvc` | Static musl build for Linux x86_64; GNU for ARM targets |
+| `clawcrew` kernel binary (hardware) | `aarch64-unknown-linux-gnu`, `armv7-unknown-linux-gnueabihf` | Same targets, compiled with `peripheral-rpi` and `hardware` flags for Raspberry Pi deployments |
+| `clawcrew-gw` gateway binary | Same platform matrix as kernel | Published alongside the kernel; users install separately |
+| WASM plugin files | `wasm32-wasip2` | Published to the plugin registry (not GitHub Releases); installable via `clawcrew plugin install` |
+| `clawcrew-desktop` installer | `x86_64` and `aarch64` for macOS, Windows, Linux (AppImage/deb) | Bundles kernel + gateway + full plugin set; built by the Tauri workflow |
 
 The `wasm32-wasip2` plugin builds run in a separate CI job and are published to the plugin registry on their own cadence. A plugin release does not require a kernel release.
 
@@ -400,7 +400,7 @@ The current gateway conflates two things that must be separated:
 
 ```
 Current (wrong):
-  zeroclaw binary
+  clawcrew binary
     └── gateway
           ├── Web UI server (serves React app)
           ├── REST/WS/SSE API
@@ -410,10 +410,10 @@ Current (wrong):
           └── Gmail push handler        ← this is a channel, not a web server
 
 Target (correct):
-  zeroclaw-kernel
+  clawcrew-kernel
     └── Local IPC API (Unix socket / 127.x HTTP)
 
-  zeroclaw-gw (separate binary, optional)
+  clawcrew-gw (separate binary, optional)
     └── Connects to kernel IPC API
     └── Web UI server
     └── REST/WS/SSE API
@@ -430,19 +430,19 @@ Target (correct):
 
 ## 5. Standards We Should Adopt
 
-Standards are agreements that have been made by many smart people over many years. Adopting them means we get those years of thinking for free, and it means our software integrates naturally with the rest of the ecosystem. Here are the ones that apply directly to ZeroClaw.
+Standards are agreements that have been made by many smart people over many years. Adopting them means we get those years of thinking for free, and it means our software integrates naturally with the rest of the ecosystem. Here are the ones that apply directly to ClawCrew.
 
 ### 5.1 Observability: OpenTelemetry
 
 **What it is:** OpenTelemetry (OTel) is the industry standard for collecting traces, metrics, and logs from software systems. It is maintained by the Cloud Native Computing Foundation and supported by every major cloud provider and monitoring tool.
 
-**Why it matters for ZeroClaw:** We have already implemented `OtelObserver` against our `Observer` trait and expose Prometheus metrics. The issue is that these are not yet standardized across the codebase: some modules log with `tracing::info!`, others emit `ObserverEvent`s, and the two are not connected.
+**Why it matters for ClawCrew:** We have already implemented `OtelObserver` against our `Observer` trait and expose Prometheus metrics. The issue is that these are not yet standardized across the codebase: some modules log with `tracing::info!`, others emit `ObserverEvent`s, and the two are not connected.
 
 **What we should do:**
 - Adopt OpenTelemetry as the single observability interface for all components
 - Ensure every plugin emits OTel spans when it executes, so a user can see a full trace from "message received on Discord" through "agent called shell tool" to "response sent"
 - Adopt W3C Trace Context (`traceparent`/`tracestate` headers) for propagating trace IDs across the kernel ↔ gateway ↔ plugin boundary
-- Structured log output should be JSON when `ZEROCLAW_LOG_FORMAT=json` is set (already using the `tracing` crate, just needs a JSON subscriber)
+- Structured log output should be JSON when `CLAWCREW_LOG_FORMAT=json` is set (already using the `tracing` crate, just needs a JSON subscriber)
 
 **Standards:** OpenTelemetry specification · W3C Trace Context (REC) · RFC 5424 (Syslog, for system log integration)
 
@@ -450,13 +450,13 @@ Standards are agreements that have been made by many smart people over many year
 
 **What it is:** WASI (WebAssembly System Interface) is the standard API that WebAssembly modules use to interact with the host system. WIT (WebAssembly Interface Types) is the interface definition language for describing what a WASM component exports and imports: think of it as a `.proto` file but for WASM plugins.
 
-**Why it matters for ZeroClaw:** Our `WasmTool` and `WasmChannel` bridges currently have no formal contract for what a plugin WASM binary must export. This means a plugin author has to guess. WIT files define that contract precisely and enable automatic code generation for plugin authors in any language.
+**Why it matters for ClawCrew:** Our `WasmTool` and `WasmChannel` bridges currently have no formal contract for what a plugin WASM binary must export. This means a plugin author has to guess. WIT files define that contract precisely and enable automatic code generation for plugin authors in any language.
 
 **What we should do:**
 - Define WIT interface files for `Tool`, `Channel`, and `Memory` plugin types (a `wit/` directory at the root of the workspace)
 - Use `wit-bindgen` to generate the Rust host-side bindings from those WIT files
 - Document the WIT interfaces as the official plugin SDK
-- A plugin author writes Rust (or Go, or C, or Python) against the WIT interface and `cargo build --target wasm32-wasip2`: the result drops into `~/.zeroclaw/plugins/`
+- A plugin author writes Rust (or Go, or C, or Python) against the WIT interface and `cargo build --target wasm32-wasip2`: the result drops into `~/.clawcrew/plugins/`
 
 **Standards:** WASI 0.2 · W3C WebAssembly Component Model · WIT IDL
 
@@ -464,7 +464,7 @@ Standards are agreements that have been made by many smart people over many year
 
 **What it is:** OpenAPI is the standard for describing HTTP APIs. Version 3.1 aligns with JSON Schema Draft 2020-12.
 
-**Why it matters for ZeroClaw:** The kernel's local IPC API (the socket that the gateway and other components connect to) needs a stable, documented contract. Without a formal spec, the gateway and kernel will drift apart silently over time.
+**Why it matters for ClawCrew:** The kernel's local IPC API (the socket that the gateway and other components connect to) needs a stable, documented contract. Without a formal spec, the gateway and kernel will drift apart silently over time.
 
 **What we should do:**
 - Write an OpenAPI 3.1 spec for the kernel's local IPC API before implementing it
@@ -478,7 +478,7 @@ Standards are agreements that have been made by many smart people over many year
 
 **What it is:** The OWASP Application Security Verification Standard is a checklist of security requirements organized by risk level (L1 basic, L2 standard, L3 advanced).
 
-**Why it matters for ZeroClaw:** The gateway handles webhooks from external services, processes untrusted user input, and manages secrets. The pairing system, WebAuthn support, and rate limiting all exist, but there is no framework for verifying that they are complete or correct.
+**Why it matters for ClawCrew:** The gateway handles webhooks from external services, processes untrusted user input, and manages secrets. The pairing system, WebAuthn support, and rate limiting all exist, but there is no framework for verifying that they are complete or correct.
 
 **What we should do:**
 - Target ASVS Level 2 for the gateway and security module
@@ -491,7 +491,7 @@ Standards are agreements that have been made by many smart people over many year
 
 **What it is:** ISO/IEC 25010 defines a model for software product quality with eight top-level characteristics: functional suitability, performance efficiency, compatibility, usability, reliability, security, maintainability, and portability.
 
-**Why it matters for ZeroClaw:** When someone asks "is this good enough to merge?" the answer is currently subjective. ISO 25010 gives us a vocabulary for that conversation. The vision commitments map directly: "zero overhead" → performance efficiency; "any hardware" → portability; "zero compromise" → security + reliability.
+**Why it matters for ClawCrew:** When someone asks "is this good enough to merge?" the answer is currently subjective. ISO 25010 gives us a vocabulary for that conversation. The vision commitments map directly: "zero overhead" → performance efficiency; "any hardware" → portability; "zero compromise" → security + reliability.
 
 **What we should do:**
 - Use the eight quality characteristics as a lens in PR reviews for significant changes
@@ -532,9 +532,9 @@ The overall migration strategy is the **Strangler Fig Pattern**: we grow the new
 
 #### Phase 1 Deliverables
 
-##### D1: Extract `zeroclaw-api` crate
+##### D1: Extract `clawcrew-api` crate
 
-Create a new crate `crates/zeroclaw-api` containing only trait definitions and their supporting types. No implementations. No heavy dependencies. This crate should compile in under two seconds.
+Create a new crate `crates/clawcrew-api` containing only trait definitions and their supporting types. No implementations. No heavy dependencies. This crate should compile in under two seconds.
 
 Move into this crate:
 - `src/providers/traits.rs` → `Provider`, `ChatMessage`, `ChatResponse`, `ToolCall`, `StreamChunk`, `ProviderCapabilities`
@@ -545,9 +545,9 @@ Move into this crate:
 - `src/runtime/traits.rs` → `RuntimeAdapter`
 - `src/peripherals/traits.rs` → `Peripheral`
 
-Every other crate in the workspace that needs these types adds `zeroclaw-api` as a dependency. The compiler now enforces that no implementation crate can import another implementation crate without going through the API layer.
+Every other crate in the workspace that needs these types adds `clawcrew-api` as a dependency. The compiler now enforces that no implementation crate can import another implementation crate without going through the API layer.
 
-##### D2: Extract `zeroclaw-tool-call-parser` crate
+##### D2: Extract `clawcrew-tool-call-parser` crate
 
 The tool call parsing logic in `src/agent/loop_.rs` is approximately 1,400 lines of pure text transformation: it takes a string from the LLM and returns a list of structured tool calls. It has no dependency on agent state, memory, providers, or channels. It handles a dozen different LLM output formats (JSON, XML, GLM-style, MiniMax, Perl-style, markdown fences, and more).
 
@@ -556,7 +556,7 @@ This logic is:
 2. The most fuzz-testable code in the project: property-based tests belong here
 3. A genuine contribution to the Rust ecosystem: no other crate does this comprehensively
 
-Create `crates/zeroclaw-tool-call-parser` with a public API of approximately:
+Create `crates/clawcrew-tool-call-parser` with a public API of approximately:
 
 ```rust
 pub fn parse(text: &str, specs: &[ToolSpec]) -> ParseResult
@@ -577,20 +577,20 @@ The ~300 parsing tests currently in `loop_.rs` move into this crate. `loop_.rs` 
 
 ##### D3: Adopt OpenTelemetry as the observability standard
 
-Formalize what is already implemented: document that `ObserverEvent` and `ObserverMetric` are the internal event bus, and that `OtelObserver` is the canonical production backend. Add a JSON structured logging subscriber for `ZEROCLAW_LOG_FORMAT=json`. Adopt W3C Trace Context for future cross-component tracing.
+Formalize what is already implemented: document that `ObserverEvent` and `ObserverMetric` are the internal event bus, and that `OtelObserver` is the canonical production backend. Add a JSON structured logging subscriber for `CLAWCREW_LOG_FORMAT=json`. Adopt W3C Trace Context for future cross-component tracing.
 
 ##### D4: Write WIT interface files
 
 Before we implement WASM plugin execution, define the contracts. Create a `wit/` directory at the workspace root with interface definitions for:
-- `zeroclaw:tool/tool.wit`: the Tool plugin interface
-- `zeroclaw:channel/channel.wit`: the Channel plugin interface
+- `clawcrew:tool/tool.wit`: the Tool plugin interface
+- `clawcrew:channel/channel.wit`: the Channel plugin interface
 
 These become the official plugin SDK. The implementation in v0.8.0 will be generated from these files.
 
 #### Success Metrics for v0.7.0
 
-- `zeroclaw-api` compiles in < 2 seconds with zero implementation dependencies
-- `zeroclaw-tool-call-parser` has ≥ 95% test coverage (the logic is fully testable in isolation)
+- `clawcrew-api` compiles in < 2 seconds with zero implementation dependencies
+- `clawcrew-tool-call-parser` has ≥ 95% test coverage (the logic is fully testable in isolation)
 - `loop_.rs` is under 8,000 lines
 - Zero user-facing behavior changes
 - Zero performance regressions (benchmark suite passes)
@@ -601,15 +601,15 @@ These become the official plugin SDK. The implementation in v0.8.0 will be gener
 
 **Theme:** Formalize the agent runtime as a clean, independently deployable unit. Everything that is not the runtime becomes a guest.
 
-**Why this phase:** Once the seams exist (v0.7.0), we can draw the runtime boundary explicitly. This phase extracts `zeroclaw-runtime` as a standalone crate, completes the WASM plugin execution bridge, and wires the plugin registry client: the mechanism by which everything outside the runtime connects to it.
+**Why this phase:** Once the seams exist (v0.7.0), we can draw the runtime boundary explicitly. This phase extracts `clawcrew-runtime` as a standalone crate, completes the WASM plugin execution bridge, and wires the plugin registry client: the mechanism by which everything outside the runtime connects to it.
 
-**Vision alignment:** This is where the composition model becomes real for users. A user who wants only a CLI agent downloads one binary, runs `zeroclaw onboard`, and is done: no Rust toolchain, no compilation. The `zeroclaw onboard` wizard gains the ability to download plugin components on demand.
+**Vision alignment:** This is where the composition model becomes real for users. A user who wants only a CLI agent downloads one binary, runs `clawcrew onboard`, and is done: no Rust toolchain, no compilation. The `clawcrew onboard` wizard gains the ability to download plugin components on demand.
 
 #### Phase 2 Deliverables
 
-##### D1: Formalize `zeroclaw-runtime` crate
+##### D1: Formalize `clawcrew-runtime` crate
 
-Extract the agent orchestration loop, CLI channel, security policy, plugin host, and IPC API into `crates/zeroclaw-runtime`, gated by the `agent-runtime` feature. This crate depends on `zeroclaw-api` and the foundation crates. It has no knowledge of Telegram, Discord, Anthropic, or any specific tool implementation.
+Extract the agent orchestration loop, CLI channel, security policy, plugin host, and IPC API into `crates/clawcrew-runtime`, gated by the `agent-runtime` feature. This crate depends on `clawcrew-api` and the foundation crates. It has no knowledge of Telegram, Discord, Anthropic, or any specific tool implementation.
 
 The runtime exports a clean public API:
 
@@ -633,27 +633,27 @@ The binary crate becomes a thin wiring layer that reads config and calls `run`.
 
 The `extism` dependency is incompatible with WASM Component Model (`.wit` files) and requires the `cranelift` feature of `wasmtime`, which blocks ARM32 targets from compiling. Remove Extism and replace it with direct usage of `wasmtime`. During the transition, Extism should be left as an option until the final deprecation PR.
 
-Wire `wasmtime` into `zeroclaw-plugins` with optional dependencies on `cranelift` (for most build targets) or `pulley` (for ARM32). With WIT interfaces defined in v0.7.0, use `wit-bindgen` to generate the host-side bindings.
+Wire `wasmtime` into `clawcrew-plugins` with optional dependencies on `cranelift` (for most build targets) or `pulley` (for ARM32). With WIT interfaces defined in v0.7.0, use `wit-bindgen` to generate the host-side bindings.
 
 A complete WASM execution bridge implementation defines the WASI host functions that WASM plugins can call (HTTP requests, memory access, logging) within the permission model already defined in `PluginPermission`. Where possible, the WASI Preview 2 APIs should be used (`wasi:io`, `wasi:http`, `wasi:filesystem`, etc) to provide a consistent standards-based API for plugins.
 
 ##### D3: Component registry client
 
-Add a `zeroclaw plugin` subcommand backed by a simple registry client:
+Add a `clawcrew plugin` subcommand backed by a simple registry client:
 
 ```
-zeroclaw plugin list              # list installed plugins
-zeroclaw plugin search <query>    # search the component registry
-zeroclaw plugin install <name>    # download, verify, and install a plugin
-zeroclaw plugin remove <name>     # remove an installed plugin
-zeroclaw plugin update            # update all installed plugins
+clawcrew plugin list              # list installed plugins
+clawcrew plugin search <query>    # search the component registry
+clawcrew plugin install <name>    # download, verify, and install a plugin
+clawcrew plugin remove <name>     # remove an installed plugin
+clawcrew plugin update            # update all installed plugins
 ```
 
-The registry is a JSON index file served from a known URL (e.g., `https://plugins.zeroclaw.com/index.json`). Each entry includes name, version, download URL, SHA-256 checksum, and the publisher's Ed25519 public key. The `PluginHost` signature verification already handles the security model.
+The registry is a JSON index file served from a known URL (e.g., `https://plugins.clawcrew.com/index.json`). Each entry includes name, version, download URL, SHA-256 checksum, and the publisher's Ed25519 public key. The `PluginHost` signature verification already handles the security model.
 
-##### D4: Integrate `zeroclaw onboard` with the plugin system
+##### D4: Integrate `clawcrew onboard` with the plugin system
 
-The onboarding wizard should ask the user which channels and integrations they want, then call `PluginRegistry::install` for each. No compilation required. The user downloads a binary, runs `zeroclaw onboard`, and has a working configured agent in under two minutes.
+The onboarding wizard should ask the user which channels and integrations they want, then call `PluginRegistry::install` for each. No compilation required. The user downloads a binary, runs `clawcrew onboard`, and has a working configured agent in under two minutes.
 
 ##### D5: Reduce `all_tools_with_runtime` to core tools only
 
@@ -661,9 +661,9 @@ The kernel includes exactly the tools a user needs for a useful agent with no pl
 
 #### Success Metrics for v0.8.0
 
-- `zeroclaw-runtime` compiles independently with no channel or tool implementation code
-- `zeroclaw plugin install channel-discord` works end-to-end
-- `zeroclaw onboard` installs plugins without requiring a Rust toolchain
+- `clawcrew-runtime` compiles independently with no channel or tool implementation code
+- `clawcrew plugin install channel-discord` works end-to-end
+- `clawcrew onboard` installs plugins without requiring a Rust toolchain
 - Runtime binary size is **tracked and reported** in the release notes; the aspiration is downward progress toward the vision target (see §7)
 - A WASM tool plugin written in Rust using the WIT interface executes correctly
 
@@ -675,7 +675,7 @@ The kernel includes exactly the tools a user needs for a useful agent with no pl
 
 **Why this phase:** The gateway is currently the largest structural coupling in the codebase. It embeds a compiled React application, handles channel-specific webhook logic, and is compiled into every binary, including binaries intended for $10 edge hardware that will never serve a web page.
 
-**Vision alignment:** This phase delivers the "zero external requirements" promise fully. A user on a Raspberry Pi gets a kernel binary with no web server, no React app, and no HTTP listener. A user who wants the web dashboard installs `zeroclaw-gw` separately.
+**Vision alignment:** This phase delivers the "zero external requirements" promise fully. A user on a Raspberry Pi gets a kernel binary with no web server, no React app, and no HTTP listener. A user who wants the web dashboard installs `clawcrew-gw` separately.
 
 #### Phase 3 Deliverables
 
@@ -687,11 +687,11 @@ Endpoints include: send a message, receive a streaming response, list active ses
 
 ##### D2: Implement the kernel IPC server
 
-Add the IPC server to `zeroclaw-kernel` behind a feature flag (`--features ipc`). On platforms that support it, the kernel listens on a Unix socket at `~/.zeroclaw/kernel.sock`. On Windows, use a named pipe. The `zeroclaw gateway` command (the current entrypoint for the web server) becomes `zeroclaw-gw` connecting to this socket.
+Add the IPC server to `clawcrew-kernel` behind a feature flag (`--features ipc`). On platforms that support it, the kernel listens on a Unix socket at `~/.clawcrew/kernel.sock`. On Windows, use a named pipe. The `clawcrew gateway` command (the current entrypoint for the web server) becomes `clawcrew-gw` connecting to this socket.
 
-##### D3: Extract `zeroclaw-gw` as a separate binary
+##### D3: Extract `clawcrew-gw` as a separate binary
 
-Move `src/gateway/` to a new `crates/zeroclaw-gw/` crate with its own binary. It depends on `zeroclaw-api` and connects to the kernel via the IPC API. The embedded React application via `rust-embed` moves entirely into this crate: the kernel binary no longer contains any web assets.
+Move `src/gateway/` to a new `crates/clawcrew-gw/` crate with its own binary. It depends on `clawcrew-api` and connects to the kernel via the IPC API. The embedded React application via `rust-embed` moves entirely into this crate: the kernel binary no longer contains any web assets.
 
 ##### D4: Migrate channel webhook handlers out of the gateway
 
@@ -699,13 +699,13 @@ The WhatsApp, Linq, Nextcloud Talk, and Gmail webhook handlers currently in `gat
 
 ##### D5: Formalize the Tauri sidecar relationship
 
-Update `apps/tauri/` to bundle `zeroclaw-gw` as a Tauri sidecar binary. The Tauri app becomes the "full experience" distribution: it starts the kernel and gateway automatically and opens the web UI. Users who download the Tauri app get everything working without touching a terminal.
+Update `apps/tauri/` to bundle `clawcrew-gw` as a Tauri sidecar binary. The Tauri app becomes the "full experience" distribution: it starts the kernel and gateway automatically and opens the web UI. Users who download the Tauri app get everything working without touching a terminal.
 
 #### Success Metrics for v0.9.0
 
 - Kernel binary (release) does not contain any web assets or HTTP server code
-- `zeroclaw-gw` starts, connects to the kernel via IPC, and serves the web dashboard
-- Removing `zeroclaw-gw` does not break the kernel or any channel plugins
+- `clawcrew-gw` starts, connects to the kernel via IPC, and serves the web dashboard
+- Removing `clawcrew-gw` does not break the kernel or any channel plugins
 - WhatsApp, Linq, Nextcloud Talk, and Gmail channel code has moved to plugin crates
 - Tauri desktop app bundles and starts both binaries correctly
 
@@ -713,9 +713,9 @@ Update `apps/tauri/` to bundle `zeroclaw-gw` as a Tauri sidecar binary. The Taur
 
 ### Phase 4 · v1.0.0: "The Platform"
 
-**Theme:** ZeroClaw becomes a composable platform, not a monolithic application.
+**Theme:** ClawCrew becomes a composable platform, not a monolithic application.
 
-**Why this phase:** With the kernel stable, the gateway separate, and the plugin system working, v1.0.0 is the release where the architecture becomes the product. External developers can write and publish plugins. Users can assemble exactly the ZeroClaw they want. The binary can credibly claim the lean profile the vision promises.
+**Why this phase:** With the kernel stable, the gateway separate, and the plugin system working, v1.0.0 is the release where the architecture becomes the product. External developers can write and publish plugins. Users can assemble exactly the ClawCrew they want. The binary can credibly claim the lean profile the vision promises.
 
 #### Phase 4 Deliverables
 
@@ -725,15 +725,15 @@ Each of the 27+ channel implementations becomes a standalone WASM plugin crate. 
 
 ##### D2: Migrate long-tail tools to plugins
 
-Approximately 60 of the 70+ tools move to plugin crates, grouped by domain: `zeroclaw-tools-web` (browser, search, screenshot, PDF), `zeroclaw-tools-integrations` (Jira, Notion, Google Workspace, MS365, LinkedIn), `zeroclaw-tools-hardware` (board info, GPIO), `zeroclaw-tools-cloud` (cloud ops, security ops). The kernel retains only the 10–12 core tools identified in v0.8.0.
+Approximately 60 of the 70+ tools move to plugin crates, grouped by domain: `clawcrew-tools-web` (browser, search, screenshot, PDF), `clawcrew-tools-integrations` (Jira, Notion, Google Workspace, MS365, LinkedIn), `clawcrew-tools-hardware` (board info, GPIO), `clawcrew-tools-cloud` (cloud ops, security ops). The kernel retains only the 10–12 core tools identified in v0.8.0.
 
 ##### D3: Plugin SDK and developer documentation
 
 Publish a plugin development guide. A developer should be able to write a new tool plugin in an afternoon:
-1. Add `zeroclaw-plugin-sdk` as a dependency
+1. Add `clawcrew-plugin-sdk` as a dependency
 2. Implement the WIT-generated trait
 3. `cargo build --target wasm32-wasip2`
-4. `zeroclaw plugin install ./my-plugin/`
+4. `clawcrew plugin install ./my-plugin/`
 
 The SDK handles the host function bindings, the manifest format, and the permissions model.
 
@@ -750,8 +750,8 @@ The versioning policy and stability tier table defined in §4.4.1 of this RFC be
 - Runtime binary size is **tracked against the vision target** (see §7); a dedicated optimization pass through each crate is expected as a v1.0.0 workstream
 - A third-party developer can publish a working plugin using only public documentation
 - All 27+ channel implementations are available as downloadable plugins in the registry
-- `zeroclaw onboard` completes a full setup in under 2 minutes on a Raspberry Pi Zero 2W with no Rust toolchain installed
-- The full plugin catalog is installable with `zeroclaw plugin install --profile full`
+- `clawcrew onboard` completes a full setup in under 2 minutes on a Raspberry Pi Zero 2W with no Rust toolchain installed
+- The full plugin catalog is installable with `clawcrew plugin install --profile full`
 
 ---
 
@@ -763,11 +763,11 @@ These are estimates based on direct code analysis of the current codebase. They 
 
 | What moves | Approximate lines | Destination |
 |---|---|---|
-| Tool call parser (from `loop_.rs`) | ~1,400 | `zeroclaw-tool-call-parser` crate |
+| Tool call parser (from `loop_.rs`) | ~1,400 | `clawcrew-tool-call-parser` crate |
 | 60+ non-core tool implementations | ~30,000 | Plugin crates |
 | 24+ non-core channel implementations | ~7,200 | Plugin crates |
-| Gateway HTTP server | ~2,260 | `zeroclaw-gw` crate |
-| Embedded React app (binary weight) | N/A | `zeroclaw-gw` crate |
+| Gateway HTTP server | ~2,260 | `clawcrew-gw` crate |
+| Embedded React app (binary weight) | N/A | `clawcrew-gw` crate |
 | Channel webhook handlers from gateway | ~500 | Channel plugin crates |
 | **Estimated total removed from runtime** | **~41,000 lines** | N/A |
 
@@ -776,7 +776,7 @@ These are estimates based on direct code analysis of the current codebase. They 
 | File | Current lines | Target after migration | Reduction |
 |---|---|---|---|
 | `src/agent/loop_.rs` | ~9,500 | ~5,000 | ~47% |
-| `src/gateway/mod.rs` | ~2,260 | Moves to `zeroclaw-gw` | 100% |
+| `src/gateway/mod.rs` | ~2,260 | Moves to `clawcrew-gw` | 100% |
 | `src/tools/mod.rs` | `all_tools_with_runtime` is ~680 lines | ~80 lines (core tools only) | ~88% |
 | `src/providers/mod.rs` | ~3,750 | ~1,200 (providers self-register) | ~68% |
 | `src/channels/mod.rs` | ~200 + 44 channel files | CLI channel only | ~90% |
@@ -819,13 +819,13 @@ Estimated wall-clock time improvement for incremental builds: 60–75% reduction
 
 The most common complaint from new contributors to large codebases is: "I don't know where to start." With the current architecture, the answer to "where does a Discord message go?" requires tracing through `channels/discord.rs` → `channels/mod.rs` → `gateway/mod.rs` → `agent/loop_.rs` → dozens of other files.
 
-With the microkernel architecture, the answer is: "it goes to the kernel's `Channel` receiver, via the `channel-discord` plugin." A new contributor can understand the Discord channel completely by reading one plugin crate. They can understand the full agent loop by reading `zeroclaw-kernel` without any channel or tool code in scope.
+With the microkernel architecture, the answer is: "it goes to the kernel's `Channel` receiver, via the `channel-discord` plugin." A new contributor can understand the Discord channel completely by reading one plugin crate. They can understand the full agent loop by reading `clawcrew-kernel` without any channel or tool code in scope.
 
 **A good rule of thumb for new contributors:** if you can describe your change in one sentence without mentioning more than one component, you are working at the right level. "Fix a bug in how the Discord channel handles thread replies" is one component. "Refactor the agent loop and update the Discord channel and also fix the memory backend" is three components: it should be three PRs.
 
 ### For maintainers
 
-Every bug report will have a clear home. "The agent is calling tools incorrectly" → `zeroclaw-tool-call-parser` or `zeroclaw-runtime`. "The Discord integration is broken" → `channel-discord` plugin. "The web dashboard is not loading" → `zeroclaw-gw`. Right now, any of those bugs could be anywhere in 50,000+ lines.
+Every bug report will have a clear home. "The agent is calling tools incorrectly" → `clawcrew-tool-call-parser` or `clawcrew-runtime`. "The Discord integration is broken" → `channel-discord` plugin. "The web dashboard is not loading" → `clawcrew-gw`. Right now, any of those bugs could be anywhere in 50,000+ lines.
 
 ### For the release process
 
@@ -833,7 +833,7 @@ The plugin model means channels and tools can have independent release cycles. A
 
 ### For the community
 
-A published WIT interface and plugin SDK means anyone can extend ZeroClaw without forking it. A company that needs a specific integration can write a plugin against the public interface. This is how ecosystems are built.
+A published WIT interface and plugin SDK means anyone can extend ClawCrew without forking it. A company that needs a specific integration can write a plugin against the public interface. This is how ecosystems are built.
 
 ---
 
@@ -845,7 +845,7 @@ Terms used in this document that may be unfamiliar:
 
 **Conway's Law**: "Any organization that designs a system will produce a design whose structure is a mirror image of the organization's communication structure." (Mel Conway, 1968) If contributors work in isolated silos without talking to each other, the code will reflect that. If contributors collaborate with clear interfaces between their work, the code will reflect that too.
 
-**Dependency Inversion Principle**: High-level modules should not depend on low-level modules. Both should depend on abstractions. This is why `zeroclaw-runtime` depends on `zeroclaw-api` (abstractions) and not on `channel-discord` (a specific implementation).
+**Dependency Inversion Principle**: High-level modules should not depend on low-level modules. Both should depend on abstractions. This is why `clawcrew-runtime` depends on `clawcrew-api` (abstractions) and not on `channel-discord` (a specific implementation).
 
 **Microkernel**: An architecture in which the core system contains only the minimum necessary functionality, and all other capabilities are provided by separate components that communicate with the core through well-defined interfaces.
 
@@ -875,6 +875,6 @@ These are resources the team may find valuable. They are not required reading, b
 
 ---
 
-*This proposal was developed from a detailed analysis of the ZeroClaw codebase at v0.6.8. The code metrics cited are based on direct measurement of the source files. The architectural recommendations reflect established patterns in systems software design applied to the specific constraints and goals of the ZeroClaw project.*
+*This proposal was developed from a detailed analysis of the ClawCrew codebase at v0.6.8. The code metrics cited are based on direct measurement of the source files. The architectural recommendations reflect established patterns in systems software design applied to the specific constraints and goals of the ClawCrew project.*
 
 *Feedback, corrections, and counterproposals are welcome. The best architecture is the one the team understands and believes in, not the one any single person dictated.*

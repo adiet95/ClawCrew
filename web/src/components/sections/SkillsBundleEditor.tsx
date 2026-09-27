@@ -506,7 +506,7 @@ interface TagsFieldProps {
 /**
  * Tags editor + the slash-command opt-in. The `slash` tag is surfaced as a
  * boolean toggle (it makes the skill a Discord slash command — see
- * zeroclaw-labs/zeroclaw#7490); `open-skills` is loader-managed and shown
+ * clawcrew-labs/clawcrew#7490); `open-skills` is loader-managed and shown
  * read-only. Everything else is an editable badge. The full tag list (including
  * `slash`/`open-skills`) is preserved on save.
  */
@@ -623,7 +623,7 @@ function Field({ label, value, onChange, placeholder }: FieldProps) {
   );
 }
 
-// The typed slash-option model (zeroclaw-labs/zeroclaw#8021), shaped after
+// The typed slash-option model (clawcrew-labs/clawcrew#8021), shaped after
 // Discord's application command option types. The kind list and which
 // constraints each kind carries (choices / numeric bounds / length bounds) are
 // NOT restated here: the editor fetches the backend registry

@@ -25,9 +25,9 @@ To run multiple models, run multiple agents, each binding to one model provider.
 
 ## Cross-provider reliability
 
-For non-streaming calls, ZeroClaw can walk an ordered fallback graph across provider profiles. Each fallback profile keeps its own endpoint, credentials, model, headers, capability overrides, and nested fallback declarations. The runtime retries or advances according to the error classification and profile cooldown state.
+For non-streaming calls, ClawCrew can walk an ordered fallback graph across provider profiles. Each fallback profile keeps its own endpoint, credentials, model, headers, capability overrides, and nested fallback declarations. The runtime retries or advances according to the error classification and profile cooldown state.
 
-OpenRouter remains a first-class provider and can perform vendor selection behind one endpoint. It is an optional external routing layer, not a requirement for ZeroClaw's first-party fallback.
+OpenRouter remains a first-class provider and can perform vendor selection behind one endpoint. It is an optional external routing layer, not a requirement for ClawCrew's first-party fallback.
 
 ## Non-streaming retry and fallback
 
@@ -39,7 +39,7 @@ A streaming call selects the first eligible, non-cooling entry that supports the
 
 ## API key rotation limitation
 
-Do not rely on `reliability.api_keys` for credential failover. On a retryable rate limit, the reliable wrapper selects and logs an alternate key, but the `ModelProvider` trait cannot apply it to the already constructed provider. The retry still uses the original credential. [Issue #9190](https://github.com/zeroclaw-labs/zeroclaw/issues/9190) tracks this limitation.
+Do not rely on `reliability.api_keys` for credential failover. On a retryable rate limit, the reliable wrapper selects and logs an alternate key, but the `ModelProvider` trait cannot apply it to the already constructed provider. The retry still uses the original credential. [Issue #9190](https://github.com/clawcrew-labs/clawcrew/issues/9190) tracks this limitation.
 
 Use separate provider profiles with their own credentials, or an external routing service, when credential-level failover is required.
 
@@ -47,7 +47,7 @@ Use separate provider profiles with their own credentials, or an external routin
 
 [llmfit](https://github.com/AlexsJones/llmfit) can help shortlist models for
 your CPU, RAM, GPU, and available accelerator memory before you configure
-ZeroClaw. It is optional: if you already know which model to use, go straight
+ClawCrew. It is optional: if you already know which model to use, go straight
 to [provider configuration](../providers/configuration.md) or
 [Quickstart](./quickstart.md).
 
@@ -61,21 +61,21 @@ client machine does not describe the inference host's capacity.
 Compare candidates for your intended workload, quantization, and context
 length. Quantization reduces the precision used to store model weights;
 it changes memory use and can affect output quality. Leave memory headroom
-for context, the inference runtime, ZeroClaw, and other applications.
+for context, the inference runtime, ClawCrew, and other applications.
 Treat missing hardware facts as unknown. Fit scores and speed estimates
 are estimates, not measured performance or proof of reliable tool use in
-ZeroClaw.
+ClawCrew.
 
 Keep the assessment local; this workflow requires no account or upload of
 hardware profiles or user content. Review and explicitly confirm model
 downloads, runtime startup, and configuration changes before performing
 them, including when an assistant helps with setup.
 
-### 2. Map the candidate to a ZeroClaw provider
+### 2. Map the candidate to a ClawCrew provider
 
 Check the [provider catalog](../providers/catalog.md) for a supported
 integration. A runtime discovered by llmfit is not automatically a supported
-ZeroClaw provider. Confirm that the selected model and quantization are
+ClawCrew provider. Confirm that the selected model and quantization are
 available in that runtime, and use the runtime's exact model identifier;
 a catalog name may differ from an Ollama tag or a server's model ID.
 
@@ -92,13 +92,13 @@ or a verified recipe for your machine.
 For llama.cpp or another supported local endpoint, follow
 [custom provider setup](../providers/custom.md) and use that runtime's
 provider slot and endpoint. Configure the server's model and context capacity
-using its own documentation. ZeroClaw's history budget does not allocate
+using its own documentation. ClawCrew's history budget does not allocate
 the server's context window.
 
 ### 3. Verify the selected configuration
 
 After confirming setup, run the configured agent with
-`zeroclaw agent -a local` (replace `local` with your agent alias).
+`clawcrew agent -a local` (replace `local` with your agent alias).
 First check that it can answer a simple prompt. Then ask it to use an
 allowed tool, for example to read a small, non-sensitive file in its
 workspace and summarize the contents. Keep the configured approval and
@@ -112,16 +112,16 @@ investigating a model that chats successfully but cannot use tools.
 
 Before sharing a tested recipe, record:
 
-- Test date, ZeroClaw version or commit and build features, OS, and hardware.
+- Test date, ClawCrew version or commit and build features, OS, and hardware.
 - Runtime version, exact model identifier and quantization, and artifact
   digest when available. Mark unavailable details as unknown.
-- Server context settings and the relevant ZeroClaw provider, risk, and
+- Server context settings and the relevant ClawCrew provider, risk, and
   runtime profile settings, with secrets removed.
 - The prompt, actual tool call, tool result, and assistant continuation,
   using non-sensitive test data; include failures and known limitations.
 - Any measured latency or memory use separately from llmfit estimates.
 
-This workflow does not establish a ZeroClaw-verified model list. Evidence
+This workflow does not establish a ClawCrew-verified model list. Evidence
 for one build, model, quantization, and context setting does not verify
 other combinations. If it exposes a reproducible integration gap, report
 that specific gap with the sanitized recipe and observed failure.
@@ -130,11 +130,11 @@ that specific gap with the sanitized recipe and observed failure.
 
 Run a local-Ollama agent and a hosted-provider agent side by side; route each channel to whichever you want it to use.
 
-The `dev` agent runs from the CLI (no channel binding required, `zeroclaw agent -a dev` is enough). When Ollama is down, the dev agent fails fast and surfaces the error. The prod channels are unaffected.
+The `dev` agent runs from the CLI (no channel binding required, `clawcrew agent -a dev` is enough). When Ollama is down, the dev agent fails fast and surfaces the error. The prod channels are unaffected.
 
 ## Local-small no-text-fallback profile
 
-Small local models usually need a runtime profile, not a provider-specific mode. Keep the Ollama provider focused on connection details, then use `[runtime_profiles.<alias>]` to tighten the prompt/tool loop behavior. ZeroClaw exposes a built-in `local_small` runtime preset for code paths that install runtime presets directly. If you edit config by hand, use this equivalent block:
+Small local models usually need a runtime profile, not a provider-specific mode. Keep the Ollama provider focused on connection details, then use `[runtime_profiles.<alias>]` to tighten the prompt/tool loop behavior. ClawCrew exposes a built-in `local_small` runtime preset for code paths that install runtime presets directly. If you edit config by hand, use this equivalent block:
 
 ```toml
 [providers.models.ollama.local]
@@ -182,7 +182,7 @@ This profile composes existing primitives:
 - `max_actions_per_hour`, `max_cost_per_day_cents`, and the timeout/delegation fields keep local runs on the same budget shape as the built-in preset.
 - `parallel_tools = false` and `keep_tool_context_turns = 1` keep local runs sequential and limit retained tool context.
 
-With Ollama, this is a no-text-fallback profile: authorized tools remain configured in `risk_profile`, but text-form tool markup from the model is not executed. Use it for chat-first local agents, or for providers that return native/structured tool calls. If a local model must use ZeroClaw's text fallback tool syntax, set `strict_tool_parsing = false` and keep the other small-model limits.
+With Ollama, this is a no-text-fallback profile: authorized tools remain configured in `risk_profile`, but text-form tool markup from the model is not executed. Use it for chat-first local agents, or for providers that return native/structured tool calls. If a local model must use ClawCrew's text fallback tool syntax, set `strict_tool_parsing = false` and keep the other small-model limits.
 
 ## Cost tiering: heavy model when needed, fast model otherwise
 
@@ -216,9 +216,9 @@ Persisted logs (`"rolling"` is the default) capture retry, cooldown, and fallbac
 #### sh
 
 ```sh
-zeroclaw doctor traces --contains "retry"
-zeroclaw doctor traces --contains "429"
-zeroclaw doctor traces --contains "model_provider"
+clawcrew doctor traces --contains "retry"
+clawcrew doctor traces --contains "429"
+clawcrew doctor traces --contains "model_provider"
 ```
 
 </div>
@@ -227,11 +227,11 @@ zeroclaw doctor traces --contains "model_provider"
 
 1. **One agent per routing intent.** If two channels need different model behavior, name two agents.
 2. **Give fallback profiles explicit ownership.** Keep each endpoint, credential, model, and capability override on the profile that serves it.
-3. **Treat OpenRouter as an optional routing layer.** Use it when server-side vendor selection is useful; use ZeroClaw fallback profiles when the runtime should own the order.
-4. **Do not rely on `reliability.api_keys`.** Use separately constructed profiles until [issue #9190](https://github.com/zeroclaw-labs/zeroclaw/issues/9190) is fixed.
-5. **Smoke-test each agent in isolation.** `zeroclaw agent -a <alias>` runs an agent without channel plumbing in the way.
+3. **Treat OpenRouter as an optional routing layer.** Use it when server-side vendor selection is useful; use ClawCrew fallback profiles when the runtime should own the order.
+4. **Do not rely on `reliability.api_keys`.** Use separately constructed profiles until [issue #9190](https://github.com/clawcrew-labs/clawcrew/issues/9190) is fixed.
+5. **Smoke-test each agent in isolation.** `clawcrew agent -a <alias>` runs an agent without channel plumbing in the way.
 6. **Document agent intent.** Add `# comment` lines explaining which channels each agent serves and why.
-7. **Inject secrets via env, not inline.** `ZEROCLAW_providers__models__<type>__<alias>__api_key=...` sets `api_key` at startup; see [Environment variables](../reference/env-vars.md).
+7. **Inject secrets via env, not inline.** `CLAWCREW_providers__models__<type>__<alias>__api_key=...` sets `api_key` at startup; see [Environment variables](../reference/env-vars.md).
 8. **Separate dev and prod agents.** Each environment gets its own `[agents.<alias>]` entry bound to its own channels.
 
 ## Credential resolution
@@ -239,8 +239,8 @@ zeroclaw doctor traces --contains "model_provider"
 Each provider entry resolves credentials in this order:
 
 1. **Inline `api_key`** on the provider entry.
-2. **Secrets store** at `~/.zeroclaw/secrets`.
-3. **Generic env override**: `ZEROCLAW_providers__models__<type>__<alias>__api_key=...` at startup. If your shell already exports `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`, or a similar vendor-default name, bridge it into this schema-mirror variable before startup unless the provider family explicitly documents a native runtime env bridge. See [Environment variables](../reference/env-vars.md) for the full grammar and bridge examples.
+2. **Secrets store** at `~/.clawcrew/secrets`.
+3. **Generic env override**: `CLAWCREW_providers__models__<type>__<alias>__api_key=...` at startup. If your shell already exports `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`, or a similar vendor-default name, bridge it into this schema-mirror variable before startup unless the provider family explicitly documents a native runtime env bridge. See [Environment variables](../reference/env-vars.md) for the full grammar and bridge examples.
 
 Credentials are not shared between provider profiles; set them per profile. A route-level `model_routes[].api_key` is a higher-precedence override when its routed target is constructed. Route targets are deduplicated by `model_provider`, so the first matching route credential can construct the provider shared by several hints. Prefer profile-owned credentials when routes share a target.
 

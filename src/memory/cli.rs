@@ -7,7 +7,7 @@ use crate::config::Config;
 use anyhow::{Result, bail};
 use console::style;
 #[cfg(feature = "agent-runtime")]
-use zeroclaw_runtime::i18n;
+use clawcrew_runtime::i18n;
 
 /// Resolve a `cli-*` Fluent key for memory CLI output. Under `agent-runtime`
 /// (default, and what CI/release build) this routes through Fluent; without it
@@ -37,7 +37,7 @@ fn mt_args(key: &str, args: &[(&str, &str)], fallback: &str) -> String {
     }
 }
 
-/// Handle `zeroclaw memory <subcommand>` CLI commands.
+/// Handle `clawcrew memory <subcommand>` CLI commands.
 pub async fn handle_command(command: crate::MemoryCommands, config: &Config) -> Result<()> {
     match command {
         crate::MemoryCommands::List {

@@ -78,7 +78,7 @@ venv/
 *.pem
 credentials.json
 .worktrees/
-.zeroclaw/*
+.clawcrew/*
 
 # Claude Code project settings (machine-specific directory config)
 .claude/settings.json

@@ -12,7 +12,7 @@ name: Scoop Bucket Canary
 # while there is still time to rotate it.
 #
 # This detects credential rot; it is not what keeps the bucket correct. A
-# bucket-side Excavator backstop is proposed in zeroclaw-labs/scoop-zeroclaw#1,
+# bucket-side Excavator backstop is proposed in clawcrew-labs/scoop-clawcrew#1,
 # but it is not operational until that workflow lands, receives write
 # permission, and passes a maintainer smoke test. Until then, recover a failed
 # publish by rotating the credential and rerunning the publisher.

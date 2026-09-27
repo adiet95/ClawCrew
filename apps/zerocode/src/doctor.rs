@@ -819,7 +819,7 @@ mod tests {
     async fn doctor_detail_panel_includes_log_path_when_no_entry_selected() {
         let mut doctor = Doctor::new(test_client());
         let mut result = sample_result();
-        result.log_path = Some("/home/user/.local/share/zeroclaw/logs/trace.jsonl".into());
+        result.log_path = Some("/home/user/.local/share/clawcrew/logs/trace.jsonl".into());
         doctor.result = Some(result);
 
         // No entry is selected → draw_detail renders log_path before
@@ -856,7 +856,7 @@ mod tests {
                 errors: 0,
             },
             log_path: Some(
-                "/home/operator/.local/share/zeroclaw/logs/trace-2026-07-13T08-30-00Z.jsonl"
+                "/home/operator/.local/share/clawcrew/logs/trace-2026-07-13T08-30-00Z.jsonl"
                     .to_string(),
             ),
             timed_out_phase: None,

@@ -16,7 +16,7 @@ That is the whole install. Run it from a clone, or pipe it from `curl`:
 
 <!-- >>> generated:unix-fast-command by `cargo generate installers` - do not edit <<< -->
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh
 ```
 <!-- >>> end generated:unix-fast-command <<< -->
 
@@ -31,21 +31,21 @@ The [canonical installation paths](../getting-started/quickstart.md#install) exp
 #### sh
 
 ```sh
-brew install zeroclaw
+brew install clawcrew
 ```
 
 </div>
 
-Gets you `brew services` integration. Binary lives at `$HOMEBREW_PREFIX/bin/zeroclaw`.
+Gets you `brew services` integration. Binary lives at `$HOMEBREW_PREFIX/bin/clawcrew`.
 
-**Workspace location gotcha:** with Homebrew, the service user and the CLI user may be different, so the workspace lives at `$HOMEBREW_PREFIX/var/zeroclaw/` rather than `~/.zeroclaw/`. Point CLI invocations at the same workspace:
+**Workspace location gotcha:** with Homebrew, the service user and the CLI user may be different, so the workspace lives at `$HOMEBREW_PREFIX/var/clawcrew/` rather than `~/.clawcrew/`. Point CLI invocations at the same workspace:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-export ZEROCLAW_WORKSPACE="$HOMEBREW_PREFIX/var/zeroclaw"
+export CLAWCREW_WORKSPACE="$HOMEBREW_PREFIX/var/clawcrew"
 ```
 
 </div>
@@ -70,21 +70,21 @@ Most features work with a stock macOS install. Optional extras:
 #### sh
 
 ```sh
-zeroclaw service install   # writes ~/Library/LaunchAgents/com.zeroclaw.daemon.plist
-zeroclaw service start
-zeroclaw service status
+clawcrew service install   # writes ~/Library/LaunchAgents/com.clawcrew.daemon.plist
+clawcrew service start
+clawcrew service status
 ```
 
 </div>
 
-Logs go to `~/.zeroclaw/logs/` (Homebrew installs: `$HOMEBREW_PREFIX/var/zeroclaw/logs/`):
+Logs go to `~/.clawcrew/logs/` (Homebrew installs: `$HOMEBREW_PREFIX/var/clawcrew/logs/`):
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-tail -f ~/.zeroclaw/logs/daemon.stdout.log
+tail -f ~/.clawcrew/logs/daemon.stdout.log
 ```
 
 </div>
@@ -96,8 +96,8 @@ For Homebrew installs, prefer:
 #### sh
 
 ```sh
-brew services start zeroclaw
-brew services info zeroclaw
+brew services start clawcrew
+brew services info clawcrew
 ```
 
 </div>
@@ -115,8 +115,8 @@ Re-run the installer, it detects the existing install and upgrades in place:
 #### sh
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh -s -- --skip-quickstart
-zeroclaw service restart
+curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh -s -- --skip-quickstart
+clawcrew service restart
 ```
 
 </div>
@@ -128,10 +128,10 @@ Or from a clone:
 #### sh
 
 ```sh
-cd /path/to/zeroclaw
+cd /path/to/clawcrew
 git pull
 ./install.sh --skip-quickstart
-zeroclaw service restart
+clawcrew service restart
 ```
 
 </div>
@@ -143,8 +143,8 @@ If installed via Homebrew instead:
 #### sh
 
 ```sh
-brew update && brew upgrade zeroclaw
-brew services restart zeroclaw
+brew update && brew upgrade clawcrew
+brew services restart clawcrew
 ```
 
 </div>
@@ -157,14 +157,14 @@ brew services restart zeroclaw
 
 ```sh
 # stop and unregister the service
-zeroclaw service stop
-zeroclaw service uninstall
+clawcrew service stop
+clawcrew service uninstall
 
 # Homebrew
-brew uninstall zeroclaw
+brew uninstall clawcrew
 
 # bootstrap / cargo
-rm ~/.cargo/bin/zeroclaw
+rm ~/.cargo/bin/clawcrew
 ```
 
 </div>
@@ -177,17 +177,17 @@ Remove config and workspace (optional: this deletes conversation history):
 
 ```sh
 # Homebrew workspace
-rm -rf "$HOMEBREW_PREFIX/var/zeroclaw"
+rm -rf "$HOMEBREW_PREFIX/var/clawcrew"
 
-# Default workspace (includes logs at ~/.zeroclaw/logs)
-rm -rf ~/.zeroclaw ~/.config/zeroclaw
+# Default workspace (includes logs at ~/.clawcrew/logs)
+rm -rf ~/.clawcrew ~/.config/clawcrew
 ```
 
 </div>
 
 ## Gotchas
 
-- **Homebrew config path mismatch.** The `brew services` daemon reads config from `$HOMEBREW_PREFIX/var/zeroclaw/`, not `~/.zeroclaw/`. If your service is reading stale config, check which one the daemon sees and set `ZEROCLAW_WORKSPACE` accordingly.
+- **Homebrew config path mismatch.** The `brew services` daemon reads config from `$HOMEBREW_PREFIX/var/clawcrew/`, not `~/.clawcrew/`. If your service is reading stale config, check which one the daemon sees and set `CLAWCREW_WORKSPACE` accordingly.
 - **First launch of the browser tool** downloads Chromium (~150 MB) via Playwright.
 - **Apple Silicon and Intel:** the bootstrap script detects the architecture and uses a matching prebuilt release artifact when one is available. If the release has no matching artifact, it falls back to a source build. Homebrew selects the appropriate package for the host.
 

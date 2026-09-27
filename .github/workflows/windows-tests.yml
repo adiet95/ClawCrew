@@ -179,7 +179,7 @@ jobs:
               ;;
             full)
               set +e
-              cargo nextest run --locked --no-fail-fast --workspace --exclude zeroclaw-desktop 2>&1 | tee "$baseline_log"
+              cargo nextest run --locked --no-fail-fast --workspace --exclude clawcrew-desktop 2>&1 | tee "$baseline_log"
               baseline_status=${PIPESTATUS[0]}
               set -e
               ;;
@@ -192,7 +192,7 @@ jobs:
           baseline_duration=$((SECONDS - started_at))
           hardware_started_at=$SECONDS
           set +e
-          cargo nextest run --locked --no-fail-fast -p zeroclaw-hardware --features hardware --lib 2>&1 | tee "$hardware_log"
+          cargo nextest run --locked --no-fail-fast -p clawcrew-hardware --features hardware --lib 2>&1 | tee "$hardware_log"
           hardware_status=${PIPESTATUS[0]}
           set -e
           hardware_duration=$((SECONDS - hardware_started_at))
@@ -209,7 +209,7 @@ jobs:
             plugin_started_at=$SECONDS
             set +e
             cargo nextest run --locked --no-fail-fast \
-              -p zeroclaw-plugins \
+              -p clawcrew-plugins \
               --features plugins-wasm-cranelift \
               --test channel_plugin_e2e \
               --test tool_plugin_timeout_e2e \
@@ -218,19 +218,19 @@ jobs:
               --test tool_plugin_e2e 2>&1 | tee "$plugin_components_log"
             plugin_components_status=${PIPESTATUS[0]}
             cargo nextest run --locked --no-fail-fast \
-              -p zeroclaw-plugins \
+              -p clawcrew-plugins \
               --no-default-features \
               --features plugins-wasm-cranelift \
               --lib 2>&1 | tee "$plugin_lib_log"
             plugin_lib_status=${PIPESTATUS[0]}
             cargo nextest run --locked --no-fail-fast \
-              -p zeroclaw-runtime \
+              -p clawcrew-runtime \
               --features plugins-wasm-cranelift \
               --lib \
               live_agent_plugin_tool_observes_config_reload_after_construction 2>&1 | tee "$plugin_runtime_config_log"
             plugin_runtime_config_status=${PIPESTATUS[0]}
             cargo nextest run --locked --no-fail-fast \
-              -p zeroclaw-runtime \
+              -p clawcrew-runtime \
               --features plugins-wasm-cranelift \
               --lib \
               plugin_runtime:: \
@@ -240,13 +240,13 @@ jobs:
               tools::tests::colliding_plugin 2>&1 | tee "$plugin_runtime_admission_log"
             plugin_runtime_admission_status=${PIPESTATUS[0]}
             cargo nextest run --locked --no-fail-fast \
-              -p zeroclaw-gateway \
+              -p clawcrew-gateway \
               --features plugins-wasm \
               --lib 2>&1 | tee "$plugin_gateway_log"
             plugin_gateway_status=${PIPESTATUS[0]}
             cargo nextest run --locked --no-fail-fast \
               --features plugins-wasm-cranelift \
-              --bin zeroclaw \
+              --bin clawcrew \
               plugin_registry:: 2>&1 | tee "$plugin_cli_log"
             plugin_cli_status=${PIPESTATUS[0]}
             cargo nextest run --locked --no-fail-fast \

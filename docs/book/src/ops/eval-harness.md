@@ -1,8 +1,8 @@
 # Eval harness
 
-The eval harness (`zeroclaw eval run`, crate `crates/zeroclaw-eval`) runs agent
+The eval harness (`clawcrew eval run`, crate `crates/clawcrew-eval`) runs agent
 evaluation *cases* (JSON trace fixtures) through the real agent loop and grades
-each run against declarative expectations. It is how ZeroClaw guards agent-loop
+each run against declarative expectations. It is how ClawCrew guards agent-loop
 behavior (tool dispatch, multi-turn ordering, response formatting, refusals)
 against regression.
 
@@ -21,7 +21,7 @@ harness is configured under `[eval]` and invoked as a CLI subcommand.
 Suites are directories of `*.json` fixtures (see `evals/README.md`):
 
 - `evals/regression/`: must stay at 100% pass. Gated in CI via
-  `crates/zeroclaw-eval/tests/regression_suite.rs`; a failure blocks merge. This
+  `crates/clawcrew-eval/tests/regression_suite.rs`; a failure blocks merge. This
   is the default `[eval].suite_dir`.
 - `evals/capability/` (planned): hard tasks with a low pass rate; tracked over
   time, never gated.
@@ -32,10 +32,10 @@ Suites are directories of `*.json` fixtures (see `evals/README.md`):
 
 ```bash
 # Replay the default regression suite:
-zeroclaw eval run
+clawcrew eval run
 
 # Point at a specific suite, emit machine-readable JSON:
-zeroclaw eval run --suite evals/regression --format json
+clawcrew eval run --suite evals/regression --format json
 ```
 
 `--suite` overrides `[eval].suite_dir`; `--mode` overrides `[eval].mode`. Suite
@@ -44,7 +44,7 @@ are cases.
 
 ## Exit-code contract
 
-`zeroclaw eval run` exits `0` iff every case passed, and `1` otherwise (any
+`clawcrew eval run` exits `0` iff every case passed, and `1` otherwise (any
 failed check or run error). This is the CI gate: the process exit code is the
 signal. The same decision is exposed as the pure function
 `SuiteReport::exit_code()` so it can be tested at its real boundary.
@@ -61,7 +61,7 @@ fixtures use placeholder identities only.
 
 Expectations that grade the *dispatch boundary* rather than scripted text
 (`tool_arguments_contain`, `tool_results_contain`, and `exact_tool_calls`) are
-documented in `crates/zeroclaw-eval/README.md`. Reach for them whenever a case
+documented in `crates/clawcrew-eval/README.md`. Reach for them whenever a case
 claims that a value round-tripped through a tool or that a specific number of
 tool calls happened; expectations over the final response alone cannot show
 either, because the replay provider scripts that response itself.

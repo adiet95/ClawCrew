@@ -1,12 +1,12 @@
 # Channels: Overview
 
-A **channel** is a messaging surface the agent talks through. One ZeroClaw instance can bind multiple channels simultaneously: the same agent can answer in Discord, Telegram, email, and over the REST gateway without you running separate processes.
+A **channel** is a messaging surface the agent talks through. One ClawCrew instance can bind multiple channels simultaneously: the same agent can answer in Discord, Telegram, email, and over the REST gateway without you running separate processes.
 
 An agent lists the channels it answers on; see [Agents](../agents/overview.md) for how channels attach to an agent (and how a [peer group](./peer-groups.md) lets agents on a shared channel address each other).
 
-Channels are implementations of the `Channel` trait in `zeroclaw-api`. Each one is feature-gated at compile time, so a minimal build only includes the channels you want.
+Channels are implementations of the `Channel` trait in `clawcrew-api`. Each one is feature-gated at compile time, so a minimal build only includes the channels you want.
 
-The default ZeroClaw build includes a lean channel bundle: ACP, webhook, email, Telegram, Discord, and filesystem. These cover local/editor sessions, gateway ingress, and common first-run external messaging without compiling every bundled platform integration. Standard distribution artifacts add Git, Matrix, Lark, and WhatsApp Web; the Android artifact omits WhatsApp Web for target compatibility. For source installs that need the historical broad channel set, run `install.sh --source --preset full`, build with `--features channels-full`, or use individual `channel-*` features for selective builds:
+The default ClawCrew build includes a lean channel bundle: ACP, webhook, email, Telegram, Discord, and filesystem. These cover local/editor sessions, gateway ingress, and common first-run external messaging without compiling every bundled platform integration. Standard distribution artifacts add Git, Matrix, Lark, and WhatsApp Web; the Android artifact omits WhatsApp Web for target compatibility. For source installs that need the historical broad channel set, run `install.sh --source --preset full`, build with `--features channels-full`, or use individual `channel-*` features for selective builds:
 
 <div class="os-tabs-src">
 
@@ -112,7 +112,7 @@ Modern channel instances are configured under `[channels.<type>.<alias>]`, with 
 
 {{#config-where channels}}
 
-Secrets (bot tokens, API keys, passwords) are stored encrypted; set them through the gateway, zerocode, or `zeroclaw config set` (masked), never in plaintext. The `channels` entry on an agent binds a channel alias to that agent. Field names differ per channel; `zeroclaw config schema` is the authoritative list. Fields that recur across many channels:
+Secrets (bot tokens, API keys, passwords) are stored encrypted; set them through the gateway, zerocode, or `clawcrew config set` (masked), never in plaintext. The `channels` entry on an agent binds a channel alias to that agent. Field names differ per channel; `clawcrew config schema` is the authoritative list. Fields that recur across many channels:
 
 | Key | What it does |
 |---|---|
@@ -131,4 +131,4 @@ Channels declare what kind of streaming they support: see [Providers → Streami
 
 ## Adding a channel
 
-Implementing a new channel means adding a file to `crates/zeroclaw-channels/src/` that implements the `Channel` trait. The canonical reference is any existing channel of similar shape: `discord.rs` for push-based, `email_channel.rs` for polling, `webhook.rs` for HTTP-driven.
+Implementing a new channel means adding a file to `crates/clawcrew-channels/src/` that implements the `Channel` trait. The canonical reference is any existing channel of similar shape: `discord.rs` for push-based, `email_channel.rs` for polling, `webhook.rs` for HTTP-driven.

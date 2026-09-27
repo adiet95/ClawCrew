@@ -9,14 +9,14 @@ Use a manual trigger when the decision to run belongs to the agent's reasoning r
 A SOP with a `manual` trigger has no match fields. See [Syntax](../syntax.md) for the trigger block. Validate and inspect it the same way as any other SOP:
 
 ```sh
-zeroclaw sop validate
-zeroclaw sop list
-zeroclaw sop show <name>
+clawcrew sop validate
+clawcrew sop list
+clawcrew sop show <name>
 ```
 
 ## Approve and observe
 
-Runs that hit a checkpoint pause as `WaitingApproval`. Clear or inspect them with the CLI (`zeroclaw sop list`, `zeroclaw sop approve`) or out-of-band over the [gateway API](../../gateway/api.md) approval endpoints (`GET /admin/sop/pending`, `POST /admin/sop/approve`, `POST /admin/sop/deny`).
+Runs that hit a checkpoint pause as `WaitingApproval`. Clear or inspect them with the CLI (`clawcrew sop list`, `clawcrew sop approve`) or out-of-band over the [gateway API](../../gateway/api.md) approval endpoints (`GET /admin/sop/pending`, `POST /admin/sop/approve`, `POST /admin/sop/deny`).
 
 ## See also
 

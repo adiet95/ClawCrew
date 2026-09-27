@@ -140,9 +140,9 @@ jobs:
       #
       # Note what this does NOT do: `cargo install` copies executables into
       # ~/.cargo/bin and does not install packaged data files, and the gateway
-      # looks for web/dist relative to the CWD, the executable, /zeroclaw-data,
+      # looks for web/dist relative to the CWD, the executable, /clawcrew-data,
       # /usr/share, or XDG data. None of those is the registry source directory,
-      # so a `cargo install zeroclaw` still reports the dashboard as unavailable.
+      # so a `cargo install clawcrew` still reports the dashboard as unavailable.
       # Delivering it to cargo installs needs the assets embedded in the binary,
       # which `embedded-web` cannot currently do from a registry build. Tracked
       # as follow-up; the install script and packaged builds are unaffected.
@@ -190,7 +190,7 @@ jobs:
     # new versions of the existing set.
     environment:
       name: crates-io
-      url: https://crates.io/crates/zeroclaw
+      url: https://crates.io/crates/clawcrew
     steps:
       # The immutable SHA preflight verified, not the tag. Re-resolving the tag
       # here would let a tag moved between the jobs publish a commit that never
@@ -242,8 +242,8 @@ jobs:
             {
               echo "### Published to crates.io"
               echo "- version: \`${VERSION}\`"
-              echo "- verify: \`cargo install zeroclaw --version ${VERSION} --locked\`"
-              echo "- https://crates.io/crates/zeroclaw/${VERSION}"
+              echo "- verify: \`cargo install clawcrew --version ${VERSION} --locked\`"
+              echo "- https://crates.io/crates/clawcrew/${VERSION}"
             } >> "$GITHUB_STEP_SUMMARY"
           else
             {

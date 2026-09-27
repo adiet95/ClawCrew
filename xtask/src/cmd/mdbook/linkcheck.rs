@@ -153,7 +153,7 @@ mod tests {
         assert!(!is_checkable("#section"));
         assert!(!is_checkable("/_shared/theme/custom.css"));
         assert!(!is_checkable("mailto:x@y.z"));
-        assert!(!is_checkable("api/zeroclaw/index.html"));
+        assert!(!is_checkable("api/clawcrew/index.html"));
     }
 
     #[test]

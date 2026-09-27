@@ -15,7 +15,7 @@ zerocode
 </div>
 
 zerocode finds the daemon's local endpoint automatically: `<data_dir>/data/daemon.sock`
-on Unix, `\\.\pipe\zeroclaw-<hash>` on Windows. If the daemon isn't running,
+on Unix, `\\.\pipe\clawcrew-<hash>` on Windows. If the daemon isn't running,
 zerocode spawns an ephemeral one.
 
 Local **Code** sessions start in the directory you launched zerocode from, so
@@ -64,7 +64,7 @@ the terminal using two escape-sequence conventions:
   another program to parse the title text.
 
 Both sequences derive idle, working, blocked, and finished semantics from the
-content-free lifecycle contract in `zeroclaw-api`; Zerocode keeps localized
+content-free lifecycle contract in `clawcrew-api`; Zerocode keeps localized
 detail such as thinking, responding, or the current tool only for display.
 Every live session in the sidebar is a candidate, focused or not: blocked
 outranks working, working outranks idle, and a named session wins ties.

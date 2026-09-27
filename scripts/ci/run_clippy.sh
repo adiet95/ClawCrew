@@ -54,7 +54,7 @@ case "$scope" in
     workspace)
         command+=(
             --workspace
-            --exclude zeroclaw-desktop
+            --exclude clawcrew-desktop
             --all-targets
             --features ci-all
         )
@@ -65,7 +65,7 @@ case "$scope" in
     tools)
         [ -n "$target" ] || usage
         command+=(
-            -p zeroclaw-tools
+            -p clawcrew-tools
             --all-targets
             --all-features
             --target "$target"
@@ -86,7 +86,7 @@ cargo_status=${PIPESTATUS[0]}
 set -e
 duration_seconds=$SECONDS
 
-workspace_path_compiles="$(grep -E -c 'Compiling.*\([^)]*zeroclaw' "$cargo_log" || true)"
+workspace_path_compiles="$(grep -E -c 'Compiling.*\([^)]*clawcrew' "$cargo_log" || true)"
 total_compiles="$(grep -c 'Compiling' "$cargo_log" || true)"
 downloaded_crates="$(grep -c 'Downloaded' "$cargo_log" || true)"
 cache_hit="${RUST_CACHE_HIT:-unknown}"

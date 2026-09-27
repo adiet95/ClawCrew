@@ -1,6 +1,6 @@
 # Memory and payload lifecycle
 
-ZeroClaw carries several kinds of "remembered" information during a turn. They
+ClawCrew carries several kinds of "remembered" information during a turn. They
 do not all have the same owner, durability, privacy boundary, or review risk.
 
 Use this page when a change touches memory, history, session persistence, tool
@@ -12,15 +12,15 @@ but "which surface owns this data, and how long does it live?"
 
 | Surface | Owner | Durability | What reviewers should check |
 | --- | --- | --- | --- |
-| Long-term memory | `zeroclaw-memory` behind `Arc<dyn Memory>` | Backend-specific: SQLite/Postgres/Lucid/Qdrant/shared stores, or per-agent Markdown files | Stores and recalls must stay agent-scoped. A tool result, log line, or session row is not long-term memory unless a memory write happened. |
+| Long-term memory | `clawcrew-memory` behind `Arc<dyn Memory>` | Backend-specific: SQLite/Postgres/Lucid/Qdrant/shared stores, or per-agent Markdown files | Stores and recalls must stay agent-scoped. A tool result, log line, or session row is not long-term memory unless a memory write happened. |
 | Relationship memory | `knowledge` tool and knowledge graph | Graph backend, when enabled | Capture is explicit. Enabling the graph does not automatically ingest conversations, files, or channel data. |
-| Session history | `zeroclaw-infra` session backends, ACP store, and live RPC/session maps | Chat/ACP history can persist; live RPC handles are process-local | History preserves conversation continuity. It is not the canonical store for user preferences, config, or files. |
+| Session history | `clawcrew-infra` session backends, ACP store, and live RPC/session maps | Chat/ACP history can persist; live RPC handles are process-local | History preserves conversation continuity. It is not the canonical store for user preferences, config, or files. |
 | Current prompt context | Agent loop prompt assembly | Ephemeral provider request | Recalled memory, hardware RAG, current input, system prompt, skills, and tool results may be sent to the provider. This does not make them durable. |
 | History trimming | `agent::history` and `agent::history_trim` | Lossy change to the request/session history shape | Trimming must be visible, preserve tool-call/tool-result pairing, and avoid pretending old context is still available. |
 | Tool result payloads | `ToolResult`, `ToolResultMessage`, and the tool dispatcher | Current turn and any persisted session history that records the turn | Bound size and provenance. Large outputs should be capped or summarized intentionally; image-path promotion must only happen for producing tools, not path-listing tools. |
 | Files and workspaces | Per-agent workspace security policy | Files persist according to the filesystem, not memory | File contents are not memory just because a tool read them. Writes belong in the agent workspace unless policy explicitly allows more. |
 | Media attachments | Channel/gateway media pipeline and `MediaAttachment` | Inbound payload by default; persistence depends on the receiving path | Raw bytes should stay bounded and path-validated. Store summaries or references deliberately rather than silently copying media into memory. |
-| Logs and observer events | `zeroclaw-log`, `ObserverEvent`, runtime trace | Optional runtime trace and live observers | Logs are evidence and diagnostics, not source-of-truth memory. Scrub or bound user/tool payloads before logging. |
+| Logs and observer events | `clawcrew-log`, `ObserverEvent`, runtime trace | Optional runtime trace and live observers | Logs are evidence and diagnostics, not source-of-truth memory. Scrub or bound user/tool payloads before logging. |
 | Cost and usage records | Cost tracker and provider usage events | Cost ledger when enabled | Usage records describe model calls. They should not carry prompt bodies, tool outputs, or memory contents. |
 
 This table complements [Runtime state and persistence](./runtime-state-and-persistence.md).
@@ -177,22 +177,22 @@ Canonical docs:
 
 Key code entry points:
 
-- Memory trait and entry shape: `crates/zeroclaw-api/src/memory_traits.rs`
-- Memory factory and agent scoping: `crates/zeroclaw-memory/src/lib.rs`,
-  `crates/zeroclaw-memory/src/agent_scoped.rs`, and
-  `crates/zeroclaw-memory/src/agent_scoped_markdown.rs`
-- Memory tool registry and examples: `crates/zeroclaw-tools/src/lib.rs`
-  (`MEMORY_TOOL_NAMES`), `crates/zeroclaw-tools/src/memory_store.rs`, and
-  `crates/zeroclaw-tools/src/memory_recall.rs`
-- Prompt recall and injection: `crates/zeroclaw-runtime/src/agent/memory_inject.rs`
+- Memory trait and entry shape: `crates/clawcrew-api/src/memory_traits.rs`
+- Memory factory and agent scoping: `crates/clawcrew-memory/src/lib.rs`,
+  `crates/clawcrew-memory/src/agent_scoped.rs`, and
+  `crates/clawcrew-memory/src/agent_scoped_markdown.rs`
+- Memory tool registry and examples: `crates/clawcrew-tools/src/lib.rs`
+  (`MEMORY_TOOL_NAMES`), `crates/clawcrew-tools/src/memory_store.rs`, and
+  `crates/clawcrew-tools/src/memory_recall.rs`
+- Prompt recall and injection: `crates/clawcrew-runtime/src/agent/memory_inject.rs`
   (recall policy plus the `[Memory context]` renderer), injected engine-side in
-  `crates/zeroclaw-runtime/src/agent/turn/mod.rs`; the per-turn memory handle is
-  threaded through `crates/zeroclaw-runtime/src/agent/loop_.rs`
+  `crates/clawcrew-runtime/src/agent/turn/mod.rs`; the per-turn memory handle is
+  threaded through `crates/clawcrew-runtime/src/agent/loop_.rs`
 - History trimming and tool-result payload shaping:
-  `crates/zeroclaw-runtime/src/agent/history.rs`,
-  `crates/zeroclaw-runtime/src/agent/history_trim.rs`, and
-  `crates/zeroclaw-runtime/src/agent/turn/results_collect.rs`
-- Tool and provider message shapes: `crates/zeroclaw-api/src/tool.rs` and
-  `crates/zeroclaw-api/src/model_provider.rs`
-- Channel attachments: `crates/zeroclaw-api/src/channel.rs` and
-  `crates/zeroclaw-api/src/media.rs`
+  `crates/clawcrew-runtime/src/agent/history.rs`,
+  `crates/clawcrew-runtime/src/agent/history_trim.rs`, and
+  `crates/clawcrew-runtime/src/agent/turn/results_collect.rs`
+- Tool and provider message shapes: `crates/clawcrew-api/src/tool.rs` and
+  `crates/clawcrew-api/src/model_provider.rs`
+- Channel attachments: `crates/clawcrew-api/src/channel.rs` and
+  `crates/clawcrew-api/src/media.rs`

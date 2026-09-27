@@ -15,7 +15,7 @@ Channels:
 - `#dev`: in-flight development discussion
 - `#releases`: announcements, release notes, breaking-change pre-warnings
 
-[Invite link in the repo README.](https://github.com/zeroclaw-labs/zeroclaw)
+[Invite link in the repo README.](https://github.com/clawcrew-labs/clawcrew)
 
 **Discord is ephemeral**: if the conversation leads to a bug or a feature idea, capture it as a GitHub issue afterwards so the record persists. Discord is for conversation; GitHub is for memory.
 
@@ -25,7 +25,7 @@ Use a GitHub handoff when Discord produces something the project must remember. 
 
 For bugs, feature requests, and anything that needs to be tracked.
 
-- **Bug reports**: use the bug template (`.github/ISSUE_TEMPLATE/bug_report.yml`). Include `zeroclaw --version`, OS, and the output of `zeroclaw doctor`.
+- **Bug reports**: use the bug template (`.github/ISSUE_TEMPLATE/bug_report.yml`). Include `clawcrew --version`, OS, and the output of `clawcrew doctor`.
 - **Feature requests**: use the feature template (`.github/ISSUE_TEMPLATE/feature_request.yml`). Focus on user value and constraints; implementation details are for RFCs or PR discussion.
 - **RFCs**: see [RFC process](./rfcs.md).
 
@@ -53,7 +53,7 @@ Discussion categories should make the expected outcome obvious. Use Q&A for answ
 
 Close the loop when a Discussion moves. Add a short summary and link to the issue, RFC, PR, or doc that now owns the outcome. If the category supports accepted answers, mark the summary or tracked-work link as the answer when that accurately reflects the result.
 
-[github.com/zeroclaw-labs/zeroclaw/discussions](https://github.com/zeroclaw-labs/zeroclaw/discussions)
+[github.com/clawcrew-labs/clawcrew/discussions](https://github.com/clawcrew-labs/clawcrew/discussions)
 
 ## Maintainer contacts
 
@@ -68,13 +68,13 @@ The Focus column describes where each person works, not how much authority they 
 | [@Nillth](https://github.com/Nillth) | Core Team | Git forge channel (GitHub, Gitea, Forgejo) |
 | [@tidux](https://github.com/tidux) | Core Team | Providers, API, infra, hardware, firmware, channels (Matrix, ACP), auth and the legacy `src/` tree, i18n, docs |
 | [@IftekharUddin](https://github.com/IftekharUddin) | Core Team | Web GUI, maintainer process docs, labels and issue templates |
-| [@vyahhi](https://github.com/vyahhi) | Core Team | Repository automation and ZeroClaw-Bot |
+| [@vyahhi](https://github.com/vyahhi) | Core Team | Repository automation and ClawCrew-Bot |
 | [@Stalesamy](https://github.com/Stalesamy) | Core Team | Marketing and community, plus occasional PRs |
 | [@perlowja](https://github.com/perlowja) | Core Team | Marketing and community, plus occasional PRs |
 
 Not everyone listed reviews code. Route code review by the Focus column and by CODEOWNERS, not by tier.
 
-Focus areas track [`.github/CODEOWNERS`](https://github.com/zeroclaw-labs/zeroclaw/blob/master/.github/CODEOWNERS), which is the authoritative routing record. This table is the human-readable summary; if the two disagree, CODEOWNERS wins.
+Focus areas track [`.github/CODEOWNERS`](https://github.com/clawcrew-labs/clawcrew/blob/master/.github/CODEOWNERS), which is the authoritative routing record. This table is the human-readable summary; if the two disagree, CODEOWNERS wins.
 
 `@`-mention sparingly, CC maintainers only when the issue genuinely needs their attention. Default to letting the team triage.
 
@@ -82,7 +82,7 @@ Focus areas track [`.github/CODEOWNERS`](https://github.com/zeroclaw-labs/zerocl
 
 Do not file public issues for security vulnerabilities.
 
-Report privately through GitHub's [private vulnerability reporting](https://github.com/zeroclaw-labs/zeroclaw/security/advisories/new) (Security Advisories).
+Report privately through GitHub's [private vulnerability reporting](https://github.com/clawcrew-labs/clawcrew/security/advisories/new) (Security Advisories).
 
 Include:
 
@@ -99,7 +99,7 @@ See `SECURITY.md` in the repo root for the full policy.
 Subscribe to the GitHub release feed to be notified when new versions ship:
 
 ```
-https://github.com/zeroclaw-labs/zeroclaw/releases.atom
+https://github.com/clawcrew-labs/clawcrew/releases.atom
 ```
 
 Or watch the repo on GitHub (Watch → Custom → Releases).
@@ -108,7 +108,7 @@ Release notes are cross-posted to Discord `#releases` and the community Twitter.
 
 ## Commercial support
 
-None offered. ZeroClaw is maintained by the community. If you're deploying at scale and want SLAs, sponsor a maintainer directly or fund a dedicated support arrangement through the core team. Reach out via `hello@zeroclaw.dev`.
+None offered. ClawCrew is maintained by the community. If you're deploying at scale and want SLAs, sponsor a maintainer directly or fund a dedicated support arrangement through the core team. Reach out via `hello@clawcrew.dev`.
 
 ## Feedback
 

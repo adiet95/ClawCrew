@@ -3,17 +3,17 @@
 When merging upstream/master into integration/zerocode, after resolving conflicts,
 destroy ALL traces of `first_model_provider` and its family.
 
-## Definitions to delete (crates/zeroclaw-config/src/schema.rs)
+## Definitions to delete (crates/clawcrew-config/src/schema.rs)
 - `fn first_model_provider()`
 - `fn first_model_provider_mut()`
 - `fn first_model_provider_type()`
 - `fn first_model_provider_alias()`
 
 ## Call sites to fix
-- `crates/zeroclaw-gateway/src/lib.rs` — 4 usages (lines ~489, ~490, ~647, ~2136)
-- `crates/zeroclaw-providers/src/lib.rs` — fallback logic, multiple usages (~660, ~715, ~724, ~753)
-- `crates/zeroclaw-runtime/src/agent/loop_.rs` — temperature lookup (~4598)
-- `crates/zeroclaw-channels/src/orchestrator/mod.rs`
+- `crates/clawcrew-gateway/src/lib.rs` — 4 usages (lines ~489, ~490, ~647, ~2136)
+- `crates/clawcrew-providers/src/lib.rs` — fallback logic, multiple usages (~660, ~715, ~724, ~753)
+- `crates/clawcrew-runtime/src/agent/loop_.rs` — temperature lookup (~4598)
+- `crates/clawcrew-channels/src/orchestrator/mod.rs`
 
 ## What replaces it?
 See commit `a1665774b` — "fix: delete first_model_provider*, enforce explicit provider alias resolution"
@@ -36,14 +36,14 @@ Replacements (per a1665774b):
 5. Commit with message: "nuke: remove first_model_provider family entirely"
 
 ## Files touched in a1665774b (27 files)
-- crates/zeroclaw-config/src/schema.rs
-- crates/zeroclaw-config/src/providers.rs
-- crates/zeroclaw-providers/src/lib.rs
-- crates/zeroclaw-gateway/src/lib.rs, api.rs, api_onboard.rs, ws.rs
-- crates/zeroclaw-channels/src/orchestrator/mod.rs, acp_server.rs
-- crates/zeroclaw-runtime/src/agent/agent.rs, loop_.rs
-- crates/zeroclaw-runtime/src/daemon/mod.rs, doctor/mod.rs, onboard/mod.rs, rpc/dispatch.rs, tools/mod.rs
-- crates/zeroclaw-tools/src/model_routing_config.rs
+- crates/clawcrew-config/src/schema.rs
+- crates/clawcrew-config/src/providers.rs
+- crates/clawcrew-providers/src/lib.rs
+- crates/clawcrew-gateway/src/lib.rs, api.rs, api_onboard.rs, ws.rs
+- crates/clawcrew-channels/src/orchestrator/mod.rs, acp_server.rs
+- crates/clawcrew-runtime/src/agent/agent.rs, loop_.rs
+- crates/clawcrew-runtime/src/daemon/mod.rs, doctor/mod.rs, onboard/mod.rs, rpc/dispatch.rs, tools/mod.rs
+- crates/clawcrew-tools/src/model_routing_config.rs
 - apps/tui/src/app.rs, chat.rs, client.rs
 - src/commands/self_test.rs, main.rs, memory/cli.rs
 - tests/component/config_persistence.rs, config_schema.rs

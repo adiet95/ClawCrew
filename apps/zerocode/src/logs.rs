@@ -292,12 +292,12 @@ impl LogDetail {
     }
 
     fn duration_ms(&self) -> Option<u64> {
-        self.raw.get("zeroclaw")?.get("duration_ms")?.as_u64()
+        self.raw.get("clawcrew")?.get("duration_ms")?.as_u64()
     }
 
-    fn zeroclaw(&self) -> BTreeMap<String, String> {
+    fn clawcrew(&self) -> BTreeMap<String, String> {
         let mut out = BTreeMap::new();
-        if let Some(Value::Object(map)) = self.raw.get("zeroclaw") {
+        if let Some(Value::Object(map)) = self.raw.get("clawcrew") {
             for (k, val) in map {
                 if k == "duration_ms" {
                     continue;
@@ -407,7 +407,7 @@ impl LogDetail {
             }
         }
 
-        let zc = self.zeroclaw();
+        let zc = self.clawcrew();
         if !zc.is_empty() {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
@@ -509,7 +509,7 @@ impl LogDetail {
                 out.push_str(&format!("span_id    {sid}\n"));
             }
         }
-        let zc = self.zeroclaw();
+        let zc = self.clawcrew();
         if !zc.is_empty() {
             out.push_str("\nAttribution\n");
             for (k, v) in &zc {
@@ -2090,14 +2090,14 @@ mod tests {
         let entry = sample_entry();
         let detail = LogDetail::from_preview(&entry);
         let rendered: String = detail
-            .detail_lines(Some("/var/lib/zeroclaw/runtime-trace.jsonl"))
+            .detail_lines(Some("/var/lib/clawcrew/runtime-trace.jsonl"))
             .iter()
             .flat_map(|line| line.spans.iter())
             .map(|span| span.content.as_ref())
             .collect();
         assert!(rendered.contains(&crate::i18n::t_args(
             "zc-logs-persisted-path",
-            &[("path", "/var/lib/zeroclaw/runtime-trace.jsonl")],
+            &[("path", "/var/lib/clawcrew/runtime-trace.jsonl")],
         )));
     }
 

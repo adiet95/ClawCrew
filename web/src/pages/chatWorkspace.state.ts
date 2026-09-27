@@ -12,7 +12,7 @@ import { generateUUID } from '@/lib/uuid';
  * implementation of each rule.
  */
 
-export const STORAGE_KEY = 'zeroclaw-chat-workspace';
+export const STORAGE_KEY = 'clawcrew-chat-workspace';
 
 /**
  * One open pane.

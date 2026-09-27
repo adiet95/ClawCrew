@@ -2,8 +2,8 @@
 //! Validates: config defaults, backward compatibility, invalid input rejection,
 //! and gateway/security/agent config boundary conditions.
 
-use zeroclaw::config::migration;
-use zeroclaw::config::{ChannelsConfig, Config, GatewayConfig, RiskProfileConfig, SecurityConfig};
+use clawcrew::config::migration;
+use clawcrew::config::{ChannelsConfig, Config, GatewayConfig, RiskProfileConfig, SecurityConfig};
 
 fn migrate(toml_str: &str) -> Config {
     migration::migrate_to_current(toml_str).expect("migration succeeds")
@@ -190,7 +190,7 @@ fn gateway_config_toml_roundtrip() {
         require_pairing: false,
         pair_rate_limit_per_minute: 5,
         webhook_secret: Some("synthetic-gateway-secret".into()),
-        path_prefix: Some("/zeroclaw".into()),
+        path_prefix: Some("/clawcrew".into()),
         ..Default::default()
     };
 
@@ -205,7 +205,7 @@ fn gateway_config_toml_roundtrip() {
         parsed.webhook_secret.as_deref(),
         Some("synthetic-gateway-secret")
     );
-    assert_eq!(parsed.path_prefix.as_deref(), Some("/zeroclaw"));
+    assert_eq!(parsed.path_prefix.as_deref(), Some("/clawcrew"));
 }
 
 #[test]
@@ -242,7 +242,7 @@ port = 9090
 #[test]
 fn gateway_path_prefix_rejects_missing_leading_slash() {
     let mut config = Config::default();
-    config.gateway.path_prefix = Some("zeroclaw".into());
+    config.gateway.path_prefix = Some("clawcrew".into());
     let err = config.validate().unwrap_err();
     assert!(
         err.to_string().contains("must start with '/'"),
@@ -253,7 +253,7 @@ fn gateway_path_prefix_rejects_missing_leading_slash() {
 #[test]
 fn gateway_path_prefix_rejects_trailing_slash() {
     let mut config = Config::default();
-    config.gateway.path_prefix = Some("/zeroclaw/".into());
+    config.gateway.path_prefix = Some("/clawcrew/".into());
     let err = config.validate().unwrap_err();
     assert!(
         err.to_string().contains("must not end with '/'"),
@@ -274,7 +274,7 @@ fn gateway_path_prefix_rejects_bare_slash() {
 
 #[test]
 fn gateway_path_prefix_accepts_valid_prefixes() {
-    for prefix in ["/zeroclaw", "/apps/zeroclaw", "/api/hassio_ingress/abc123"] {
+    for prefix in ["/clawcrew", "/apps/clawcrew", "/api/hassio_ingress/abc123"] {
         let mut config = Config::default();
         config.gateway.path_prefix = Some(prefix.into());
         config
@@ -303,7 +303,7 @@ fn gateway_path_prefix_rejects_unsafe_characters() {
     }
     // Leading/trailing whitespace is rejected by the starts_with('/') or
     // invalid-character check — either way it must not pass validation.
-    for prefix in [" /zeroclaw ", " /zeroclaw"] {
+    for prefix in [" /clawcrew ", " /clawcrew"] {
         let mut config = Config::default();
         config.gateway.path_prefix = Some(prefix.into());
         assert!(
@@ -368,7 +368,7 @@ fn risk_profile_workspace_only_round_trips_through_toml() {
     let mut config = Config::default();
     config.risk_profiles.insert(
         "clamps".into(),
-        zeroclaw_config::schema::RiskProfileConfig {
+        clawcrew_config::schema::RiskProfileConfig {
             workspace_only: false,
             ..Default::default()
         },
@@ -384,7 +384,7 @@ fn runtime_profile_max_actions_per_hour_round_trips_through_toml() {
     let mut config = Config::default();
     config.runtime_profiles.insert(
         "clamps".into(),
-        zeroclaw_config::schema::RuntimeProfileConfig {
+        clawcrew_config::schema::RuntimeProfileConfig {
             max_actions_per_hour: 50,
             ..Default::default()
         },
@@ -508,7 +508,7 @@ default_temperature = 0.7
 
 [channels.telegram.default]
 bot_token = "test_token"
-allowed_users = ["zeroclaw_user"]
+allowed_users = ["clawcrew_user"]
 
 [channels.discord.default]
 bot_token = "test_token"
@@ -591,7 +591,7 @@ fn config_toplevel_cli_section_with_whatsapp_parses() {
 [cli]
 
 [channels.whatsapp.default]
-session_path = "~/.zeroclaw/state/whatsapp-web/session.db"
+session_path = "~/.clawcrew/state/whatsapp-web/session.db"
 allowed_numbers = ["*"]
 "#;
     let parsed: Config = toml::from_str(toml_str)
@@ -600,7 +600,7 @@ allowed_numbers = ["*"]
     let wa = parsed.channels.whatsapp.get("default").unwrap();
     assert_eq!(
         wa.session_path.as_deref(),
-        Some("~/.zeroclaw/state/whatsapp-web/session.db")
+        Some("~/.clawcrew/state/whatsapp-web/session.db")
     );
 }
 
@@ -608,7 +608,7 @@ allowed_numbers = ["*"]
 fn config_only_whatsapp_channel_parses() {
     let toml_str = r#"
 [channels.whatsapp.default]
-session_path = "~/.zeroclaw/state/whatsapp-web/session.db"
+session_path = "~/.clawcrew/state/whatsapp-web/session.db"
 allowed_numbers = ["*"]
 "#;
     let parsed: Config =
@@ -627,7 +627,7 @@ fn config_channels_explicit_cli_true_with_whatsapp() {
 cli = true
 
 [channels.whatsapp.default]
-session_path = "~/.zeroclaw/state/whatsapp-web/session.db"
+session_path = "~/.clawcrew/state/whatsapp-web/session.db"
 allowed_numbers = ["*"]
 "#;
     let parsed: Config =

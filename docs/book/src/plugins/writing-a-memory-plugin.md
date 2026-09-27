@@ -11,7 +11,7 @@ This guide assumes the [tool plugin](./writing-a-tool-plugin.md) basics and
 the warm-store lifecycle from the
 [channel guide](./writing-a-channel-plugin.md). It is checked against
 `wit/v0/memory.wit` and the host adapter in
-`crates/zeroclaw-plugins/src/wasm_memory.rs`.
+`crates/clawcrew-plugins/src/wasm_memory.rs`.
 
 > **Wiring status.** `WasmMemory` implements the runtime's full `Memory` trait
 > against the `memory-plugin` world, capability-gated and unit-covered. The

@@ -337,7 +337,7 @@ mod tests {
         let rendered = render_srcinfo_from_pkgbuild(&version, &pkgbuild).unwrap();
         assert!(rendered.contains(&format!("\tpkgver = {version}\n")));
         assert!(rendered.contains(&format!(
-            "\tsource = zeroclawlabs-{version}.tar.gz::https://github.com/zeroclaw-labs/zeroclaw/archive/refs/tags/v{version}.tar.gz\n"
+            "\tsource = clawcrewlabs-{version}.tar.gz::https://github.com/clawcrew-labs/clawcrew/archive/refs/tags/v{version}.tar.gz\n"
         )));
         let checked_in = std::fs::read_to_string(root().join("dist/aur/.SRCINFO")).unwrap();
         assert_eq!(rendered, checked_in.replace("\r\n", "\n"));
@@ -377,13 +377,13 @@ mod tests {
   "version": "0.5.9",
   "architecture": {
     "64bit": {
-      "url": "https://example.test/releases/download/v0.5.9/zeroclaw.zip"
+      "url": "https://example.test/releases/download/v0.5.9/clawcrew.zip"
     }
   },
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://example.test/releases/download/v$version/zeroclaw.zip"
+        "url": "https://example.test/releases/download/v$version/clawcrew.zip"
       }
     }
   },
@@ -392,16 +392,16 @@ mod tests {
         let out = rewrite_scoop_release_fields(current, "0.8.0").unwrap();
         assert!(out.contains("\"version\": \"0.8.0\""));
         assert!(!out.contains("0.5.9"));
-        assert!(out.contains("releases/download/v0.8.0/zeroclaw.zip"));
-        assert!(out.contains("releases/download/v$version/zeroclaw.zip"));
+        assert!(out.contains("releases/download/v0.8.0/clawcrew.zip"));
+        assert!(out.contains("releases/download/v$version/clawcrew.zip"));
         assert!(out.contains("\"x\": 1"), "other keys preserved");
     }
 
     #[test]
     fn scoop_errors_without_version_key() {
         let current = r#"{
-  "architecture": {"64bit": {"url": "https://example.test/v0.5.9/zeroclaw.zip"}},
-  "autoupdate": {"architecture": {"64bit": {"url": "https://example.test/v$version/zeroclaw.zip"}}}
+  "architecture": {"64bit": {"url": "https://example.test/v0.5.9/clawcrew.zip"}},
+  "autoupdate": {"architecture": {"64bit": {"url": "https://example.test/v$version/clawcrew.zip"}}}
 }"#;
         assert!(rewrite_scoop_release_fields(current, "1.0").is_err());
     }
@@ -410,8 +410,8 @@ mod tests {
     fn scoop_errors_without_autoupdate_version_placeholder() {
         let current = r#"{
   "version": "0.5.9",
-  "architecture": {"64bit": {"url": "https://example.test/v0.5.9/zeroclaw.zip"}},
-  "autoupdate": {"architecture": {"64bit": {"url": "https://example.test/latest/zeroclaw.zip"}}}
+  "architecture": {"64bit": {"url": "https://example.test/v0.5.9/clawcrew.zip"}},
+  "autoupdate": {"architecture": {"64bit": {"url": "https://example.test/latest/clawcrew.zip"}}}
 }"#;
         assert!(rewrite_scoop_release_fields(current, "1.0").is_err());
     }

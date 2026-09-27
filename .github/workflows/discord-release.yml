@@ -74,7 +74,7 @@ jobs:
             && BODY="$(scripts/ci/release_post_text.sh \
                 --notes "$NOTES_FILE" --tag "$RELEASE_TAG" --prev "$PREV_STABLE" \
                 --highlights 6 --limit 3500 \
-                --site-feed https://www.zeroclaw.com/blog/rss.xml --fallback-link "$RELEASE_URL")"; then
+                --site-feed https://www.clawcrew.com/blog/rss.xml --fallback-link "$RELEASE_URL")"; then
             {
               echo "body<<MSG_EOF"
               echo "$BODY"
@@ -175,15 +175,15 @@ jobs:
               body = '\n'.join(lines[:-1]).rstrip() + f'\n\nRelease notes: {release_url}'
 
           embed = {
-              'title': f'ZeroClaw {tag}',
+              'title': f'ClawCrew {tag}',
               'description': body,
               'url': link,
               'color': 0xF97316,
-              'footer': {'text': 'ZeroClaw Release Bot'},
+              'footer': {'text': 'ClawCrew Release Bot'},
           }
 
           payload = {
-              'username': 'ZeroClaw Releases',
+              'username': 'ClawCrew Releases',
               'embeds': [embed],
           }
           print(json.dumps(payload))

@@ -1,6 +1,6 @@
 name: Desktop App Check
 
-# Compiles + lints `zeroclaw-desktop` (the Tauri app) on macOS, Linux, and
+# Compiles + lints `clawcrew-desktop` (the Tauri app) on macOS, Linux, and
 # Windows. The workspace-wide cross-platform-clippy job intentionally
 # `--exclude`s this crate (it needs the platform GUI toolchains), so without
 # this job the desktop app is never type-checked off the author's machine.
@@ -31,7 +31,7 @@ env:
 
 jobs:
   build:
-    name: zeroclaw-desktop (${{ matrix.os }})
+    name: clawcrew-desktop (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -69,5 +69,5 @@ jobs:
         shell: bash
         run: mkdir -p web/dist && touch web/dist/.gitkeep
 
-      - name: Clippy (zeroclaw-desktop)
-        run: cargo clippy -p zeroclaw-desktop --all-targets -- -D warnings
+      - name: Clippy (clawcrew-desktop)
+        run: cargo clippy -p clawcrew-desktop --all-targets -- -D warnings

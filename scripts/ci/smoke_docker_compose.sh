@@ -3,20 +3,20 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-image="${ZEROCLAW_COMPOSE_SMOKE_IMAGE:?set ZEROCLAW_COMPOSE_SMOKE_IMAGE to a locally loaded image}"
-requested_host_port="${ZEROCLAW_COMPOSE_SMOKE_HOST_PORT:-42618}"
+image="${CLAWCREW_COMPOSE_SMOKE_IMAGE:?set CLAWCREW_COMPOSE_SMOKE_IMAGE to a locally loaded image}"
+requested_host_port="${CLAWCREW_COMPOSE_SMOKE_HOST_PORT:-42618}"
 smoke_root="$(mktemp -d)"
 override_file="$smoke_root/compose.override.yml"
 config_file="$smoke_root/config.toml"
-project_name="zeroclaw-compose-smoke-$$"
-container_name="zeroclaw-compose-smoke-$$"
+project_name="clawcrew-compose-smoke-$$"
+container_name="clawcrew-compose-smoke-$$"
 
 compose() {
   HOST_PORT="127.0.0.1:${requested_host_port}" \
-    ZEROCLAW_GATEWAY_PORT=42617 \
-    ZEROCLAW_COMPOSE_SMOKE_CONFIG="$config_file" \
-    ZEROCLAW_COMPOSE_SMOKE_IMAGE="$image" \
-    ZEROCLAW_COMPOSE_SMOKE_CONTAINER="$container_name" \
+    CLAWCREW_GATEWAY_PORT=42617 \
+    CLAWCREW_COMPOSE_SMOKE_CONFIG="$config_file" \
+    CLAWCREW_COMPOSE_SMOKE_IMAGE="$image" \
+    CLAWCREW_COMPOSE_SMOKE_CONTAINER="$container_name" \
     docker compose \
       --project-name "$project_name" \
       --file "$repo_root/docker-compose.yml" \
@@ -47,19 +47,19 @@ CONFIG
 
 cat > "$override_file" <<'COMPOSE'
 services:
-  zeroclaw:
-    image: "${ZEROCLAW_COMPOSE_SMOKE_IMAGE}"
+  clawcrew:
+    image: "${CLAWCREW_COMPOSE_SMOKE_IMAGE}"
     pull_policy: never
-    container_name: "${ZEROCLAW_COMPOSE_SMOKE_CONTAINER}"
+    container_name: "${CLAWCREW_COMPOSE_SMOKE_CONTAINER}"
     restart: "no"
     volumes:
-      - "${ZEROCLAW_COMPOSE_SMOKE_CONFIG}:/zeroclaw-data/.zeroclaw/config.toml:ro"
+      - "${CLAWCREW_COMPOSE_SMOKE_CONFIG}:/clawcrew-data/.clawcrew/config.toml:ro"
 COMPOSE
 
 compose config --quiet
 compose up --detach
 
-published="$(compose port zeroclaw 42617 | sed -n '1p')"
+published="$(compose port clawcrew 42617 | sed -n '1p')"
 published_port="${published##*:}"
 published_address="${published%:*}"
 case "$published_port" in
@@ -99,6 +99,6 @@ for _attempt in $(seq 1 30); do
 done
 
 compose ps >&2
-compose logs zeroclaw >&2
+compose logs clawcrew >&2
 echo "gateway did not become reachable through published port $published_port" >&2
 exit 1

@@ -2,7 +2,7 @@
 
 **Tools** are the agent's hands. A tool is a capability the model can invoke mid-conversation, run a shell command, fetch an HTTP URL, open a browser, write a file, read a sensor. Every tool call is subject to [security policy](../security/overview.md). Successful executions can include a [tool receipt](../security/tool-receipts.md) when receipts are enabled.
 
-Tools are not to be confused with `zeroclaw` CLI subcommands. CLI commands are for operators; tools are for the agent.
+Tools are not to be confused with `clawcrew` CLI subcommands. CLI commands are for operators; tools are for the agent.
 
 An agent gets its tools through the skill, knowledge, and MCP bundles it references; see [Agents](../agents/overview.md) for how bundles attach to an agent.
 For the turn-level path from provider tool call to approval, dispatch, receipt,
@@ -47,7 +47,7 @@ anysearch_api_key = "..."
 
 Search queries and the configured result limit are sent to
 `https://api.anysearch.com/v1/search`. When `anysearch_api_key` is configured,
-ZeroClaw sends it only as a Bearer authorization header; without a key, no
+ClawCrew sends it only as a Bearer authorization header; without a key, no
 `Authorization` header is sent. Selecting this provider therefore sends search
 queries to a third-party service even in anonymous mode. It does not change the
 default provider and is not used as an automatic fallback.
@@ -72,13 +72,13 @@ Conditionally registered:
 
 ## Extension protocols
 
-Beyond built-in tools, ZeroClaw supports the **[MCP](./mcp.md)** (Model Context Protocol) extension surface. Connect any MCP server (Claude Code's filesystem, Playwright, your own) and the agent picks up its tools at startup.
+Beyond built-in tools, ClawCrew supports the **[MCP](./mcp.md)** (Model Context Protocol) extension surface. Connect any MCP server (Claude Code's filesystem, Playwright, your own) and the agent picks up its tools at startup.
 
-For IDE-side integration where an editor drives ZeroClaw as a subprocess, see [ACP](../channels/acp.md): Agent Client Protocol lives under channels since it's an inbound session-management surface, not a tool the agent invokes.
+For IDE-side integration where an editor drives ClawCrew as a subprocess, see [ACP](../channels/acp.md): Agent Client Protocol lives under channels since it's an inbound session-management surface, not a tool the agent invokes.
 
 ## Authoring a tool
 
-Implement the `Tool` trait in `zeroclaw-api`:
+Implement the `Tool` trait in `clawcrew-api`:
 
 ```rust
 #[async_trait]
@@ -98,7 +98,7 @@ Register via the runtime's tool factory. See [Developing → Plugin protocol](..
 
 Tool descriptions are [Mozilla Fluent](https://projectfluent.org/) strings: one per tool, localised per locale. This keeps tool descriptions terse in the model's context window while allowing UI localisation.
 
-Source of truth: `crates/zeroclaw-runtime/locales/en/tools.ftl`. Translations are generated and maintained via `cargo fluent fill --locale <code>` (see [Maintainers → Docs & Translations](../maintainers/docs-and-translations.md)).
+Source of truth: `crates/clawcrew-runtime/locales/en/tools.ftl`. Translations are generated and maintained via `cargo fluent fill --locale <code>` (see [Maintainers → Docs & Translations](../maintainers/docs-and-translations.md)).
 
 ## Risk and approval
 

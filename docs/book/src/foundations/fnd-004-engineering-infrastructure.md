@@ -3,7 +3,7 @@
 > Supporting v0.7.0 → v1.0.0 · Type: Architecture · Rev. 8
 >
 > **Canonical reference** · Ratified by the team · Rev. 8
-> Original RFC discussion: [#5579](https://github.com/zeroclaw-labs/zeroclaw/issues/5579)
+> Original RFC discussion: [#5579](https://github.com/clawcrew-labs/clawcrew/issues/5579)
 
 ---
 
@@ -31,14 +31,14 @@
 | Rev | Date | Summary |
 |---|---|---|
 | 1 | 2026-04-09 | Initial draft |
-| 2 | 2026-06-04 | Replaced format-and-lint serial gating with format-only gating followed by parallel required Rust jobs ([#7111](https://github.com/zeroclaw-labs/zeroclaw/pull/7111)) |
-| 3 | 2026-06-10 | Required trusted `master` runs to seed caches consumed by pull requests ([#7355](https://github.com/zeroclaw-labs/zeroclaw/pull/7355)) |
-| 4 | 2026-06-21 | Changed the plugin build and release target from `wasm32-wasip1` to `wasm32-wasip2` ([#8061](https://github.com/zeroclaw-labs/zeroclaw/pull/8061)) |
-| 5 | 2026-06-30 | Removed the desktop artifact and its release-pipeline obligations ([#8544](https://github.com/zeroclaw-labs/zeroclaw/pull/8544)) |
-| 6 | 2026-07-04 | Restored the desktop artifact and its release-pipeline obligations ([#8565](https://github.com/zeroclaw-labs/zeroclaw/pull/8565)) |
-| 7 | 2026-08-07 | Replaced `actions/attest-build-provenance` guidance with direct `actions/attest` artifact attestation ([#9717](https://github.com/zeroclaw-labs/zeroclaw/pull/9717)) |
-| 8 | 2026-08-20 | Removed the retired hardware-library class from independent-release guidance after `aardvark-sys` and `zeroclaw-robot-kit` left the workspace ([#10152](https://github.com/zeroclaw-labs/zeroclaw/pull/10152)) |
-| 9 | 2026-09-17 | Removed formatting dependencies from GitHub-hosted and compile jobs while retaining formatting in the required gate ([#10874](https://github.com/zeroclaw-labs/zeroclaw/pull/10874), [#10896](https://github.com/zeroclaw-labs/zeroclaw/pull/10896)) |
+| 2 | 2026-06-04 | Replaced format-and-lint serial gating with format-only gating followed by parallel required Rust jobs ([#7111](https://github.com/clawcrew-labs/clawcrew/pull/7111)) |
+| 3 | 2026-06-10 | Required trusted `master` runs to seed caches consumed by pull requests ([#7355](https://github.com/clawcrew-labs/clawcrew/pull/7355)) |
+| 4 | 2026-06-21 | Changed the plugin build and release target from `wasm32-wasip1` to `wasm32-wasip2` ([#8061](https://github.com/clawcrew-labs/clawcrew/pull/8061)) |
+| 5 | 2026-06-30 | Removed the desktop artifact and its release-pipeline obligations ([#8544](https://github.com/clawcrew-labs/clawcrew/pull/8544)) |
+| 6 | 2026-07-04 | Restored the desktop artifact and its release-pipeline obligations ([#8565](https://github.com/clawcrew-labs/clawcrew/pull/8565)) |
+| 7 | 2026-08-07 | Replaced `actions/attest-build-provenance` guidance with direct `actions/attest` artifact attestation ([#9717](https://github.com/clawcrew-labs/clawcrew/pull/9717)) |
+| 8 | 2026-08-20 | Removed the retired hardware-library class from independent-release guidance after `aardvark-sys` and `clawcrew-robot-kit` left the workspace ([#10152](https://github.com/clawcrew-labs/clawcrew/pull/10152)) |
+| 9 | 2026-09-17 | Removed formatting dependencies from GitHub-hosted and compile jobs while retaining formatting in the required gate ([#10874](https://github.com/clawcrew-labs/clawcrew/pull/10874), [#10896](https://github.com/clawcrew-labs/clawcrew/pull/10896)) |
 
 ---
 
@@ -94,13 +94,13 @@ PR #5559 surfaced twelve RUSTSEC-2026 advisories simultaneously. Without tooling
 
 `ci-run.yml` includes a job that runs `scripts/ci/rust_strict_delta_gate.sh`, a custom script that compares clippy output against the base SHA of the PR. The concept is sound: you want to know whether this PR introduced new warnings, not just whether warnings exist in the codebase. The implementation works well for small, focused PRs against a monolithic crate.
 
-A PR that moves 260,000 lines of code across 10 new crates, touching hundreds of files, puts this script in territory it was not designed for. The changed-file surface is too large for an incremental comparison to produce a meaningful signal. The script needs to understand workspace structure: specifically that a change to a file in `crates/zeroclaw-channels/` should be evaluated in the context of that crate, not the root.
+A PR that moves 260,000 lines of code across 10 new crates, touching hundreds of files, puts this script in territory it was not designed for. The changed-file surface is too large for an incremental comparison to produce a meaningful signal. The script needs to understand workspace structure: specifically that a change to a file in `crates/clawcrew-channels/` should be evaluated in the context of that crate, not the root.
 
 ### 2.5 No Workspace-Aware Caching or Scoping
 
 The current Rust cache configuration (`Swatinem/rust-cache`) is adequate for a single crate. For a multi-crate workspace, cache effectiveness depends on understanding which crates changed and which compiled artifacts can be reused. Without explicit workspace scoping, a change to any crate can invalidate caches that other crates depend on, producing full recompilation on every PR.
 
-More significantly, there is no mechanism for running CI only against the crates affected by a given change. A PR that fixes a typo in `zeroclaw-tool-call-parser` does not need to rebuild and retest the gateway. As the workspace grows toward the 30+ crate model the architecture RFC envisions, the cost of running the full pipeline on every PR becomes a meaningful obstacle to contribution.
+More significantly, there is no mechanism for running CI only against the crates affected by a given change. A PR that fixes a typo in `clawcrew-tool-call-parser` does not need to rebuild and retest the gateway. As the workspace grows toward the 30+ crate model the architecture RFC envisions, the cost of running the full pipeline on every PR becomes a meaningful obstacle to contribution.
 
 ### 2.6 Action Pinning Is Good: But Undocumented
 
@@ -168,17 +168,17 @@ For a workspace growing toward 30+ crates, running the full test suite on every 
 The mechanism is straightforward: compare the files changed in the PR against the workspace member list, identify which crates contain changed files, expand the set to include all crates that depend on any changed crate (downstream impact), and run tests only for that set.
 
 ```
-PR changes: crates/zeroclaw-tool-call-parser/src/lib.rs
+PR changes: crates/clawcrew-tool-call-parser/src/lib.rs
 
 Affected crates:
-  zeroclaw-tool-call-parser     ← directly changed
-  zeroclaw-misc                 ← depends on it
-  zeroclaw (root)               ← depends on it
+  clawcrew-tool-call-parser     ← directly changed
+  clawcrew-misc                 ← depends on it
+  clawcrew (root)               ← depends on it
 
 Not affected:
-  zeroclaw-channels             ← no dependency path
-  zeroclaw-memory               ← no dependency path
-  zeroclaw-providers            ← no dependency path
+  clawcrew-channels             ← no dependency path
+  clawcrew-memory               ← no dependency path
+  clawcrew-providers            ← no dependency path
 ```
 
 This is implemented using `cargo metadata` to extract the dependency graph and a short script to walk it. The full test suite continues to run on pushes to `master` and on release branches. PRs run the affected-crate subset.
@@ -231,7 +231,7 @@ The key capability is the `[advisories]` section of `deny.toml`, which allows ex
 
 When a new advisory appears in the dependency tree, whether from a PR or from the daily advisory database update, the process is:
 
-1. **Classify the advisory**: Is the affected crate a direct dependency or transitive? Does ZeroClaw call the vulnerable code path? Is there a fixed version available?
+1. **Classify the advisory**: Is the affected crate a direct dependency or transitive? Does ClawCrew call the vulnerable code path? Is there a fixed version available?
 2. **Determine the response**:
    - *Vulnerability in a direct dep with a fix available* → update the dep, no ignore needed
    - *Vulnerability in a transitive dep with a fix available* → pin the transitive version or wait for the direct dep to update; open a tracking issue
@@ -302,7 +302,7 @@ The architecture RFC §4.4.1 specifies `release-plz` as the release automation t
 
 - On push to `master`, `release-plz` opens a "Release PR" that bumps the workspace version, updates changelogs from conventional commit history, and lists all crates that have changed since the last release
 - When the Release PR is merged, the release pipeline triggers automatically
-- Crates with `version.workspace = true` are bumped together; the independently versioned `zeroclaw-api` crate is handled separately per the versioning policy
+- Crates with `version.workspace = true` are bumped together; the independently versioned `clawcrew-api` crate is handled separately per the versioning policy
 
 The Release PR serves as a review checkpoint: the team sees exactly what version will be published and what the changelog says before anything goes out. This replaces manual version bumps and the `version-sync.yml` workflow.
 
@@ -333,7 +333,7 @@ The update process: use `dependabot` or `renovate` configured for GitHub Actions
 
 SLSA (Supply-chain Levels for Software Artifacts, pronounced "salsa") is a framework developed by Google and adopted across the industry for securing the software supply chain. It defines four levels of build integrity, from basic to hermetic.
 
-For ZeroClaw's current scale and team size, **SLSA Level 2** is the appropriate target:
+For ClawCrew's current scale and team size, **SLSA Level 2** is the appropriate target:
 
 - Builds run on a hosted CI platform (already true, GitHub Actions)
 - Build scripts are version-controlled (already true)
@@ -347,7 +347,7 @@ GitHub Actions supports SLSA Level 2 provenance generation natively through the 
 
 The architecture RFC's versioning policy and release-plz integration both depend on conventional commit format for changelog generation. The governance RFC already references PR title conventions. This RFC formalises the connection: conventional commit format in commit messages and PR titles is a requirement, not a suggestion, because it is the input that drives automated changelog generation.
 
-The categories that matter for ZeroClaw's changelog:
+The categories that matter for ClawCrew's changelog:
 
 | Prefix | Changelog section | Version impact |
 |---|---|---|
@@ -444,7 +444,7 @@ Add `daily-audit.yml` as a scheduled workflow running `cargo deny check advisori
 
 **Theme:** The pipeline understands the workspace. Fast feedback for focused changes.
 
-**Why this phase:** By v0.8.0 the workspace will have grown further. Running the full pipeline on every PR will be increasingly expensive. Contributors to `zeroclaw-tool-call-parser` should not wait 30 minutes for a gateway rebuild.
+**Why this phase:** By v0.8.0 the workspace will have grown further. Running the full pipeline on every PR will be increasingly expensive. Contributors to `clawcrew-tool-call-parser` should not wait 30 minutes for a gateway rebuild.
 
 #### Phase 2 Deliverables
 
@@ -466,7 +466,7 @@ Extract the build, test, and security jobs into reusable workflow files under `.
 
 #### Success Metrics for Phase 2
 
-- A PR touching only `zeroclaw-tool-call-parser` runs tests for that crate and its dependents, not the full workspace
+- A PR touching only `clawcrew-tool-call-parser` runs tests for that crate and its dependents, not the full workspace
 - Cache hit rate on CI above 80% for incremental builds
 - Reusable workflows in place for build, test, and security jobs
 
@@ -476,13 +476,13 @@ Extract the build, test, and security jobs into reusable workflow files under `.
 
 **Theme:** Release automation that matches the distribution model.
 
-**Why this phase:** Phase 3 of the architecture RFC extracts `zeroclaw-gw` as a separate binary. The first multi-artifact release happens here. The release pipeline must be ready before it is needed.
+**Why this phase:** Phase 3 of the architecture RFC extracts `clawcrew-gw` as a separate binary. The first multi-artifact release happens here. The release pipeline must be ready before it is needed.
 
 #### Phase 3 Deliverables
 
 ##### D1: Introduce `release-plz` and remove `version-sync.yml`
 
-Configure `release-plz` for the workspace. Workspace application crates use `version.workspace = true`. The independently versioned `zeroclaw-api` crate uses its own release settings. The `version-sync.yml` workflow is retired.
+Configure `release-plz` for the workspace. Workspace application crates use `version.workspace = true`. The independently versioned `clawcrew-api` crate uses its own release settings. The `version-sync.yml` workflow is retired.
 
 ##### D2: Build the structured release pipeline in `release.yml`
 

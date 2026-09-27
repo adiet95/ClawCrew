@@ -7,7 +7,7 @@ use std::process::Command;
 use xtask::util::{repo_root, require_tool, run_cmd};
 
 #[derive(Parser, Debug)]
-#[command(name = "web", about = "Build the ZeroClaw web dashboard")]
+#[command(name = "web", about = "Build the ClawCrew web dashboard")]
 struct Cli {
     #[command(subcommand)]
     cmd: Cmd,
@@ -107,7 +107,7 @@ fn gen_api(web_dir: &Path, spec_path: &Path) -> Result<()> {
             .with_context(|| format!("create parent directory {}", parent.display()))?;
     }
 
-    let spec_value = zeroclaw_gateway::openapi::build_spec();
+    let spec_value = clawcrew_gateway::openapi::build_spec();
     let spec = serde_json::to_string(&spec_value).context("serialize openapi spec to JSON")?;
     std::fs::write(spec_path, &spec)
         .with_context(|| format!("write openapi spec to {}", spec_path.display()))?;

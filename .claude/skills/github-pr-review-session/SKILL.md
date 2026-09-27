@@ -1,12 +1,12 @@
 ---
 name: github-pr-review-session
-description: "Human-reviewer co-pilot for ZeroClaw PR reviews. Use this skill when the user wants to review a specific PR as themselves, re-review a PR after author changes, work through a queue of PRs, check what's still open on a PR, or post a formal review verdict. Trigger on: 'review 1234', 'can you look at PR #1234', 're-review 1234', 'check 1234', 'what's still open on 1234', 'go through the queue', 'next PR', 'review the open PRs'. This skill posts reviews in the voice of the active `gh` account holder using gh CLI."
+description: "Human-reviewer co-pilot for ClawCrew PR reviews. Use this skill when the user wants to review a specific PR as themselves, re-review a PR after author changes, work through a queue of PRs, check what's still open on a PR, or post a formal review verdict. Trigger on: 'review 1234', 'can you look at PR #1234', 're-review 1234', 'check 1234', 'what's still open on 1234', 'go through the queue', 'next PR', 'review the open PRs'. This skill posts reviews in the voice of the active `gh` account holder using gh CLI."
 ---
 
-# ZeroClaw PR Review Session — Human Reviewer Co-Pilot
+# ClawCrew PR Review Session — Human Reviewer Co-Pilot
 
 You are assisting the **active `gh` account holder** in conducting PR reviews
-for the `zeroclaw-labs/zeroclaw` repository. Reviewer identity is resolved from
+for the `clawcrew-labs/clawcrew` repository. Reviewer identity is resolved from
 `tmp/handoff.md` at session start (the `reviewer:` field); if absent, detect it
 via `gh auth status` and persist it to the handoff immediately so continuation
 sessions reuse it without a redundant call. You read everything, cross-check
@@ -113,8 +113,8 @@ The architecture review never speaks for you and never gates the PR: it is
 advisory input you have personally vetted. If the file does not exist, do not
 auto-invoke `pr-architecture-check`.
 
-> **Tip:** If the PR touches core crates (`zeroclaw-api`, `zeroclaw-runtime`,
-> `zeroclaw-gateway`, `zeroclaw-plugins`), consider running `arch-check #<N>`
+> **Tip:** If the PR touches core crates (`clawcrew-api`, `clawcrew-runtime`,
+> `clawcrew-gateway`, `clawcrew-plugins`), consider running `arch-check #<N>`
 > first to get an architecture analysis before starting your review.
 
 ### Phase 2 — Execute the protocol
@@ -164,7 +164,7 @@ fetches sequentially wastes time and the results are independent.
    inline, paste it as regular text rather than a fenced Markdown block.
 4. Post using the verdict flag from the decision tree:
    ```bash
-   gh pr review <number> --repo zeroclaw-labs/zeroclaw \
+   gh pr review <number> --repo clawcrew-labs/clawcrew \
      <--approve | --request-changes | --comment> \
      --body-file tmp/review-<number>.md
    ```
@@ -180,7 +180,7 @@ the handoff.
 
 1. **Fetch open milestones:**
    ```bash
-   gh api repos/zeroclaw-labs/zeroclaw/milestones \
+   gh api repos/clawcrew-labs/clawcrew/milestones \
      --jq '.[] | select(.state=="open") | {number: .number, title: .title, description: .description}'
    ```
    Sort milestones by version order (semver ascending on the title) so
@@ -219,13 +219,13 @@ the handoff.
 
    a. Set the milestone on the PR:
       ```bash
-      gh pr edit <number> --repo zeroclaw-labs/zeroclaw \
+      gh pr edit <number> --repo clawcrew-labs/clawcrew \
         --milestone "<milestone-title>"
       ```
 
    b. Find the milestone's tracking issue:
       ```bash
-      gh issue list --repo zeroclaw-labs/zeroclaw \
+      gh issue list --repo clawcrew-labs/clawcrew \
         --milestone "<milestone-title>" --state open \
         --search "milestone tracking" --json number,title
       ```
@@ -248,7 +248,7 @@ the handoff.
       before posting. Preserve all existing content exactly; only append the
       new entry in the appropriate section. Then update with:
       ```bash
-      gh issue edit <tracking-issue-number> --repo zeroclaw-labs/zeroclaw \
+      gh issue edit <tracking-issue-number> --repo clawcrew-labs/clawcrew \
         --body-file tmp/tracking-<milestone-title>.md
       ```
 
@@ -266,7 +266,7 @@ the handoff.
 
    Example comment:
    ```bash
-   gh pr comment <number> --repo zeroclaw-labs/zeroclaw \
+   gh pr comment <number> --repo clawcrew-labs/clawcrew \
      --body "@JordanTheJet — milestone alignment needed: this PR does not clearly fit within the scope boundary of any open milestone. Please advise on placement or deferral."
    ```
 

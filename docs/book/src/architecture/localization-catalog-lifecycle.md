@@ -1,6 +1,6 @@
 # Localization catalog lifecycle
 
-ZeroClaw has two localization branches with different formats and consumers. Mozilla Fluent catalogs provide application strings for the runtime and zerocode. gettext catalogs translate the mdBook documentation after English source and generated references have been assembled.
+ClawCrew has two localization branches with different formats and consumers. Mozilla Fluent catalogs provide application strings for the runtime and zerocode. gettext catalogs translate the mdBook documentation after English source and generated references have been assembled.
 
 The branches share a locale registry and provider-backed fill philosophy, but they are not interchangeable. A translated file being tracked in the repository also does not prove that a particular binary embeds or loads it. Use this page to follow each catalog from English source through generation, validation, runtime or site consumption, and release.
 
@@ -8,7 +8,7 @@ The branches share a locale registry and provider-backed fill philosophy, but th
 
 | Branch | English source | Translated catalogs | Materializer | Consumer |
 | --- | --- | --- | --- | --- |
-| Runtime and tool Fluent | `crates/zeroclaw-runtime/locales/en/cli.ftl` and `tools.ftl` | `crates/zeroclaw-runtime/locales/<locale>/*.ftl` in the main repository | `cargo fluent fill`, with `check`, `scan`, and `stats` for validation and coverage | Runtime CLI and prompt strings through `zeroclaw-runtime/src/i18n.rs`; tool-owned schema and result strings through `zeroclaw-tools/src/i18n.rs` |
+| Runtime and tool Fluent | `crates/clawcrew-runtime/locales/en/cli.ftl` and `tools.ftl` | `crates/clawcrew-runtime/locales/<locale>/*.ftl` in the main repository | `cargo fluent fill`, with `check`, `scan`, and `stats` for validation and coverage | Runtime CLI and prompt strings through `clawcrew-runtime/src/i18n.rs`; tool-owned schema and result strings through `clawcrew-tools/src/i18n.rs` |
 | zerocode Fluent | `apps/zerocode/locales/en/zerocode.ftl` | `apps/zerocode/locales/<locale>/zerocode.ftl` in the main repository | The same `cargo fluent` command surface, optionally scoped to the zerocode catalog | zerocode strings loaded over the embedded English catalog from the shared disk locale directory |
 | Documentation gettext | English `docs/book/src/` after generated references and preprocessors supply source text | `docs/book/po/<locale>.po` in the translation-catalog submodule | `cargo mdbook sync` plus `tools/fill-translations` | `mdbook-gettext` during each locale build |
 
@@ -24,9 +24,9 @@ Storage and loading are separate concerns:
 
 - Runtime CLI strings always have embedded English. The loader can also use translated CLI catalogs embedded by `builtin_cli_ftl_source`, then applies a disk catalog as the highest-priority locale source.
 - Runtime prompt-facing tool descriptions always have embedded English and overlay translated `tools.ftl` values from disk; optional missing lookups return no value.
-- `zeroclaw-tools` independently embeds English and loads disk `tools.ftl` for tool-owned schema and result strings because its crate cannot depend on runtime; required missing lookups render a visible `{key}` marker.
+- `clawcrew-tools` independently embeds English and loads disk `tools.ftl` for tool-owned schema and result strings because its crate cannot depend on runtime; required missing lookups render a visible `{key}` marker.
 - zerocode embeds its English catalog and overlays a translated `zerocode.ftl` from disk. `ZEROCODE_LOCALE_DIR` is an explicit test override; the normal shared location is `<config-dir>/data/ftl/<locale>/zerocode.ftl`.
-- `zeroclaw locales fetch` downloads selected runtime and zerocode catalogs into that shared disk locale directory using the catalog paths declared by `zeroclaw-config`.
+- `clawcrew locales fetch` downloads selected runtime and zerocode catalogs into that shared disk locale directory using the catalog paths declared by `clawcrew-config`.
 
 For runtime, tools, and zerocode, English remains the base map. A translated disk or built-in catalog replaces keys it contains; absent translated keys keep their English value. Required lookups report a key absent from every available source and render a visible `{key}` marker rather than silently inventing text; optional runtime tool-description lookups return no value.
 
@@ -58,7 +58,7 @@ Translated locale builds disable full-text search. Only the primary locale, the 
 
 Fluent catalogs live in the main repository. A normal Fluent translation change updates the intended `.ftl` files directly and is reviewed with the application code that consumes their keys or as a focused translation pass.
 
-Documentation PO catalogs live in `zeroclaw-labs/zeroclaw-docs-translations`, mounted at `docs/book/po` as a git submodule. The main repository records one gitlink commit, not each PO file. `messages.pot` and translation failure logs are generated artifacts and are not part of the pinned catalog set.
+Documentation PO catalogs live in `clawcrew-labs/clawcrew-docs-translations`, mounted at `docs/book/po` as a git submodule. The main repository records one gitlink commit, not each PO file. `messages.pot` and translation failure logs are generated artifacts and are not part of the pinned catalog set.
 
 The release helper `scripts/release/refresh-translations.sh` owns the translation tag and main-repository gitlink update. By default it runs sync and the catalog check, commits and pushes catalog changes in the submodule, creates and checks out the matching `v<version>` tag, and stages the gitlink. Its `--no-translate` mode skips both sync and the catalog check, so it is only appropriate after the current catalogs have been validated separately. The translation-pin workflow initializes the exact pinned commit, checks PO syntax, and verifies that locale catalogs expose the same `msgid` set.
 
@@ -78,13 +78,13 @@ For detailed commands, provider configuration, batching, adding a locale, and re
 ## Source pointers
 
 - Locale registry: `locales.toml`
-- Runtime Fluent loader: `crates/zeroclaw-runtime/src/i18n.rs`
-- Tool-owned Fluent loader: `crates/zeroclaw-tools/src/i18n.rs`
-- Runtime Fluent catalogs: `crates/zeroclaw-runtime/locales/`
+- Runtime Fluent loader: `crates/clawcrew-runtime/src/i18n.rs`
+- Tool-owned Fluent loader: `crates/clawcrew-tools/src/i18n.rs`
+- Runtime Fluent catalogs: `crates/clawcrew-runtime/locales/`
 - zerocode Fluent loader: `apps/zerocode/src/i18n.rs`
 - zerocode Fluent catalogs: `apps/zerocode/locales/`
 - Fluent tooling: `xtask/src/cmd/fluent/`
-- Catalog download map: `zeroclaw_config::schema::FTL_CATALOGS`
+- Catalog download map: `clawcrew_config::schema::FTL_CATALOGS`
 - gettext extraction and merge: `xtask/src/cmd/mdbook/sync.rs`
 - gettext safety checks: `xtask/src/cmd/mdbook/check.rs`
 - gettext fill and repair: `tools/fill-translations/`

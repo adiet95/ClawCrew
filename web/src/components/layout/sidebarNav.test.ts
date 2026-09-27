@@ -24,7 +24,7 @@ test("specific config destinations win over their parent", () => {
   assert.equal(findActiveNavPath("/config", navPaths), "/config");
   assert.equal(findActiveNavPath("/config/providers", navPaths), "/config");
   assert.equal(findActiveNavPath("/config/agents", navPaths), "/config");
-  assert.equal(findActiveNavPath("/config/agents/zeroclaw_agent", navPaths), "/config");
+  assert.equal(findActiveNavPath("/config/agents/clawcrew_agent", navPaths), "/config");
 });
 
 test("every top-level sidebar destination selects itself", () => {

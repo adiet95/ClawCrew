@@ -1,11 +1,11 @@
-# ZeroClaw UI Parity with Kiro Crew
+# ClawCrew UI Parity with Kiro Crew
 
 Status: rencana · Diperbarui 2026-09-27 · Branch: `feat/support-9router`
-Terkait: [analisis](zeroclaw-analys.md) · [gap analysis](zeroclaw-kirocrew-gap-analysis.md)
+Terkait: [analisis](clawcrew-analys.md) · [gap analysis](clawcrew-kirocrew-gap-analysis.md)
 
 ## Tujuan
 
-Menjadikan dashboard ZeroClaw **development workspace** seperti Kiro Crew:
+Menjadikan dashboard ClawCrew **development workspace** seperti Kiro Crew:
 satu tempat untuk melihat dan mengendalikan session, task, Apps, health,
 approval, metrics, dan recovery — bukan hanya konfigurasi.
 
@@ -13,16 +13,16 @@ Prinsip (ponytail): pakai komponen yang sudah ada (`Card`, `Badge`, `Button`,
 `PageHeader`, `SSEClient`, `apiFetch`), dan **endpoint gateway yang sudah ada**
 sebelum menambah backend baru.
 
-## Halaman ZeroClaw yang sudah ada
+## Halaman ClawCrew yang sudah ada
 
 `Dashboard`, `AgentsList`, `AgentChat`, `AgentWorkspaceExplorer`, `ChatWorkspace`,
 `Tools`, `Skills`, `Sops`, `SopCanvas`, `Runs`, `RunDetail`, `TaskBoard`,
 `Approvals`, `ProvidersHealth`, `SessionsHealth`, `Audit`, `Logs`, `Cron`,
 `Integrations`, `Pairing`, `Doctor`, `Canvas`, `Config`.
 
-## Peta permukaan Kiro Crew → ZeroClaw
+## Peta permukaan Kiro Crew → ClawCrew
 
-| Permukaan Kiro Crew | Rute ZeroClaw | Status |
+| Permukaan Kiro Crew | Rute ClawCrew | Status |
 |---|---|---|
 | Sessions (health, resume, compaction) | `/sessions` | ✅ (Sessions Health + SSE) |
 | Tasks (board, checkpoint, controls) | `/tasks` | ✅ (TaskBoard: tree, timeline, resume/retry/cancel) |
@@ -51,7 +51,7 @@ sebelum menambah backend baru.
 - Backend baru diperlukan (proyeksi Apps + endpoints). *Effort: M.*
 
 ### UI.2 — Instances / Crews page (`/instances`)
-- Sumber data: P2.3 instance registry (`zeroclaw_api::instance`) via gateway.
+- Sumber data: P2.3 instance registry (`clawcrew_api::instance`) via gateway.
 - Tampilkan: instance id, capabilities, health, reconnect/offline, ownership,
   audit remote.
 - Backend proyeksi kemungkinan sudah ada di kontrak P2.3. *Effort: M.*

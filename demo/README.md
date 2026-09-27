@@ -1,6 +1,6 @@
-# ZeroClaw ESP32 Smart Room Demo
+# ClawCrew ESP32 Smart Room Demo
 
-Simulated ESP32 + ZeroClaw agent + browser visualization. Hardware-free.
+Simulated ESP32 + ClawCrew agent + browser visualization. Hardware-free.
 The Docker path runs the simulator plus an in-container interactive agent. The
 recommended Telegram path runs the simulator and channel agent directly on the
 host to keep the setup light and explicit.
@@ -11,9 +11,9 @@ host to keep the setup light and explicit.
 [Host browser] ──:8080──┐
                         │
    ┌────────────────────▼─────────────────────────┐
-   │  Docker container "zeroclaw-demo"            │
+   │  Docker container "clawcrew-demo"            │
    │  ┌───────────────┐    ┌────────────────────┐ │
-   │  │ esp32_sim     │    │ zeroclaw (chat)    │ │
+   │  │ esp32_sim     │    │ clawcrew (chat)    │ │
    │  │ • socat       │    │ • OpenRouter (your model) │ │
    │  │ • HTTP :8080  │    │ • smartroom tools  │ │
    │  │ • WS /ws      │    │   (set_device etc) │ │
@@ -29,7 +29,7 @@ and `/dev/pts` namespace (necessary for pty handoff).
 
 ## Why a container
 
-The agent's tool surface is heavily constrained (see `zeroclaw.toml.example`):
+The agent's tool surface is heavily constrained (see `clawcrew.toml.example`):
 only the smartroom tools (`set_device` / `read_device`) plus raw `gpio_*` and
 `hardware_capabilities` are available. All other surfaces (shell, browser,
 web search, MCP, etc.) are disabled. For the Docker path, the container
@@ -51,7 +51,7 @@ brew install socat
 
 # 3. Ensure demo config exists
 mkdir -p demo/data/config
-cp -n demo/zeroclaw.toml.example demo/data/config/config.toml || true
+cp -n demo/clawcrew.toml.example demo/data/config/config.toml || true
 
 # 4. Keep secrets in demo/.env. The host script injects them at runtime and does not persist them into config.toml.
 
@@ -105,7 +105,7 @@ Wait for `frontend ready: http://127.0.0.1:8080` then open it.
 
 **Terminal 2 — interactive chat:**
 ```bash
-./demo/run-zeroclaw.sh
+./demo/run-clawcrew.sh
 ```
 
 Paste the (updated) system primer from `demo/PROMPTS.md`, then use natural language.
@@ -141,18 +141,18 @@ docker builder prune
 ```
 demo/
 ├── README.md            ← this file
-├── Dockerfile           ← multi-stage build (esp32_sim + zeroclaw)
+├── Dockerfile           ← multi-stage build (esp32_sim + clawcrew)
 ├── docker-compose.yml   ← simulator + agent services sharing /tmp
-├── zeroclaw.toml.example ← constrained hardware-only config
+├── clawcrew.toml.example ← constrained hardware-only config
 ├── .env.template        ← copy to .env
 ├── .gitignore
 ├── run-sim.sh           ← `docker compose up`
-├── run-zeroclaw.sh      ← interactive agent inside container
+├── run-clawcrew.sh      ← interactive agent inside container
 └── run-daemon.sh        ← optional Docker daemon path, without Telegram
 ```
 
 The simulator binary and visualizer live in:
-`crates/zeroclaw-hardware/examples/esp32_sim.{rs,html}`
+`crates/clawcrew-hardware/examples/esp32_sim.{rs,html}`
 
 This demo harness depends on three focused changes extracted from the original
 large contribution:
@@ -194,7 +194,7 @@ $EDITOR demo/.env
 ./demo/run-sim.sh
 
 # 3. In another terminal, start an interactive agent session
-./demo/run-zeroclaw.sh
+./demo/run-clawcrew.sh
 
 # 4. Paste the system primer from demo/PROMPTS.md, then try natural language:
 #    "It's getting dark and chilly. I'm settling in to read for an hour."

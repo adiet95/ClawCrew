@@ -86,7 +86,7 @@ export interface SopRunSummary {
 }
 
 // Canonical canvas geometry fallback, mirroring `LayoutGeometry::CANONICAL` in
-// `zeroclaw-sop-graph`. Every projected graph carries `layout.geometry` on the
+// `clawcrew-sop-graph`. Every projected graph carries `layout.geometry` on the
 // wire; this is only used when deserializing a response from an older daemon
 // that predates the field. The Rust registry is the source of truth.
 export const CANONICAL_LAYOUT_GEOMETRY: LayoutGeometry = {

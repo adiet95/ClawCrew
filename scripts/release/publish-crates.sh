@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# publish-crates.sh: publish the ZeroClaw workspace to crates.io.
+# publish-crates.sh: publish the ClawCrew workspace to crates.io.
 #
 # Usage:
 #   scripts/release/publish-crates.sh                 # dry run (default, safe)
@@ -131,7 +131,7 @@ if [[ ${#PUBLISHABLE[@]} -eq 0 ]]; then
   exit 1
 fi
 
-echo "ZeroClaw crates.io publish"
+echo "ClawCrew crates.io publish"
 echo "  version:      $VERSION"
 echo "  mode:         $([[ $EXECUTE -eq 1 ]] && echo 'EXECUTE (irreversible)' || echo 'dry run')"
 echo "  publishable:  ${#PUBLISHABLE[@]} crates"
@@ -179,7 +179,7 @@ crates_io_status() {
   if ! code="$(curl -sS --connect-timeout 15 --max-time 60 \
     --retry 3 --retry-delay 2 --retry-all-errors \
     -o /dev/null -w '%{http_code}' \
-    -H "User-Agent: zeroclaw-release (https://github.com/zeroclaw-labs/zeroclaw)" \
+    -H "User-Agent: clawcrew-release (https://github.com/clawcrew-labs/clawcrew)" \
     "https://crates.io/api/v1/crates/$1")"; then
     printf '000\n'
     return
@@ -418,4 +418,4 @@ done
 
 echo
 echo "Published ${published} crate(s) at ${VERSION}; skipped ${skipped} already present."
-echo "Verify: cargo install zeroclaw --version $VERSION --locked"
+echo "Verify: cargo install clawcrew --version $VERSION --locked"

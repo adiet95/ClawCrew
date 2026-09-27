@@ -4,12 +4,12 @@ title: Anchor goal mode in the durable task control plane
 date: 2026-06-25
 status: accepted
 relates-to:
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8303
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/7929
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/8217
-  - crates/zeroclaw-runtime
-  - crates/zeroclaw-config
-  - crates/zeroclaw-tools
+  - https://github.com/clawcrew-labs/clawcrew/issues/8303
+  - https://github.com/clawcrew-labs/clawcrew/issues/7929
+  - https://github.com/clawcrew-labs/clawcrew/pull/8217
+  - crates/clawcrew-runtime
+  - crates/clawcrew-config
+  - crates/clawcrew-tools
 ---
 
 # ADR-008: Anchor goal mode in the durable task control plane
@@ -97,10 +97,10 @@ ADR's source-of-truth boundaries.
 
 ## References
 
-- RFC #8303: <https://github.com/zeroclaw-labs/zeroclaw/issues/8303>
-- Shared command-catalogue RFC #7929: <https://github.com/zeroclaw-labs/zeroclaw/issues/7929>
-- Durable task control plane PR #8217: <https://github.com/zeroclaw-labs/zeroclaw/pull/8217>
-- Control-plane commit: <https://github.com/zeroclaw-labs/zeroclaw/commit/607d69ef44dca07e2605e822db13fb437b462f4a>
-- Gateway ask-user/free-form gap #7776: <https://github.com/zeroclaw-labs/zeroclaw/issues/7776>
-- Cached token and cost accounting #7248: <https://github.com/zeroclaw-labs/zeroclaw/issues/7248>
-- Command localization gap #6548: <https://github.com/zeroclaw-labs/zeroclaw/issues/6548>
+- RFC #8303: <https://github.com/clawcrew-labs/clawcrew/issues/8303>
+- Shared command-catalogue RFC #7929: <https://github.com/clawcrew-labs/clawcrew/issues/7929>
+- Durable task control plane PR #8217: <https://github.com/clawcrew-labs/clawcrew/pull/8217>
+- Control-plane commit: <https://github.com/clawcrew-labs/clawcrew/commit/607d69ef44dca07e2605e822db13fb437b462f4a>
+- Gateway ask-user/free-form gap #7776: <https://github.com/clawcrew-labs/clawcrew/issues/7776>
+- Cached token and cost accounting #7248: <https://github.com/clawcrew-labs/clawcrew/issues/7248>
+- Command localization gap #6548: <https://github.com/clawcrew-labs/clawcrew/issues/6548>

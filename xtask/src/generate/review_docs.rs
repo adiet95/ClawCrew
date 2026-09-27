@@ -38,7 +38,7 @@ impl ReviewCiPolicy {
 
     fn decision_link(self) -> String {
         format!(
-            "[RFC #{issue}](https://github.com/zeroclaw-labs/zeroclaw/issues/{issue})",
+            "[RFC #{issue}](https://github.com/clawcrew-labs/clawcrew/issues/{issue})",
             issue = self.decision_issue
         )
     }
@@ -175,15 +175,15 @@ fn render_protocol_fetch(policy: &ReviewCiPolicy) -> String {
      exit 1
    fi
 
-   PR_STATE=$(gh pr view <number> --repo zeroclaw-labs/zeroclaw \
+   PR_STATE=$(gh pr view <number> --repo clawcrew-labs/clawcrew \
      --json headRefOid,mergeable,mergeStateStatus)
    printf '%s\n' "$PR_STATE"
    HEAD_SHA=$(printf '%s' "$PR_STATE" | jq -r .headRefOid)
-   gh api "repos/zeroclaw-labs/zeroclaw/compare/{base_branch}...${{HEAD_SHA}}" \
+   gh api "repos/clawcrew-labs/clawcrew/compare/{base_branch}...${{HEAD_SHA}}" \
      --jq '{{status,behind_by,ahead_by}}'
-   gh pr checks <number> --repo zeroclaw-labs/zeroclaw \
+   gh pr checks <number> --repo clawcrew-labs/clawcrew \
      --required --json name,state,bucket
-   HEAD_AFTER=$(gh pr view <number> --repo zeroclaw-labs/zeroclaw \
+   HEAD_AFTER=$(gh pr view <number> --repo clawcrew-labs/clawcrew \
      --json headRefOid --jq .headRefOid)
    if [ "$HEAD_AFTER" != "$HEAD_SHA" ]; then
      echo "head moved from $HEAD_SHA to $HEAD_AFTER during capture; repeat this step" >&2

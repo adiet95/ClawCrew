@@ -1,11 +1,11 @@
-//! `zeroclaw browse [path]` — CLI adapter over
-//! `zeroclaw_runtime::browse::list_directory`. Thin print formatter; the
+//! `clawcrew browse [path]` — CLI adapter over
+//! `clawcrew_runtime::browse::list_directory`. Thin print formatter; the
 //! walking + containment rule lives in the runtime crate so the gateway
 //! and the CLI share one implementation.
 
 use anyhow::Result;
-use zeroclaw_runtime::browse::list_directory;
-use zeroclaw_runtime::i18n::{get_required_cli_string, get_required_cli_string_with_args};
+use clawcrew_runtime::browse::list_directory;
+use clawcrew_runtime::i18n::{get_required_cli_string, get_required_cli_string_with_args};
 
 pub fn handle_browse(path: String, config: &crate::config::Config) -> Result<()> {
     let result = list_directory(config, &path)?;

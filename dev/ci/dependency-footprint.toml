@@ -3,60 +3,60 @@ edge_kinds = ["normal", "build"]
 
 [[profiles]]
 id = "foundation"
-package = "zeroclaw"
+package = "clawcrew"
 mode = "no-default-features"
 
 [[profiles]]
 id = "agent-runtime"
-package = "zeroclaw"
+package = "clawcrew"
 mode = "features"
 features = ["agent-runtime"]
 
 [[profiles]]
 id = "root-default"
-package = "zeroclaw"
+package = "clawcrew"
 mode = "defaults"
 
 [[profiles]]
 id = "standard-distribution"
-package = "zeroclaw"
+package = "clawcrew"
 mode = "selection"
 selection = "dist"
 
 [[profiles]]
 id = "ci-all"
-package = "zeroclaw"
+package = "clawcrew"
 mode = "features"
 features = ["ci-all"]
 
 [[profiles]]
 id = "hardware-probe"
-package = "zeroclaw"
+package = "clawcrew"
 mode = "features"
-features = ["agent-runtime", "probe", "zeroclaw-tools/probe"]
+features = ["agent-runtime", "probe", "clawcrew-tools/probe"]
 
 [[profiles]]
 id = "channels-minimal"
-package = "zeroclaw-channels"
+package = "clawcrew-channels"
 mode = "no-default-features"
 
 [[profiles]]
 id = "channels-default"
-package = "zeroclaw-channels"
+package = "clawcrew-channels"
 mode = "defaults"
 
 [[contracts]]
 id = "hardware-package-present"
 profile = "hardware-probe"
 kind = "package"
-package = "zeroclaw-hardware"
+package = "clawcrew-hardware"
 expect = "present"
 
 [[contracts]]
 id = "hardware-probe-enabled"
 profile = "hardware-probe"
 kind = "feature"
-package = "zeroclaw-hardware"
+package = "clawcrew-hardware"
 feature = "probe"
 expect = "enabled"
 
@@ -64,7 +64,7 @@ expect = "enabled"
 id = "tools-probe-enabled"
 profile = "hardware-probe"
 kind = "feature"
-package = "zeroclaw-tools"
+package = "clawcrew-tools"
 feature = "probe"
 expect = "enabled"
 
@@ -72,7 +72,7 @@ expect = "enabled"
 id = "root-default-no-hardware-probe"
 profile = "root-default"
 kind = "feature"
-package = "zeroclaw-hardware"
+package = "clawcrew-hardware"
 feature = "probe"
 expect = "forbidden"
 
@@ -80,6 +80,6 @@ expect = "forbidden"
 id = "standard-distribution-no-hardware-probe"
 profile = "standard-distribution"
 kind = "feature"
-package = "zeroclaw-hardware"
+package = "clawcrew-hardware"
 feature = "probe"
 expect = "forbidden"

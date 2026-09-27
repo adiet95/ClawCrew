@@ -6,7 +6,7 @@
 //! only for the browser frontdoor.
 //!
 //! A browser cannot speak the daemon's enrollment protocol. That endpoint is TLS
-//! (`crates/zeroclaw-runtime/src/enroll/mod.rs` accepts every connection through
+//! (`crates/clawcrew-runtime/src/enroll/mod.rs` accepts every connection through
 //! `TlsAcceptor::accept`), and the daemon-side relay bridge splices DATA frames
 //! into it as raw bytes, so what travels the tunnel for native enrollment is a
 //! TLS record stream. Producing that stream in a page means shipping a TLS
@@ -33,7 +33,7 @@ use std::sync::atomic::Ordering;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, DuplexStream};
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::Message;
-use zeroclaw_relay_proto::{
+use clawcrew_relay_proto::{
     ConnWindow, Control, INITIAL_WINDOW, MAX_DATA_PAYLOAD, PEER_HINT_ENROLL, encode_data,
 };
 

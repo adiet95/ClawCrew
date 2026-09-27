@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Refresh, commit, push, tag, and pin the docs translation catalogues in the
-# zeroclaw-docs-translations submodule (docs/book/po). Cuts the v{version} tag
+# clawcrew-docs-translations submodule (docs/book/po). Cuts the v{version} tag
 # in the submodule and pins the main-repo gitlink to it. One command, no
 # hand-typed version: the version is read from Cargo.toml (the single source of
 # truth), the same way bump-version.sh derives it. Run bump-version.sh
@@ -11,7 +11,7 @@
 #   ./scripts/release/refresh-translations.sh 0.8.2 --model-provider llama_cpp.qwen
 #   ./scripts/release/refresh-translations.sh --no-translate
 #
-# Requires push access to zeroclaw-labs/zeroclaw-docs-translations. The submodule
+# Requires push access to clawcrew-labs/clawcrew-docs-translations. The submodule
 # is initialised automatically if it is not yet checked out.
 set -euo pipefail
 
