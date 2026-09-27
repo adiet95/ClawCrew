@@ -3,7 +3,7 @@ import { basePath } from '../../lib/basePath';
 import { findActiveNavPath } from './sidebarNav';
 import { railAsideStyle, railLinkClassName, railNavClassName } from './sidebarRail';
 import { SidebarNavLink } from './SidebarNavLink';
-import { Activity, AppWindow, Network, LifeBuoy,
+import { Activity, AppWindow, BarChart3, Network, LifeBuoy,
   ArrowDownToLine,
   Bot,
   Clock,
@@ -80,6 +80,7 @@ const navGroups: NavGroup[] = [
       { to: '/sessions', icon: HeartPulse, labelKey: 'nav.sessions' },
       { to: '/instances', icon: Network, labelKey: 'nav.instances' },
       { to: '/recovery', icon: LifeBuoy, labelKey: 'nav.recovery' },
+      { to: '/metrics', icon: BarChart3, labelKey: 'nav.metrics' },
       { to: '/audit', icon: ScrollText, labelKey: 'nav.audit' },
       { to: '/pairing', icon: Smartphone, labelKey: 'nav.pairing' },
       { to: '/doctor', icon: Stethoscope, labelKey: 'nav.doctor' },

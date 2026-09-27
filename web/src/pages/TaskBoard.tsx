@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { usePolling } from '@/hooks/usePolling';
 import { Link } from 'react-router-dom';
 import { Loader2, RefreshCw } from 'lucide-react';
 import {
@@ -106,11 +107,7 @@ export default function TaskBoard() {
     }
   }, []);
 
-  useEffect(() => {
-    void fetchTasks();
-    const interval = window.setInterval(() => void fetchTasks(), 2_000);
-    return () => window.clearInterval(interval);
-  }, [fetchTasks]);
+  usePolling(() => void fetchTasks(), 2_000);
 
   useEffect(() => {
     if (!selectedTaskId) {

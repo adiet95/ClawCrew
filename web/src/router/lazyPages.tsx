@@ -31,3 +31,4 @@ export const SessionsHealth = lazy(() => import('../pages/SessionsHealth'));
 export const Apps = lazy(() => import('../pages/Apps'));
 export const Instances = lazy(() => import('../pages/Instances'));
 export const Recovery = lazy(() => import('../pages/Recovery'));
+export const Metrics = lazy(() => import('../pages/Metrics'));

@@ -2534,3 +2534,141 @@ export function uploadChatImage(
     { method: "POST", body: file },
   );
 }
+
+// ── Apps registry (api_apps.rs) ──────────────────────────────────────────────
+
+export interface AppToolPermission {
+  tool_name: string;
+  verdict: 'allow' | 'deny' | 'ask';
+}
+
+export interface AppManifest {
+  id: string;
+  name: string;
+  version: string;
+  state: 'installed' | 'enabled' | 'disabled';
+  min_runtime_version?: string | null;
+  dependencies?: string[];
+  tools?: string[];
+  permissions?: AppToolPermission[];
+  mcp_server?: {
+    command: string;
+    args: string[];
+    env: Record<string, string>;
+  } | null;
+  installed_at?: string | null;
+  updated_at?: string | null;
+}
+
+export function getApps(): Promise<{ apps: AppManifest[] }> {
+  return apiFetch<{ apps: AppManifest[] }>('/api/apps');
+}
+
+export function enableApp(id: string): Promise<{ enabled: boolean }> {
+  return apiFetch<{ enabled: boolean }>(
+    `/api/apps/${encodeURIComponent(id)}/enable`,
+    { method: 'POST' },
+  );
+}
+
+export function disableApp(id: string): Promise<{ disabled: boolean }> {
+  return apiFetch<{ disabled: boolean }>(
+    `/api/apps/${encodeURIComponent(id)}/disable`,
+    { method: 'POST' },
+  );
+}
+
+export function updateApp(id: string): Promise<{ updated: boolean }> {
+  return apiFetch<{ updated: boolean }>(
+    `/api/apps/${encodeURIComponent(id)}/update`,
+    { method: 'POST' },
+  );
+}
+
+export function rollbackApp(id: string): Promise<{ rolled_back: boolean }> {
+  return apiFetch<{ rolled_back: boolean }>(
+    `/api/apps/${encodeURIComponent(id)}/rollback`,
+    { method: 'POST' },
+  );
+}
+
+export function removeApp(id: string): Promise<void> {
+  return apiFetch<void>(
+    `/api/apps/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+  );
+}
+
+// ── Instances / Remote Crews (api_instances.rs) ──────────────────────────────
+
+export interface InstanceRecord {
+  id: string;
+  name?: string | null;
+  capabilities: string[];
+  health: 'healthy' | 'degraded' | 'offline' | 'unknown';
+  owner?: string | null;
+  endpoint?: string | null;
+  connected_since?: string | null;
+  last_seen?: string | null;
+  version?: string | null;
+}
+
+export function getInstances(): Promise<{ instances: InstanceRecord[] }> {
+  return apiFetch<{ instances: InstanceRecord[] }>('/api/instances');
+}
+
+export function reconnectInstance(id: string): Promise<{ reconnected: boolean }> {
+  return apiFetch<{ reconnected: boolean }>(
+    `/api/instances/${encodeURIComponent(id)}/reconnect`,
+    { method: 'POST' },
+  );
+}
+
+export function markInstanceOffline(id: string): Promise<{ marked: boolean }> {
+  return apiFetch<{ marked: boolean }>(
+    `/api/instances/${encodeURIComponent(id)}/offline`,
+    { method: 'POST' },
+  );
+}
+
+// ── Recovery tasks (api_tasks.rs) ────────────────────────────────────────────
+
+export interface RecoveryTask {
+  task_id: string;
+  kind: string;
+  owner_agent: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  error?: string | null;
+  recovery_outcome?: string | null;
+  checkpoint_id?: string | null;
+}
+
+export function getRecoveryTasks(): Promise<{ tasks: RecoveryTask[] }> {
+  return apiFetch<{ tasks: RecoveryTask[] }>('/api/dashboard/tasks/recovery');
+}
+
+export function acknowledgeTask(taskId: string): Promise<{ acknowledged: boolean }> {
+  return apiFetch<{ acknowledged: boolean }>(
+    `/api/dashboard/tasks/${encodeURIComponent(taskId)}/acknowledge`,
+    { method: 'POST' },
+  );
+}
+
+// ── Unified metrics (api_metrics.rs) ─────────────────────────────────────────
+
+export interface AgentMetrics {
+  agent: string;
+  total_tasks: number;
+  total_tokens: number;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_cost_usd: number;
+  avg_latency_ms: number | null;
+  fallback_count: number;
+}
+
+export function getAgentMetrics(): Promise<{ agents: AgentMetrics[] }> {
+  return apiFetch<{ agents: AgentMetrics[] }>('/api/dashboard/metrics');
+}
