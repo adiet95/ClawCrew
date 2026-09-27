@@ -5,34 +5,34 @@ date: 2026-08-14
 status: proposed
 relates-to:
   - ADR-010
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/7141
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8289
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8290
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8076
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/7142
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/6996
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/8063
-  - https://github.com/zeroclaw-labs/zeroclaw/pull/8272
-  - crates/zeroclaw-api/src/principal.rs
-  - crates/zeroclaw-api/src/grants.rs
-  - crates/zeroclaw-runtime/src/security/auth_provider.rs
-  - crates/zeroclaw-runtime/src/security/principal_resolver.rs
-  - crates/zeroclaw-runtime/src/rpc/dispatch.rs
-  - crates/zeroclaw-runtime/src/rpc/wss.rs
-  - crates/zeroclaw-memory/src/sqlite_permissions.rs
+  - https://github.com/clawcrew-labs/clawcrew/issues/7141
+  - https://github.com/clawcrew-labs/clawcrew/issues/8289
+  - https://github.com/clawcrew-labs/clawcrew/issues/8290
+  - https://github.com/clawcrew-labs/clawcrew/issues/8076
+  - https://github.com/clawcrew-labs/clawcrew/issues/7142
+  - https://github.com/clawcrew-labs/clawcrew/issues/6996
+  - https://github.com/clawcrew-labs/clawcrew/pull/8063
+  - https://github.com/clawcrew-labs/clawcrew/pull/8272
+  - crates/clawcrew-api/src/principal.rs
+  - crates/clawcrew-api/src/grants.rs
+  - crates/clawcrew-runtime/src/security/auth_provider.rs
+  - crates/clawcrew-runtime/src/security/principal_resolver.rs
+  - crates/clawcrew-runtime/src/rpc/dispatch.rs
+  - crates/clawcrew-runtime/src/rpc/wss.rs
+  - crates/clawcrew-memory/src/sqlite_permissions.rs
 ---
 
 # ADR-017: Inbound Authentication Resolves Canonical Principals Before Authorization
 
 ## Context
 
-ZeroClaw has several ways for outside actors to reach the daemon: local RPC, remote WSS, the web gateway, CLI and Zerocode clients, channels, and future agent-to-agent paths. Before accepted RFC [#7141](https://github.com/zeroclaw-labs/zeroclaw/issues/7141), those surfaces did not share one enforced answer to "who is acting?" and "what may this actor do?".
+ClawCrew has several ways for outside actors to reach the daemon: local RPC, remote WSS, the web gateway, CLI and Zerocode clients, channels, and future agent-to-agent paths. Before accepted RFC [#7141](https://github.com/clawcrew-labs/clawcrew/issues/7141), those surfaces did not share one enforced answer to "who is acting?" and "what may this actor do?".
 
-TLS and reconnect tokens are not enough. TLS can protect a connection without proving that the connected client has ZeroClaw authority, and the existing `tui_id` / `tui_sig` mechanism is reconnect continuity rather than independent identity proof. A remote WSS client, a browser user, a local process, a channel sender, and a service client all need to converge on the same authorization model before privileged runtime work begins.
+TLS and reconnect tokens are not enough. TLS can protect a connection without proving that the connected client has ClawCrew authority, and the existing `tui_id` / `tui_sig` mechanism is reconnect continuity rather than independent identity proof. A remote WSS client, a browser user, a local process, a channel sender, and a service client all need to converge on the same authorization model before privileged runtime work begins.
 
 The risk is not only missing authentication on one route. The larger risk is parallel security systems: native pairing tokens, peer credentials, SSH keys, passwords, OIDC subjects, channel senders, and service credentials each inventing their own user identity, role vocabulary, ownership keys, and fallback behavior. If that happens, one provider's `admin` claim, one local username, or one reused subject string can accidentally bypass the policy that another surface depends on.
 
-Accepted RFC #7141 resolves the architectural direction. It requires providers to verify credentials, a shared resolver to map verified identities into canonical ZeroClaw principals and permission-profile grants, and runtime surfaces to consume those resolved principals rather than reinterpreting credentials themselves. Implementation sequencing belongs to [#8289](https://github.com/zeroclaw-labs/zeroclaw/issues/8289), with detailed session, memory, and per-sender authorization work tracked by [#8290](https://github.com/zeroclaw-labs/zeroclaw/issues/8290). This ADR records the durable decision without claiming the rollout is complete.
+Accepted RFC #7141 resolves the architectural direction. It requires providers to verify credentials, a shared resolver to map verified identities into canonical ClawCrew principals and permission-profile grants, and runtime surfaces to consume those resolved principals rather than reinterpreting credentials themselves. Implementation sequencing belongs to [#8289](https://github.com/clawcrew-labs/clawcrew/issues/8289), with detailed session, memory, and per-sender authorization work tracked by [#8290](https://github.com/clawcrew-labs/clawcrew/issues/8290). This ADR records the durable decision without claiming the rollout is complete.
 
 ## Decision
 
@@ -41,14 +41,14 @@ Accepted RFC #7141 resolves the architectural direction. It requires providers t
 Inbound authentication has three separate stages:
 
 1. An `AuthProvider` verifies one credential and returns an authenticated identity with provider provenance, subject, actor kind, claims or local roster binding, expiry, and revalidation metadata.
-2. One shared ZeroClaw resolver maps that authenticated identity to a canonical `PrincipalId` and the current permission-profile grants.
+2. One shared ClawCrew resolver maps that authenticated identity to a canonical `PrincipalId` and the current permission-profile grants.
 3. Dispatch, gateway handlers, sessions, memory, tools, configuration, and other privileged runtime surfaces enforce the resolved principal and grants.
 
-The Rust implementation may combine types internally, but the authority boundaries remain separate. Providers verify identity. They do not mint ZeroClaw runtime grants, reinterpret IdP roles as permissions, or bypass the shared resolver.
+The Rust implementation may combine types internally, but the authority boundaries remain separate. Providers verify identity. They do not mint ClawCrew runtime grants, reinterpret IdP roles as permissions, or bypass the shared resolver.
 
 ### Use canonical principals that cannot collide by string accident
 
-A principal is ZeroClaw's durable identity for the actor after authentication succeeds. Principal identity is globally unambiguous within a deployment.
+A principal is ClawCrew's durable identity for the actor after authentication succeeds. Principal identity is globally unambiguous within a deployment.
 
 OIDC human identities are keyed by validated issuer and `sub`, not by `sub` alone. A provider alias may appear in audit output, but it cannot make equal subject strings from different issuers represent the same actor.
 
@@ -62,7 +62,7 @@ String equality across providers never links accounts. Cross-provider account li
 
 ### Make permission profiles the only runtime grant vocabulary
 
-Permission profiles are the only runtime authorization vocabulary. Raw provider claims, IdP groups, local usernames, channel senders, or service-client names grant nothing until the shared resolver maps them to ZeroClaw permission profiles.
+Permission profiles are the only runtime authorization vocabulary. Raw provider claims, IdP groups, local usernames, channel senders, or service-client names grant nothing until the shared resolver maps them to ClawCrew permission profiles.
 
 When one identity maps to multiple permission profiles, the initial resolver combines explicit grants through deterministic union. Fine-grained selectors compose by intersection with the relevant resource grant. Empty selector lists grant no instances, and broad access requires an explicit wildcard, all-selector, or administrator grant.
 
@@ -80,7 +80,7 @@ Established connections do not keep indefinite authorization snapshots. Before t
 
 Credential expiry and provider revocation apply to established connections within the provider's real guarantees. The canonical `Principal`, ownership records, logs, and audit records remain non-secret. If live revalidation needs bearer material or an equivalent secret handle, the provider keeps only that minimum material in a provider-owned, connection-scoped revalidation context through the supported secret-storage boundary. Ordinary runtime consumers cannot read it, and it is destroyed on disconnect, credential expiry, provider removal, or revocation.
 
-OIDC token purpose is explicit. Browser Authorization Code with PKCE validates an ID token as evidence of the authentication event and establishes a ZeroClaw session. API and RPC bearer paths accept only an access token intended for ZeroClaw. Device Authorization Grant covers browserless human clients, and `client_credentials` covers service principals. Offline JWT validation is bounded by token expiry and a configured maximum authentication lifetime; deployments that need faster revocation must use introspection, back-channel revocation, or another live authority.
+OIDC token purpose is explicit. Browser Authorization Code with PKCE validates an ID token as evidence of the authentication event and establishes a ClawCrew session. API and RPC bearer paths accept only an access token intended for ClawCrew. Device Authorization Grant covers browserless human clients, and `client_credentials` covers service principals. Offline JWT validation is bounded by token expiry and a configured maximum authentication lifetime; deployments that need faster revocation must use introspection, back-channel revocation, or another live authority.
 
 ### Enforce principal ownership at session and memory storage boundaries
 
@@ -132,20 +132,20 @@ Negative consequences:
 
 ## References
 
-- [RFC #7141: Pluggable inbound authentication and canonical principals](https://github.com/zeroclaw-labs/zeroclaw/issues/7141)
-- [Tracker #8289: OIDC milestone: canonical principals and inbound authentication](https://github.com/zeroclaw-labs/zeroclaw/issues/8289)
-- [Tracker #8290: multi-user milestone: per-principal isolation + per-sender authz](https://github.com/zeroclaw-labs/zeroclaw/issues/8290)
-- [Issue #8076: local username/password provider](https://github.com/zeroclaw-labs/zeroclaw/issues/8076)
-- [Issue #7142: runtime-owned security decision pipeline](https://github.com/zeroclaw-labs/zeroclaw/issues/7142)
-- [Issue #6996: operating-system sandbox policy](https://github.com/zeroclaw-labs/zeroclaw/issues/6996)
-- [PR #8063: `Principal` and `AuthProvider` seam](https://github.com/zeroclaw-labs/zeroclaw/pull/8063)
-- [PR #8272: `Principal` and `AuthOutcome` contract tests](https://github.com/zeroclaw-labs/zeroclaw/pull/8272)
+- [RFC #7141: Pluggable inbound authentication and canonical principals](https://github.com/clawcrew-labs/clawcrew/issues/7141)
+- [Tracker #8289: OIDC milestone: canonical principals and inbound authentication](https://github.com/clawcrew-labs/clawcrew/issues/8289)
+- [Tracker #8290: multi-user milestone: per-principal isolation + per-sender authz](https://github.com/clawcrew-labs/clawcrew/issues/8290)
+- [Issue #8076: local username/password provider](https://github.com/clawcrew-labs/clawcrew/issues/8076)
+- [Issue #7142: runtime-owned security decision pipeline](https://github.com/clawcrew-labs/clawcrew/issues/7142)
+- [Issue #6996: operating-system sandbox policy](https://github.com/clawcrew-labs/clawcrew/issues/6996)
+- [PR #8063: `Principal` and `AuthProvider` seam](https://github.com/clawcrew-labs/clawcrew/pull/8063)
+- [PR #8272: `Principal` and `AuthOutcome` contract tests](https://github.com/clawcrew-labs/clawcrew/pull/8272)
 - [ADR-010: Memory authority boundaries](./ADR-010-memory-authority-boundaries.md)
 - [Security model](../../security/model.md)
-- `crates/zeroclaw-api/src/principal.rs`
-- `crates/zeroclaw-api/src/grants.rs`
-- `crates/zeroclaw-runtime/src/security/auth_provider.rs`
-- `crates/zeroclaw-runtime/src/security/principal_resolver.rs`
-- `crates/zeroclaw-runtime/src/rpc/dispatch.rs`
-- `crates/zeroclaw-runtime/src/rpc/wss.rs`
-- `crates/zeroclaw-memory/src/sqlite_permissions.rs`
+- `crates/clawcrew-api/src/principal.rs`
+- `crates/clawcrew-api/src/grants.rs`
+- `crates/clawcrew-runtime/src/security/auth_provider.rs`
+- `crates/clawcrew-runtime/src/security/principal_resolver.rs`
+- `crates/clawcrew-runtime/src/rpc/dispatch.rs`
+- `crates/clawcrew-runtime/src/rpc/wss.rs`
+- `crates/clawcrew-memory/src/sqlite_permissions.rs`

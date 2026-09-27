@@ -193,14 +193,14 @@ bump "marketplace/dokploy/meta-entry.json" \
   '"version": "[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?"' \
   "\"version\": \"${VERSION}\""
 
-bump "marketplace/dokploy/blueprints/zeroclaw/docker-compose.yml" \
-  'ghcr\.io/zeroclaw-labs/zeroclaw:[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?' \
-  "ghcr.io/zeroclaw-labs/zeroclaw:${VERSION}"
+bump "marketplace/dokploy/blueprints/clawcrew/docker-compose.yml" \
+  'ghcr\.io/clawcrew-labs/clawcrew:[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?' \
+  "ghcr.io/clawcrew-labs/clawcrew:${VERSION}"
 
 # ── Marketplace: EasyPanel ─────────────────────────────────────────
 bump "marketplace/easypanel/meta.yaml" \
-  'ghcr\.io/zeroclaw-labs/zeroclaw:[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?' \
-  "ghcr.io/zeroclaw-labs/zeroclaw:${VERSION}"
+  'ghcr\.io/clawcrew-labs/clawcrew:[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?' \
+  "ghcr.io/clawcrew-labs/clawcrew:${VERSION}"
 
 # ── Workflow description examples ──────────────────────────────────
 echo "Workflow descriptions..."
@@ -215,7 +215,7 @@ bump "scripts/release/publish-crates.sh" \
 # Two surgical patterns, both anchored enough to skip release-runbook
 # release-runbook history lines that intentionally pin an original verification
 # month or scheduled-removal release instead of tracking the current version:
-#   - container image tags    `zeroclawlabs/zeroclaw:vX.Y.Z`
+#   - container image tags    `clawcrewlabs/clawcrew:vX.Y.Z`
 #   - /health response example `"version":"X.Y.Z"` (compact or spaced JSON)
 #   - RPC initialize example   `"serverVersion":"X.Y.Z"` (compact or spaced JSON)
 # The `"version"`/`"serverVersion"` swaps tolerate an optional space after the
@@ -224,7 +224,7 @@ bump "scripts/release/publish-crates.sh" \
 # key anchor is unchanged, so historical-version prose is still skipped.
 # Sweeping `docs/book/src/**/*.md` keeps user-facing examples in step
 # with the release. The translation catalogues (`docs/book/po`) live in the
-# zeroclaw-docs-translations submodule and own their own version-literal swaps,
+# clawcrew-docs-translations submodule and own their own version-literal swaps,
 # so they are not touched here; refresh-translations.sh tags and pins them.
 echo "Docs book examples..."
 docs_files=()
@@ -234,8 +234,8 @@ done < <(find "$REPO_ROOT/docs/book/src" -type f -name '*.md' -print0)
 for f in "${docs_files[@]}"; do
   rel="${f#"$REPO_ROOT"/}"
   bump "$rel" \
-    'zeroclawlabs/zeroclaw:v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?' \
-    "zeroclawlabs/zeroclaw:v${VERSION}"
+    'clawcrewlabs/clawcrew:v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?' \
+    "clawcrewlabs/clawcrew:v${VERSION}"
   bump "$rel" \
     '"version":( ?)"[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]*)?"' \
     "\"version\":\\1\"${VERSION}\""
@@ -290,7 +290,7 @@ fi
 # ── Generated install surfaces (single source of truth) ───────────
 # After the workspace version is bumped, regenerate every spec-driven install
 # surface so version and feature sets stay canonical. This OWNS the version and
-# feature content of setup.bat, dist/aur/PKGBUILD, dist/scoop/zeroclaw.json,
+# feature content of setup.bat, dist/aur/PKGBUILD, dist/scoop/clawcrew.json,
 # flake.nix, the Dockerfiles/Containerfile feature sets, and
 # dev/ci/docker-tags.toml. No per-file sed hacks for those. CI's Installer
 # Drift gate fails if this is skipped.

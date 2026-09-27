@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("[ZeroClaw] Render error:", error, info.componentStack);
+    console.error("[ClawCrew] Render error:", error, info.componentStack);
     // Stale-chunk recovery: when Vite rebuilds, the loaded index.html
     // still references the previous chunk hashes. A dynamic import for
     // a lazy route then 404s with "error loading dynamically imported
@@ -64,9 +64,9 @@ export class ErrorBoundary extends Component<
     // loops if reload doesn't actually help.
     if (
       isChunkLoadError(error) &&
-      !sessionStorage.getItem("zeroclaw-chunk-reloaded")
+      !sessionStorage.getItem("clawcrew-chunk-reloaded")
     ) {
-      sessionStorage.setItem("zeroclaw-chunk-reloaded", "1");
+      sessionStorage.setItem("clawcrew-chunk-reloaded", "1");
       window.location.reload();
     }
   }
@@ -102,7 +102,7 @@ export class ErrorBoundary extends Component<
             </pre>
             <button
               onClick={() => {
-                sessionStorage.removeItem("zeroclaw-chunk-reloaded");
+                sessionStorage.removeItem("clawcrew-chunk-reloaded");
                 this.setState({ error: null });
               }}
               className="btn-electric mt-6 px-4 py-2 text-sm font-medium"
@@ -153,7 +153,7 @@ function PairingDialog({
   // can show the exact recovery command — including the alternate port that made
   // the config-default `get-paircode` miss the running instance (#5266).
   const gatewayPort = window.location.port;
-  const cliRecoveryCommand = `zeroclaw gateway get-paircode --new${gatewayPort ? ` --port ${gatewayPort}` : ""}`;
+  const cliRecoveryCommand = `clawcrew gateway get-paircode --new${gatewayPort ? ` --port ${gatewayPort}` : ""}`;
 
   // Fetch the current pairing code (public endpoint works in Docker too)
   useEffect(() => {
@@ -229,14 +229,14 @@ function PairingDialog({
         <div className="text-center mb-8">
           <img
             src={`${basePath}/_app/logo.png`}
-            alt="ZeroClaw"
+            alt="ClawCrew"
             className="h-20 w-20 rounded-2xl object-cover mx-auto mb-4 animate-float"
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}
           />
           <h1 className="text-2xl font-bold mb-2 text-gradient-blue">
-            ZeroClaw
+            ClawCrew
           </h1>
           <p className="text-sm" style={{ color: "var(--pc-text-muted)" }}>
             {codeLoading
@@ -385,8 +385,8 @@ function AppContent() {
 
   // Listen for 401 events to force logout
   useEffect(() => {
-    window.addEventListener("zeroclaw-unauthorized", logout);
-    return () => window.removeEventListener("zeroclaw-unauthorized", logout);
+    window.addEventListener("clawcrew-unauthorized", logout);
+    return () => window.removeEventListener("clawcrew-unauthorized", logout);
   }, [logout]);
 
   if (loading) {

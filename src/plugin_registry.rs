@@ -4,18 +4,18 @@ use std::fs::File;
 use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
-use zeroclaw::plugins::PluginManifest;
-pub(crate) use zeroclaw::plugins::registry::search_entries;
-use zeroclaw::plugins::registry::{
+use clawcrew::plugins::PluginManifest;
+pub(crate) use clawcrew::plugins::registry::search_entries;
+use clawcrew::plugins::registry::{
     PluginRegistryEntry, PluginRegistryIndex, parse_plugin_spec, resolve_entry,
     write_cached_registry_index,
 };
 
 pub(crate) const DEFAULT_REGISTRY_URL: &str =
-    "https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw-plugins/main/registry.json";
+    "https://raw.githubusercontent.com/clawcrew-labs/clawcrew-plugins/main/registry.json";
 pub(crate) const MAX_PLUGIN_ZIP_BYTES: usize = 50 * 1024 * 1024;
 pub(crate) const MAX_PLUGIN_EXTRACTED_BYTES: u64 = 50 * 1024 * 1024;
-const REGISTRY_URL_ENV: &str = "ZEROCLAW_PLUGIN_REGISTRY_URL";
+const REGISTRY_URL_ENV: &str = "CLAWCREW_PLUGIN_REGISTRY_URL";
 
 pub(crate) struct DownloadedPlugin {
     _temp_dir: TempDir,
@@ -440,12 +440,12 @@ capabilities = ["tool"]
             author: None,
             wasm_path: None,
             wasm_sha256: None,
-            capabilities: vec![zeroclaw::plugins::PluginCapability::Tool],
+            capabilities: vec![clawcrew::plugins::PluginCapability::Tool],
             permissions: Vec::new(),
             config_schema: None,
             signature: None,
             publisher_key: None,
-            egress: zeroclaw::plugins::PluginEgressDeclaration::default(),
+            egress: clawcrew::plugins::PluginEgressDeclaration::default(),
         };
 
         assert!(verify_manifest_matches_registry(&entry, &manifest).is_err());

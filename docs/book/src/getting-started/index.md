@@ -1,6 +1,6 @@
 # Getting Started
 
-Start here if you are installing ZeroClaw for the first time or choosing the simplest path to a working agent.
+Start here if you are installing ClawCrew for the first time or choosing the simplest path to a working agent.
 
 - [Concepts](./concepts.md) defines the terms Quickstart and the config reference assume.
 - [Quickstart](./quickstart.md) covers installation, onboarding, and the first chat.

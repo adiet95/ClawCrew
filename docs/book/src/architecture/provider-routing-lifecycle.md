@@ -1,6 +1,6 @@
 # Provider routing lifecycle
 
-Provider routing begins after ZeroClaw has selected the agent that owns a turn. It covers provider-profile and model selection, retries and fallback, stream recovery, and the attribution that explains which backend served the request. Channel-to-agent dispatch is a separate lifecycle; see [Channel runtime lifecycle](./channel-runtime-lifecycle.md).
+Provider routing begins after ClawCrew has selected the agent that owns a turn. It covers provider-profile and model selection, retries and fallback, stream recovery, and the attribution that explains which backend served the request. Channel-to-agent dispatch is a separate lifecycle; see [Channel runtime lifecycle](./channel-runtime-lifecycle.md).
 
 Use this page when a change touches `model_routes`, session or in-turn model selection, provider fallback, retry classification, rate-limit cooldowns, stream completion, replay after a stream failure, or requested-versus-served provider attribution.
 
@@ -8,12 +8,12 @@ Use this page when a change touches `model_routes`, session or in-turn model sel
 
 | Concern | Current owner | Contract |
 | --- | --- | --- |
-| Provider profiles and fallback graph | `zeroclaw-config` provider schema and validation | A dotted `<family>.<alias>` identifies the endpoint, credentials, optional primary model, capabilities, and ordered fallback declarations for one profile. |
-| Provider construction | `zeroclaw-providers` factory functions | Materialize each profile with its own settings, flatten configured fallback entries in order, and compose routing around reliability. |
+| Provider profiles and fallback graph | `clawcrew-config` provider schema and validation | A dotted `<family>.<alias>` identifies the endpoint, credentials, optional primary model, capabilities, and ordered fallback declarations for one profile. |
+| Provider construction | `clawcrew-providers` factory functions | Materialize each profile with its own settings, flatten configured fallback entries in order, and compose routing around reliability. |
 | Hint-based selection | `RouterModelProvider` | Resolve `hint:<name>` to a configured provider target and route model. The primary target is pinned to the active/default model. A non-primary target is pinned when its profile configures a model; otherwise its reliable entry remains unpinned and receives the route model. |
 | Retry and failover | `ReliableModelProvider` | Classify failures, retry with bounded backoff, honor rate-limit cooldowns, and advance through the materialized entries. |
-| Provider stream termination | Concrete providers and `zeroclaw-providers/src/stream_guard.rs` | Translate each provider protocol's completion semantics into `StreamEvent::Final` or a truncation error. |
-| Stream replay and partial-output commitment | `zeroclaw-runtime/src/agent/turn/provider_call.rs` and `stream_consume.rs` | Retry a failed stream as non-streaming only before immutable event output is committed. Never replay a cancelled or visibly partial response. |
+| Provider stream termination | Concrete providers and `clawcrew-providers/src/stream_guard.rs` | Translate each provider protocol's completion semantics into `StreamEvent::Final` or a truncation error. |
+| Stream replay and partial-output commitment | `clawcrew-runtime/src/agent/turn/provider_call.rs` and `stream_consume.rs` | Retry a failed stream as non-streaming only before immutable event output is committed. Never replay a cancelled or visibly partial response. |
 | Per-call attribution | `ProviderDispatch` | Open attribution scopes around the provider call selected for each attempt. |
 | Successful recovery record | `ReliableModelProvider` | Expose one task-local requested-versus-served record after a successful recovery. In event-instrumented turn paths, the `usage_by_provider` ledger records billable attempts through `TurnEvent::Usage` with serving identity and an `accepted` flag. |
 | User-facing recovery notices | Runtime and channel consumers | Render the successful recovery record for their own output surface. Notice rules are not uniform across consumers. |
@@ -31,7 +31,7 @@ There are two current construction constraints:
 - Route pinning is conditional. The primary target is pinned to the active/default model passed into provider construction, including when a recognized hint points back to the active primary profile; that hint's `model_routes[].model` value does not override the primary pin. A non-primary target with a configured profile model is pinned to that model, so its route model does not override the profile model either. A non-primary target without a configured model is valid and remains unpinned; the route model reaches that provider, and that profile's `fallback_models` are not materialized even though its referenced fallback profiles are still walked. Keep each route model aligned with the target pin when one exists, and account for the unpinned behavior when the target profile omits `model`.
 - Route targets are deduplicated by `model_provider`. If a route supplies `api_key`, the first matching route credential takes precedence when the shared target is constructed. Prefer credentials on the provider profile when several hints share one target.
 
-This ordering matters: routing chooses a reliability domain; it does not bypass reliability. An external routing service such as OpenRouter can still perform server-side selection behind one ZeroClaw profile, but it is optional and does not replace ZeroClaw's first-party route and fallback contracts.
+This ordering matters: routing chooses a reliability domain; it does not bypass reliability. An external routing service such as OpenRouter can still perform server-side selection behind one ClawCrew profile, but it is optional and does not replace ClawCrew's first-party route and fallback contracts.
 
 The operator-facing schema and examples live in [Provider configuration](../providers/configuration.md) and [Routing](../providers/routing.md). Keep field syntax there instead of duplicating it in architecture documents.
 
@@ -47,7 +47,7 @@ For each materialized entry, `ReliableModelProvider` attempts the request up to 
 
 Materialization order and effective execution order can differ after a rate limit. A profile's primary and `fallback_models` entries share one cooldown key, so a `429` on the primary can cause the remaining same-profile models to be skipped while the cooldown is active.
 
-The global `reliability.api_keys` pool is not a working failover mechanism today. The wrapper selects and logs an alternate key after a retryable rate limit, but the `ModelProvider` trait cannot apply that key to the constructed provider, so the retry still uses the original credential. [Issue #9190](https://github.com/zeroclaw-labs/zeroclaw/issues/9190) tracks the repair. Use distinct fallback profiles or an external routing service when credential-level failover is required.
+The global `reliability.api_keys` pool is not a working failover mechanism today. The wrapper selects and logs an alternate key after a retryable rate limit, but the `ModelProvider` trait cannot apply that key to the constructed provider, so the retry still uses the original credential. [Issue #9190](https://github.com/clawcrew-labs/clawcrew/issues/9190) tracks the repair. Use distinct fallback profiles or an external routing service when credential-level failover is required.
 
 Empty completions receive the same bounded retry treatment instead of immediately becoming a blank assistant turn.
 
@@ -59,7 +59,7 @@ Streaming deliberately has a narrower retry contract than non-streaming calls:
 
 1. `ReliableModelProvider` chooses the first ordered entry that supports the requested stream capabilities and is not cooling down.
 2. It opens that stream once. It does not switch entries after the stream has started.
-3. The concrete provider parser translates its protocol's completion semantics into `Final` or an error. Most guarded SSE parsers require their configured completion signal. Anthropic currently also treats EOF after a non-empty `message_delta.stop_reason` as complete even if `message_stop` was not observed; [PR #9447](https://github.com/zeroclaw-labs/zeroclaw/pull/9447) proposes requiring `message_stop`, but that change is not landed.
+3. The concrete provider parser translates its protocol's completion semantics into `Final` or an error. Most guarded SSE parsers require their configured completion signal. Anthropic currently also treats EOF after a non-empty `message_delta.stop_reason` as complete even if `message_stop` was not observed; [PR #9447](https://github.com/clawcrew-labs/clawcrew/pull/9447) proposes requiring `message_stop`, but that change is not landed.
 4. The runtime consumes and sanitizes stream events. If the stream fails before immutable event output is visible, the runtime retries the whole call through the non-streaming path, which re-enters the full reliability walk.
 5. If text, reasoning, or pre-executed tool events have already reached an immutable event sink, interruption becomes `StreamInterruptedAfterOutput`. The runtime does not replay the request. Only text already forwarded to the consumer becomes persisted partial assistant text.
 6. Cancellation never becomes an automatic provider retry. Cancellation before forwarded text aborts the turn. Cancellation after forwarded text preserves that partial assistant text; reasoning-only or pre-executed-tool output does not by itself become persisted partial assistant text on cancellation.
@@ -74,11 +74,11 @@ This division keeps transport recovery in the runtime, provider-specific framing
 
 `ProviderDispatch` opens attribution around each provider call. `ReliableModelProvider` records a requested-versus-served fallback only after a non-streaming call succeeds or a fallback stream completes without error. Runtime and channel code can consume that task-local record to tell a user that recovery occurred.
 
-The record is only a family/model recovery hint. Production entries use the provider family as `display_name`, so the record can lose the dotted profile alias. A same-family, same-model fallback between aliases may therefore be indistinguishable from the requested route. Runtime responses append a model/provider fallback notice when the record differs. Channel delivery adds a footer only for a cross-family change; [issue #7883](https://github.com/zeroclaw-labs/zeroclaw/issues/7883) tracks intra-family notices.
+The record is only a family/model recovery hint. Production entries use the provider family as `display_name`, so the record can lose the dotted profile alias. A same-family, same-model fallback between aliases may therefore be indistinguishable from the requested route. Runtime responses append a model/provider fallback notice when the record differs. Channel delivery adds a footer only for a cross-family change; [issue #7883](https://github.com/clawcrew-labs/clawcrew/issues/7883) tracks intra-family notices.
 
-In event-instrumented turn paths, per-attempt accounting lives in the `usage_by_provider` ledger, not in that record. Every billable attempt in those paths, accepted or rejected, emits `TurnEvent::Usage` carrying its serving `provider_ref`/`model` and an `accepted` flag; the gateway done frame derives `cost_usd` as the sum of the ledger. Standalone one-shot queries without an event sink, including skill reflection, may be cost-tracked without entering this ledger. This resolves [issue #9470](https://github.com/zeroclaw-labs/zeroclaw/issues/9470) (incorrect usage and cost attribution across rejected attempts and stale fallback notices after stream recovery). Do not infer per-attempt cost accuracy from the final fallback notice or requested provider identity alone; read the ledger.
+In event-instrumented turn paths, per-attempt accounting lives in the `usage_by_provider` ledger, not in that record. Every billable attempt in those paths, accepted or rejected, emits `TurnEvent::Usage` carrying its serving `provider_ref`/`model` and an `accepted` flag; the gateway done frame derives `cost_usd` as the sum of the ledger. Standalone one-shot queries without an event sink, including skill reflection, may be cost-tracked without entering this ledger. This resolves [issue #9470](https://github.com/clawcrew-labs/clawcrew/issues/9470) (incorrect usage and cost attribution across rejected attempts and stale fallback notices after stream recovery). Do not infer per-attempt cost accuracy from the final fallback notice or requested provider identity alone; read the ledger.
 
-Content refusal and safeguard fallback is also a separate proposed contract from transport reliability. [Tracker #9293](https://github.com/zeroclaw-labs/zeroclaw/issues/9293) coordinates that work across provider, configuration, channel, gateway, and web surfaces. The serving-identity and per-attempt ledger work in [PR #8966](https://github.com/zeroclaw-labs/zeroclaw/pull/8966) closes the Reliable cost-attribution gap; content-refusal fallback remains tracked separately.
+Content refusal and safeguard fallback is also a separate proposed contract from transport reliability. [Tracker #9293](https://github.com/clawcrew-labs/clawcrew/issues/9293) coordinates that work across provider, configuration, channel, gateway, and web surfaces. The serving-identity and per-attempt ledger work in [PR #8966](https://github.com/clawcrew-labs/clawcrew/pull/8966) closes the Reliable cost-attribution gap; content-refusal fallback remains tracked separately.
 
 ## Change checklist
 
@@ -96,11 +96,11 @@ For provider-routing changes, answer these before reviewer sign-off:
 
 ## Source pointers
 
-- Provider trait and stream events: `crates/zeroclaw-api/src/model_provider.rs`
-- Route selection: `crates/zeroclaw-providers/src/router.rs`
-- Profile model pinning: `crates/zeroclaw-providers/src/model_pin.rs`
-- Retry, cooldown, fallback, and fallback notices: `crates/zeroclaw-providers/src/reliable.rs`
-- Provider construction and fallback-graph materialization: `crates/zeroclaw-providers/src/lib.rs`, `crates/zeroclaw-providers/src/factory.rs`
-- Provider stream completion guard: `crates/zeroclaw-providers/src/stream_guard.rs`
-- Runtime stream replay and partial-output handling: `crates/zeroclaw-runtime/src/agent/turn/provider_call.rs`, `crates/zeroclaw-runtime/src/agent/turn/stream_consume.rs`
+- Provider trait and stream events: `crates/clawcrew-api/src/model_provider.rs`
+- Route selection: `crates/clawcrew-providers/src/router.rs`
+- Profile model pinning: `crates/clawcrew-providers/src/model_pin.rs`
+- Retry, cooldown, fallback, and fallback notices: `crates/clawcrew-providers/src/reliable.rs`
+- Provider construction and fallback-graph materialization: `crates/clawcrew-providers/src/lib.rs`, `crates/clawcrew-providers/src/factory.rs`
+- Provider stream completion guard: `crates/clawcrew-providers/src/stream_guard.rs`
+- Runtime stream replay and partial-output handling: `crates/clawcrew-runtime/src/agent/turn/provider_call.rs`, `crates/clawcrew-runtime/src/agent/turn/stream_consume.rs`
 - Operator guides: [Provider configuration](../providers/configuration.md), [Routing](../providers/routing.md), [Streaming](../providers/streaming.md)

@@ -341,7 +341,7 @@ graphify-out/
 
 ## Integration with Codebase Navigation
 
-This skill is the **primary codebase navigation tool** for ZeroClaw. Per `.gemini/steering.md` and `AGENTS.md`:
+This skill is the **primary codebase navigation tool** for ClawCrew. Per `.gemini/steering.md` and `AGENTS.md`:
 
 1. **Graph first** — query `graphify-out/` before any grep or directory walk.
 2. **Grep second** — only for line-level detail after graphify identifies target files.

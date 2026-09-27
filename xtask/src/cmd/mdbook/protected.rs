@@ -9,8 +9,8 @@ pub struct ProtectedLiteral {
 }
 
 const DOC_LOCAL_TERMS: &[&str] = &[
-    "ZeroClaw",
-    "ZeroClaw Maturity Framework",
+    "ClawCrew",
+    "ClawCrew Maturity Framework",
     "zerocode",
     "ACP",
     "MCP",
@@ -26,7 +26,7 @@ const DOC_LOCAL_TERMS: &[&str] = &[
 const COMMAND_PREFIXES: &[&str] = &[
     "bash",
     "cd",
-    "zeroclaw",
+    "clawcrew",
     "zerocode",
     "cargo",
     "git",
@@ -319,13 +319,13 @@ fn protected_terms() -> &'static [String] {
             .map(|term| (*term).to_string())
             .collect();
 
-        for provider in zeroclaw_providers::list_model_providers() {
+        for provider in clawcrew_providers::list_model_providers() {
             if is_protected_registry_term(provider.display_name) {
                 terms.insert(provider.display_name.to_string());
             }
         }
 
-        for channel in zeroclaw_config::schema::Config::default()
+        for channel in clawcrew_config::schema::Config::default()
             .channels
             .channels()
         {
@@ -838,7 +838,7 @@ mod tests {
         assert!(!texts("Signal is important.").contains(&"Signal".to_string()));
         assert!(!texts("Signal does matter.").contains(&"Signal".to_string()));
         assert!(
-            !texts("Signal reviewer trust improves ZeroClaw contributions.")
+            !texts("Signal reviewer trust improves ClawCrew contributions.")
                 .contains(&"Signal".to_string())
         );
         assert!(!texts("# Filesystem components").contains(&"Filesystem".to_string()));
@@ -1014,8 +1014,8 @@ mod tests {
 
     #[test]
     fn extracts_cli_command_and_placeholders() {
-        let literals = texts("Run `zeroclaw [OPTIONS] <COMMAND>`.");
-        assert!(literals.contains(&"zeroclaw".to_string()));
+        let literals = texts("Run `clawcrew [OPTIONS] <COMMAND>`.");
+        assert!(literals.contains(&"clawcrew".to_string()));
         assert!(!literals.contains(&"[OPTIONS]".to_string()));
         assert!(!literals.contains(&"<COMMAND>".to_string()));
     }
@@ -1031,22 +1031,22 @@ mod tests {
     #[test]
     fn does_not_synthesize_shell_operator_commands() {
         let literals =
-            texts("Run `systemctl --user daemon-reload && systemctl --user restart zeroclaw`.");
+            texts("Run `systemctl --user daemon-reload && systemctl --user restart clawcrew`.");
         assert!(!literals.contains(&"systemctl --user --user".to_string()));
         assert!(literals.contains(&"systemctl --user daemon-reload".to_string()));
-        assert!(literals.contains(&"systemctl --user restart zeroclaw".to_string()));
+        assert!(literals.contains(&"systemctl --user restart clawcrew".to_string()));
         assert!(literals.contains(&"--user".to_string()));
     }
 
     #[test]
     fn extracts_compound_shell_command_segments() {
         let literals = texts(
-            "Run `git clone https://github.com/zeroclaw-labs/zeroclaw && cd zeroclaw && source ~/.cargo/env`.",
+            "Run `git clone https://github.com/clawcrew-labs/clawcrew && cd clawcrew && source ~/.cargo/env`.",
         );
         assert!(
-            literals.contains(&"git clone https://github.com/zeroclaw-labs/zeroclaw".to_string())
+            literals.contains(&"git clone https://github.com/clawcrew-labs/clawcrew".to_string())
         );
-        assert!(literals.contains(&"cd zeroclaw".to_string()));
+        assert!(literals.contains(&"cd clawcrew".to_string()));
         assert!(literals.contains(&"source ~/.cargo/env".to_string()));
     }
 
@@ -1134,8 +1134,8 @@ mod tests {
 
     #[test]
     fn preservation_prompt_lists_literals() {
-        let prompt = preservation_prompt("Run `zeroclaw daemon` with OpenAI.").unwrap();
-        assert!(prompt.contains("- zeroclaw daemon"));
+        let prompt = preservation_prompt("Run `clawcrew daemon` with OpenAI.").unwrap();
+        assert!(prompt.contains("- clawcrew daemon"));
         assert!(prompt.contains("- OpenAI"));
     }
 

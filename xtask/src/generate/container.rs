@@ -19,12 +19,12 @@ pub fn render_features(
     indent: &str,
 ) -> anyhow::Result<String> {
     let list = spec::resolve_feature_list(manifest_dir, selection)?;
-    Ok(format!("{indent}ZEROCLAW_FEATURES=\"{}\"", list.join(",")))
+    Ok(format!("{indent}CLAWCREW_FEATURES=\"{}\"", list.join(",")))
 }
 
 pub fn render_features_arg(manifest_dir: &Path, selection: &Selection) -> anyhow::Result<String> {
     let flags = spec::resolve_flags(manifest_dir, selection)?;
-    Ok(format!("ARG ZEROCLAW_CARGO_FLAGS=\"{flags}\""))
+    Ok(format!("ARG CLAWCREW_CARGO_FLAGS=\"{flags}\""))
 }
 
 /// Splice a named zone's body into `current`, preserving everything else.
@@ -82,9 +82,9 @@ mod tests {
     #[test]
     fn full_renders_explicit_default_leaves() {
         let b = render_features(&root(), &Selection::Full, "    ").unwrap();
-        // Full emits the explicit resolved default leaves as a ZEROCLAW_FEATURES
+        // Full emits the explicit resolved default leaves as a CLAWCREW_FEATURES
         // assignment (drift-checkable), not a bare comment.
-        assert!(b.contains("ZEROCLAW_FEATURES="));
+        assert!(b.contains("CLAWCREW_FEATURES="));
         assert!(b.contains("gateway"), "default includes gateway");
     }
 

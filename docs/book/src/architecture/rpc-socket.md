@@ -9,30 +9,30 @@ webhooks, the web dashboard, and remote REST consumers.
 
 Each data directory gets its own endpoint, so multiple daemon instances on the
 same machine do not collide. The data dir is derived from the config dir
-(`--config-dir` / `ZEROCLAW_CONFIG_DIR`, or `ZEROCLAW_DATA_DIR`).
+(`--config-dir` / `CLAWCREW_CONFIG_DIR`, or `CLAWCREW_DATA_DIR`).
 
 | OS | Default endpoint |
 |---|---|
 | Linux | `<data_dir>/daemon.sock` (Unix domain socket) |
 | macOS | `<data_dir>/daemon.sock` (Unix domain socket) |
-| Windows | `\\.\pipe\zeroclaw-<hash>` where `<hash>` is derived from `data_dir` |
+| Windows | `\\.\pipe\clawcrew-<hash>` where `<hash>` is derived from `data_dir` |
 
-Override with the `ZEROCLAW_SOCKET` environment variable on either platform:
+Override with the `CLAWCREW_SOCKET` environment variable on either platform:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-export ZEROCLAW_SOCKET=/tmp/my-zeroclaw.sock
-zeroclaw daemon
+export CLAWCREW_SOCKET=/tmp/my-clawcrew.sock
+clawcrew daemon
 ```
 
 #### PowerShell
 
 ```powershell
-$env:ZEROCLAW_SOCKET = '\\.\pipe\my-zeroclaw'
-zeroclaw daemon
+$env:CLAWCREW_SOCKET = '\\.\pipe\my-clawcrew'
+clawcrew daemon
 ```
 
 </div>
@@ -132,7 +132,7 @@ Event types: `agent_message_chunk`, `agent_thought_chunk`, `tool_call`,
 
 ## Ephemeral mode
 
-`zeroclaw daemon --ephemeral` tracks connected clients and self-terminates
+`clawcrew daemon --ephemeral` tracks connected clients and self-terminates
 when the last one disconnects (after a 1-second grace period). A reconnect
 during the grace period cancels the shutdown. The daemon will not exit until
 at least one client has connected.
@@ -157,7 +157,7 @@ Start the daemon in one terminal:
 #### sh
 
 ```sh
-zeroclaw daemon
+clawcrew daemon
 ```
 
 </div>
@@ -169,7 +169,7 @@ In a second terminal on Unix, connect with `socat`:
 #### sh
 
 ```sh
-socat READLINE UNIX-CONNECT:~/.zeroclaw/data/daemon.sock
+socat READLINE UNIX-CONNECT:~/.clawcrew/data/daemon.sock
 ```
 
 </div>
@@ -186,7 +186,7 @@ On Windows, use any named-pipe client (PowerShell `[System.IO.Pipes.NamedPipeCli
 
 ## Internals
 
-The dispatch layer lives in `crates/zeroclaw-runtime/src/rpc/`:
+The dispatch layer lives in `crates/clawcrew-runtime/src/rpc/`:
 
 | File | Role |
 |---|---|

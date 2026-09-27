@@ -46,9 +46,9 @@
         };
         # >>> generated:flake-packages by `cargo generate installers` - do not edit <<<
         # Default feature set: canonical lean Dist.
-        # Override with `packages.zeroclaw.override { features = [ ... ]; }`.
-        zeroclawDefaultFeatures = [ "acp-bridge" "agent-runtime" "channel-acp-server" "channel-discord" "channel-email" "channel-filesystem" "channel-git" "channel-lark" "channel-matrix" "channel-telegram" "channel-webhook" "gateway" "observability-prometheus" "schema-export" "whatsapp-web" ];
-        buildZeroclaw = { pname, cargoPkg, features ? zeroclawDefaultFeatures }:
+        # Override with `packages.clawcrew.override { features = [ ... ]; }`.
+        clawcrewDefaultFeatures = [ "acp-bridge" "agent-runtime" "channel-acp-server" "channel-discord" "channel-email" "channel-filesystem" "channel-git" "channel-lark" "channel-matrix" "channel-telegram" "channel-webhook" "gateway" "observability-prometheus" "schema-export" "whatsapp-web" ];
+        buildZeroclaw = { pname, cargoPkg, features ? clawcrewDefaultFeatures }:
           (pkgs.makeRustPlatform {
             cargo = rustToolchain;
             rustc = rustToolchain;
@@ -69,11 +69,11 @@
           };
         # >>> end generated:flake-packages <<<
       in {
-        packages.zeroclaw = buildZeroclaw { pname = "zeroclaw"; cargoPkg = "zeroclaw"; };
+        packages.clawcrew = buildZeroclaw { pname = "clawcrew"; cargoPkg = "clawcrew"; };
         packages.zerocode = buildZeroclaw { pname = "zerocode"; cargoPkg = "zerocode"; };
-        packages.default = buildZeroclaw { pname = "zeroclaw"; cargoPkg = "zeroclaw"; };
+        packages.default = buildZeroclaw { pname = "clawcrew"; cargoPkg = "clawcrew"; };
         checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-          nixos-module-eval = pkgs.writeText "zeroclaw-nixos-module-eval" (
+          nixos-module-eval = pkgs.writeText "clawcrew-nixos-module-eval" (
             builtins.toJSON nixosModuleEvalTests
           );
         };
@@ -86,7 +86,7 @@
           ];
         };
       }) // {
-      # The `services.zeroclaw` NixOS module (multi-instance; see nix/module.nix
+      # The `services.clawcrew` NixOS module (multi-instance; see nix/module.nix
       # and nix/README.md). Exposed as the default so `nixosModules.default` can
       # be imported directly into a system configuration.
       nixosModules.default = import ./nix/module.nix;

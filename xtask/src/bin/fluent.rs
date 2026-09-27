@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 use xtask::cmd;
 
 #[derive(Parser)]
-#[command(name = "fluent", about = "ZeroClaw Fluent app UI translation")]
+#[command(name = "fluent", about = "ClawCrew Fluent app UI translation")]
 struct Cli {
     #[command(subcommand)]
     command: Cmd,
@@ -30,7 +30,7 @@ enum Cmd {
         #[arg(long)]
         model_provider: Option<String>,
         /// Config directory holding config.toml and .secret-key (default:
-        /// ~/.zeroclaw). Mirrors `zeroclaw --config-dir`.
+        /// ~/.clawcrew). Mirrors `clawcrew --config-dir`.
         #[arg(long)]
         config_dir: Option<String>,
         /// Restrict to one catalogue family (`runtime` or `zerocode`).

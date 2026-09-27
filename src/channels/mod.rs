@@ -1,19 +1,19 @@
-pub use zeroclaw_channels::orchestrator::*;
+pub use clawcrew_channels::orchestrator::*;
 #[cfg(feature = "channel-matrix")]
 pub mod matrix;
 #[cfg(feature = "channel-telegram")]
 pub mod telegram;
 pub mod session_backend {
-    pub use zeroclaw_infra::session_backend::*;
+    pub use clawcrew_infra::session_backend::*;
 }
 pub mod session_sqlite {
-    pub use zeroclaw_infra::session_sqlite::*;
+    pub use clawcrew_infra::session_sqlite::*;
 }
 
 use crate::config::Config;
 use anyhow::Result;
-use zeroclaw_runtime::i18n::get_required_cli_string;
-use zeroclaw_runtime::i18n::get_required_cli_string_with_args;
+use clawcrew_runtime::i18n::get_required_cli_string;
+use clawcrew_runtime::i18n::get_required_cli_string_with_args;
 
 pub async fn handle_command(command: crate::ChannelCommands, config: &Config) -> Result<()> {
     match command {
@@ -26,7 +26,7 @@ pub async fn handle_command(command: crate::ChannelCommands, config: &Config) ->
         crate::ChannelCommands::List => {
             println!("{}", get_required_cli_string("cli-channels-header"));
             println!("{}", get_required_cli_string("cli-channels-cli-always"));
-            for entry in zeroclaw_channels::listing::compiled_channels(&config.channels) {
+            for entry in clawcrew_channels::listing::compiled_channels(&config.channels) {
                 println!(
                     "  {} {}",
                     if entry.configured { "✅" } else { "❌" },
@@ -34,7 +34,7 @@ pub async fn handle_command(command: crate::ChannelCommands, config: &Config) ->
                 );
             }
             let uncompiled =
-                zeroclaw_channels::listing::configured_uncompiled_channels(&config.channels);
+                clawcrew_channels::listing::configured_uncompiled_channels(&config.channels);
             if !uncompiled.is_empty() {
                 println!();
                 println!(
@@ -76,11 +76,11 @@ pub async fn handle_command(command: crate::ChannelCommands, config: &Config) ->
             config: _,
         } => {
             anyhow::bail!(
-                "Channel type '{channel_type}' — use `zeroclaw config set channels.{channel_type}.<alias>.<field>=<value>` to configure"
+                "Channel type '{channel_type}' — use `clawcrew config set channels.{channel_type}.<alias>.<field>=<value>` to configure"
             );
         }
         crate::ChannelCommands::Remove { name } => {
-            anyhow::bail!("Remove channel '{name}' — edit ~/.zeroclaw/config.toml directly");
+            anyhow::bail!("Remove channel '{name}' — edit ~/.clawcrew/config.toml directly");
         }
         crate::ChannelCommands::BindTelegram { identity, alias } => {
             Box::pin(bind_telegram_identity(config, &identity, &alias)).await

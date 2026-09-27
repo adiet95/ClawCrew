@@ -26,15 +26,15 @@ fi
 mkdir -p \
   "$context_dir/bin/amd64" \
   "$context_dir/bin/arm64" \
-  "$context_dir/zeroclaw-data/.zeroclaw" \
-  "$context_dir/zeroclaw-data/data"
+  "$context_dir/clawcrew-data/.clawcrew" \
+  "$context_dir/clawcrew-data/data"
 
 case "$mode" in
   from-artifacts)
-    tar xzf "$artifact_dir/zeroclaw-x86_64-unknown-linux-gnu.tar.gz" -C "$context_dir/bin/amd64"
-    tar xzf "$artifact_dir/zeroclaw-aarch64-unknown-linux-gnu.tar.gz" -C "$context_dir/bin/arm64"
+    tar xzf "$artifact_dir/clawcrew-x86_64-unknown-linux-gnu.tar.gz" -C "$context_dir/bin/amd64"
+    tar xzf "$artifact_dir/clawcrew-aarch64-unknown-linux-gnu.tar.gz" -C "$context_dir/bin/arm64"
     for arch in amd64 arm64; do
-      for bin in zeroclaw zerocode; do
+      for bin in clawcrew zerocode; do
         [[ -x "$context_dir/bin/$arch/$bin" ]] || {
           echo "missing executable: $context_dir/bin/$arch/$bin" >&2
           exit 1
@@ -49,14 +49,14 @@ case "$mode" in
   smoke)
     for arch in amd64 arm64; do
       mkdir -p "$context_dir/bin/$arch/web/dist"
-      for bin in zeroclaw zerocode; do
+      for bin in clawcrew zerocode; do
         cat > "$context_dir/bin/$arch/$bin" <<EOF
 #!/usr/bin/env sh
 echo "$bin smoke binary"
 EOF
         chmod +x "$context_dir/bin/$arch/$bin"
       done
-      printf '<!doctype html><title>ZeroClaw smoke dashboard</title>\n' \
+      printf '<!doctype html><title>ClawCrew smoke dashboard</title>\n' \
         > "$context_dir/bin/$arch/web/dist/index.html"
     done
     ;;
@@ -72,8 +72,8 @@ printf '%s\n' \
   'port = 42617' \
   'host = "[::]"' \
   'allow_public_bind = true' \
-  'web_dist_dir = "/usr/share/zeroclawlabs/web/dist"' \
-  > "$context_dir/zeroclaw-data/.zeroclaw/config.toml"
+  'web_dist_dir = "/usr/share/clawcrewlabs/web/dist"' \
+  > "$context_dir/clawcrew-data/.clawcrew/config.toml"
 
 rm -f "$context_dir/Dockerfile.debian"
 cp Dockerfile.ci "$context_dir/Dockerfile"

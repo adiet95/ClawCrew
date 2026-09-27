@@ -14,7 +14,7 @@ pub const DEFAULT_GATEWAY_URL: &str = "http://127.0.0.1:42617";
 /// dashboard open, health polling) reads the resolved URL from shared state so
 /// the port is defined in exactly one place.
 pub fn resolve_gateway_url() -> String {
-    std::env::var("ZEROCLAW_GATEWAY_URL")
+    std::env::var("CLAWCREW_GATEWAY_URL")
         .ok()
         .filter(|url| !url.trim().is_empty())
         .unwrap_or_else(|| DEFAULT_GATEWAY_URL.to_string())

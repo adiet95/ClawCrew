@@ -2,7 +2,7 @@ import re
 import os
 
 # Update roadmap
-path_roadmap = 'docs/zeroclaw-kirocrew-roadmap.md'
+path_roadmap = 'docs/clawcrew-kirocrew-roadmap.md'
 if os.path.exists(path_roadmap):
     with open(path_roadmap, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -18,9 +18,9 @@ if os.path.exists(path_roadmap):
     text = re.sub(r'## P3: Product Maturity.*?## Suggested Delivery Order', '## Suggested Delivery Order', text, flags=re.DOTALL)
 
     # Remove task references at the bottom
-    text = text.replace('- [Phase 0 tasks](zeroclaw-phase0.md)\n', '')
-    text = text.replace('- [Phase 1 tasks](zeroclaw-phase1.md)\n', '')
-    text = text.replace('- [Phase 3 tasks](zeroclaw-phase3.md)\n', '')
+    text = text.replace('- [Phase 0 tasks](clawcrew-phase0.md)\n', '')
+    text = text.replace('- [Phase 1 tasks](clawcrew-phase1.md)\n', '')
+    text = text.replace('- [Phase 3 tasks](clawcrew-phase3.md)\n', '')
 
     # Update audit text
     text = text.replace('**route-selection wiring** (move the reliability contract below the runtime),\n', '')

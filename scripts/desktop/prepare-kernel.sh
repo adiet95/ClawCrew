@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# prepare-kernel.sh: build (or reuse) the `zeroclaw` kernel binary and place it
+# prepare-kernel.sh: build (or reuse) the `clawcrew` kernel binary and place it
 # where the Tauri bundler expects a sidecar, so the desktop installer is
 # self-contained — double-click, and the app starts its own daemon from the
 # bundled kernel with nothing pre-installed.
 #
-# The desktop app already prefers a sibling `zeroclaw` binary at runtime
-# (apps/tauri/src/daemon.rs::find_zeroclaw_binary), which is exactly where
+# The desktop app already prefers a sibling `clawcrew` binary at runtime
+# (apps/tauri/src/daemon.rs::find_clawcrew_binary), which is exactly where
 # Tauri places externalBin sidecars. This script only produces the build-time
-# input: apps/tauri/binaries/zeroclaw-<target-triple>[.exe].
+# input: apps/tauri/binaries/clawcrew-<target-triple>[.exe].
 #
 # Usage:
 #   scripts/desktop/prepare-kernel.sh                          # host triple
@@ -20,7 +20,7 @@ set -euo pipefail
 #       --features embedded-web
 #
 # Environment:
-#   ZEROCLAW_KERNEL_PATH   Reuse an existing kernel binary instead of building
+#   CLAWCREW_KERNEL_PATH   Reuse an existing kernel binary instead of building
 #                          (single-target only; ignored for universal). Requested
 #                          features must already be present in that binary.
 #   CARGO_PROFILE          Cargo profile to build (default: release).
@@ -71,22 +71,22 @@ build_kernel() {
   local triple="$1"
   local exe=""
   [[ "$triple" == *windows* ]] && exe=".exe"
-  if [[ -n "${ZEROCLAW_KERNEL_PATH:-}" ]]; then
-    echo "prepare-kernel: using prebuilt kernel: $ZEROCLAW_KERNEL_PATH" >&2
-    check_arch "$ZEROCLAW_KERNEL_PATH" "$triple"
-    echo "$ZEROCLAW_KERNEL_PATH"
+  if [[ -n "${CLAWCREW_KERNEL_PATH:-}" ]]; then
+    echo "prepare-kernel: using prebuilt kernel: $CLAWCREW_KERNEL_PATH" >&2
+    check_arch "$CLAWCREW_KERNEL_PATH" "$triple"
+    echo "$CLAWCREW_KERNEL_PATH"
     return
   fi
   if [[ -n "$FEATURES" ]]; then
-    echo "prepare-kernel: cargo build --profile $PROFILE --bin zeroclaw --target $triple --features $FEATURES" >&2
-    (cd "$REPO_ROOT" && cargo build --profile "$PROFILE" --bin zeroclaw --target "$triple" --features "$FEATURES")
+    echo "prepare-kernel: cargo build --profile $PROFILE --bin clawcrew --target $triple --features $FEATURES" >&2
+    (cd "$REPO_ROOT" && cargo build --profile "$PROFILE" --bin clawcrew --target "$triple" --features "$FEATURES")
   else
-    echo "prepare-kernel: cargo build --profile $PROFILE --bin zeroclaw --target $triple" >&2
-    (cd "$REPO_ROOT" && cargo build --profile "$PROFILE" --bin zeroclaw --target "$triple")
+    echo "prepare-kernel: cargo build --profile $PROFILE --bin clawcrew --target $triple" >&2
+    (cd "$REPO_ROOT" && cargo build --profile "$PROFILE" --bin clawcrew --target "$triple")
   fi
   local dir="release"
   [[ "$PROFILE" != "release" ]] && dir="$PROFILE"
-  echo "$REPO_ROOT/target/$triple/$dir/zeroclaw$exe"
+  echo "$REPO_ROOT/target/$triple/$dir/clawcrew$exe"
 }
 
 # Strip a copy of the kernel into place; re-sign on macOS (stripping
@@ -108,24 +108,24 @@ place_stripped() {
 mkdir -p "$OUT_DIR"
 
 if [[ "$TARGET" == "universal-apple-darwin" ]]; then
-  # Tauri's universal build expects binaries/zeroclaw-universal-apple-darwin.
+  # Tauri's universal build expects binaries/clawcrew-universal-apple-darwin.
   # A single prebuilt kernel can't serve both slices — always build per-arch.
-  ZEROCLAW_KERNEL_PATH=""
+  CLAWCREW_KERNEL_PATH=""
   ARM_SRC="$(build_kernel aarch64-apple-darwin)"
   X86_SRC="$(build_kernel x86_64-apple-darwin)"
-  place_stripped "$ARM_SRC" "$OUT_DIR/zeroclaw-aarch64-apple-darwin"
-  place_stripped "$X86_SRC" "$OUT_DIR/zeroclaw-x86_64-apple-darwin"
+  place_stripped "$ARM_SRC" "$OUT_DIR/clawcrew-aarch64-apple-darwin"
+  place_stripped "$X86_SRC" "$OUT_DIR/clawcrew-x86_64-apple-darwin"
   lipo -create \
-    "$OUT_DIR/zeroclaw-aarch64-apple-darwin" \
-    "$OUT_DIR/zeroclaw-x86_64-apple-darwin" \
-    -output "$OUT_DIR/zeroclaw-universal-apple-darwin"
-  DEST="$OUT_DIR/zeroclaw-universal-apple-darwin"
+    "$OUT_DIR/clawcrew-aarch64-apple-darwin" \
+    "$OUT_DIR/clawcrew-x86_64-apple-darwin" \
+    -output "$OUT_DIR/clawcrew-universal-apple-darwin"
+  DEST="$OUT_DIR/clawcrew-universal-apple-darwin"
 else
   TARGET="${TARGET:-$(host_triple)}"
   EXE=""
   [[ "$TARGET" == *windows* ]] && EXE=".exe"
   SRC="$(build_kernel "$TARGET")"
-  DEST="$OUT_DIR/zeroclaw-$TARGET$EXE"
+  DEST="$OUT_DIR/clawcrew-$TARGET$EXE"
   place_stripped "$SRC" "$DEST"
 fi
 

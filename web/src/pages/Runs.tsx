@@ -38,7 +38,7 @@ export default function Runs() {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     const url = `${proto}//${location.host}${basePath || ''}/ws/sops/runs`;
     const token = getToken();
-    const protocols = token ? ['zeroclaw.v1', `bearer.${token}`] : ['zeroclaw.v1'];
+    const protocols = token ? ['clawcrew.v1', `bearer.${token}`] : ['clawcrew.v1'];
 
     let stopped = false;
     let retry: number | undefined;

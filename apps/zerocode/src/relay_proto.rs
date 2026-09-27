@@ -1,19 +1,19 @@
-//! Client-side relay wire frames for `zeroclaw.relay.v1`.
+//! Client-side relay wire frames for `clawcrew.relay.v1`.
 //!
 //! Keep this small and dependency-light: zerocode is an RPC/wire client and must
-//! not link backend `zeroclaw-*` crates. The daemon and relay own their shared
+//! not link backend `clawcrew-*` crates. The daemon and relay own their shared
 //! protocol crate; this module mirrors only the frames the client sends or
 //! receives.
 
 use serde::{Deserialize, Serialize};
 
-pub const SUBPROTOCOL: &str = "zeroclaw.relay.v1";
+pub const SUBPROTOCOL: &str = "clawcrew.relay.v1";
 pub const MAX_CONTROL_FRAME: usize = 64 * 1024;
 pub const MAX_DATA_PAYLOAD: usize = 64 * 1024;
 /// Largest legal WebSocket message on the relay plane: a `DATA` message is an
 /// 8-byte `conn_id` header plus at most [`MAX_DATA_PAYLOAD`]; control frames are
-/// bounded by [`MAX_CONTROL_FRAME`]. Mirrors `zeroclaw-relay-proto`; zerocode
-/// cannot depend on `zeroclaw-*` crates (RPC-boundary gate), so this module is
+/// bounded by [`MAX_CONTROL_FRAME`]. Mirrors `clawcrew-relay-proto`; zerocode
+/// cannot depend on `clawcrew-*` crates (RPC-boundary gate), so this module is
 /// a deliberate copy and the two must be changed together.
 pub const MAX_WS_MESSAGE: usize = if MAX_CONTROL_FRAME > MAX_DATA_PAYLOAD + 8 {
     MAX_CONTROL_FRAME

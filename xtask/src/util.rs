@@ -238,7 +238,7 @@ pub fn run_cmd(cmd: &mut Command) -> anyhow::Result<()> {
 
 pub fn fluent_catalog_roots_named(root: &Path) -> Vec<(&'static str, PathBuf)> {
     vec![
-        ("runtime", root.join("crates/zeroclaw-runtime/locales")),
+        ("runtime", root.join("crates/clawcrew-runtime/locales")),
         ("zerocode", root.join("apps/zerocode/locales")),
     ]
 }
@@ -271,7 +271,7 @@ pub fn fluent_catalog_roots(root: &Path) -> Vec<PathBuf> {
 }
 
 pub fn fluent_locales_dir(root: &Path) -> PathBuf {
-    root.join("crates/zeroclaw-runtime/locales")
+    root.join("crates/clawcrew-runtime/locales")
 }
 
 /// Locale codes present in a single catalogue root (its `<locale>/` subdirs).
@@ -309,14 +309,14 @@ pub fn ftl_files_in(locale_dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
 pub fn build_model_provider(
     provider_name: &str,
     config_dir: Option<&str>,
-) -> anyhow::Result<(Box<dyn zeroclaw_api::model_provider::ModelProvider>, String)> {
+) -> anyhow::Result<(Box<dyn clawcrew_api::model_provider::ModelProvider>, String)> {
     let home =
         std::env::var("HOME").unwrap_or_else(|_| std::env::var("USERPROFILE").unwrap_or_default());
     let dir_candidates: Vec<std::path::PathBuf> = match config_dir {
         Some(d) => vec![std::path::PathBuf::from(d)],
         None => vec![
-            std::path::PathBuf::from(format!("{home}/.zeroclaw")),
-            std::path::PathBuf::from(format!("{home}/.config/zeroclaw")),
+            std::path::PathBuf::from(format!("{home}/.clawcrew")),
+            std::path::PathBuf::from(format!("{home}/.config/clawcrew")),
         ],
     };
     let dir = dir_candidates
@@ -324,15 +324,15 @@ pub fn build_model_provider(
         .find(|d| d.join("config.toml").is_file())
         .ok_or_else(|| {
             anyhow::Error::msg(
-                "config.toml not found (looked under --config-dir / ~/.zeroclaw / ~/.config/zeroclaw)",
+                "config.toml not found (looked under --config-dir / ~/.clawcrew / ~/.config/clawcrew)",
             )
         })?;
 
     let raw = std::fs::read_to_string(dir.join("config.toml"))?;
-    let mut config: zeroclaw_config::schema::Config = toml::from_str(&raw)?;
+    let mut config: clawcrew_config::schema::Config = toml::from_str(&raw)?;
 
     // Decrypt secrets through the canonical store (same path the daemon uses).
-    let store = zeroclaw_config::secrets::SecretStore::new(&dir, config.secrets.encrypt);
+    let store = clawcrew_config::secrets::SecretStore::new(&dir, config.secrets.encrypt);
     config.decrypt_secrets(&store)?;
 
     // Resolve bare-or-dotted name to a concrete `kind.alias` + its model + key.
@@ -357,8 +357,8 @@ pub fn build_model_provider(
     };
     let dotted = format!("{kind}.{alias}");
 
-    let options = zeroclaw_providers::provider_runtime_options_for_alias(&config, kind, &alias);
-    let provider = zeroclaw_providers::create_resilient_model_provider_from_ref(
+    let options = clawcrew_providers::provider_runtime_options_for_alias(&config, kind, &alias);
+    let provider = clawcrew_providers::create_resilient_model_provider_from_ref(
         &config,
         &dotted,
         api_key.as_deref(),

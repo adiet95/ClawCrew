@@ -95,7 +95,7 @@ export async function loadAgentSummaries(): Promise<AgentSummary[]> {
     keys.map(async (alias): Promise<AgentSummary> => {
       const { entries } = await listProps(`agents.${alias}`);
       // Configurable-macro paths are kebab-case (snake field names
-      // converted via snake_to_kebab in zeroclaw-macros).
+      // converted via snake_to_kebab in clawcrew-macros).
       const lookup = (suffixKebab: string) =>
         entries.find((e) => e.path === `agents.${alias}.${suffixKebab}`);
       const stringField = (suffixKebab: string): string => {

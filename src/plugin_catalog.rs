@@ -1,9 +1,9 @@
 //! Thin CLI adapter for the read-only plugin package catalog.
 
-use zeroclaw::plugins::catalog::{PluginCatalogEntry, package_catalog};
-use zeroclaw::plugins::host::PluginHost;
-use zeroclaw::plugins::registry::read_cached_registry_index;
-use zeroclaw_runtime::i18n::{get_required_cli_string, get_required_cli_string_with_args};
+use clawcrew::plugins::catalog::{PluginCatalogEntry, package_catalog};
+use clawcrew::plugins::host::PluginHost;
+use clawcrew::plugins::registry::read_cached_registry_index;
+use clawcrew_runtime::i18n::{get_required_cli_string, get_required_cli_string_with_args};
 
 pub(crate) fn print(config: &crate::config::schema::Config, host: &PluginHost) {
     let installed = host.list_plugins();

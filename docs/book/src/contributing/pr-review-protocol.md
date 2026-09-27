@@ -1,6 +1,6 @@
 # PR Review Protocol
 
-This is the procedure followed when reviewing a pull request in `zeroclaw-labs/zeroclaw`. It's loaded by the `github-pr-review-session` skill and read by human reviewers, it's authoritative for both.
+This is the procedure followed when reviewing a pull request in `clawcrew-labs/clawcrew`. It's loaded by the `github-pr-review-session` skill and read by human reviewers, it's authoritative for both.
 
 The `gh` CLI is assumed available and authenticated.
 
@@ -26,7 +26,7 @@ Run all of these. The data informs every step that follows.
    #### sh
 
    ```sh
-   gh pr view <number> --repo zeroclaw-labs/zeroclaw
+   gh pr view <number> --repo clawcrew-labs/clawcrew
    ```
 
    </div>
@@ -40,7 +40,7 @@ Run all of these. The data informs every step that follows.
    #### sh
 
    ```sh
-   gh pr view <number> --comments --repo zeroclaw-labs/zeroclaw
+   gh pr view <number> --comments --repo clawcrew-labs/clawcrew
    ```
 
    </div>
@@ -52,7 +52,7 @@ Run all of these. The data informs every step that follows.
    #### sh
 
    ```sh
-   gh api repos/zeroclaw-labs/zeroclaw/pulls/<number>/comments --paginate
+   gh api repos/clawcrew-labs/clawcrew/pulls/<number>/comments --paginate
    ```
 
    </div>
@@ -66,7 +66,7 @@ Run all of these. The data informs every step that follows.
    #### sh
 
    ```sh
-   gh api repos/zeroclaw-labs/zeroclaw/pulls/<number>/reviews --paginate
+   gh api repos/clawcrew-labs/clawcrew/pulls/<number>/reviews --paginate
    ```
 
    </div>
@@ -95,7 +95,7 @@ Run all of these. The data informs every step that follows.
    #### sh
 
    ```sh
-   gh pr diff <number> --repo zeroclaw-labs/zeroclaw
+   gh pr diff <number> --repo clawcrew-labs/clawcrew
    ```
 
    </div>
@@ -123,15 +123,15 @@ Run all of these. The data informs every step that follows.
      exit 1
    fi
 
-   PR_STATE=$(gh pr view <number> --repo zeroclaw-labs/zeroclaw \
+   PR_STATE=$(gh pr view <number> --repo clawcrew-labs/clawcrew \
      --json headRefOid,mergeable,mergeStateStatus)
    printf '%s\n' "$PR_STATE"
    HEAD_SHA=$(printf '%s' "$PR_STATE" | jq -r .headRefOid)
-   gh api "repos/zeroclaw-labs/zeroclaw/compare/master...${HEAD_SHA}" \
+   gh api "repos/clawcrew-labs/clawcrew/compare/master...${HEAD_SHA}" \
      --jq '{status,behind_by,ahead_by}'
-   gh pr checks <number> --repo zeroclaw-labs/zeroclaw \
+   gh pr checks <number> --repo clawcrew-labs/clawcrew \
      --required --json name,state,bucket
-   HEAD_AFTER=$(gh pr view <number> --repo zeroclaw-labs/zeroclaw \
+   HEAD_AFTER=$(gh pr view <number> --repo clawcrew-labs/clawcrew \
      --json headRefOid --jq .headRefOid)
    if [ "$HEAD_AFTER" != "$HEAD_SHA" ]; then
      echo "head moved from $HEAD_SHA to $HEAD_AFTER during capture; repeat this step" >&2
@@ -242,7 +242,7 @@ Do not ignore another reviewer's visible `CHANGES_REQUESTED`. Before approving, 
 ## CI freshness and base drift
 
 This section implements the CI-freshness and base-drift review policy accepted
-in proposal item 8 of [RFC #10366](https://github.com/zeroclaw-labs/zeroclaw/issues/10366)
+in proposal item 8 of [RFC #10366](https://github.com/clawcrew-labs/clawcrew/issues/10366)
 (accepted 2026-09-03). That RFC is the decision record for the warning
 classification and the approve-with-warning verdict row above; this generated
 text does not extend it.
@@ -358,7 +358,7 @@ Write the review body to a file under `tmp/review-<number>.md` first: this is th
 #### sh
 
 ```sh
-gh pr review <number> --repo zeroclaw-labs/zeroclaw \
+gh pr review <number> --repo clawcrew-labs/clawcrew \
   <--approve | --request-changes | --comment> \
   --body-file tmp/review-<number>.md
 ```

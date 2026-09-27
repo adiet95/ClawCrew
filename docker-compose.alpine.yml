@@ -1,6 +1,6 @@
 services:
-  zeroclaw:
+  clawcrew:
     build:
       context: .
       dockerfile: Dockerfile.alpine
-    image: zeroclaw:alpine
+    image: clawcrew:alpine

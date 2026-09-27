@@ -49,7 +49,7 @@ zc-error-daemon-version-mismatch = Version mismatch: zerocode is { $client_versi
 zc-error-daemon-initialize-timeout = zerocode connected to the daemon, but initialization did not finish within { $seconds }s. Restart the daemon and try again.
 zc-error-spawned-daemon-startup = zerocode started an ephemeral daemon, but it failed to become ready: { $details }
 zc-daemon-wait-notice = zerocode: waiting for daemon at { $path } (up to { $seconds }s)…
-zc-error-daemon-not-ready-timeout = daemon did not become ready within { $seconds }s (socket: { $path }); if the socket path is long, set ZEROCLAW_SOCKET to a shorter path or use a shorter --config-dir
+zc-error-daemon-not-ready-timeout = daemon did not become ready within { $seconds }s (socket: { $path }); if the socket path is long, set CLAWCREW_SOCKET to a shorter path or use a shorter --config-dir
 
 zc-zerocode-tab-theme = Theme
 zc-zerocode-tab-agent-theme = Agent Themes
@@ -424,7 +424,7 @@ zc-quickstart-missing-runtime-profile = Choose a runtime profile before creating
 zc-quickstart-missing-memory = Choose a memory backend before creating.
 zc-quickstart-missing-agent = Name the agent before creating.
 
-zc-quickstart-channels-empty = No channels configured. An agent without channels still works via `zeroclaw agent <name>` from the CLI.
+zc-quickstart-channels-empty = No channels configured. An agent without channels still works via `clawcrew agent <name>` from the CLI.
 zc-quickstart-channels-add = + Add channel
 zc-quickstart-peers-add = + Add peer group
 zc-quickstart-block-channels = Channels
@@ -712,7 +712,7 @@ zc-config-section-mcp-bundles-help = Named bundles of MCP servers granted to age
 zc-config-section-knowledge-bundles-help = Named bundles of knowledge sources such as RAG indexes and document folders.
 zc-config-section-providers-tts-help = Text-to-speech providers for agent voices and languages.
 zc-config-section-providers-transcription-help = Speech-to-text providers for audio transcription pipelines.
-zc-config-section-channels-help = Configure the chat platforms that ZeroClaw listens on.
+zc-config-section-channels-help = Configure the chat platforms that ClawCrew listens on.
 zc-config-section-hardware-help = Optional hardware peripherals such as Arduino, STM32, and GPIO.
 zc-config-section-agents-help = Configure agents that bind providers, profiles, bundles, and channels.
 zc-config-section-peer-groups-help = Named groups that bind a channel, member agents, and external peers.

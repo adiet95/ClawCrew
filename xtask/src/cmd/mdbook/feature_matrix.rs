@@ -10,8 +10,8 @@ use std::path::Path;
 use std::sync::Arc;
 
 use serde::Deserialize;
-use zeroclaw_config::schema::ChannelsConfig;
-use zeroclaw_runtime::tools::default_tools;
+use clawcrew_config::schema::ChannelsConfig;
+use clawcrew_runtime::tools::default_tools;
 
 const SNIPPET_DIR: &str = "docs/book/src/_snippets";
 const PARITY_FILE: &str = "docs/book/feature-matrix-parity.toml";
@@ -60,7 +60,7 @@ impl Status {
 
 struct Row {
     label: String,
-    zeroclaw: Status,
+    clawcrew: Status,
     openclaw: Status,
     hermes: Status,
 }
@@ -96,14 +96,14 @@ fn load_parity(root: &Path) -> Result<Parity> {
 
 fn table(header: &str, rows: &[Row]) -> String {
     let mut out = String::from(HEADER);
-    let _ = writeln!(out, "| {header} | ZeroClaw | OpenClaw | Hermes |");
+    let _ = writeln!(out, "| {header} | ClawCrew | OpenClaw | Hermes |");
     out.push_str("|---|---|---|---|\n");
     for r in rows {
         let _ = writeln!(
             out,
             "| {} | {} | {} | {} |",
             r.label,
-            r.zeroclaw.cell(),
+            r.clawcrew.cell(),
             r.openclaw.cell(),
             r.hermes.cell()
         );
@@ -120,7 +120,7 @@ fn channels_rows(parity: &Parity) -> Result<Vec<Row>> {
         let (openclaw, hermes) = external_cells(parity.channels.get(info.kind));
         rows.push(Row {
             label: info.name.to_string(),
-            zeroclaw: Status::Supported,
+            clawcrew: Status::Supported,
             openclaw,
             hermes,
         });
@@ -132,12 +132,12 @@ fn channels_rows(parity: &Parity) -> Result<Vec<Row>> {
 fn providers_rows(parity: &Parity) -> Result<Vec<Row>> {
     let mut rows = Vec::new();
     let mut walked = std::collections::BTreeSet::new();
-    for slot in zeroclaw_providers::canonical_model_provider_slots() {
+    for slot in clawcrew_providers::canonical_model_provider_slots() {
         walked.insert(slot.to_string());
         let (openclaw, hermes) = external_cells(parity.providers.get(slot));
         rows.push(Row {
             label: format!("`{slot}`"),
-            zeroclaw: Status::Supported,
+            clawcrew: Status::Supported,
             openclaw,
             hermes,
         });
@@ -147,7 +147,7 @@ fn providers_rows(parity: &Parity) -> Result<Vec<Row>> {
 }
 
 fn tools_rows(parity: &Parity) -> Result<Vec<Row>> {
-    let security = Arc::new(zeroclaw_config::policy::SecurityPolicy::default());
+    let security = Arc::new(clawcrew_config::policy::SecurityPolicy::default());
     let mut rows = Vec::new();
     let mut walked = std::collections::BTreeSet::new();
     for tool in default_tools(security) {
@@ -156,7 +156,7 @@ fn tools_rows(parity: &Parity) -> Result<Vec<Row>> {
         let (openclaw, hermes) = external_cells(parity.tools.get(&name));
         rows.push(Row {
             label: format!("`{name}`"),
-            zeroclaw: Status::Supported,
+            clawcrew: Status::Supported,
             openclaw,
             hermes,
         });
@@ -211,7 +211,7 @@ mod tests {
     fn channel_column_is_all_supported_from_walk() {
         let parity = load_parity(&root()).unwrap();
         for r in channels_rows(&parity).unwrap() {
-            assert_eq!(r.zeroclaw, Status::Supported);
+            assert_eq!(r.clawcrew, Status::Supported);
         }
     }
 }

@@ -236,7 +236,7 @@ export default function ChatWorkspace({ initialAlias }: ChatWorkspaceProps) {
   // React Router navigate, which would remount AgentChat and kill connections.
   useEffect(() => {
     // Include the reverse-proxy prefix so `target` matches the real
-    // `window.location.pathname` under a gateway base path (e.g. "/zeroclaw").
+    // `window.location.pathname` under a gateway base path (e.g. "/clawcrew").
     // Without it the comparison would never match, firing replaceState every
     // render and rewriting the bar to a prefix-less path that breaks
     // reload/deep-link (Router's basename no longer matches). basePath is

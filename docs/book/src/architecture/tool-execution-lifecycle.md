@@ -1,6 +1,6 @@
 # Tool execution lifecycle
 
-ZeroClaw tools are capabilities the model can invoke during a turn. The tool
+ClawCrew tools are capabilities the model can invoke during a turn. The tool
 catalog says what can be called; the execution lifecycle says how a call becomes
 safe, observable, cancellable, and provider-visible.
 
@@ -13,7 +13,7 @@ ingress and agent-side action.
 
 | Step | Owner | Review contract |
 | --- | --- | --- |
-| Tool definition | `zeroclaw-api::tool::Tool` | A tool has a stable name, description, JSON schema, async `execute`, and attribution. |
+| Tool definition | `clawcrew-api::tool::Tool` | A tool has a stable name, description, JSON schema, async `execute`, and attribution. |
 | Tool assembly | Runtime tool factory and scoped registry | The agent receives only the tools admitted by bundles, MCP config, risk profile, and per-run narrowing. |
 | Turn context resolution | `ResolvedAgentExecution` | The turn starts with one resolved bundle: model access, registry, approval manager, observer, runtime knobs, MCP activation handle, and receipt generator. |
 | Provider request | `agent::turn::tool_specs` and provider call | Native-tool providers receive structured specs; text-protocol providers receive prompt instructions unless strict parsing hides them. |
@@ -243,16 +243,16 @@ Canonical docs:
 
 Key code entry points:
 
-- Tool trait and result shape: `crates/zeroclaw-api/src/tool.rs`
-- Observer tool events: `crates/zeroclaw-api/src/observability_traits.rs`
-- Turn execution context: `crates/zeroclaw-runtime/src/agent/turn/execution.rs`
-- Turn engine run sheet and loop: `crates/zeroclaw-runtime/src/agent/turn/mod.rs`
-- Tool-call preparation and approval: `crates/zeroclaw-runtime/src/agent/turn/call_prep.rs`
-  and `crates/zeroclaw-runtime/src/agent/turn/approval_gate.rs`
-- Tool dispatch: `crates/zeroclaw-runtime/src/agent/tool_execution.rs`
-- Tool receipts: `crates/zeroclaw-runtime/src/agent/tool_receipts.rs`
-- Result collection/history append: `crates/zeroclaw-runtime/src/agent/turn/results_collect.rs`
-  and `crates/zeroclaw-runtime/src/agent/turn/history_append.rs`
-- Approval manager: `crates/zeroclaw-runtime/src/approval/mod.rs`
+- Tool trait and result shape: `crates/clawcrew-api/src/tool.rs`
+- Observer tool events: `crates/clawcrew-api/src/observability_traits.rs`
+- Turn execution context: `crates/clawcrew-runtime/src/agent/turn/execution.rs`
+- Turn engine run sheet and loop: `crates/clawcrew-runtime/src/agent/turn/mod.rs`
+- Tool-call preparation and approval: `crates/clawcrew-runtime/src/agent/turn/call_prep.rs`
+  and `crates/clawcrew-runtime/src/agent/turn/approval_gate.rs`
+- Tool dispatch: `crates/clawcrew-runtime/src/agent/tool_execution.rs`
+- Tool receipts: `crates/clawcrew-runtime/src/agent/tool_receipts.rs`
+- Result collection/history append: `crates/clawcrew-runtime/src/agent/turn/results_collect.rs`
+  and `crates/clawcrew-runtime/src/agent/turn/history_append.rs`
+- Approval manager: `crates/clawcrew-runtime/src/approval/mod.rs`
 - Scoped tool assembly and deferred MCP activation:
-  `crates/zeroclaw-runtime/src/tools/scoped.rs`
+  `crates/clawcrew-runtime/src/tools/scoped.rs`

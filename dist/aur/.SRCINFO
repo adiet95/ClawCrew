@@ -1,8 +1,8 @@
-pkgbase = zeroclawlabs
+pkgbase = clawcrewlabs
 	pkgdesc = Zero overhead. Zero compromise. 100% Rust. The fastest, smallest AI assistant.
 	pkgver = 0.8.5
 	pkgrel = 1
-	url = https://github.com/zeroclaw-labs/zeroclaw
+	url = https://github.com/clawcrew-labs/clawcrew
 	arch = x86_64
 	arch = aarch64
 	license = MIT
@@ -13,11 +13,11 @@ pkgbase = zeroclawlabs
 	makedepends = npm
 	depends = gcc-libs
 	depends = openssl
-	provides = zeroclaw
+	provides = clawcrew
 	provides = zerocode
-	conflicts = zeroclaw
+	conflicts = clawcrew
 	conflicts = zerocode
-	source = zeroclawlabs-0.8.5.tar.gz::https://github.com/zeroclaw-labs/zeroclaw/archive/refs/tags/v0.8.5.tar.gz
+	source = clawcrewlabs-0.8.5.tar.gz::https://github.com/clawcrew-labs/clawcrew/archive/refs/tags/v0.8.5.tar.gz
 	sha256sums = SKIP
 
-pkgname = zeroclawlabs
+pkgname = clawcrewlabs

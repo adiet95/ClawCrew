@@ -3,8 +3,8 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
-use zeroclaw::providers::traits::{ChatMessage, TokenUsage};
-use zeroclaw::providers::{ChatRequest, ChatResponse, ModelProvider, ToolCall};
+use clawcrew::providers::traits::{ChatMessage, TokenUsage};
+use clawcrew::providers::{ChatRequest, ChatResponse, ModelProvider, ToolCall};
 
 use super::trace::{LlmTrace, TraceResponse};
 
@@ -56,11 +56,11 @@ impl ModelProvider for MockModelProvider {
         Ok(guard.remove(0))
     }
 }
-impl ::zeroclaw_api::attribution::Attributable for MockModelProvider {
-    fn role(&self) -> ::zeroclaw_api::attribution::Role {
-        ::zeroclaw_api::attribution::Role::Provider(
-            ::zeroclaw_api::attribution::ProviderKind::Model(
-                ::zeroclaw_api::attribution::ModelProviderKind::Custom,
+impl ::clawcrew_api::attribution::Attributable for MockModelProvider {
+    fn role(&self) -> ::clawcrew_api::attribution::Role {
+        ::clawcrew_api::attribution::Role::Provider(
+            ::clawcrew_api::attribution::ProviderKind::Model(
+                ::clawcrew_api::attribution::ModelProviderKind::Custom,
             ),
         )
     }
@@ -121,11 +121,11 @@ impl ModelProvider for RecordingModelProvider {
         Ok(guard.remove(0))
     }
 }
-impl ::zeroclaw_api::attribution::Attributable for RecordingModelProvider {
-    fn role(&self) -> ::zeroclaw_api::attribution::Role {
-        ::zeroclaw_api::attribution::Role::Provider(
-            ::zeroclaw_api::attribution::ProviderKind::Model(
-                ::zeroclaw_api::attribution::ModelProviderKind::Custom,
+impl ::clawcrew_api::attribution::Attributable for RecordingModelProvider {
+    fn role(&self) -> ::clawcrew_api::attribution::Role {
+        ::clawcrew_api::attribution::Role::Provider(
+            ::clawcrew_api::attribution::ProviderKind::Model(
+                ::clawcrew_api::attribution::ModelProviderKind::Custom,
             ),
         )
     }
@@ -228,11 +228,11 @@ impl ModelProvider for TraceLlmModelProvider {
         }
     }
 }
-impl ::zeroclaw_api::attribution::Attributable for TraceLlmModelProvider {
-    fn role(&self) -> ::zeroclaw_api::attribution::Role {
-        ::zeroclaw_api::attribution::Role::Provider(
-            ::zeroclaw_api::attribution::ProviderKind::Model(
-                ::zeroclaw_api::attribution::ModelProviderKind::Custom,
+impl ::clawcrew_api::attribution::Attributable for TraceLlmModelProvider {
+    fn role(&self) -> ::clawcrew_api::attribution::Role {
+        ::clawcrew_api::attribution::Role::Provider(
+            ::clawcrew_api::attribution::ProviderKind::Model(
+                ::clawcrew_api::attribution::ModelProviderKind::Custom,
             ),
         )
     }

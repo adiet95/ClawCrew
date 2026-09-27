@@ -1,6 +1,6 @@
 # Worked Example: The StageX Auto-Update Bot
 
-[stagehand](https://codeberg.org/singlerider/stagehand) is a production ZeroClaw bot. It watches the upstream release feed, bumps a [StageX](https://codeberg.org/stagex/stagex) package, builds it, verifies it reproduces by digest, pushes the change, opens a draft pull request, and announces the result. No human touches it until the PR exists.
+[stagehand](https://codeberg.org/singlerider/stagehand) is a production ClawCrew bot. It watches the upstream release feed, bumps a [StageX](https://codeberg.org/stagex/stagex) package, builds it, verifies it reproduces by digest, pushes the change, opens a draft pull request, and announces the result. No human touches it until the PR exists.
 
 It is the reference SOP deployment: the pipeline is a deterministic SOP, the release feed arrives over an AMQP channel, and the agent fires the SOP with the `sop_execute` tool. AMQP can also drive the SOP engine directly as a live [fan-in](./fan-in/amqp.md); this example uses the agent-fires-it pattern by choice, where the channel lifts each release into the agent loop and the agent starts the run. That separation is what makes the pattern reusable.
 
@@ -20,15 +20,15 @@ cargo build --release --features channel-amqp,channel-matrix
 
 </div>
 
-The result is a `zeroclaw` binary that loads the `amqp` and `matrix` channel types. A binary built without `channel-amqp` rejects an `amqp` channel block at startup and logs a warning instead of loading it.
+The result is a `clawcrew` binary that loads the `amqp` and `matrix` channel types. A binary built without `channel-amqp` rejects an `amqp` channel block at startup and logs a warning instead of loading it.
 
 ## 2. The Artifacts
 
-Three things live under the ZeroClaw install root:
+Three things live under the ClawCrew install root:
 
 | Artifact | Location | Role |
 |---|---|---|
-| ZeroClaw config | `~/.zeroclaw/` | The agent, the AMQP + Matrix channels, and the `sop` settings. |
+| ClawCrew config | `~/.clawcrew/` | The agent, the AMQP + Matrix channels, and the `sop` settings. |
 | `sops/stagex-update/` | `<install>/shared/sops/stagex-update/` | The pipeline: `SOP.toml` (metadata) + `SOP.md` (the eight steps). |
 | `skills/stagex-update/` | `<install>/shared/skills/stagex-update/` | The glue that fires the SOP on a release event. |
 
@@ -42,16 +42,16 @@ Each delivery's JSON body is mapped into the agent's inbound message by `content
 
 ## 3. Validation
 
-The `zeroclaw sop` surface is three subcommands. There is no `run` subcommand; runs start from a trigger or from the `sop_execute` tool.
+The `clawcrew sop` surface is three subcommands. There is no `run` subcommand; runs start from a trigger or from the `sop_execute` tool.
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw sop list
-zeroclaw sop validate stagex-update
-zeroclaw sop show stagex-update
+clawcrew sop list
+clawcrew sop validate stagex-update
+clawcrew sop show stagex-update
 ```
 
 </div>
@@ -67,7 +67,7 @@ The bot runs as a long-lived daemon so it stays connected to the broker and the 
 #### sh
 
 ```sh
-zeroclaw daemon
+clawcrew daemon
 ```
 
 </div>
@@ -79,8 +79,8 @@ On an always-on host it runs as a managed service that restarts with the machine
 #### sh
 
 ```sh
-zeroclaw service install
-zeroclaw service start
+clawcrew service install
+clawcrew service start
 ```
 
 </div>
@@ -150,7 +150,7 @@ When a delivery arrives with no agent loop active to drive the steps, the runtim
 | `sop_approval_<run-id>_<step>` | An operator approval record, when a checkpoint step requires one. |
 | `sop_timeout_approve_<run-id>_<step>` | A timeout auto-approval record, when a checkpoint approval times out. |
 
-`include_metrics: true` on `sop_status` adds SOP-specific aggregates; `include_gate_status: true` adds trust-phase and gate-evaluator state. These come through `sop_status`, not Prometheus. The `/metrics` endpoint, when the observability backend is `prometheus`, exposes only the general `zeroclaw_*` families.
+`include_metrics: true` on `sop_status` adds SOP-specific aggregates; `include_gate_status: true` adds trust-phase and gate-evaluator state. These come through `sop_status`, not Prometheus. The `/metrics` endpoint, when the observability backend is `prometheus`, exposes only the general `clawcrew_*` families.
 
 ## 8. The Guarantees
 

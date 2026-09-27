@@ -1,6 +1,6 @@
 ---
 id: ADR-001
-title: Rust is the implementation language for ZeroClaw
+title: Rust is the implementation language for ClawCrew
 date: 2026-07-04
 status: accepted
 relates-to:
@@ -9,7 +9,7 @@ relates-to:
   - Cargo.toml
 ---
 
-# ADR-001: Rust Is The Implementation Language For ZeroClaw
+# ADR-001: Rust Is The Implementation Language For ClawCrew
 
 This is a retroactive record of a decision made before the formal ADR
 process. The exact original decision date is not available in this
@@ -23,7 +23,7 @@ older ADR file.
 
 ## Context
 
-ZeroClaw is a local-first agent runtime whose primary distribution
+ClawCrew is a local-first agent runtime whose primary distribution
 needs to run without a required language runtime installed by the user.
 It integrates with many operating-system and network boundaries, and it
 keeps strong control over security, memory, process, logging, and
@@ -31,7 +31,7 @@ configuration behavior.
 
 The project also has adjacent agent-system experiments in other
 languages. Those projects are useful for exploration, but the runtime
-needs one implementation language for the code that ships as ZeroClaw:
+needs one implementation language for the code that ships as ClawCrew:
 providers, channels, tools, memory, config, gateway, hardware support,
 and the user-facing CLI.
 
@@ -48,7 +48,7 @@ Rust fits the requirements that shape the runtime:
 
 ## Decision
 
-ZeroClaw's runtime, first-party crates, CLI, gateway, tooling hosts,
+ClawCrew's runtime, first-party crates, CLI, gateway, tooling hosts,
 provider integrations, channel integrations, memory backends, config
 schema, and hardware support are implemented as Rust workspace
 members.
@@ -56,7 +56,7 @@ members.
 Non-Rust code may exist at the edges when it is the correct boundary:
 shell scripts, release and packaging helpers, generated web assets,
 external CLIs, MCP servers, skill scripts, and plugin guests. These
-surfaces may support, package, drive, or extend ZeroClaw, but they do not
+surfaces may support, package, drive, or extend ClawCrew, but they do not
 become the implementation base for the core runtime unless a new
 accepted ADR supersedes this one.
 
@@ -83,7 +83,7 @@ Negative consequences:
   depend on Rust tooling even when the visible output is Markdown,
   Fluent, HTML, or packaging metadata.
 - Experiments in adjacent projects must be deliberately ported into Rust
-  before they become ZeroClaw runtime behavior.
+  before they become ClawCrew runtime behavior.
 
 Follow-up decisions:
 

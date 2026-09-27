@@ -1,10 +1,10 @@
 # Distributing Plugins
 
 You built a plugin; now it needs to leave your machine without asking the
-people who install it to trust you blindly. ZeroClaw's distribution story has
+people who install it to trust you blindly. ClawCrew's distribution story has
 two independent layers: Ed25519 manifest signatures (who published this) and
 registry install (how it gets there). This page covers both, checked against
-`crates/zeroclaw-plugins/src/signature.rs`, `src/plugin_registry.rs`, and the
+`crates/clawcrew-plugins/src/signature.rs`, `src/plugin_registry.rs`, and the
 install path in `host.rs`.
 
 ## Signing
@@ -73,8 +73,8 @@ Operators who want to trust you add that hex key to their
 `plugins.security.trusted_publisher_keys` list:
 
 ```bash
-zeroclaw config set plugins.security.signature_mode strict
-zeroclaw config set plugins.security.trusted_publisher_keys '["<your-key-hex>"]'
+clawcrew config set plugins.security.signature_mode strict
+clawcrew config set plugins.security.trusted_publisher_keys '["<your-key-hex>"]'
 ```
 
 ### How verification behaves
@@ -97,28 +97,28 @@ the distribution path, bricks the install. That is the point.
 ## Registry publication
 
 The install path is the local plugin directory; a registry is only a JSON
-index consulted at command time (`zeroclaw plugin search` / `install`).
+index consulted at command time (`clawcrew plugin search` / `install`).
 Both commands exist only in binaries with the plugin host compiled in (see
 [build features](../developing/plugin-protocol.md#build-features)); the
 prebuilt release binaries ship without it. Fetching an index through either
-command caches it locally. `zeroclaw plugin list` then combines installed
+command caches it locally. `clawcrew plugin list` then combines installed
 packages with the cache without making a network request; it keeps installed
 and registry versions separate rather than guessing whether an arbitrary
 version string is newer. The
-default index is the `zeroclaw-labs/zeroclaw-plugins` repository's
+default index is the `clawcrew-labs/clawcrew-plugins` repository's
 `registry.json`; private registries are a URL away
-(`--registry <url>` per command, or the `ZEROCLAW_PLUGIN_REGISTRY_URL`
+(`--registry <url>` per command, or the `CLAWCREW_PLUGIN_REGISTRY_URL`
 environment variable, resolved in that order per `registry_url` in
 `src/plugin_registry.rs`).
 
 A registry entry (`PluginRegistryEntry` in
-`crates/zeroclaw-plugins/src/registry.rs`) carries: `name`, `version`,
+`crates/clawcrew-plugins/src/registry.rs`) carries: `name`, `version`,
 optional `description` and `author`, `capabilities`, the archive `url`, and
 an optional `sha256` digest of the zip.
 
 ### The archive contract
 
-`zeroclaw plugin install <name>` resolves the entry, downloads the zip,
+`clawcrew plugin install <name>` resolves the entry, downloads the zip,
 verifies the digest when present, safely extracts, and hands the extracted
 directory to the same `PluginHost::install` path a local install uses. The
 extraction is defensive by construction (`src/plugin_registry.rs`), and your
@@ -139,7 +139,7 @@ version. Order repeated names in your registry intentionally, oldest first.
 
 ### Search is not a trust boundary
 
-`zeroclaw plugin search` is unauthenticated discovery over the index; it
+`clawcrew plugin search` is unauthenticated discovery over the index; it
 never installs, enables, or executes anything. Install is where the security
 happens: digest check, safe extraction, manifest validation, and the
 operator's signature policy, identical to a local-path install. Publish

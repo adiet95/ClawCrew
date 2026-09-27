@@ -4,7 +4,7 @@ version.workspace = true
 homepage.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Interactive TUI config manager for ZeroClaw."
+description = "Interactive TUI config manager for ClawCrew."
 repository.workspace = true
 publish = true
 
@@ -16,7 +16,7 @@ name = "zerocode"
 path = "src/main.rs"
 
 [dependencies]
-zeroclaw-api.workspace = true
+clawcrew-api.workspace = true
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
 tempfile = "3"
@@ -52,7 +52,7 @@ hex = "0.4"
 webpki-roots = "0.26"
 tokio-rustls = { version = "0.26.4", default-features = false, features = ["logging", "tls12", "ring"] }
 # Client-side enrollment uses local P-256 CSR generation and relay wire helpers
-# so zerocode remains an RPC-only surface and does not link zeroclaw-* crates.
+# so zerocode remains an RPC-only surface and does not link clawcrew-* crates.
 rcgen = { version = "0.13", default-features = false, features = ["ring", "pem", "x509-parser"] }
 # Wipe the in-memory client private key on drop (it is generated locally, written
 # 0600, and never transmitted).

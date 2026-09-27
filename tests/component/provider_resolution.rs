@@ -1,7 +1,7 @@
 //! TG1: ModelProvider End-to-End Resolution Tests
 
-use zeroclaw::providers::compatible::{AuthStyle, OpenAiCompatibleModelProvider};
-use zeroclaw::providers::{
+use clawcrew::providers::compatible::{AuthStyle, OpenAiCompatibleModelProvider};
+use clawcrew::providers::{
     create_model_provider, create_model_provider_with_options, create_model_provider_with_url,
 };
 
@@ -272,7 +272,7 @@ fn factory_resolves_synthetic_provider() {
 
 #[test]
 fn factory_resolves_openai_codex_provider() {
-    let options = zeroclaw::providers::ModelProviderRuntimeOptions::default();
+    let options = clawcrew::providers::ModelProviderRuntimeOptions::default();
     let result = create_model_provider_with_options("openai-codex", None, &options);
     assert!(
         result.is_ok(),

@@ -14,7 +14,7 @@ provenance in GitHub's artifact-attestation API.
 
 A release page produced by the consolidated workflow contains the payloads,
 `SHA256SUMS`, both SBOM formats, and at most one
-`zeroclaw-vX.Y.Z-verification.tar.gz` archive. It does not contain per-asset
+`clawcrew-vX.Y.Z-verification.tar.gz` archive. It does not contain per-asset
 cosign bundles, loose attestation bundles, or generic SLSA-generator
 `.intoto.jsonl` files. Cosign remains in the release workflow only for GHCR
 container-image signing.
@@ -38,7 +38,7 @@ environment.
 A successful verification establishes that:
 
 - the local file matches the digest in a signed attestation;
-- the attestation was issued for the ZeroClaw repository;
+- the attestation was issued for the ClawCrew repository;
 - `release-stable-manual.yml` was the signer workflow;
 - the attestation names the expected source commit.
 
@@ -64,8 +64,8 @@ Online verification obtains the bundle and trust material from GitHub:
 
 ```bash
 gh attestation verify <artifact> \
-  --repo zeroclaw-labs/zeroclaw \
-  --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \
+  --repo clawcrew-labs/clawcrew \
+  --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \
   --source-digest <release-commit-sha>
 ```
 
@@ -73,8 +73,8 @@ Offline verification uses the extracted bundle and trusted root:
 
 ```bash
 gh attestation verify <artifact> \
-  --repo zeroclaw-labs/zeroclaw \
-  --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \
+  --repo clawcrew-labs/clawcrew \
+  --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \
   --source-digest <release-commit-sha> \
   --bundle verification/<artifact>.attestation.jsonl \
   --custom-trusted-root verification/trusted_root.jsonl

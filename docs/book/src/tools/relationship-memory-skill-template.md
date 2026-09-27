@@ -9,8 +9,8 @@ Create a bundle for relationship-memory skills, then scaffold the skill:
 #### sh
 
 ```sh
-zeroclaw skills bundle add relationship-memory
-zeroclaw skills add relationship-memory-capture \
+clawcrew skills bundle add relationship-memory
+clawcrew skills add relationship-memory-capture \
   --bundle relationship-memory \
   --description "Capture and query durable workflow relationships with the knowledge graph" \
   --edit
@@ -25,7 +25,7 @@ The `skills add` command opens `SKILL.md` in your editor. Replace the generated 
 name: relationship-memory-capture
 description: Capture and query durable workflow relationships with the knowledge graph
 version: 0.1.0
-author: zeroclaw_operator
+author: clawcrew_operator
 tags: [knowledge, memory, relationships]
 ---
 
@@ -137,19 +137,19 @@ The same skill pattern can cover project or client relationships, but keep that 
 
 ## Validate the installed skill
 
-Audit the skill directory after saving it. With the default install root, the scaffolded bundle skill lives under `~/.zeroclaw/shared/skills/<bundle>/<skill>/`:
+Audit the skill directory after saving it. With the default install root, the scaffolded bundle skill lives under `~/.clawcrew/shared/skills/<bundle>/<skill>/`:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw skills audit ~/.zeroclaw/shared/skills/relationship-memory/relationship-memory-capture
+clawcrew skills audit ~/.clawcrew/shared/skills/relationship-memory/relationship-memory-capture
 ```
 
 </div>
 
-If your install root is not `~/.zeroclaw`, audit the path printed by `zeroclaw skills add`.
+If your install root is not `~/.clawcrew`, audit the path printed by `clawcrew skills add`.
 
 `skills audit` checks the skill package shape. It does not prove that your deployment has the `knowledge` tool enabled or that the graph contains useful data. For that, run a small manual session with placeholder data and confirm the agent can call `capture`, `relate`, and `graph_neighbors` for a workflow/capability pair. If you extend the template for projects, also confirm `client_network` and `interaction_log` return the expected placeholder entries.
 

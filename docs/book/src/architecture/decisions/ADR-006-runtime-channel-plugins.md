@@ -7,17 +7,17 @@ relates-to:
   - ADR-002
   - ADR-009
   - docs/book/src/foundations/fnd-001-intentional-architecture.md
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8850
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/8691#issuecomment-5009706612
+  - https://github.com/clawcrew-labs/clawcrew/issues/8850
+  - https://github.com/clawcrew-labs/clawcrew/issues/8691#issuecomment-5009706612
   - wit/v0/channel.wit
-  - crates/zeroclaw-plugins/src/wasm_channel.rs
+  - crates/clawcrew-plugins/src/wasm_channel.rs
 ---
 
 # ADR-006: Make Runtime Plugins the Target for Optional Channels
 
 ## Context
 
-ZeroClaw currently compiles many messaging integrations behind Cargo feature flags. This keeps unused channel code out of selected builds, but adding or updating an optional integration still requires rebuilding the application. It also keeps vendor-specific dependencies and release cadence coupled to the main binary.
+ClawCrew currently compiles many messaging integrations behind Cargo feature flags. This keeps unused channel code out of selected builds, but adding or updating an optional integration still requires rebuilding the application. It also keeps vendor-specific dependencies and release cadence coupled to the main binary.
 
 The WIT component model now defines a channel-plugin world, and the host adapter implements the shared `Channel` trait for a WASM component. Discovery and the host-side adapter exist, but a running daemon does not yet construct discovered channel plugins or provide every per-vendor listener they need. Runtime plugins therefore describe a real target with an incomplete operational path, not the current packaging model.
 
@@ -47,7 +47,7 @@ This ADR remains proposed until all of these conditions are met:
 
 Positive consequences:
 
-- Users can add and update optional integrations without rebuilding ZeroClaw.
+- Users can add and update optional integrations without rebuilding ClawCrew.
 - Vendor dependencies and release cadence can move out of the main binary.
 - Channel implementations share one permissioned runtime boundary and one caller-visible trait contract.
 - Native exceptions stay reviewable because they are tied to named capability gaps rather than becoming an undefined permanent second model.
@@ -66,8 +66,8 @@ Negative consequences:
 - [FND-001: Intentional architecture](../../foundations/fnd-001-intentional-architecture.md)
 - [Writing a channel plugin](../../plugins/writing-a-channel-plugin.md)
 - [Channel runtime lifecycle](../channel-runtime-lifecycle.md)
-- [Migration tracker #8850](https://github.com/zeroclaw-labs/zeroclaw/issues/8850)
-- [ADR-006 and ADR-007 direction decision](https://github.com/zeroclaw-labs/zeroclaw/issues/8691#issuecomment-5009706612)
+- [Migration tracker #8850](https://github.com/clawcrew-labs/clawcrew/issues/8850)
+- [ADR-006 and ADR-007 direction decision](https://github.com/clawcrew-labs/clawcrew/issues/8691#issuecomment-5009706612)
 - `wit/v0/channel.wit`
-- `crates/zeroclaw-plugins/src/wasm_channel.rs`
-- `crates/zeroclaw-plugins/src/host.rs`
+- `crates/clawcrew-plugins/src/wasm_channel.rs`
+- `crates/clawcrew-plugins/src/host.rs`

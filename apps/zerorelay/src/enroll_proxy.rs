@@ -219,7 +219,7 @@ pub(crate) async fn post_enroll(
     }
     let confirmed = single_ca_der(&body.ca_chain_pem)
         .map_err(|_| ProxyError::BadRequest("confirmed CA is not a single certificate".into()))?;
-    let confirmed_fpr = zeroclaw_tls::cert_sha256_fingerprint(confirmed.as_ref());
+    let confirmed_fpr = clawcrew_tls::cert_sha256_fingerprint(confirmed.as_ref());
 
     within_leg_budget("the enrollment request", async {
         let route = open_enroll_route(inner, &body.node_id)
@@ -276,7 +276,7 @@ pub(crate) async fn post_enroll(
             .ok_or_else(|| ProxyError::Exchange("enrollment response has no CA chain".into()))?;
         let returned_der =
             single_ca_der(returned).map_err(|e| ProxyError::Exchange(e.to_string()))?;
-        if zeroclaw_tls::cert_sha256_fingerprint(returned_der.as_ref()) != confirmed_fpr {
+        if clawcrew_tls::cert_sha256_fingerprint(returned_der.as_ref()) != confirmed_fpr {
             return Err(ProxyError::Exchange(
                 "enrollment response returned a different CA than the one confirmed by SAS".into(),
             ));
@@ -492,7 +492,7 @@ mod tests {
     /// so it is refused rather than fingerprinting whichever came first.
     #[test]
     fn single_ca_der_requires_exactly_one_certificate() {
-        let (ca_cert_pem, _ca_key_pem) = zeroclaw_tls::testing::gen_ca();
+        let (ca_cert_pem, _ca_key_pem) = clawcrew_tls::testing::gen_ca();
         let one = single_ca_der(&ca_cert_pem);
         assert!(one.is_ok(), "a single certificate must parse");
         let doubled = format!("{ca_cert_pem}{ca_cert_pem}");

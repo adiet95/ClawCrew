@@ -3,7 +3,7 @@
 // inside a popover anchored to the input; lists folders + files for the
 // current path, lets the operator step in/out, and writes the relative
 // path back to the field on selection. The actual containment + sorting
-// rules live in `zeroclaw_runtime::browse::list_directory`; this
+// rules live in `clawcrew_runtime::browse::list_directory`; this
 // component is presentation-only.
 
 import { useEffect, useRef, useState } from 'react';

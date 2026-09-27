@@ -15,15 +15,15 @@ BOLD='\033[1m'
 RESET='\033[0m'
 
 case "$PROFILE" in
-  release) cargo build --release --bin zeroclaw ;;
-  dev|"")  cargo build --bin zeroclaw ;;
+  release) cargo build --release --bin clawcrew ;;
+  dev|"")  cargo build --bin clawcrew ;;
   *) echo "Usage: $0 [dev|release]" >&2; exit 2 ;;
 esac
 
 if [ "$PROFILE" = release ]; then
-  BIN="$REPO_ROOT/target/release/zeroclaw"
+  BIN="$REPO_ROOT/target/release/clawcrew"
 else
-  BIN="$REPO_ROOT/target/debug/zeroclaw"
+  BIN="$REPO_ROOT/target/debug/clawcrew"
 fi
 
 echo
@@ -32,7 +32,7 @@ echo "  [ ] Quickstart prompts for provider type"
 echo "  [ ] Quickstart accepts --model-provider / --model / --api-key / --agent flags non-interactively"
 echo "  [ ] Quickstart writes a working config.toml with one [providers.models.<type>.<alias>] entry"
 echo "  [ ] Quickstart writes one [agents.<alias>] entry bound to that provider"
-echo "  [ ] Quickstart prints the next-step instructions (zeroclaw agent / zeroclaw daemon)"
+echo "  [ ] Quickstart prints the next-step instructions (clawcrew agent / clawcrew daemon)"
 echo "  [ ] Re-running quickstart on a configured install is idempotent (no destructive overwrite)"
 echo
 echo -e "${BOLD}Press Enter to launch quickstart...${RESET}"

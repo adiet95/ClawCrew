@@ -1,6 +1,6 @@
 # Docs & Translations
 
-ZeroClaw has two independent translation layers:
+ClawCrew has two independent translation layers:
 
 | Layer | Format | What it covers |
 |---|---|---|
@@ -41,12 +41,12 @@ Routine English docs PRs may defer broad `.po` churn to a focused follow-up. Inc
 
 ## Filling app strings (Fluent)
 
-App strings live in `crates/zeroclaw-runtime/locales/`. English is the source of truth and is embedded at compile time.
+App strings live in `crates/clawcrew-runtime/locales/`. English is the source of truth and is embedded at compile time.
 
 > **Runtime loading boundary.**
 >
-> - **Embedded sources:** English `cli.ftl` and `tools.ftl` are embedded. `builtin_cli_ftl_source()` enumerates the non-English CLI catalogs embedded by the runtime; `zeroclaw-tools` separately embeds English tool strings to preserve crate dependency direction.
-> - **Disk overlay:** A catalog at `<config-dir>/data/ftl/<locale>/` overrides an embedded CLI value and supplies translated runtime/tool values. `zeroclaw locales fetch` populates this shared directory.
+> - **Embedded sources:** English `cli.ftl` and `tools.ftl` are embedded. `builtin_cli_ftl_source()` enumerates the non-English CLI catalogs embedded by the runtime; `clawcrew-tools` separately embeds English tool strings to preserve crate dependency direction.
+> - **Disk overlay:** A catalog at `<config-dir>/data/ftl/<locale>/` overrides an embedded CLI value and supplies translated runtime/tool values. `clawcrew locales fetch` populates this shared directory.
 > - **Consumption caveat:** Filling and committing an `.ftl` file updates tracked catalog source, but a consumer uses it only when its loader embeds that catalog or the file is installed where that loader reads it.
 >
 > The `apps/zerocode` TUI maintains an independent Fluent catalogue (`apps/zerocode/locales/`), see [zerocode strings](#zerocode-strings-fluent-independent) below. `cargo fluent` walks **both** catalogue roots (runtime + zerocode), so every subcommand below covers both by default.
@@ -83,7 +83,7 @@ An unknown `--catalog` value errors with the valid choices.
 
 `fill` generates `<locale>/<domain>.ftl` for every selected catalogue root that has an `en/` directory: the runtime's `cli.ftl`/`tools.ftl` and zerocode's `zerocode.ftl`.
 
-**Provider resolution is shared with the runtime.** `--model-provider` accepts any alias configured under `[providers.models.<kind>.<alias>]`: a bare alias (`<alias>`) or a `kind.alias` qualifier (`anthropic.<alias>`) when ambiguous. The tool builds the actual runtime provider, so the endpoint, auth header, and wire protocol are resolved per family (Anthropic `/v1/messages` + `x-api-key`, OpenAI-compatible `/v1/chat/completions` + `Bearer`, etc.): nothing is assumed. Encrypted `api_key` values are decrypted through the canonical `SecretStore`. Use `--config-dir <dir>` (mirrors `zeroclaw --config-dir`) to read config + `.secret-key` from a non-default location; defaults to `~/.zeroclaw` then `~/.config/zeroclaw`.
+**Provider resolution is shared with the runtime.** `--model-provider` accepts any alias configured under `[providers.models.<kind>.<alias>]`: a bare alias (`<alias>`) or a `kind.alias` qualifier (`anthropic.<alias>`) when ambiguous. The tool builds the actual runtime provider, so the endpoint, auth header, and wire protocol are resolved per family (Anthropic `/v1/messages` + `x-api-key`, OpenAI-compatible `/v1/chat/completions` + `Bearer`, etc.): nothing is assumed. Encrypted `api_key` values are decrypted through the canonical `SecretStore`. Use `--config-dir <dir>` (mirrors `clawcrew --config-dir`) to read config + `.secret-key` from a non-default location; defaults to `~/.clawcrew` then `~/.config/clawcrew`.
 
 **Batching:** `fill` sends one request per batch (all N entries as a single JSON object); `--batch` lowers N to ease provider rate limits or response truncation on long entries. Each batch is written to disk before the next request, so a mid-run failure only loses the in-flight batch. Re-running skips keys that already exist in the target `.ftl`, so resume is automatic: no `--force` needed.
 
@@ -91,15 +91,15 @@ An unknown `--catalog` value errors with the valid choices.
 
 `apps/zerocode` carries its own self-contained Fluent setup, separate from the
 runtime catalogues above. The TUI depends only on shared boundary types from
-`zeroclaw-api`, never runtime/config/channel/tool implementations, and its
-strings live next to its source rather than under `zeroclaw-runtime/locales/`.
+`clawcrew-api`, never runtime/config/channel/tool implementations, and its
+strings live next to its source rather than under `clawcrew-runtime/locales/`.
 
 | Where | What |
 |---|---|
 | `apps/zerocode/locales/en/zerocode.ftl` | Source of truth, embedded at compile time |
 | `apps/zerocode/locales/<locale>/zerocode.ftl` | Tracked translated catalog source used by fill/fetch and release workflows; not embedded automatically |
 | `$ZEROCODE_LOCALE_DIR/<locale>/zerocode.ftl` | Explicit override, useful for testing translations |
-| `<config-dir>/data/ftl/<locale>/zerocode.ftl` | Shared per-user catalog written by `zeroclaw locales fetch` and loaded by zerocode |
+| `<config-dir>/data/ftl/<locale>/zerocode.ftl` | Shared per-user catalog written by `clawcrew locales fetch` and loaded by zerocode |
 
 ### Key namespace
 
@@ -115,7 +115,7 @@ Chord glyphs like `Ctrl+C`, `Esc`, `Shift+Up` are protocol, not language. The `H
 
 ### Locale resolution
 
-Locale comes from a top-level `locale` field in zerocode's config. When unset, `i18n::detect_locale()` reads the config dir resolved as `--config-dir`, then `ZEROCLAW_CONFIG_DIR`, then `~/.zeroclaw`, and otherwise falls back to `en`. zerocode resolves its locale independently from its own config; it does not share the daemon's lookup.
+Locale comes from a top-level `locale` field in zerocode's config. When unset, `i18n::detect_locale()` reads the config dir resolved as `--config-dir`, then `CLAWCREW_CONFIG_DIR`, then `~/.clawcrew`, and otherwise falls back to `en`. zerocode resolves its locale independently from its own config; it does not share the daemon's lookup.
 
 ### Adding strings
 
@@ -125,7 +125,7 @@ Locale comes from a top-level `locale` field in zerocode's config. When unset, `
 
 ### Filling translations
 
-`cargo fluent` walks the zerocode catalogue alongside the runtime one, so no separate fill command is needed. Running `cargo fluent fill --locale <code> --model-provider <alias>` generates `apps/zerocode/locales/<code>/zerocode.ftl` in the same pass that fills the runtime catalogue. `cargo fluent check` and `cargo fluent stats` likewise report zerocode; `scan` indexes `apps/` so `zc-` key references resolve against zerocode's source. To exercise the translation in zerocode, install it through `zeroclaw locales fetch` or place it under one of the two disk-search roots above.
+`cargo fluent` walks the zerocode catalogue alongside the runtime one, so no separate fill command is needed. Running `cargo fluent fill --locale <code> --model-provider <alias>` generates `apps/zerocode/locales/<code>/zerocode.ftl` in the same pass that fills the runtime catalogue. `cargo fluent check` and `cargo fluent stats` likewise report zerocode; `scan` indexes `apps/` so `zc-` key references resolve against zerocode's source. To exercise the translation in zerocode, install it through `clawcrew locales fetch` or place it under one of the two disk-search roots above.
 
 ## Filling doc translations (gettext)
 
@@ -140,7 +140,7 @@ cargo mdbook sync --model-provider anthropic.<alias>              # delta fill
 cargo mdbook sync --model-provider anthropic.<alias> --force      # quality pass: retranslate all entries
 cargo mdbook sync --model-provider anthropic.<alias> --batch 1    # write after every entry (safest resume)
 cargo mdbook sync --locale ja --model-provider anthropic.<alias>  # single locale
-cargo mdbook sync --model-provider anthropic.<alias> --config-dir ~/.zeroclaw  # qualified alias + explicit config dir
+cargo mdbook sync --model-provider anthropic.<alias> --config-dir ~/.clawcrew  # qualified alias + explicit config dir
 ```
 
 </div>
@@ -150,7 +150,7 @@ cargo mdbook sync --model-provider anthropic.<alias> --config-dir ~/.zeroclaw  #
 The pipeline has built-in resilience:
 
 - **Leak detection**: if a model returns its own instructions instead of a translation, the tool detects the pattern (via response-length ratio and bullet-list structure), attempts to recover the real translation from the response tail, and blanks the entry for re-translation if recovery fails.
-- **Protected literal checks**: `cargo mdbook check` also rejects high-confidence literal corruption in generated `.po` files. Product names such as `ZeroClaw Maturity Framework`, command literals such as `zeroclaw daemon`, and fenced TOML section/key literals must stay byte-for-byte intact inside translations. Translate the surrounding prose, not the machine-facing text.
+- **Protected literal checks**: `cargo mdbook check` also rejects high-confidence literal corruption in generated `.po` files. Product names such as `ClawCrew Maturity Framework`, command literals such as `clawcrew daemon`, and fenced TOML section/key literals must stay byte-for-byte intact inside translations. Translate the surrounding prose, not the machine-facing text.
 - **Path leak checks**: generated translations must not introduce machine-local absolute paths that were not present in the English source; those entries are blanked for re-translation and rejected by `cargo mdbook check`.
 - **Incremental writes**: after each batch, the `.po` file is rewritten. A Ctrl-C mid-run doesn't lose the progress up to that point.
 - **Obsolete stripping**: `msgmerge` + `msgattrib --no-obsolete` keep removed source strings from accumulating as `#~` entries.
@@ -191,7 +191,7 @@ Everything else, `lang-switcher.js`, CI deploy target list, `cargo mdbook locale
 
 ## Translation catalogue submodule
 
-The translated `.po` catalogues are not in this repo's main tree. They live in the dedicated [`zeroclaw-labs/zeroclaw-docs-translations`](https://github.com/zeroclaw-labs/zeroclaw-docs-translations) repo, mounted as a git submodule at `docs/book/po` (default branch `main`). The mount point is path-transparent: `book.toml`'s gettext preprocessor, `cargo mdbook sync`, and `cargo mdbook build` all read `po/` exactly as before.
+The translated `.po` catalogues are not in this repo's main tree. They live in the dedicated [`clawcrew-labs/clawcrew-docs-translations`](https://github.com/clawcrew-labs/clawcrew-docs-translations) repo, mounted as a git submodule at `docs/book/po` (default branch `main`). The mount point is path-transparent: `book.toml`'s gettext preprocessor, `cargo mdbook sync`, and `cargo mdbook build` all read `po/` exactly as before.
 
 The Rust crate dev loop never needs the submodule. Only docs builds and the docs-deploy / release jobs require it; those checkouts pass `submodules: recursive`. Everything else stays submodule-free.
 

@@ -1,12 +1,12 @@
 # Network Deployment
 
-Deploying ZeroClaw so it can receive inbound traffic: gateway exposure, webhook channels, tunnels, and LAN-only vs. public-facing configurations. Raspberry Pis and other home-network hosts are first-class targets here.
+Deploying ClawCrew so it can receive inbound traffic: gateway exposure, webhook channels, tunnels, and LAN-only vs. public-facing configurations. Raspberry Pis and other home-network hosts are first-class targets here.
 
 ## When inbound ports matter
 
 | Mode | Inbound port? | Notes |
 |---|:---:|---|
-| Telegram (long-poll) | No | ZeroClaw polls `api.telegram.org`, works behind NAT |
+| Telegram (long-poll) | No | ClawCrew polls `api.telegram.org`, works behind NAT |
 | Matrix / Mattermost / Nextcloud Talk | No | Sync/WebSocket, outbound only |
 | Discord / Slack (Socket Mode) | No | Outbound WebSocket |
 | Signal (`signal-cli-rest-api`) | No | Localhost container |
@@ -120,8 +120,8 @@ setup and the per-model build matrix.
 #### Raspberry Pi OS
 
 ```sh
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 ./install.sh
 ```
 
@@ -129,8 +129,8 @@ cd zeroclaw
 
 ```sh
 apk add curl rust cargo openssl-dev pkgconf git
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 ./install.sh
 ```
 
@@ -142,9 +142,9 @@ The stock service unit already adds the user to the `gpio`, `spi`, `i2c` groups.
 ### Checklist
 
 - [ ] Install the binary (`./install.sh`, pick your features in the picker)
-- [ ] Run `zeroclaw quickstart`
+- [ ] Run `clawcrew quickstart`
 - [ ] Configure your channels. Telegram needs no port; webhooks need a tunnel
-- [ ] Install the service: `zeroclaw service install && zeroclaw service start`
+- [ ] Install the service: `clawcrew service install && clawcrew service start`
 - [ ] For LAN access: set `[gateway] host = "0.0.0.0"` + `allow_public_bind = true`
 - [ ] For webhooks: configure `[tunnel]` with a provider
 
@@ -157,16 +157,16 @@ OpenRC services run system-wide. Install as root:
 #### sh
 
 ```sh
-sudo zeroclaw service install
+sudo clawcrew service install
 ```
 
 </div>
 
 Creates:
 
-- `/etc/init.d/zeroclaw`: init script
-- `/etc/zeroclaw/`: config directory
-- `/var/log/zeroclaw/`: log files
+- `/etc/init.d/clawcrew`: init script
+- `/etc/clawcrew/`: config directory
+- `/var/log/clawcrew/`: log files
 
 Enable and start:
 
@@ -175,9 +175,9 @@ Enable and start:
 #### sh
 
 ```sh
-sudo rc-update add zeroclaw default
-sudo rc-service zeroclaw start
-sudo rc-service zeroclaw status
+sudo rc-update add clawcrew default
+sudo rc-service clawcrew start
+sudo rc-service clawcrew status
 ```
 
 </div>
@@ -189,14 +189,14 @@ Logs:
 #### sh
 
 ```sh
-sudo tail -f /var/log/zeroclaw/error.log
+sudo tail -f /var/log/clawcrew/error.log
 ```
 
 </div>
 
 ### OpenRC notes
 
-- Service runs as `zeroclaw:zeroclaw` (least privilege)
+- Service runs as `clawcrew:clawcrew` (least privilege)
 - System-wide only: no user-level OpenRC services
 - All service operations need `sudo`
 
@@ -206,8 +206,8 @@ Telegram Bot API's `getUpdates` is single-poller per bot token. You cannot run t
 
 If you see this:
 
-1. `ps aux | grep zeroclaw` and confirm only one daemon is running
-2. Check you don't have `cargo run --bin zeroclaw -- channel start telegram` from a dev session hanging around
+1. `ps aux | grep clawcrew` and confirm only one daemon is running
+2. Check you don't have `cargo run --bin clawcrew -- channel start telegram` from a dev session hanging around
 3. If stale, reset Telegram's poll session:
 
    <div class="os-tabs-src">

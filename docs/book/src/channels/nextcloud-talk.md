@@ -19,12 +19,12 @@ Nextcloud Talk integration via the Talk Bot webhook protocol. Self-hosted, feder
   send replies was introduced in Talk 17.1, and `occ talk:bot:install` below is
   unavailable on earlier releases.
 - **Bot installed** with both the `webhook` and `response` features, which let
-  Nextcloud deliver room messages to ZeroClaw and let ZeroClaw send replies:
+  Nextcloud deliver room messages to ClawCrew and let ClawCrew send replies:
 
   ```sh
   sudo -u www-data php occ talk:bot:install \
     -f webhook -f response \
-    zeroclaw-bot '<shared-secret>' \
+    clawcrew-bot '<shared-secret>' \
     'https://<your-public-url>/nextcloud-talk/<alias>'
   ```
 - **Bot secret** from that installation. Nextcloud issues **one** shared secret per
@@ -70,7 +70,7 @@ The channel is read from the `default` alias. Set it through any config surface:
 #### sh
 
 ```sh
-zeroclaw daemon
+clawcrew daemon
 ```
 
 </div>
@@ -98,7 +98,7 @@ Inbound requests must carry:
 - `X-Nextcloud-Talk-Random` header
 - `X-Nextcloud-Talk-Signature` header
 
-ZeroClaw verifies:
+ClawCrew verifies:
 
 ```
 expected_sig = hex(hmac_sha256(secret, random + raw_request_body))
@@ -106,7 +106,7 @@ if X-Nextcloud-Talk-Signature != expected_sig:
     return 401
 ```
 
-Without a resolved secret, ZeroClaw returns `401` before parsing or dispatching
+Without a resolved secret, ClawCrew returns `401` before parsing or dispatching
 the webhook. There is no mode that accepts an unverified request.
 
 ## Message routing
@@ -121,7 +121,7 @@ the webhook. There is no mode that accepts an unverified request.
 
 1. Set `external_peers = ["*"]` in the peer group for first-time testing
 2. Send a test message in the configured Talk room
-3. Confirm ZeroClaw receives and replies in the same room
+3. Confirm ClawCrew receives and replies in the same room
 4. Tighten the peer group to explicit actor IDs (e.g. `["alice", "bob"]`)
 
 ## Troubleshooting

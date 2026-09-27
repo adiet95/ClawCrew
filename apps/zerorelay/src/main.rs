@@ -1,4 +1,4 @@
-//! `zerorelay` - the ZeroClaw nominated relay (blind forwarder, blind by
+//! `zerorelay` - the ClawCrew nominated relay (blind forwarder, blind by
 //! default).
 //!
 //! Runs a public rendezvous: daemons behind NAT register over an outer TLS +
@@ -12,7 +12,7 @@
 //! every mode.
 //!
 //! `zerorelay` is a standalone networking app (not daemon-path code), so bare
-//! `tokio::spawn` is the right primitive here; the `zeroclaw_spawn::spawn!` rule
+//! `tokio::spawn` is the right primitive here; the `clawcrew_spawn::spawn!` rule
 //! is for in-daemon tasks. Mirrors the `apps/zerocode` exemption (and lib.rs).
 #![allow(clippy::disallowed_methods)]
 
@@ -40,7 +40,7 @@ const VERSION: &str = env!("ZERORELAY_VERSION");
 #[derive(Parser, Debug)]
 #[command(
     name = "zerorelay",
-    about = "ZeroClaw nominated relay (blind forwarder)",
+    about = "ClawCrew nominated relay (blind forwarder)",
     version = VERSION
 )]
 struct Cli {
@@ -615,7 +615,7 @@ fn build_outer_client_verifier(
                     "[admission].outer_client_auth = {mode} requires [admission].outer_client_ca"
                 ))
             })?;
-            let verifier = zeroclaw_tls::build_client_verifier(&zeroclaw_tls::ClientAuthParams {
+            let verifier = clawcrew_tls::build_client_verifier(&clawcrew_tls::ClientAuthParams {
                 ca_cert_path: ca,
                 require_client_cert: mode == "required",
                 pinned_certs: vec![],
@@ -654,7 +654,7 @@ fn build_tls_acceptor(
 }
 
 /// Self-provision the relay's outer TLS cert (CA + server leaf with SANs) on first
-/// run, reusing the daemon's `zeroclaw-tls` machinery so no openssl is needed.
+/// run, reusing the daemon's `clawcrew-tls` machinery so no openssl is needed.
 /// Reused on later runs. Prints the CA path daemons/clients should trust.
 fn provision_tls_acceptor(
     tls_dir: Option<&str>,
@@ -668,7 +668,7 @@ fn provision_tls_acceptor(
             sans.push(s.clone());
         }
     }
-    let mats = zeroclaw_tls::ensure_server_materials(&dir, &sans)
+    let mats = clawcrew_tls::ensure_server_materials(&dir, &sans)
         .with_context(|| format!("self-provisioning relay TLS in {}", dir.display()))?;
     let acceptor = build_tls_acceptor(
         &mats.server_cert_path.to_string_lossy(),

@@ -1,6 +1,6 @@
 # Slack
 
-Run your ZeroClaw agent as a Slack bot. This guide walks you through it step by
+Run your ClawCrew agent as a Slack bot. This guide walks you through it step by
 step. By the end you'll have a bot in your workspace that answers when people
 message it or @-mention it.
 
@@ -44,7 +44,7 @@ the same app page.
 2. Back on **OAuth & Permissions**, copy the **Bot User OAuth Token** that
    starts with `xoxb-`. This is your `bot_token`.
 
-### 5. Tell ZeroClaw about both tokens
+### 5. Tell ClawCrew about both tokens
 
 Both tokens are secrets, so set them through a surface that encrypts them:
 
@@ -56,8 +56,8 @@ Set `app_token` the same way (it's the `xapp-` token from step 3).
 
 **Environment-variable alternative.** Both tokens can be supplied from the
 daemon's environment instead of the config file: `bot_token` is resolved from
-`ZEROCLAW_SLACK_BOT_TOKEN`, then `SLACK_BOT_TOKEN`; `app_token` from
-`ZEROCLAW_SLACK_APP_TOKEN`, then `SLACK_APP_TOKEN`. A value in the config file
+`CLAWCREW_SLACK_BOT_TOKEN`, then `SLACK_BOT_TOKEN`; `app_token` from
+`CLAWCREW_SLACK_APP_TOKEN`, then `SLACK_APP_TOKEN`. A value in the config file
 takes precedence over the environment. This lets you omit `bot_token` from
 `config.toml` entirely (e.g. for secret managers that inject env vars) without
 the config failing to load.
@@ -65,8 +65,8 @@ the config failing to load.
 ### 6. Invite the bot and test
 
 In Slack, go to a channel and type `/invite @YourBotName`. Then send a message
-or @-mention the bot. Start ZeroClaw (`zeroclaw service restart` or
-`zeroclaw daemon`) and it should reply. If not, see
+or @-mention the bot. Start ClawCrew (`clawcrew service restart` or
+`clawcrew daemon`) and it should reply. If not, see
 [Troubleshooting](#troubleshooting).
 
 ## Configuration
@@ -92,7 +92,7 @@ secure.
 answers inside a thread if a message there @-mentions it, instead of replying to
 every message in a thread it's part of.
 
-On the first message ZeroClaw handles in an existing thread, it fetches prior
+On the first message ClawCrew handles in an existing thread, it fetches prior
 replies and prepends a bounded `[Thread context]` block so the agent can answer
 with the earlier discussion. `thread_context_max_messages` controls how many of
 the newest prior messages available within the fetch window are included while
@@ -100,9 +100,9 @@ preserving chronological order. The default is `0`, the maximum is `50`, and
 `0` disables this automatic hydration. Set an explicit nonzero value to opt in.
 
 One hydration makes at most three total `conversations.replies` attempts,
-including retries after HTTP 429 responses. ZeroClaw honors Slack's `Retry-After`
+including retries after HTTP 429 responses. ClawCrew honors Slack's `Retry-After`
 value before retrying while request budget remains. If a longer
-thread still has another page, ZeroClaw uses the bounded partial context, adds an
+thread still has another page, ClawCrew uses the bounded partial context, adds an
 omission marker, and records the thread as hydrated so later replies do not
 restart the scan. A Slack API failure does not drop the current message; it
 skips hydration and releases the reservation so the next eligible reply can

@@ -15,10 +15,10 @@
 //! and no more:
 //!
 //! * a P-256 keypair and a PKCS#10 CSR, because the daemon issues against a CSR
-//!   and verifies its self-signature (`zeroclaw_tls::sign_csr`). Generating this
+//!   and verifies its self-signature (`clawcrew_tls::sign_csr`). Generating this
 //!   in the browser is what keeps the private key out of the relay's hands.
 //! * SHA-256 for the short-auth-string, whose derivation must match
-//!   `zeroclaw_tls::enrollment_sas` byte for byte.
+//!   `clawcrew_tls::enrollment_sas` byte for byte.
 //!
 //! Both run on `crypto.subtle` - the browser's own audited primitives. The only
 //! hand-written encoding is DER assembly for one fixed structure: no protocol
@@ -33,7 +33,7 @@ pub(crate) const INDEX_HTML: &str = r##"<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ZeroClaw Relay - browser enrollment</title>
+<title>ClawCrew Relay - browser enrollment</title>
 <style>
   :root { color-scheme: light dark; }
   body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0 auto; max-width: 44rem; padding: 2rem 1.25rem 4rem; line-height: 1.5; }
@@ -56,8 +56,8 @@ pub(crate) const INDEX_HTML: &str = r##"<!doctype html>
 </style>
 </head>
 <body>
-<h1>ZeroClaw browser enrollment</h1>
-<p class="sub">Pair this browser with a ZeroClaw agent reached through this relay.</p>
+<h1>ClawCrew browser enrollment</h1>
+<p class="sub">Pair this browser with a ClawCrew agent reached through this relay.</p>
 
 <section class="trust">
   <h2>What you are trusting</h2>
@@ -147,14 +147,14 @@ pub(crate) const INDEX_HTML: &str = r##"<!doctype html>
 
 /// The page driver.
 ///
-/// The section between the `zeroclaw-enroll-crypto` markers is pure, DOM-free
+/// The section between the `clawcrew-enroll-crypto` markers is pure, DOM-free
 /// and self-contained on purpose: the test suite slices it out of this very
 /// constant and runs it, so the CSR and SAS the page produces are checked
 /// against the daemon's own issuer rather than assumed to be well-formed.
 pub(crate) const APP_JS: &str = r##"(function () {
   'use strict';
 
-  // ---- 8< ---- zeroclaw-enroll-crypto ---- 8< ----
+  // ---- 8< ---- clawcrew-enroll-crypto ---- 8< ----
   // Pure helpers: no DOM, no network. Everything cryptographic here runs on
   // crypto.subtle; the hand-written part is DER assembly for one fixed
   // structure (a PKCS#10 request), not a protocol implementation.
@@ -195,12 +195,12 @@ pub(crate) const APP_JS: &str = r##"(function () {
     return `-----BEGIN ${label}-----\n${lines.join('\n')}\n-----END ${label}-----\n`;
   }
 
-  // Must match zeroclaw_tls::enrollment_sas byte for byte: the operator is
+  // Must match clawcrew_tls::enrollment_sas byte for byte: the operator is
   // comparing this string against the one the daemon printed.
   async function enrollmentSas(pairingCode, caFingerprintHex) {
     const enc = new TextEncoder();
     const digest = await sha256Hex(concatBytes([
-      enc.encode('zeroclaw-enroll-sas-v1'),
+      enc.encode('clawcrew-enroll-sas-v1'),
       Uint8Array.of(0),
       enc.encode(pairingCode.trim()),
       Uint8Array.of(0),
@@ -299,13 +299,13 @@ pub(crate) const APP_JS: &str = r##"(function () {
     };
   }
 
-  const zeroclawEnrollCrypto = {
+  const clawcrewEnrollCrypto = {
     pemToDer, sha256Hex, enrollmentSas, createEnrollmentMaterial, derToPem, hex,
   };
   if (typeof globalThis !== 'undefined') {
-    globalThis.__ZEROCLAW_ENROLL_CRYPTO__ = zeroclawEnrollCrypto;
+    globalThis.__CLAWCREW_ENROLL_CRYPTO__ = clawcrewEnrollCrypto;
   }
-  // ---- >8 ---- zeroclaw-enroll-crypto ---- >8 ----
+  // ---- >8 ---- clawcrew-enroll-crypto ---- >8 ----
 
   if (typeof document === 'undefined') return;
 
@@ -402,7 +402,7 @@ pub(crate) const APP_JS: &str = r##"(function () {
     $('abort').disabled = true;
     setStatus('Generating a key in this browser...');
     try {
-      const material = await createEnrollmentMaterial('zeroclaw-browser');
+      const material = await createEnrollmentMaterial('clawcrew-browser');
       setStatus('Enrolling through the relay...');
       // From here the code and CSR leave the browser; even a failure past this
       // point means the pairing code may be spent. Record it so a later Stop is
@@ -455,8 +455,8 @@ mod tests {
 
     /// Markers around the DOM-free crypto section, so the tests below run the
     /// SHIPPED source rather than a copy that can drift from it.
-    const CRYPTO_BEGIN: &str = "// ---- 8< ---- zeroclaw-enroll-crypto ---- 8< ----";
-    const CRYPTO_END: &str = "// ---- >8 ---- zeroclaw-enroll-crypto ---- >8 ----";
+    const CRYPTO_BEGIN: &str = "// ---- 8< ---- clawcrew-enroll-crypto ---- 8< ----";
+    const CRYPTO_END: &str = "// ---- >8 ---- clawcrew-enroll-crypto ---- >8 ----";
 
     fn crypto_section() -> &'static str {
         let start = APP_JS
@@ -480,7 +480,7 @@ mod tests {
             // Browser TLS 1.3 client + X.509 validation.
             "BrowserTls13Client",
             "TlsWebSocket",
-            "ZeroClawEnrollmentTls",
+            "ClawCrewEnrollmentTls",
             "TLS_AES_128_GCM_SHA256",
             "handshake",
             "verifyServerCertificateChain",
@@ -492,13 +492,13 @@ mod tests {
             "encodeDataFrame",
             "decodeDataFrame",
             "DataAck",
-            "zeroclaw.relay.v1",
+            "clawcrew.relay.v1",
             "tunnel-worker.js",
             "importScripts",
             // The dashboard/session tier, deferred out of phase 1.
             "webui",
             "JsonRpcClient",
-            "zeroclaw-rpc-request",
+            "clawcrew-rpc-request",
             "session/prompt",
         ] {
             assert!(
@@ -562,7 +562,7 @@ mod tests {
     fn the_page_csr_is_accepted_by_the_daemon_issuer() {
         let Some(result) = run_page_crypto(
             r#"
-const material = await __ZEROCLAW_ENROLL_CRYPTO__.createEnrollmentMaterial('zeroclaw-browser');
+const material = await __CLAWCREW_ENROLL_CRYPTO__.createEnrollmentMaterial('clawcrew-browser');
 process.stdout.write(JSON.stringify(material));
 "#,
         ) else {
@@ -581,8 +581,8 @@ process.stdout.write(JSON.stringify(material));
             "the page must keep a usable private key"
         );
 
-        let (ca_cert_pem, ca_key_pem) = zeroclaw_tls::testing::gen_ca();
-        let issued = zeroclaw_tls::sign_csr(&ca_cert_pem, &ca_key_pem, "device-1", csr_pem)
+        let (ca_cert_pem, ca_key_pem) = clawcrew_tls::testing::gen_ca();
+        let issued = clawcrew_tls::sign_csr(&ca_cert_pem, &ca_key_pem, "device-1", csr_pem)
             .expect("the daemon issuer must accept the page's CSR");
         assert!(issued.cert_pem.contains("BEGIN CERTIFICATE"));
     }
@@ -591,14 +591,14 @@ process.stdout.write(JSON.stringify(material));
     /// operator's comparison is meaningless.
     #[test]
     fn the_page_sas_matches_the_daemon_value() {
-        let (ca_cert_pem, _key) = zeroclaw_tls::testing::gen_ca();
+        let (ca_cert_pem, _key) = clawcrew_tls::testing::gen_ca();
         let pairing_code = "482913";
         let driver = format!(
             r#"
 const caPem = {ca:?};
-const der = __ZEROCLAW_ENROLL_CRYPTO__.pemToDer(caPem);
-const fingerprint = await __ZEROCLAW_ENROLL_CRYPTO__.sha256Hex(der);
-const sas = await __ZEROCLAW_ENROLL_CRYPTO__.enrollmentSas({code:?}, fingerprint);
+const der = __CLAWCREW_ENROLL_CRYPTO__.pemToDer(caPem);
+const fingerprint = await __CLAWCREW_ENROLL_CRYPTO__.sha256Hex(der);
+const sas = await __CLAWCREW_ENROLL_CRYPTO__.enrollmentSas({code:?}, fingerprint);
 process.stdout.write(JSON.stringify({{ fingerprint, sas }}));
 "#,
             ca = ca_cert_pem,
@@ -610,7 +610,7 @@ process.stdout.write(JSON.stringify({{ fingerprint, sas }}));
         };
 
         let expected_fingerprint =
-            zeroclaw_tls::single_cert_pem_sha256_fingerprint(&ca_cert_pem).expect("fingerprint");
+            clawcrew_tls::single_cert_pem_sha256_fingerprint(&ca_cert_pem).expect("fingerprint");
         assert_eq!(
             result["fingerprint"].as_str().unwrap(),
             expected_fingerprint,
@@ -618,7 +618,7 @@ process.stdout.write(JSON.stringify({{ fingerprint, sas }}));
         );
         assert_eq!(
             result["sas"].as_str().unwrap(),
-            zeroclaw_tls::enrollment_sas(pairing_code, &expected_fingerprint),
+            clawcrew_tls::enrollment_sas(pairing_code, &expected_fingerprint),
             "the page's SAS must match the daemon console value"
         );
     }
@@ -713,7 +713,7 @@ const __nextTick = () => new Promise((r) => setImmediate(r));
     /// open, clicks Stop mid-flight, then lets the enrollment succeed.
     #[test]
     fn stop_after_submit_does_not_falsely_claim_nothing_was_sent() {
-        let (ca_pem, _key) = zeroclaw_tls::testing::gen_ca();
+        let (ca_pem, _key) = clawcrew_tls::testing::gen_ca();
         let ca_json = serde_json::to_string(&ca_pem).expect("ca as a JS string literal");
         // `replace` rather than `format!` so the driver's own `{}`/`${}` need no
         // brace escaping.
@@ -816,7 +816,7 @@ process.stdout.write(JSON.stringify({
     /// be spent and point at a fresh pairing code.
     #[test]
     fn stop_after_failed_submit_reports_the_code_may_be_spent() {
-        let (ca_pem, _key) = zeroclaw_tls::testing::gen_ca();
+        let (ca_pem, _key) = clawcrew_tls::testing::gen_ca();
         let ca_json = serde_json::to_string(&ca_pem).expect("ca as a JS string literal");
         let driver = DRIVER_STOP_AFTER_FAILURE.replace("__CA_PEM_JSON__", &ca_json);
 

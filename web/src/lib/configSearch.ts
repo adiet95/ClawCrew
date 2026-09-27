@@ -167,5 +167,5 @@ export function clearConfigSearchCache(): void {
 // deleteMapKey, selectSectionItem); a browser event keeps this decoupled and
 // avoids a circular import (this module imports from api.ts).
 if (typeof window !== "undefined") {
-  window.addEventListener("zeroclaw-config-mutated", clearConfigSearchCache);
+  window.addEventListener("clawcrew-config-mutated", clearConfigSearchCache);
 }

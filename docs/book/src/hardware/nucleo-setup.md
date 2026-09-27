@@ -1,12 +1,12 @@
-# ZeroClaw on Nucleo-F401RE: Step-by-Step Guide
+# ClawCrew on Nucleo-F401RE: Step-by-Step Guide
 
-Run ZeroClaw on your Mac or Linux host. Connect a Nucleo-F401RE via USB. Control GPIO (LED, pins) via Telegram or CLI.
+Run ClawCrew on your Mac or Linux host. Connect a Nucleo-F401RE via USB. Control GPIO (LED, pins) via Telegram or CLI.
 
 ---
 
 ## Get Board Info via Telegram (No Firmware Needed)
 
-ZeroClaw can read chip info from the Nucleo over USB **without flashing any firmware**. Message your Telegram bot:
+ClawCrew can read chip info from the Nucleo over USB **without flashing any firmware**. Message your Telegram bot:
 
 - *"What board info do I have?"*
 - *"Board info"*
@@ -15,7 +15,7 @@ ZeroClaw can read chip info from the Nucleo over USB **without flashing any firm
 
 The agent uses the `hardware_board_info` tool to return chip name, architecture, and memory map. With the `probe` feature, it reads live data via USB/SWD; otherwise it returns static datasheet info.
 
-**Config:** Use `zeroclaw config set peripherals.boards.0.board nucleo-f401re`, `transport serial`, and `path <your-serial-port>`. See the [Config reference](../reference/config.md) for all fields.
+**Config:** Use `clawcrew config set peripherals.boards.0.board nucleo-f401re`, `transport serial`, and `path <your-serial-port>`. See the [Config reference](../reference/config.md) for all fields.
 
 **CLI alternative:**
 
@@ -25,8 +25,8 @@ The agent uses the `hardware_board_info` tool to return chip name, architecture,
 
 ```sh
 cargo build --features hardware,probe
-zeroclaw hardware info
-zeroclaw hardware discover
+clawcrew hardware info
+clawcrew hardware discover
 ```
 
 </div>
@@ -35,13 +35,13 @@ zeroclaw hardware discover
 
 ## What's Included (No Code Changes Needed)
 
-ZeroClaw includes everything for Nucleo-F401RE:
+ClawCrew includes everything for Nucleo-F401RE:
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
 | Firmware | `firmware/nucleo/` | Embassy Rust: USART2 (115200), gpio_read, gpio_write |
-| Serial peripheral | `crates/zeroclaw-hardware/src/peripherals/serial.rs` | JSON-over-serial protocol (same as Arduino/ESP32) |
-| Flash command | `zeroclaw peripheral flash-nucleo` | Builds firmware, flashes via probe-rs |
+| Serial peripheral | `crates/clawcrew-hardware/src/peripherals/serial.rs` | JSON-over-serial protocol (same as Arduino/ESP32) |
+| Flash command | `clawcrew peripheral flash-nucleo` | Builds firmware, flashes via probe-rs |
 
 Protocol: newline-delimited JSON. Request: `{"id":"1","cmd":"gpio_write","args":{"pin":13,"value":1}}`. Response: `{"id":"1","ok":true,"result":"done"}`.
 
@@ -62,16 +62,16 @@ Protocol: newline-delimited JSON. Request: `{"id":"1","cmd":"gpio_write","args":
 1. Connect Nucleo to your Mac/Linux via USB.
 2. The board appears as a USB device (ST-Link). No separate driver needed on modern systems.
 
-### 1.2 Flash via ZeroClaw
+### 1.2 Flash via ClawCrew
 
-From the zeroclaw repo root:
+From the clawcrew repo root:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw peripheral flash-nucleo
+clawcrew peripheral flash-nucleo
 ```
 
 </div>
@@ -103,7 +103,7 @@ USART2 (PA2/PA3) is bridged to the ST-Link's virtual COM port, so the host sees 
 
 ---
 
-## Phase 3: Configure ZeroClaw
+## Phase 3: Configure ClawCrew
 
 Enable `[peripherals]` and add a `[[peripherals.boards]]` entry for the Nucleo (`board = "nucleo-f401re"`, `transport = "serial"`, `path = "/dev/cu.usbmodem101"`, adjust to your serial port). See the [Config reference](../reference/config.md) for all fields.
 
@@ -116,7 +116,7 @@ Enable `[peripherals]` and add a `[[peripherals.boards]]` entry for the Nucleo (
 #### sh
 
 ```sh
-zeroclaw daemon --host 127.0.0.1 --port 42617
+clawcrew daemon --host 127.0.0.1 --port 42617
 ```
 
 </div>
@@ -128,7 +128,7 @@ Or use the agent directly:
 #### sh
 
 ```sh
-zeroclaw agent -a assistant --message "Turn on the LED on pin 13"
+clawcrew agent -a assistant --message "Turn on the LED on pin 13"
 ```
 
 </div>
@@ -143,9 +143,9 @@ Pin 13 = PA5 = User LED (LD2) on Nucleo-F401RE.
 |------|---------|
 | 1 | Connect Nucleo via USB |
 | 2 | `cargo install probe-rs-tools --locked` |
-| 3 | `zeroclaw peripheral flash-nucleo` |
-| 4 | `zeroclaw config set peripherals.boards.0.path <serial-port>` (and `board`, `transport` if not yet set) |
-| 5 | `zeroclaw daemon` or `zeroclaw agent -a assistant -m "Turn on LED"` |
+| 3 | `clawcrew peripheral flash-nucleo` |
+| 4 | `clawcrew config set peripherals.boards.0.path <serial-port>` (and `board`, `transport` if not yet set) |
+| 5 | `clawcrew daemon` or `clawcrew agent -a assistant -m "Turn on LED"` |
 
 ---
 
@@ -155,4 +155,4 @@ Pin 13 = PA5 = User LED (LD2) on Nucleo-F401RE.
 - **probe-rs not found**: `cargo install probe-rs-tools --locked` (the `probe-rs` crate is a library; the CLI is in `probe-rs-tools`)
 - **No probe detected**: Ensure Nucleo is connected. Try another USB cable/port.
 - **Serial port not found**: On Linux, add user to `dialout`: `sudo usermod -a -G dialout $USER`, then log out/in.
-- **GPIO commands ignored**: Check `path` in config matches your serial port. Run `zeroclaw peripheral list` to verify.
+- **GPIO commands ignored**: Check `path` in config matches your serial port. Run `clawcrew peripheral list` to verify.

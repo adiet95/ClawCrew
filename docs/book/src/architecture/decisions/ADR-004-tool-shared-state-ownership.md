@@ -4,11 +4,11 @@ title: Tool-held shared state follows daemon-owned identity and handle ownership
 date: 2026-03-22
 status: accepted
 relates-to:
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/4057
-  - crates/zeroclaw-runtime/src/tools/mod.rs
-  - crates/zeroclaw-tools/src/canvas.rs
-  - crates/zeroclaw-tools/src/reaction.rs
-  - crates/zeroclaw-api/src/tool.rs
+  - https://github.com/clawcrew-labs/clawcrew/issues/4057
+  - crates/clawcrew-runtime/src/tools/mod.rs
+  - crates/clawcrew-tools/src/canvas.rs
+  - crates/clawcrew-tools/src/reaction.rs
+  - crates/clawcrew-api/src/tool.rs
 ---
 
 # ADR-004: Tool-Held Shared State Follows Daemon-Owned Identity And Handle Ownership
@@ -21,7 +21,7 @@ the accepted decision intact while updating path references where useful.
 
 ## Context
 
-ZeroClaw tools execute in a multi-client environment where a single
+ClawCrew tools execute in a multi-client environment where a single
 daemon process can serve multiple connected clients and agent sessions.
 Some tools need long-lived shared state:
 
@@ -55,10 +55,10 @@ Examples in the current workspace include:
 
 | Handle | Current location | Purpose |
 | --- | --- | --- |
-| `DelegateParentToolsHandle` | `crates/zeroclaw-runtime/src/tools/mod.rs` | Parent-tool list for delegate agents |
-| `PerToolChannelHandle` | `crates/zeroclaw-runtime/src/tools/mod.rs` | Per-tool channel map handle |
-| `ChannelMapHandle` aliases | `crates/zeroclaw-tools/src/ask_user.rs`, `poll.rs`, `reaction.rs` | Tool-local channel maps |
-| `CanvasStore` | `crates/zeroclaw-tools/src/canvas.rs` | Shared canvas frames |
+| `DelegateParentToolsHandle` | `crates/clawcrew-runtime/src/tools/mod.rs` | Parent-tool list for delegate agents |
+| `PerToolChannelHandle` | `crates/clawcrew-runtime/src/tools/mod.rs` | Per-tool channel map handle |
+| `ChannelMapHandle` aliases | `crates/clawcrew-tools/src/ask_user.rs`, `poll.rs`, `reaction.rs` | Tool-local channel maps |
+| `CanvasStore` | `crates/clawcrew-tools/src/canvas.rs` | Shared canvas frames |
 
 Tools that need shared state must:
 
@@ -142,12 +142,12 @@ Negative consequences:
 ## References
 
 - [Built-in tool inventory](../../developing/tool-inventory.md)
-- [Issue #4057](https://github.com/zeroclaw-labs/zeroclaw/issues/4057)
+- [Issue #4057](https://github.com/clawcrew-labs/clawcrew/issues/4057)
 - `AGENTS.md`
-- `crates/zeroclaw-runtime/src/tools/mod.rs`
-- `crates/zeroclaw-tools/src/ask_user.rs`
-- `crates/zeroclaw-tools/src/poll.rs`
-- `crates/zeroclaw-tools/src/reaction.rs`
-- `crates/zeroclaw-tools/src/canvas.rs`
-- `crates/zeroclaw-api/src/tool.rs`
-- `crates/zeroclaw-gateway/src/lib.rs`
+- `crates/clawcrew-runtime/src/tools/mod.rs`
+- `crates/clawcrew-tools/src/ask_user.rs`
+- `crates/clawcrew-tools/src/poll.rs`
+- `crates/clawcrew-tools/src/reaction.rs`
+- `crates/clawcrew-tools/src/canvas.rs`
+- `crates/clawcrew-api/src/tool.rs`
+- `crates/clawcrew-gateway/src/lib.rs`

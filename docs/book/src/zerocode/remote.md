@@ -43,7 +43,7 @@ startup; leave it empty and use the printed pairing code.
 
 ## On the remote host (daemon side)
 
-1. **Enable WSS.** Set the `wss` config through the [Config](./config.md) pane (or the gateway / `zeroclaw config set`):
+1. **Enable WSS.** Set the `wss` config through the [Config](./config.md) pane (or the gateway / `clawcrew config set`):
 
    ```toml
    [wss]
@@ -77,7 +77,7 @@ startup; leave it empty and use the printed pairing code.
    #### sh
 
    ```sh
-   zeroclaw daemon
+   clawcrew daemon
    ```
 
    </div>
@@ -92,7 +92,7 @@ rather bring your own client certificate instead of enrolling interactively:
 1. **Issue a client certificate on the daemon host**, from the daemon's mTLS CA:
 
    ```sh
-   zeroclaw security issue-client-cert --name my-laptop --out-dir /tmp/my-laptop-tls
+   clawcrew security issue-client-cert --name my-laptop --out-dir /tmp/my-laptop-tls
    ```
 
    This writes `ca.crt`, `client.crt`, and `client.key` to `--out-dir`. Add

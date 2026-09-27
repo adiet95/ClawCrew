@@ -2,10 +2,10 @@
 
 use std::sync::Arc;
 
-use zeroclaw::config::MemoryConfig;
-use zeroclaw::memory::sqlite::SqliteMemory;
-use zeroclaw::memory::traits::{Memory, MemoryCategory};
-use zeroclaw::providers::ToolCall;
+use clawcrew::config::MemoryConfig;
+use clawcrew::memory::sqlite::SqliteMemory;
+use clawcrew::memory::traits::{Memory, MemoryCategory};
+use clawcrew::providers::ToolCall;
 
 use crate::support::helpers::{build_agent_with_sqlite_memory, text_response, tool_response};
 use crate::support::{CountingTool, EchoTool, MockModelProvider};
@@ -233,14 +233,14 @@ async fn agent_handles_interleaved_tools_and_text() {
 
 #[tokio::test]
 async fn agent_survives_large_tool_output() {
-    use zeroclaw::tools::{Tool, ToolResult};
+    use clawcrew::tools::{Tool, ToolResult};
 
     /// Tool that returns a very large output.
     struct LargeOutputTool;
 
-    impl ::zeroclaw_api::attribution::Attributable for LargeOutputTool {
-        fn role(&self) -> ::zeroclaw_api::attribution::Role {
-            ::zeroclaw_api::attribution::Role::Tool(::zeroclaw_api::attribution::ToolKind::Plugin)
+    impl ::clawcrew_api::attribution::Attributable for LargeOutputTool {
+        fn role(&self) -> ::clawcrew_api::attribution::Role {
+            ::clawcrew_api::attribution::Role::Tool(::clawcrew_api::attribution::ToolKind::Plugin)
         }
         fn alias(&self) -> &str {
             <Self as Tool>::name(self)
@@ -389,7 +389,7 @@ async fn consolidation_extracts_facts_to_memory() {
         r#"{"history_entry": "User shared project deadline info", "memory_update": "Project deadline is April 15th 2026"}"#,
     )]);
 
-    let result = zeroclaw::memory::consolidation::consolidate_turn(
+    let result = clawcrew::memory::consolidation::consolidate_turn(
         &model_provider,
         "test-model",
         None,
@@ -421,7 +421,7 @@ async fn memory_survives_rapid_consolidation() {
             r#"{{"history_entry": "Turn {i} conversation", "memory_update": null}}"#,
         ))]);
 
-        let _ = zeroclaw::memory::consolidation::consolidate_turn(
+        let _ = clawcrew::memory::consolidation::consolidate_turn(
             &model_provider,
             "test-model",
             None,
@@ -451,9 +451,9 @@ async fn memory_survives_rapid_consolidation() {
 
 #[tokio::test]
 async fn session_backend_persists_messages() {
-    use zeroclaw::channels::session_backend::SessionBackend;
-    use zeroclaw::channels::session_sqlite::SqliteSessionBackend;
-    use zeroclaw::providers::traits::ChatMessage;
+    use clawcrew::channels::session_backend::SessionBackend;
+    use clawcrew::channels::session_sqlite::SqliteSessionBackend;
+    use clawcrew::providers::traits::ChatMessage;
 
     let tmp = tempfile::TempDir::new().unwrap();
     let backend = SqliteSessionBackend::new(tmp.path()).unwrap();
@@ -472,8 +472,8 @@ async fn session_backend_persists_messages() {
 
 #[tokio::test]
 async fn session_state_transitions() {
-    use zeroclaw::channels::session_backend::SessionBackend;
-    use zeroclaw::channels::session_sqlite::SqliteSessionBackend;
+    use clawcrew::channels::session_backend::SessionBackend;
+    use clawcrew::channels::session_sqlite::SqliteSessionBackend;
 
     let tmp = tempfile::TempDir::new().unwrap();
     let backend = SqliteSessionBackend::new(tmp.path()).unwrap();
@@ -483,7 +483,7 @@ async fn session_state_transitions() {
     assert!(state.is_none(), "Initial state should be absent");
 
     // Create the session row by appending a message (set_session_state only UPDATEs)
-    use zeroclaw::providers::traits::ChatMessage;
+    use clawcrew::providers::traits::ChatMessage;
     let msg = ChatMessage::user("hello".to_string());
     backend.append("test_session", &msg).unwrap();
 

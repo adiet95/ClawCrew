@@ -28,18 +28,18 @@ cargo web install       # npm install in web/
 | `target/openapi.json`           | `cargo web gen-api`      | gitignored |
 | `web/dist/`                     | `cargo web build`        | gitignored |
 
-`cargo web gen-api` renders the OpenAPI spec in-process from `zeroclaw_gateway::openapi::build_spec()`, writes it to `target/openapi.json`, and feeds that file to `openapi-typescript`. The same `build_spec()` serves `/api/openapi.json` at runtime, so `build_spec()` is the single contract source and the generated files are rebuilt on demand.
+`cargo web gen-api` renders the OpenAPI spec in-process from `clawcrew_gateway::openapi::build_spec()`, writes it to `target/openapi.json`, and feeds that file to `openapi-typescript`. The same `build_spec()` serves `/api/openapi.json` at runtime, so `build_spec()` is the single contract source and the generated files are rebuilt on demand.
 
 ## Editing flow
 
-1. Change a gateway handler or schema in `crates/zeroclaw-gateway/`.
+1. Change a gateway handler or schema in `crates/clawcrew-gateway/`.
 2. Run `cargo web check`: `gen-api` regenerates `api-generated.ts` from the new spec, then `tsc -b` typechecks the dashboard against it. Any consumer that relies on a now-removed field fails to compile.
 3. Update consumers in `web/src/` to match.
 4. `cargo web build` for the final bundle.
 
 ## CI and release builds
 
-The required CI gate runs `cargo web check` when the dashboard, its toolchain, the Rust crates that own the exported schemas (`zeroclaw-config`, `zeroclaw-gateway`, `zeroclaw-runtime`, and `zeroclaw-sop-graph`), the `xtask` generator, workspace manifests, or this workflow changes. This regenerates the ignored TypeScript client and typechecks the dashboard without producing a bundle. The Rust lint/build/test jobs still use a `web/dist/.gitkeep` placeholder so the gateway crate can compile without the bundle. Producing a release artifact that includes the dashboard is a separate step:
+The required CI gate runs `cargo web check` when the dashboard, its toolchain, the Rust crates that own the exported schemas (`clawcrew-config`, `clawcrew-gateway`, `clawcrew-runtime`, and `clawcrew-sop-graph`), the `xtask` generator, workspace manifests, or this workflow changes. This regenerates the ignored TypeScript client and typechecks the dashboard without producing a bundle. The Rust lint/build/test jobs still use a `web/dist/.gitkeep` placeholder so the gateway crate can compile without the bundle. Producing a release artifact that includes the dashboard is a separate step:
 
 <div class="os-tabs-src">
 

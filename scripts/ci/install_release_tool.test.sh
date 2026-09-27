@@ -18,8 +18,8 @@ assert_manifest() {
   local manifest
 
   manifest="$(
-    ZEROCLAW_RELEASE_TOOL_OS="$os" \
-      ZEROCLAW_RELEASE_TOOL_ARCH="$arch" \
+    CLAWCREW_RELEASE_TOOL_OS="$os" \
+      CLAWCREW_RELEASE_TOOL_ARCH="$arch" \
       bash "$installer" "$tool" --print-manifest
   )"
 
@@ -104,7 +104,7 @@ assert_manifest \
   https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.11.4/cargo-tauri-x86_64-pc-windows-msvc.zip \
   cargo-tauri.exe
 
-if ZEROCLAW_RELEASE_TOOL_OS=Linux ZEROCLAW_RELEASE_TOOL_ARCH=ARM64 \
+if CLAWCREW_RELEASE_TOOL_OS=Linux CLAWCREW_RELEASE_TOOL_ARCH=ARM64 \
   bash "$installer" cross --print-manifest >/dev/null 2>&1; then
   echo "expected cross on Linux/ARM64 to fail closed" >&2
   exit 1

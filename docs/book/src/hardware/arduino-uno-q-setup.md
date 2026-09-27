@@ -1,19 +1,19 @@
-# ZeroClaw on Arduino Uno Q: Step-by-Step Guide
+# ClawCrew on Arduino Uno Q: Step-by-Step Guide
 
-Run ZeroClaw on the Arduino Uno Q's Linux side. Telegram works over WiFi; GPIO control uses the Bridge (requires a minimal App Lab app).
+Run ClawCrew on the Arduino Uno Q's Linux side. Telegram works over WiFi; GPIO control uses the Bridge (requires a minimal App Lab app).
 
 ---
 
 ## What's Included (No Code Changes Needed)
 
-ZeroClaw includes everything needed for Arduino Uno Q. **Clone the repo and follow this guide, no patches or custom code required.**
+ClawCrew includes everything needed for Arduino Uno Q. **Clone the repo and follow this guide, no patches or custom code required.**
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
 | Bridge app | `firmware/uno-q-bridge/` | MCU sketch + Python socket server (port 9999) for GPIO |
-| Bridge tools | `crates/zeroclaw-hardware/src/peripherals/uno_q_bridge.rs` | `gpio_read` / `gpio_write` tools that talk to the Bridge over TCP |
-| Setup command | `crates/zeroclaw-hardware/src/peripherals/uno_q_setup.rs` | `zeroclaw peripheral setup-uno-q` deploys the Bridge via scp + arduino-app-cli |
-| Config schema | `board = "arduino-uno-q"`, `transport = "bridge"` | Configurable via the gateway, zerocode, or `zeroclaw config set` |
+| Bridge tools | `crates/clawcrew-hardware/src/peripherals/uno_q_bridge.rs` | `gpio_read` / `gpio_write` tools that talk to the Bridge over TCP |
+| Setup command | `crates/clawcrew-hardware/src/peripherals/uno_q_setup.rs` | `clawcrew peripheral setup-uno-q` deploys the Bridge via scp + arduino-app-cli |
+| Config schema | `board = "arduino-uno-q"`, `transport = "bridge"` | Configurable via the gateway, zerocode, or `clawcrew config set` |
 
 Build with `--features hardware` to include Uno Q support.
 
@@ -56,7 +56,7 @@ ssh arduino@<UNO_Q_IP>
 
 ---
 
-## Phase 2: Install ZeroClaw on Uno Q
+## Phase 2: Install ClawCrew on Uno Q
 
 ### Option A: Build on the Device (Simpler)
 
@@ -76,16 +76,16 @@ source ~/.cargo/env
 sudo apt-get update
 sudo apt-get install -y pkg-config libssl-dev
 
-# Clone zeroclaw (or scp your project)
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+# Clone clawcrew (or scp your project)
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 
 # Build (on-device build is slow; cross-compile from a larger machine if build time matters)
 export CARGO_BUILD_JOBS=1 # build will be OOM-killed mid-link without this
 cargo build --release --features hardware
 
 # Install
-sudo cp target/release/zeroclaw /usr/local/bin/
+sudo cp target/release/clawcrew /usr/local/bin/
 ```
 
 </div>
@@ -108,8 +108,8 @@ brew install aarch64-unknown-linux-gnu
 CC_aarch64_unknown_linux_gnu=aarch64-unknown-linux-gnu-gcc cargo build --release --target aarch64-unknown-linux-gnu --features hardware
 
 # Copy to Uno Q
-scp target/aarch64-unknown-linux-gnu/release/zeroclaw arduino@<UNO_Q_IP>:~/
-ssh arduino@<UNO_Q_IP> "sudo mv ~/zeroclaw /usr/local/bin/"
+scp target/aarch64-unknown-linux-gnu/release/clawcrew arduino@<UNO_Q_IP>:~/
+ssh arduino@<UNO_Q_IP> "sudo mv ~/clawcrew /usr/local/bin/"
 ```
 
 </div>
@@ -118,7 +118,7 @@ If cross-compile fails, use Option A and build on the device.
 
 ---
 
-## Phase 3: Configure ZeroClaw
+## Phase 3: Configure ClawCrew
 
 ### 3.1 Run Quickstart (or Create Config Manually)
 
@@ -130,7 +130,7 @@ If cross-compile fails, use Option A and build on the device.
 ssh arduino@<UNO_Q_IP>
 
 # Quick config
-zeroclaw quickstart --api-key YOUR_OPENROUTER_KEY --model-provider openrouter
+clawcrew quickstart --api-key YOUR_OPENROUTER_KEY --model-provider openrouter
 ```
 
 </div>
@@ -141,7 +141,7 @@ At minimum, configure one `[providers.models.<type>.<alias>]` entry with `api_ke
 
 ---
 
-## Phase 4: Run ZeroClaw Daemon
+## Phase 4: Run ClawCrew Daemon
 
 <div class="os-tabs-src">
 
@@ -151,28 +151,28 @@ At minimum, configure one `[providers.models.<type>.<alias>]` entry with `api_ke
 ssh arduino@<UNO_Q_IP>
 
 # Run daemon (Telegram polling works over WiFi)
-zeroclaw daemon --host 127.0.0.1 --port 42617
+clawcrew daemon --host 127.0.0.1 --port 42617
 ```
 
 </div>
 
-**At this point:** Telegram chat works. Send messages to your bot, ZeroClaw responds. No GPIO yet.
+**At this point:** Telegram chat works. Send messages to your bot, ClawCrew responds. No GPIO yet.
 
 ---
 
-## Phase 5: GPIO via Bridge (ZeroClaw Handles It)
+## Phase 5: GPIO via Bridge (ClawCrew Handles It)
 
-ZeroClaw includes the Bridge app and setup command.
+ClawCrew includes the Bridge app and setup command.
 
 ### 5.1 Deploy Bridge App
 
-**From your computer** (with zeroclaw repo):
+**From your computer** (with clawcrew repo):
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw peripheral setup-uno-q --host 192.168.0.48
+clawcrew peripheral setup-uno-q --host 192.168.0.48
 ```
 
 </div>
@@ -183,7 +183,7 @@ zeroclaw peripheral setup-uno-q --host 192.168.0.48
 #### sh
 
 ```sh
-zeroclaw peripheral setup-uno-q
+clawcrew peripheral setup-uno-q
 ```
 
 </div>
@@ -194,19 +194,19 @@ This copies the Bridge app to `~/ArduinoApps/uno-q-bridge` and starts it.
 
 Enable `[peripherals]` and add a `[[peripherals.boards]]` entry with `board = "arduino-uno-q"` and `transport = "bridge"`.
 
-### 5.3 Run ZeroClaw
+### 5.3 Run ClawCrew
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw daemon --host 127.0.0.1 --port 42617
+clawcrew daemon --host 127.0.0.1 --port 42617
 ```
 
 </div>
 
-Now when you message your Telegram bot *"Turn on the LED"* or *"Set pin 13 high"*, ZeroClaw uses `gpio_write` via the Bridge.
+Now when you message your Telegram bot *"Turn on the LED"* or *"Set pin 13 high"*, ClawCrew uses `gpio_write` via the Bridge.
 
 ---
 
@@ -218,22 +218,22 @@ Now when you message your Telegram bot *"Turn on the LED"* or *"Set pin 13 high"
 | 2 | `ssh arduino@<IP>` |
 | 3 | `curl -sSf https://sh.rustup.rs \| sh -s -- -y && source ~/.cargo/env` |
 | 4 | `sudo apt-get install -y pkg-config libssl-dev` |
-| 5 | `git clone https://github.com/zeroclaw-labs/zeroclaw.git && cd zeroclaw` |
+| 5 | `git clone https://github.com/clawcrew-labs/clawcrew.git && cd clawcrew` |
 | 6 | `export CARGO_BUILD_JOBS=1 && cargo build --release --features hardware` |
-| 7 | `zeroclaw quickstart --api-key KEY --model-provider openrouter` |
-| 8 | `zeroclaw config set channels.telegram.default.bot-token <token>` |
-| 9 | `zeroclaw daemon --host 127.0.0.1 --port 42617` |
+| 7 | `clawcrew quickstart --api-key KEY --model-provider openrouter` |
+| 8 | `clawcrew config set channels.telegram.default.bot-token <token>` |
+| 9 | `clawcrew daemon --host 127.0.0.1 --port 42617` |
 | 10 | Message your Telegram bot: it responds |
-| 11 | `zeroclaw peripheral setup-uno-q` (deploys Bridge) |
-| 12 | Add a `peripherals` board with `board = "arduino-uno-q"` via the gateway, zerocode, or `zeroclaw config set` |
-| 13 | Restart daemon (`zeroclaw daemon …`), GPIO commands now work |
+| 11 | `clawcrew peripheral setup-uno-q` (deploys Bridge) |
+| 12 | Add a `peripherals` board with `board = "arduino-uno-q"` via the gateway, zerocode, or `clawcrew config set` |
+| 13 | Restart daemon (`clawcrew daemon …`), GPIO commands now work |
 
 ---
 
 ## Troubleshooting
 
-- **"command not found: zeroclaw"**: Use full path: `/usr/local/bin/zeroclaw` or ensure `~/.cargo/bin` is in PATH.
+- **"command not found: clawcrew"**: Use full path: `/usr/local/bin/clawcrew` or ensure `~/.cargo/bin` is in PATH.
 - **Telegram not responding**: Check bot_token, allowed_users, and that the Uno Q has internet (WiFi).
 - **Out of memory**: Keep features minimal (`--features hardware` for Uno Q); consider `compact_context = true`.
-- **GPIO commands ignored**: Ensure Bridge app is running (`zeroclaw peripheral setup-uno-q` deploys and starts it). Config must have `board = "arduino-uno-q"` and `transport = "bridge"`.
-- **LLM provider (GLM/Zhipu)**: Configure `[providers.models.glm.<alias>]` with `GLM_API_KEY` in env or config (the legacy `zhipu` synonym is collapsed onto `glm`). ZeroClaw uses the correct v4 endpoint.
+- **GPIO commands ignored**: Ensure Bridge app is running (`clawcrew peripheral setup-uno-q` deploys and starts it). Config must have `board = "arduino-uno-q"` and `transport = "bridge"`.
+- **LLM provider (GLM/Zhipu)**: Configure `[providers.models.glm.<alias>]` with `GLM_API_KEY` in env or config (the legacy `zhipu` synonym is collapsed onto `glm`). ClawCrew uses the correct v4 endpoint.

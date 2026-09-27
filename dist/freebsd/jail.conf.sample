@@ -1,4 +1,4 @@
-# Sample /etc/jail.conf entry for running ZeroClaw in a thick jail.
+# Sample /etc/jail.conf entry for running ClawCrew in a thick jail.
 #
 # Append this block to /etc/jail.conf (host side). It shares the host network;
 # to give the jail its own address instead, drop the host-network assumption
@@ -7,11 +7,11 @@
 # Adjust `path` to wherever you extracted the base system. See the FreeBSD
 # setup guide (docs/book/src/setup/freebsd.md, "Running in a jail") and
 # dist/freebsd/README.md for the full walkthrough, or run
-# dist/freebsd/zeroclaw-jail-setup.sh to provision the jail end to end.
+# dist/freebsd/clawcrew-jail-setup.sh to provision the jail end to end.
 
-zeroclaw {
-    host.hostname = "zeroclaw";
-    path = "/jails/zeroclaw";
+clawcrew {
+    host.hostname = "clawcrew";
+    path = "/jails/clawcrew";
     exec.start = "/bin/sh /etc/rc";
     exec.stop  = "/bin/sh /etc/rc.shutdown";
     exec.clean;

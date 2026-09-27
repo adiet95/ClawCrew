@@ -176,7 +176,7 @@ export function AgentChatInner({
   const [showCommandHint, setShowCommandHint] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [compact, setCompact] = useState(() => {
-    try { return localStorage.getItem('zeroclaw_chat_compact') === '1'; } catch { return false; }
+    try { return localStorage.getItem('clawcrew_chat_compact') === '1'; } catch { return false; }
   });
   // Tool execution is plumbing, not chat. Default off so tool_call /
   // tool_result frames do not surface inline in the conversation transcript.
@@ -185,7 +185,7 @@ export function AgentChatInner({
   // filters them at render time so toggling on retroactively reveals prior
   // tool activity.
   const [showToolActivity, setShowToolActivity] = useState(() => {
-    try { return localStorage.getItem('zeroclaw_show_tool_activity') === '1'; } catch { return false; }
+    try { return localStorage.getItem('clawcrew_show_tool_activity') === '1'; } catch { return false; }
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -476,7 +476,7 @@ export function AgentChatInner({
   const toggleCompact = useCallback(() => {
     setCompact((prev) => {
       const next = !prev;
-      try { localStorage.setItem('zeroclaw_chat_compact', next ? '1' : '0'); } catch { /* noop */ }
+      try { localStorage.setItem('clawcrew_chat_compact', next ? '1' : '0'); } catch { /* noop */ }
       return next;
     });
   }, []);
@@ -484,7 +484,7 @@ export function AgentChatInner({
   const toggleToolActivity = useCallback(() => {
     setShowToolActivity((prev) => {
       const next = !prev;
-      try { localStorage.setItem('zeroclaw_show_tool_activity', next ? '1' : '0'); } catch { /* noop */ }
+      try { localStorage.setItem('clawcrew_show_tool_activity', next ? '1' : '0'); } catch { /* noop */ }
       return next;
     });
   }, []);

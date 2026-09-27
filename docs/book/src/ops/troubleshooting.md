@@ -9,7 +9,7 @@ First stop for any issue:
 #### sh
 
 ```sh
-zeroclaw doctor
+clawcrew doctor
 ```
 
 </div>
@@ -64,7 +64,7 @@ Full per-distro list: [Setup → Linux](../setup/linux.md).
 
 ### Build OOMs on low-RAM hosts
 
-Building ZeroClaw from source is memory-hungry, mostly during the final link. `install.sh` already adapts to this automatically when it builds from source:
+Building ClawCrew from source is memory-hungry, mostly during the final link. `install.sh` already adapts to this automatically when it builds from source:
 
 {{#include ../_snippets/hardware-lowmem-lto.md}}
 
@@ -105,7 +105,7 @@ cargo check --timings
 
 </div>
 
-### `zeroclaw: command not found` after install
+### `clawcrew: command not found` after install
 
 `cargo install` puts binaries in `~/.cargo/bin/`. Add to PATH:
 
@@ -127,32 +127,32 @@ Persist in your shell profile.
 
 ### Quickstart won't overwrite an existing config
 
-`zeroclaw quickstart` does not have a `--force` flag, it intentionally leaves an existing install alone. To run a fresh quickstart on a stale install, delete the directory and start over:
+`clawcrew quickstart` does not have a `--force` flag, it intentionally leaves an existing install alone. To run a fresh quickstart on a stale install, delete the directory and start over:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-rm -rf ~/.zeroclaw
-zeroclaw quickstart
+rm -rf ~/.clawcrew
+clawcrew quickstart
 ```
 
 </div>
 
-Or, to edit a single stale field instead of wiping everything, use `zeroclaw config set <key> <value>` directly.
+Or, to edit a single stale field instead of wiping everything, use `clawcrew config set <key> <value>` directly.
 
 ### Homebrew install: config path mismatch
 
-Homebrew installs prefer `$HOMEBREW_PREFIX/var/zeroclaw/` (so `brew services` works) while the default config dir is `~/.zeroclaw/`. Set `ZEROCLAW_WORKSPACE` to the Homebrew path before running quickstart so the two paths line up:
+Homebrew installs prefer `$HOMEBREW_PREFIX/var/clawcrew/` (so `brew services` works) while the default config dir is `~/.clawcrew/`. Set `CLAWCREW_WORKSPACE` to the Homebrew path before running quickstart so the two paths line up:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-export ZEROCLAW_WORKSPACE="$HOMEBREW_PREFIX/var/zeroclaw"
-zeroclaw quickstart
+export CLAWCREW_WORKSPACE="$HOMEBREW_PREFIX/var/clawcrew"
+clawcrew quickstart
 ```
 
 </div>
@@ -164,7 +164,7 @@ Or manually symlink once:
 #### sh
 
 ```sh
-ln -s "$HOMEBREW_PREFIX/var/zeroclaw" ~/.zeroclaw
+ln -s "$HOMEBREW_PREFIX/var/clawcrew" ~/.clawcrew
 ```
 
 </div>
@@ -190,7 +190,7 @@ For an OpenAI Codex subscription, set `requires_openai_auth = true` on the provi
 #### sh
 
 ```sh
-zeroclaw agent -a <alias> -m "hello"
+clawcrew agent -a <alias> -m "hello"
 ```
 
 </div>
@@ -199,19 +199,19 @@ Notes:
 
 - `requires_openai_auth = true` on the alias (with `api_key` unset) selects the subscription path; surround it with the canonical agent + risk profile from the [Minimal working example](../providers/configuration.md#minimal-working-example).
 - `api_key` / `uri` on the alias entry are only needed for custom OpenAI-compatible gateways or other explicit endpoint overrides.
-- The streaming-disabled warning by itself is not an auth failure; ZeroClaw retries the request in non-streaming mode.
+- The streaming-disabled warning by itself is not an auth failure; ClawCrew retries the request in non-streaming mode.
 
 ### Daemon starts, then immediately exits
 
 Check journald / the platform log (see [Logs & observability](./observability.md)) for the actual error. Common causes:
 
-- **Invalid config**: `zeroclaw config list` to print resolved values, `zeroclaw config schema` to see the expected shape
+- **Invalid config**: `clawcrew config list` to print resolved values, `clawcrew config schema` to see the expected shape
 - **Port conflict**: another process on `42617`; change `[gateway] port` or free the port
 - **Missing secrets**: encrypted secrets store can't decrypt because the key file is gone; restore from backup or re-run onboarding
 
 ### Daemon keeps restarting
 
-`systemctl --user status zeroclaw` shows the last exit. If it's a config error, it stopped restarting (exit 2) and you need to fix the config. If it's a panic, the unit retries every 10 s.
+`systemctl --user status clawcrew` shows the last exit. If it's a config error, it stopped restarting (exit 2) and you need to fix the config. If it's a panic, the unit retries every 10 s.
 
 Enable debug logging and catch the next failure:
 
@@ -220,8 +220,8 @@ Enable debug logging and catch the next failure:
 #### sh
 
 ```sh
-zeroclaw service stop
-RUST_LOG=debug zeroclaw daemon
+clawcrew service stop
+RUST_LOG=debug clawcrew daemon
 ```
 
 </div>
@@ -250,7 +250,7 @@ If 403 / 401: pairing not completed or token expired. Run the pairing flow again
 
 Two processes are polling the same bot token. Telegram only allows one poller at a time.
 
-Fix: stop all but one `zeroclaw daemon` / `zeroclaw channel start` using that token.
+Fix: stop all but one `clawcrew daemon` / `clawcrew channel start` using that token.
 
 ### Discord / Slack auth failures
 
@@ -263,16 +263,16 @@ For either:
 #### sh
 
 ```sh
-zeroclaw channel doctor
+clawcrew channel doctor
 ```
 
 </div>
 
 ### SOP fan-in is not covered by `channel doctor`
 
-`zeroclaw channel doctor` constructs transport adapters without the daemon's live SOP engine and
+`clawcrew channel doctor` constructs transport adapters without the daemon's live SOP engine and
 audit handles. It can check ordinary channel transports, but it does not prove that MQTT,
-filesystem, or AMQP SOP dispatch can start a run. For those sources, start `zeroclaw daemon` with
+filesystem, or AMQP SOP dispatch can start a run. For those sources, start `clawcrew daemon` with
 the SOP runtime enabled (`sop.sops_dir` set to a non-empty value; unset by default, which disables it; the documented value is `shared/sops`), then inspect the source connection and `SOP ingress` log events. An AMQP
 channel using `dispatch = "sop"` or `"sop_and_agent_loop"` fails closed at daemon startup when the
 SOP handles are unavailable; it is intentionally omitted from the doctor work list in that state.
@@ -286,7 +286,7 @@ If you re-onboarded without keeping device keys, the homeserver sees a new devic
 #### sh
 
 ```sh
-rm -rf ~/.zeroclaw/workspace/matrix-crypto
+rm -rf ~/.clawcrew/workspace/matrix-crypto
 # re-run pairing flow on next channel start
 ```
 
@@ -301,7 +301,7 @@ Most often an auth failure, provider rotated the password or the app-password ex
 #### sh
 
 ```sh
-journalctl --user -u zeroclaw -n 200 | grep -i imap
+journalctl --user -u clawcrew -n 200 | grep -i imap
 ```
 
 </div>
@@ -339,7 +339,7 @@ See [Security → Autonomy levels](../security/autonomy.md).
 ### Tool invocations fail inside Docker sandbox
 
 - Container image isn't pulled, run `docker pull <image>` for the image the sandbox uses. That is `sandbox_image` on the active risk profile (`[risk_profiles.<name>].sandbox_image`), or `alpine:latest` when it is unset
-- Docker daemon not reachable from the ZeroClaw user, check `docker info`
+- Docker daemon not reachable from the ClawCrew user, check `docker info`
 - Tool needs a device that's not passed through, extend `allow_devices`
 
 ### Browser tool hangs on first use
@@ -357,17 +357,17 @@ Playwright downloads Chromium (~150 MB) on first launch. Let it finish. If it ke
 #### sh
 
 ```sh
-zeroclaw service start
-zeroclaw service status
+clawcrew service start
+clawcrew service status
 ```
 
 </div>
 
-Use `zeroclaw service logs` to tail the installed service logs. Add `--follow` to stream new entries or `--lines <count>` to change how much history is shown. If the wrapper is unavailable or you need to inspect the platform directly, use:
+Use `clawcrew service logs` to tail the installed service logs. Add `--follow` to stream new entries or `--lines <count>` to change how much history is shown. If the wrapper is unavailable or you need to inspect the platform directly, use:
 
-- Linux: `journalctl --user -u zeroclaw.service -f`
-- macOS: `log stream --predicate 'process == "zeroclaw"'`
-- If you are running `zeroclaw daemon` directly in a terminal, use that foreground output instead of service log commands.
+- Linux: `journalctl --user -u clawcrew.service -f`
+- macOS: `log stream --predicate 'process == "clawcrew"'`
+- If you are running `clawcrew daemon` directly in a terminal, use that foreground output instead of service log commands.
 
 If that succeeds interactively but the service dies in the background, it's almost always config or permissions, read the journal:
 
@@ -376,7 +376,7 @@ If that succeeds interactively but the service dies in the background, it's almo
 #### sh
 
 ```sh
-journalctl --user -u zeroclaw --since "5 minutes ago"
+journalctl --user -u clawcrew --since "5 minutes ago"
 ```
 
 </div>
@@ -390,14 +390,14 @@ The service and CLI may resolve config differently if they run as different user
 #### sh
 
 ```sh
-zeroclaw config list
+clawcrew config list
 ```
 
 </div>
 
-If the paths differ between `zeroclaw config list` (as you) and the service (as its user), either:
+If the paths differ between `clawcrew config list` (as you) and the service (as its user), either:
 
-- Set `ZEROCLAW_CONFIG_DIR` in the service unit's `Environment=`
+- Set `CLAWCREW_CONFIG_DIR` in the service unit's `Environment=`
 - Run the service as you (lingering-enabled user service)
 - Copy/symlink the config to the path the service expects
 
@@ -412,15 +412,15 @@ Gather diagnostics and file an issue:
 #### sh
 
 ```sh
-zeroclaw --version
-zeroclaw doctor
-zeroclaw channel doctor
-journalctl --user -u zeroclaw --since "1 hour ago" > zeroclaw-log.txt
+clawcrew --version
+clawcrew doctor
+clawcrew channel doctor
+journalctl --user -u clawcrew --since "1 hour ago" > clawcrew-log.txt
 ```
 
 </div>
 
-Sanitise `zeroclaw-log.txt` (redact channel tokens if any slipped through, they shouldn't) and attach it to the issue. See [Contributing → Communication](../contributing/communication.md) for where.
+Sanitise `clawcrew-log.txt` (redact channel tokens if any slipped through, they shouldn't) and attach it to the issue. See [Contributing → Communication](../contributing/communication.md) for where.
 
 ## See also
 

@@ -1,4 +1,4 @@
-/* ZeroClaw docs enhancement layer (Tier B PoC).
+/* ClawCrew docs enhancement layer (Tier B PoC).
    - Right-hand page TOC built from content headings, with scroll-spy.
    - Persistent reader text scaling and a narrow-screen TOC toggle.
    - Keyboard/pointer Mermaid diagram expansion.
@@ -631,7 +631,7 @@
     if (!firstH1) return;
     // Only treat as the true landing page when the first heading is the intro.
     const t = firstH1.textContent.toLowerCase();
-    if (!/introduction|zeroclaw|welcome|overview/.test(t)) return;
+    if (!/introduction|clawcrew|welcome|overview/.test(t)) return;
 
     const intro = firstH1.nextElementSibling?.matches('p')
       ? firstH1.nextElementSibling
@@ -652,12 +652,12 @@
     hero.innerHTML =
       '<div class="pc-hero-glow"></div>' +
       '<div class="pc-hero-inner">' +
-      '<div class="pc-hero-badge">ZeroClaw</div>' +
+      '<div class="pc-hero-badge">ClawCrew</div>' +
       '<h1 class="pc-hero-title"></h1>' +
       '<p class="pc-hero-sub"></p>' +
       '<div class="pc-hero-actions">' +
       '<a class="pc-btn pc-btn-primary"></a>' +
-      '<a class="pc-btn pc-btn-secondary" href="https://github.com/zeroclaw-labs/zeroclaw">GitHub</a>' +
+      '<a class="pc-btn pc-btn-secondary" href="https://github.com/clawcrew-labs/clawcrew">GitHub</a>' +
       '</div></div>';
     // Insert the page-derived heading as text, never as HTML, so a crafted
     // heading or translation cannot inject markup.

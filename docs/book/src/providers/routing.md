@@ -1,11 +1,11 @@
 # Routing
 
-ZeroClaw uses routing for two different decisions:
+ClawCrew uses routing for two different decisions:
 
 1. **Agent dispatch** selects which agent owns a channel or request. Each agent has its own provider profile and runtime policy.
 2. **Provider and model routing** selects a configured provider profile and model for a call, then applies that profile's retry and fallback policy.
 
-An external routing service such as OpenRouter can still perform vendor selection behind one provider profile. It is optional: ZeroClaw also supports first-party hint routes, same-profile model fallback, and fallback across provider profiles.
+An external routing service such as OpenRouter can still perform vendor selection behind one provider profile. It is optional: ClawCrew also supports first-party hint routes, same-profile model fallback, and fallback across provider profiles.
 
 ## Per-agent dispatch
 
@@ -17,7 +17,7 @@ For ad-hoc multi-step routing inside a single conversation, the `spawn_subagent`
 
 ## Hint-based model routes
 
-A narrower mechanism: `[[model_routes]]` lets an agent override the configured `model_provider` for prompts marked with a hint string. Useful when one agent should occasionally reach for a different model without spinning up a second agent. Each route entry carries a `hint` (the string a prompt must declare to fire it), a `model_provider` (the dotted `<type>.<alias>` profile to switch to, e.g. `deepseek.reasoner`), and a `model` (the provider-local model id, e.g. `deepseek-reasoner`). Configure routes through the gateway, zerocode, or `zeroclaw config set`; see the [Config reference](../reference/config.md#model_routes) for the field schema.
+A narrower mechanism: `[[model_routes]]` lets an agent override the configured `model_provider` for prompts marked with a hint string. Useful when one agent should occasionally reach for a different model without spinning up a second agent. Each route entry carries a `hint` (the string a prompt must declare to fire it), a `model_provider` (the dotted `<type>.<alias>` profile to switch to, e.g. `deepseek.reasoner`), and a `model` (the provider-local model id, e.g. `deepseek-reasoner`). Configure routes through the gateway, zerocode, or `clawcrew config set`; see the [Config reference](../reference/config.md#model_routes) for the field schema.
 
 Routes only fire when a prompt explicitly carries the matching hint. The default request path uses the agent's primary `model_provider`.
 
@@ -29,11 +29,11 @@ An unknown `hint:<name>` logs a warning and stays in the default reliability dom
 
 ## Reliability fallback
 
-A provider profile can declare `fallback_models` for alternate models on the same endpoint and `fallback` for other dotted provider profiles. ZeroClaw materializes `fallback_models` only when the profile has an effective primary model; otherwise that profile contributes one unpinned entry. It then walks fallback profiles depth-first. Each fallback profile keeps its own endpoint, credentials, headers, optional model, and nested fallback declarations.
+A provider profile can declare `fallback_models` for alternate models on the same endpoint and `fallback` for other dotted provider profiles. ClawCrew materializes `fallback_models` only when the profile has an effective primary model; otherwise that profile contributes one unpinned entry. It then walks fallback profiles depth-first. Each fallback profile keeps its own endpoint, credentials, headers, optional model, and nested fallback declarations.
 
 Effective execution can differ after a rate limit: entries from one profile share a cooldown key, so a `429` on the primary can skip that profile's remaining fallback models while the cooldown is active.
 
-Configure the chain through the ZeroCode Config editor, the dashboard, or `zeroclaw config set`; see [Provider configuration](./configuration.md#fallback-on-failure). The [Provider routing lifecycle](../architecture/provider-routing-lifecycle.md) documents construction, retry classification, streaming recovery, no-replay boundaries, and attribution ownership.
+Configure the chain through the ZeroCode Config editor, the dashboard, or `clawcrew config set`; see [Provider configuration](./configuration.md#fallback-on-failure). The [Provider routing lifecycle](../architecture/provider-routing-lifecycle.md) documents construction, retry classification, streaming recovery, no-replay boundaries, and attribution ownership.
 
 ## Runtime model switching
 

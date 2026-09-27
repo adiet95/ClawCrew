@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 /// `cargo generate` - maintainer surface generators. Each subcommand owns a
 /// typed source and deterministic tracked outputs with a focused drift check.
 #[derive(Parser)]
-#[command(name = "generate", about = "ZeroClaw maintainer surface generation")]
+#[command(name = "generate", about = "ClawCrew maintainer surface generation")]
 struct Cli {
     #[command(subcommand)]
     command: Cmd,

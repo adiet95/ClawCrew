@@ -3,7 +3,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-MANIFEST_PATH="$REPO_ROOT/firmware/zeroclaw-fw-protocol/Cargo.toml"
+MANIFEST_PATH="$REPO_ROOT/firmware/clawcrew-fw-protocol/Cargo.toml"
 
 echo "==> firmware protocol: checking formatting"
 cargo fmt --manifest-path "$MANIFEST_PATH" --all -- --check

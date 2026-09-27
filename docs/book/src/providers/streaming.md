@@ -8,7 +8,7 @@ The provider trait emits `StreamEvent` values as the model generates output:
 text deltas, structured tool calls, provider-side pre-executed tool calls and
 their results, token-usage reports, and a final completion marker. The
 authoritative, per-variant definitions live with the type in
-`crates/zeroclaw-api/src/model_provider.rs` (`enum StreamEvent`); reasoning
+`crates/clawcrew-api/src/model_provider.rs` (`enum StreamEvent`); reasoning
 tokens arrive as text deltas, not a separate variant.
 
 The runtime consumes these events. The channel orchestrator uses the `Channel` trait's draft-delivery methods and capability flags to surface progressive output where supported.
@@ -96,8 +96,8 @@ When `supports_streaming()` is false, callers use the provider's non-streaming c
 
 ## Code references
 
-- `crates/zeroclaw-api/src/model_provider.rs`: `ModelProvider` trait, `StreamEvent` enum
-- `crates/zeroclaw-providers/src/compatible.rs`: OpenAI-compat SSE parser
-- `crates/zeroclaw-providers/src/anthropic.rs`: Anthropic streaming
-- `crates/zeroclaw-providers/src/ollama.rs`: Ollama streaming
-- `crates/zeroclaw-channels/src/orchestrator/mod.rs`: channel-side stream consumption
+- `crates/clawcrew-api/src/model_provider.rs`: `ModelProvider` trait, `StreamEvent` enum
+- `crates/clawcrew-providers/src/compatible.rs`: OpenAI-compat SSE parser
+- `crates/clawcrew-providers/src/anthropic.rs`: Anthropic streaming
+- `crates/clawcrew-providers/src/ollama.rs`: Ollama streaming
+- `crates/clawcrew-channels/src/orchestrator/mod.rs`: channel-side stream consumption

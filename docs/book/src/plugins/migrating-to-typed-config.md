@@ -5,9 +5,9 @@ operator configuration. This page is the migration artifact for plugin authors
 and operators: what breaks, why, and the exact steps to fix a package.
 
 The behavior described here is checked against
-`crates/zeroclaw-plugins/src/config.rs`,
-`crates/zeroclaw-plugins/src/instance.rs`, and the admission path in
-`crates/zeroclaw-plugins/src/host.rs`.
+`crates/clawcrew-plugins/src/config.rs`,
+`crates/clawcrew-plugins/src/instance.rs`, and the admission path in
+`crates/clawcrew-plugins/src/host.rs`.
 
 ## Release decision
 
@@ -162,11 +162,11 @@ read. The available migration path depends on the plugin capability.
 Install and info commands can derive a tool instance from the package's default
 tool binding. To move tool values onto the new key:
 
-1. Run `zeroclaw plugin info <package>` to print the full-instance key, which
+1. Run `clawcrew plugin info <package>` to print the full-instance key, which
    looks like `zpi1_...`.
 2. Rename the existing entry's `name` to that key, or reinstall the plugin to
    seed the entry, then set values with
-   `zeroclaw config set plugins.entries.<instance-key>.config.<key>`.
+   `clawcrew config set plugins.entries.<instance-key>.config.<key>`.
 3. Save the config. Values stay encrypted at rest.
 
 The key is a versioned, reversible encoding of the package, capability, and
@@ -175,19 +175,19 @@ sharing credentials. Fresh installs seed and print this tool key automatically.
 
 ### Channel instances
 
-A channel key includes the configured channel alias. `zeroclaw plugin install`
-and `zeroclaw plugin info` know the package but do not own that alias, so they
+A channel key includes the configured channel alias. `clawcrew plugin install`
+and `clawcrew plugin info` know the package but do not own that alias, so they
 cannot derive, print, or seed a channel key and must not invent a package-level
 substitute. Alias-aware channel construction and runtime config resolution
 landed in
-[zeroclaw#10146](https://github.com/zeroclaw-labs/zeroclaw/pull/10146): a daemon
+[clawcrew#10146](https://github.com/clawcrew-labs/clawcrew/pull/10146): a daemon
 constructs an explicitly declared channel instance and resolves its typed config
 from `zpi1(package, channel, alias)`, keyed off the actual configured alias.
 
 Automatic `plugin info` key display and install-time seeding for channel
 instances remain manual until the grant ceremony in
-[zeroclaw#9584](https://github.com/zeroclaw-labs/zeroclaw/pull/9584). Until that
-ceremony lands, operators seed the channel key by hand with `zeroclaw config
+[clawcrew#9584](https://github.com/clawcrew-labs/clawcrew/pull/9584). Until that
+ceremony lands, operators seed the channel key by hand with `clawcrew config
 set` rather than having install or info print and seed it for them, so a
 channel-only package that relies on the automatic install and info key path is
 not yet complete.
@@ -207,7 +207,7 @@ not yet complete.
 
 ## First-party packages
 
-Every package published in `zeroclaw-labs/zeroclaw-plugins` requests
+Every package published in `clawcrew-labs/clawcrew-plugins` requests
 `config_read`, and none declared `config_schema` when this landed, so all of
 them need step 1 and step 5. Migration is tracked in that repository rather
 than here, since the packages version independently of the host. Tool packages

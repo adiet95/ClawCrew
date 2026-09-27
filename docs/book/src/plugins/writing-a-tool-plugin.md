@@ -9,15 +9,15 @@ thing easiest to get wrong.
 
 Everything on this page is checked against the contract source: the
 `tool-plugin` world in `wit/v0/tool.wit`, the host-side call path in
-`crates/zeroclaw-plugins/src/runtime.rs` and `wasm_tool.rs`, and manifest
-validation in `host.rs`. Source paths are citations into the ZeroClaw
+`crates/clawcrew-plugins/src/runtime.rs` and `wasm_tool.rs`, and manifest
+validation in `host.rs`. Source paths are citations into the ClawCrew
 repository for verification; the plugin itself is your own crate in your own
-repository. You never need a ZeroClaw checkout to build one, only the `wit/`
-contract files (fetched in step 1) and an installed `zeroclaw` binary with
+repository. You never need a ClawCrew checkout to build one, only the `wit/`
+contract files (fetched in step 1) and an installed `clawcrew` binary with
 the plugin host compiled in to run it.
 
 > **The release binary is not that binary.** The prebuilt binaries the
-> installer ships do not include the plugin host (`zeroclaw plugin …` is an
+> installer ships do not include the plugin host (`clawcrew plugin …` is an
 > unrecognized subcommand), and `plugins-wasm` is not in the crate's default
 > feature set. Build the host side from source with an execution backend;
 > every backend feature carries the `plugins-wasm` umbrella itself, so one
@@ -149,9 +149,9 @@ mod component {
     });
 
     use crate::redact::{redact, RedactConfig};
-    use exports::zeroclaw::plugin::plugin_info::Guest as PluginInfo;
-    use exports::zeroclaw::plugin::tool::{Guest as Tool, ToolResult};
-    use zeroclaw::plugin::logging::{
+    use exports::clawcrew::plugin::plugin_info::Guest as PluginInfo;
+    use exports::clawcrew::plugin::tool::{Guest as Tool, ToolResult};
+    use clawcrew::plugin::logging::{
         log_record, LogLevel, PluginAction, PluginEvent, PluginOutcome,
     };
 
@@ -256,8 +256,8 @@ Contract points, each anchored in the host source:
 - **Log through the imported `logging` interface, never `wasi:logging`.**
   `log-record` is fire-and-forget; the host absorbs all errors so a failed
   log write can never crash your call, and events land in every destination
-  `zeroclaw_log` writes to, carrying the
-  [`zeroclaw.*` attribution](../ops/observability.md#zeroclaw-attribution)
+  `clawcrew_log` writes to, carrying the
+  [`clawcrew.*` attribution](../ops/observability.md#clawcrew-attribution)
   (`agent_alias`, `session_key`, provider, channel) of the host span your
   call runs under. Note the `attrs` field on `plugin-event` is **not**
   attribution: it is the free-form `attributes` payload of the log row.
@@ -289,7 +289,7 @@ into `execute` under the reserved `__config` key:
   real JSON booleans, numbers, arrays, and objects, not those storage strings.
 - A direct top-level string property marked `x-secret = true` is excluded from
   `__config`. Read it explicitly with the generated
-  `zeroclaw::plugin::secrets::get` function. Nested markers, false/non-boolean
+  `clawcrew::plugin::secrets::get` function. Nested markers, false/non-boolean
   markers, and secret non-string properties fail manifest admission.
 - The host enables secret reads only while dispatching `execute`. Calls from
   component initialization or metadata exports return `unavailable` without
@@ -302,7 +302,7 @@ into `execute` under the reserved `__config` key:
 - Unknown keys, invalid JSON encodings, wrong types, and schema constraint
   failures reject the plugin before its code runs. Operators currently set
   values under the installation-printed instance key through TOML or the
-  generic `zeroclaw config set` path; those values encrypt at rest under the
+  generic `clawcrew config set` path; those values encrypt at rest under the
   config's secret key. Schema-driven zerocode and gateway editors are future
   SDK/config-surface work.
 
@@ -381,7 +381,7 @@ cargo add waki --target 'cfg(target_family = "wasm")'
 The shape of a call, inside `execute` after parsing public `__config`:
 
 ```rust
-let api_key = zeroclaw::plugin::secrets::get("api_key")
+let api_key = clawcrew::plugin::secrets::get("api_key")
     .map_err(|_| "api_key is unavailable".to_string())?;
 let resp = waki::Client::new()
     .get("https://api.example.com/search")
@@ -401,7 +401,7 @@ both without issue. Neither requires action.
 One version fact that **is** breakage: the world you vendor must match the host's
 exported world exactly. `wit/v0` is experimental and can gain a variant under the
 same `@0.1.0` (for example, `memory-audit` is a case of the
-`zeroclaw:plugin/logging` `plugin-action` enum). A component built against an
+`clawcrew:plugin/logging` `plugin-action` enum). A component built against an
 older copy may compile cleanly but fail during instantiation. The host preserves
 the Wasmtime error chain and adds a conditional WIT-drift hint; inspect that
 chain, then diff your vendored `wit/v0` against the WIT from the host revision
@@ -454,7 +454,7 @@ non-full autonomy the call surfaces the operator approval prompt like any
 other privileged tool; anticipate that in your tool description rather than
 being surprised by it. Your `log-record` events appear in the structured log
 with the
-[span attribution](../ops/observability.md#zeroclaw-attribution) of the host
+[span attribution](../ops/observability.md#clawcrew-attribution) of the host
 call site.
 
 Two operational constraints worth repeating from the
@@ -471,8 +471,8 @@ Two operational constraints worth repeating from the
 
 | Symptom | Likely cause |
 |---|---|
-| Plugin missing from `zeroclaw plugin list` | Plugin system disabled; malformed manifest; `wasm_path` file missing; signature policy rejected it. The startup log carries the specific skip warning. |
-| Present in `zeroclaw plugin list` but the tool never loads | `plugins.auto_discover` is `false` (the default). Auto-discovered tool and skill capabilities load only when `plugins.auto_discover = true`; `plugins.enabled = true` alone activates only explicitly-declared channels. Run `zeroclaw config set plugins.auto_discover true`. |
+| Plugin missing from `clawcrew plugin list` | Plugin system disabled; malformed manifest; `wasm_path` file missing; signature policy rejected it. The startup log carries the specific skip warning. |
+| Present in `clawcrew plugin list` but the tool never loads | `plugins.auto_discover` is `false` (the default). Auto-discovered tool and skill capabilities load only when `plugins.auto_discover = true`; `plugins.enabled = true` alone activates only explicitly-declared channels. Run `clawcrew config set plugins.auto_discover true`. |
 | Tool rejected during registration | Config validation or the metadata probe failed. Check the log for the specific error; a probe failure usually means the component was built against mismatched WIT. |
 | Tool never selected by the model | Name collides with a built-in, or the description/schema do not tell the model when the tool applies. |
 | `__config` absent despite configured section | The effective scope denied `config_read`, the entry does not use the installation-printed full-instance key, the validated object is empty, or every validated property is marked secret. A `config_schema`/permission mismatch rejects the plugin instead. |

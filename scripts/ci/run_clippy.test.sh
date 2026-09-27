@@ -14,12 +14,12 @@ mkdir -p "${mock_dir}/bin" "$runner_temp"
 
 cat > "${mock_dir}/bin/cargo" <<'EOF'
 #!/usr/bin/env bash
-printf '%s\n' "$@" > "$ZEROCLAW_CLIPPY_TEST_ARGS"
+printf '%s\n' "$@" > "$CLAWCREW_CLIPPY_TEST_ARGS"
 printf '%s\n' \
     'Downloaded demo-crate v1.0.0' \
-    'Compiling zeroclaw-runtime v0.8.5 (/workspace/zeroclaw/crates/zeroclaw-runtime)' \
+    'Compiling clawcrew-runtime v0.8.5 (/workspace/clawcrew/crates/clawcrew-runtime)' \
     'Compiling serde v1.0.0'
-exit "${ZEROCLAW_CLIPPY_TEST_STATUS:-0}"
+exit "${CLAWCREW_CLIPPY_TEST_STATUS:-0}"
 EOF
 chmod +x "${mock_dir}/bin/cargo"
 
@@ -57,7 +57,7 @@ run_runner() {
         GITHUB_STEP_SUMMARY="$summary_file" \
         RUNNER_OS=TestOS \
         RUST_CACHE_HIT=true \
-        ZEROCLAW_CLIPPY_TEST_ARGS="$cargo_args" \
+        CLAWCREW_CLIPPY_TEST_ARGS="$cargo_args" \
         bash "$runner" "$@" >/dev/null
 }
 
@@ -69,7 +69,7 @@ assert_args "workspace" \
     clippy \
     --locked \
     --workspace \
-    --exclude zeroclaw-desktop \
+    --exclude clawcrew-desktop \
     --all-targets \
     --features ci-all \
     -- -D warnings
@@ -90,7 +90,7 @@ assert_args "targeted workspace" \
     clippy \
     --locked \
     --workspace \
-    --exclude zeroclaw-desktop \
+    --exclude clawcrew-desktop \
     --all-targets \
     --features ci-all \
     --target aarch64-apple-darwin \
@@ -105,7 +105,7 @@ run_runner \
 assert_args "targeted tools" \
     clippy \
     --locked \
-    -p zeroclaw-tools \
+    -p clawcrew-tools \
     --all-targets \
     --all-features \
     --target x86_64-pc-windows-msvc \
@@ -122,7 +122,7 @@ assert_rejected() {
     PATH="${mock_dir}/bin:$PATH" \
         RUNNER_TEMP="$runner_temp" \
         GITHUB_STEP_SUMMARY="$summary_file" \
-        ZEROCLAW_CLIPPY_TEST_ARGS="$cargo_args" \
+        CLAWCREW_CLIPPY_TEST_ARGS="$cargo_args" \
         bash "$runner" "$@" >/dev/null 2>&1
     status=$?
     set -e
@@ -151,8 +151,8 @@ PATH="${mock_dir}/bin:$PATH" \
     GITHUB_STEP_SUMMARY="$summary_file" \
     RUNNER_OS=TestOS \
     RUST_CACHE_HIT=false \
-    ZEROCLAW_CLIPPY_TEST_ARGS="$cargo_args" \
-    ZEROCLAW_CLIPPY_TEST_STATUS=17 \
+    CLAWCREW_CLIPPY_TEST_ARGS="$cargo_args" \
+    CLAWCREW_CLIPPY_TEST_STATUS=17 \
     bash "$runner" \
         --scope workspace \
         --summary-title "Failure diagnostics" \

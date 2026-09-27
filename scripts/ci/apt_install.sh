@@ -51,7 +51,7 @@ run_apt_phase() {
 # They are unrelated to this workflow and can break apt-get update before CI
 # installs its own packages.
 # Contract tests point the directory at a temporary tree; CI uses the default.
-apt_sources_dir="${ZEROCLAW_CI_APT_SOURCES_DIR:-/etc/apt/sources.list.d}"
+apt_sources_dir="${CLAWCREW_CI_APT_SOURCES_DIR:-/etc/apt/sources.list.d}"
 apt_sources=(
   "${apt_sources_dir}"/azure-cli.*
   "${apt_sources_dir}"/microsoft-prod.*

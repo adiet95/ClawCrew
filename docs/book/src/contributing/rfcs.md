@@ -4,7 +4,7 @@ An RFC records a durable project-level decision before implementation. The proce
 
 Most work does not need one. The RFC trigger is deliberately narrow so that proposals which genuinely need a project-level decision are not queued behind ordinary features.
 
-RFC scope, discussion timing, and ratification rules were last set by [#9496](https://github.com/zeroclaw-labs/zeroclaw/issues/9496), accepted 2026-08-10 and adopted as FND-003 Rev. 15, then clarified by FND-003 Rev. 17. See [FND-003](../foundations/fnd-003-governance.md) for the durable protocol.
+RFC scope, discussion timing, and ratification rules were last set by [#9496](https://github.com/clawcrew-labs/clawcrew/issues/9496), accepted 2026-08-10 and adopted as FND-003 Rev. 15, then clarified by FND-003 Rev. 17. See [FND-003](../foundations/fnd-003-governance.md) for the durable protocol.
 
 ## When to file an RFC vs. just a PR
 
@@ -26,7 +26,7 @@ Those go through an issue and a PR. A new channel, a new provider, a new tool, a
 
 The test follows substantive project effect, not the issue title, the author, whether the draft was AI-assisted, or the mere presence of a migration, feature, or default change. When you are unsure, open an ordinary issue and say why you think it might cross a trigger. A maintainer can promote it; that costs far less than a stalled RFC.
 
-Security vulnerabilities are reported privately per [SECURITY.md](https://github.com/zeroclaw-labs/zeroclaw/blob/master/SECURITY.md), never as a public RFC.
+Security vulnerabilities are reported privately per [SECURITY.md](https://github.com/clawcrew-labs/clawcrew/blob/master/SECURITY.md), never as a public RFC.
 
 Maintainers may relabel or close a filed RFC as an ordinary issue, feature request, or implementation follow-up when it does not meet the trigger. That disposition says whether the underlying work remains valid and where it continues; it is a routing decision, not a rejection on substance.
 
@@ -88,14 +88,14 @@ Large RFCs often ship across multiple PRs over several releases. The RFC's track
 
 ## Current open RFCs
 
-Open RFCs are the best primary source for "what's coming next" in ZeroClaw. Browse:
+Open RFCs are the best primary source for "what's coming next" in ClawCrew. Browse:
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-gh issue list --repo zeroclaw-labs/zeroclaw --label type:rfc --state open
+gh issue list --repo clawcrew-labs/clawcrew --label type:rfc --state open
 ```
 
 </div>
@@ -108,7 +108,7 @@ These shape everything else. Read them before proposing cross-cutting changes:
 
 - **#5574**: Microkernel transition: crate split, feature-flag taxonomy, v1.0 path
 - **#5576**: Documentation standards and knowledge architecture
-- **#5577**: Project governance: core team, this document's authority. Its RFC scope and voting thresholds are superseded by [#9496](https://github.com/zeroclaw-labs/zeroclaw/issues/9496) (FND-003 Rev. 15)
+- **#5577**: Project governance: core team, this document's authority. Its RFC scope and voting thresholds are superseded by [#9496](https://github.com/clawcrew-labs/clawcrew/issues/9496) (FND-003 Rev. 15)
 - **#5579**: Engineering infrastructure: CI pipelines, release automation
 - **#5615**: Contribution culture: human/AI co-authorship norms
 - **#5653**: Zero Compromise: error handling, dead-code policy, release-readiness bar

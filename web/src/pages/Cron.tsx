@@ -294,7 +294,7 @@ export default function Cron() {
 
   const fetchSettings = () => {
     getCronSettings().then(setSettings).catch((err) => {
-      console.warn('[ZeroClaw] Failed to load cron settings:', describeCronSettingsError(err));
+      console.warn('[ClawCrew] Failed to load cron settings:', describeCronSettingsError(err));
     });
   };
 
@@ -307,7 +307,7 @@ export default function Cron() {
       });
       setSettings(updated);
     } catch (err: unknown) {
-      console.warn('[ZeroClaw] Failed to update cron settings:', describeCronSettingsError(err));
+      console.warn('[ClawCrew] Failed to update cron settings:', describeCronSettingsError(err));
     } finally {
       setTogglingCatchUp(false);
     }

@@ -1,7 +1,7 @@
 //! TG2: Config Load/Save Round-Trip Tests
 
 use std::fs;
-use zeroclaw::config::{Config, MemoryConfig};
+use clawcrew::config::{Config, MemoryConfig};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Config default construction
@@ -82,7 +82,7 @@ fn memory_config_default_vector_keyword_weights_sum_to_one() {
 
 #[test]
 fn config_toml_roundtrip_preserves_provider() {
-    use zeroclaw::config::{DeepseekModelProviderConfig, ModelProviderConfig};
+    use clawcrew::config::{DeepseekModelProviderConfig, ModelProviderConfig};
     let mut config = Config::default();
     config.providers.models.deepseek.insert(
         "default".to_string(),
@@ -96,7 +96,7 @@ fn config_toml_roundtrip_preserves_provider() {
     );
 
     let toml_str = toml::to_string(&config).expect("config should serialize to TOML");
-    let parsed = zeroclaw::config::migration::migrate_to_current(&toml_str)
+    let parsed = clawcrew::config::migration::migrate_to_current(&toml_str)
         .expect("TOML should round-trip through migration");
 
     assert!(
@@ -171,7 +171,7 @@ fn config_toml_roundtrip_preserves_memory_config() {
 
 #[test]
 fn config_file_write_read_roundtrip() {
-    use zeroclaw::config::{MistralModelProviderConfig, ModelProviderConfig};
+    use clawcrew::config::{MistralModelProviderConfig, ModelProviderConfig};
     let tmp = tempfile::TempDir::new().expect("tempdir creation should succeed");
     let config_path = tmp.path().join("config.toml");
 
@@ -195,7 +195,7 @@ fn config_file_write_read_roundtrip() {
     fs::write(&config_path, &toml_str).expect("config file write should succeed");
 
     let read_back = fs::read_to_string(&config_path).expect("config file read should succeed");
-    let parsed = zeroclaw::config::migration::migrate_to_current(&read_back)
+    let parsed = clawcrew::config::migration::migrate_to_current(&read_back)
         .expect("TOML should round-trip through migration");
 
     assert!(

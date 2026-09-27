@@ -11,7 +11,7 @@ use std::time::Duration;
 use std::time::Instant;
 
 // Keep this wire-protocol limit aligned with DESKTOP_READINESS_FRAME_MAX_BYTES
-// in zeroclaw-runtime's service module.
+// in clawcrew-runtime's service module.
 const READINESS_FRAME_MAX_BYTES: usize = 4096;
 // Windows process startup can be delayed by antivirus scanning, especially
 // for a bundled kernel launched from a GUI.
@@ -32,19 +32,19 @@ unsafe extern "C" {
 }
 
 /// Filename of the kernel binary on the current platform.
-fn zeroclaw_exe_name() -> &'static str {
+fn clawcrew_exe_name() -> &'static str {
     if cfg!(windows) {
-        "zeroclaw.exe"
+        "clawcrew.exe"
     } else {
-        "zeroclaw"
+        "clawcrew"
     }
 }
 
-/// Find the `zeroclaw` binary. Checks, in order: the directory next to this
+/// Find the `clawcrew` binary. Checks, in order: the directory next to this
 /// app (installed side-by-side), every `PATH` entry, then the common install
 /// locations a GUI launch's minimal `PATH` usually misses.
-pub fn find_zeroclaw_binary() -> Option<PathBuf> {
-    let exe_name = zeroclaw_exe_name();
+pub fn find_clawcrew_binary() -> Option<PathBuf> {
+    let exe_name = clawcrew_exe_name();
 
     if let Ok(exe) = std::env::current_exe() {
         let sibling = exe.with_file_name(exe_name);
@@ -255,7 +255,7 @@ fn ensure_desktop_supervisor_capability_with_timeout(
             let timeout_error = std::io::Error::new(
                 std::io::ErrorKind::TimedOut,
                 format!(
-                    "timed out checking Desktop supervisor support in {}; install or bundle a ZeroClaw kernel that supports the Desktop supervisor command",
+                    "timed out checking Desktop supervisor support in {}; install or bundle a ClawCrew kernel that supports the Desktop supervisor command",
                     binary.display()
                 ),
             );
@@ -273,7 +273,7 @@ fn ensure_desktop_supervisor_capability_with_timeout(
     let unsupported_error = std::io::Error::new(
         std::io::ErrorKind::InvalidInput,
         format!(
-            "the ZeroClaw kernel at {} does not support the required Desktop supervisor command; install or bundle a kernel that supports this command",
+            "the ClawCrew kernel at {} does not support the required Desktop supervisor command; install or bundle a kernel that supports this command",
             binary.display()
         ),
     );
@@ -618,7 +618,7 @@ mod tests {
 
     #[test]
     fn desktop_command_targets_hidden_supervisor_and_port() {
-        let command = desktop_daemon_command(Path::new("/tmp/zeroclaw"), 42617);
+        let command = desktop_daemon_command(Path::new("/tmp/clawcrew"), 42617);
         let args: Vec<_> = command
             .get_args()
             .map(|arg| arg.to_string_lossy().into_owned())
@@ -636,11 +636,11 @@ mod tests {
             .expect("system clock should be after the Unix epoch")
             .as_nanos();
         let dir = std::env::temp_dir().join(format!(
-            "zeroclaw-desktop-old-kernel-{}-{unique}",
+            "clawcrew-desktop-old-kernel-{}-{unique}",
             std::process::id()
         ));
         fs::create_dir(&dir).expect("create fixture directory");
-        let binary = dir.join("old-zeroclaw");
+        let binary = dir.join("old-clawcrew");
         let descendant_pid_file = dir.join("unsupported-child.pid");
         let descendant_pid_file_literal =
             descendant_pid_file.to_string_lossy().replace('\'', "'\\''");
@@ -680,11 +680,11 @@ mod tests {
             .expect("system clock should be after the Unix epoch")
             .as_nanos();
         let dir = std::env::temp_dir().join(format!(
-            "zeroclaw-desktop-stale-kernel-{}-{unique}",
+            "clawcrew-desktop-stale-kernel-{}-{unique}",
             std::process::id()
         ));
         fs::create_dir(&dir).expect("create fixture directory");
-        let binary = dir.join("stale-zeroclaw");
+        let binary = dir.join("stale-clawcrew");
         let fixture = "#!/bin/sh\n\
              trap '' HUP TERM INT\n\
              sleep 30 &\n\
@@ -787,13 +787,13 @@ mod tests {
             .expect("system clock should be after the Unix epoch")
             .as_nanos();
         let dir = std::env::temp_dir().join(format!(
-            "zeroclaw-desktop-log-open-{}-{unique}",
+            "clawcrew-desktop-log-open-{}-{unique}",
             std::process::id()
         ));
         fs::create_dir(&dir).expect("create fixture directory");
         let pid_file = dir.join("descendant.pid");
         let supervisor_pid_file = dir.join("supervisor.pid");
-        let log_destination = dir.join("zeroclaw-desktop-daemon.log");
+        let log_destination = dir.join("clawcrew-desktop-daemon.log");
         let binary = dir.join("desktop-supervisor-fixture");
         let pid_file_literal = pid_file.to_string_lossy().replace('\'', "'\\''");
         let supervisor_pid_file_literal =
@@ -868,7 +868,7 @@ mod tests {
             .expect("system clock should be after the Unix epoch")
             .as_nanos();
         let dir = std::env::temp_dir().join(format!(
-            "zeroclaw-desktop-exiting-supervisor-{}-{unique}",
+            "clawcrew-desktop-exiting-supervisor-{}-{unique}",
             std::process::id()
         ));
         fs::create_dir(&dir).expect("create fixture directory");

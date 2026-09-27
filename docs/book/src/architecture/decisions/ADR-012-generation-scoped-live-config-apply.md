@@ -4,20 +4,20 @@ title: Live config application uses generation-scoped publication and results
 date: 2026-07-19
 status: proposed
 relates-to:
-  - https://github.com/zeroclaw-labs/zeroclaw/issues/7897
+  - https://github.com/clawcrew-labs/clawcrew/issues/7897
   - docs/book/src/architecture/config-lifecycle.md
-  - crates/zeroclaw-config/src/schema.rs
-  - crates/zeroclaw-gateway/src/api_config.rs
-  - crates/zeroclaw-channels/src/orchestrator/mod.rs
+  - crates/clawcrew-config/src/schema.rs
+  - crates/clawcrew-gateway/src/api_config.rs
+  - crates/clawcrew-channels/src/orchestrator/mod.rs
 ---
 
 # ADR-012: Live Config Application Uses Generation-Scoped Publication And Results
 
 ## Context
 
-ZeroClaw can save configuration through CLI, RPC, TUI, Quickstart, and gateway surfaces. A successful save does not mean every long-lived subsystem has adopted the new value. Gateway-visible state can change immediately while daemon-owned channels, sessions, providers, and other components continue using their previous runtime state until `/admin/reload` rebuilds the subsystem graph.
+ClawCrew can save configuration through CLI, RPC, TUI, Quickstart, and gateway surfaces. A successful save does not mean every long-lived subsystem has adopted the new value. Gateway-visible state can change immediately while daemon-owned channels, sessions, providers, and other components continue using their previous runtime state until `/admin/reload` rebuilds the subsystem graph.
 
-Accepted RFC [#7897](https://github.com/zeroclaw-labs/zeroclaw/issues/7897) targets a bounded improvement: selected security-policy and channel changes can apply without a full daemon reload, while operators receive a target-specific result for the generation that each subsystem actually processed. The accepted architecture requires one canonical published config, generation-specific results, narrow security overlays, and only proven channel transition modes.
+Accepted RFC [#7897](https://github.com/clawcrew-labs/clawcrew/issues/7897) targets a bounded improvement: selected security-policy and channel changes can apply without a full daemon reload, while operators receive a target-specific result for the generation that each subsystem actually processed. The accepted architecture requires one canonical published config, generation-specific results, narrow security overlays, and only proven channel transition modes.
 
 This record defines that target and its implementation gates. It does not claim that live application already exists. Until those gates ship, the current saved-versus-applied behavior and `/admin/reload` fallback described in [Config lifecycle](../config-lifecycle.md) remain authoritative.
 
@@ -90,8 +90,8 @@ Negative consequences:
 
 ## References
 
-- [RFC #7897: Apply security policy and channel config updates without full daemon reload](https://github.com/zeroclaw-labs/zeroclaw/issues/7897)
+- [RFC #7897: Apply security policy and channel config updates without full daemon reload](https://github.com/clawcrew-labs/clawcrew/issues/7897)
 - [Config lifecycle](../config-lifecycle.md)
-- `crates/zeroclaw-config/src/schema.rs`
-- `crates/zeroclaw-gateway/src/api_config.rs`
-- `crates/zeroclaw-channels/src/orchestrator/mod.rs`
+- `crates/clawcrew-config/src/schema.rs`
+- `crates/clawcrew-gateway/src/api_config.rs`
+- `crates/clawcrew-channels/src/orchestrator/mod.rs`

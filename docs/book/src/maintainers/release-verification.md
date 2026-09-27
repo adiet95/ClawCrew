@@ -1,6 +1,6 @@
 # Release Artifact Verification
 
-ZeroClaw uses GitHub artifact attestations as the canonical provenance mechanism
+ClawCrew uses GitHub artifact attestations as the canonical provenance mechanism
 for downloadable release assets. Each successful attestation records the asset
 digest, source commit, and release workflow identity as SLSA v1.0 Build Level 2
 provenance.
@@ -22,13 +22,13 @@ it against the release workflow and source commit:
 ```bash
 VERSION=vX.Y.Z
 SOURCE_DIGEST=<40-character-release-commit>
-ASSET=zeroclaw-x86_64-unknown-linux-gnu.tar.gz
+ASSET=clawcrew-x86_64-unknown-linux-gnu.tar.gz
 
-gh release download "$VERSION" --repo zeroclaw-labs/zeroclaw \
+gh release download "$VERSION" --repo clawcrew-labs/clawcrew \
   --pattern "$ASSET"
 gh attestation verify "$ASSET" \
-  --repo zeroclaw-labs/zeroclaw \
-  --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \
+  --repo clawcrew-labs/clawcrew \
+  --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \
   --source-digest "$SOURCE_DIGEST"
 ```
 
@@ -40,7 +40,7 @@ verified attestation and subject digest. The same command applies to
 
 A release produced by the consolidated workflow with complete Phase A output
 publishes one archive named
-`zeroclaw-vX.Y.Z-verification.tar.gz`. It contains:
+`clawcrew-vX.Y.Z-verification.tar.gz`. It contains:
 
 - one `<artifact>.attestation.jsonl` bundle for each release payload;
 - `trusted_root.jsonl`, the GitHub and Sigstore trusted-root material;
@@ -57,21 +57,21 @@ the offline environment.
 ```bash
 VERSION=vX.Y.Z
 SOURCE_DIGEST=<40-character-release-commit>
-ASSET=zeroclaw-x86_64-unknown-linux-gnu.tar.gz
-VERIFY_ARCHIVE="zeroclaw-${VERSION}-verification.tar.gz"
+ASSET=clawcrew-x86_64-unknown-linux-gnu.tar.gz
+VERIFY_ARCHIVE="clawcrew-${VERSION}-verification.tar.gz"
 
-gh release download "$VERSION" --repo zeroclaw-labs/zeroclaw \
+gh release download "$VERSION" --repo clawcrew-labs/clawcrew \
   --pattern "$ASSET" \
   --pattern SHA256SUMS \
   --pattern "$VERIFY_ARCHIVE"
 
 gh attestation verify "$VERIFY_ARCHIVE" \
-  --repo zeroclaw-labs/zeroclaw \
-  --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \
+  --repo clawcrew-labs/clawcrew \
+  --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \
   --source-digest "$SOURCE_DIGEST"
 gh attestation verify SHA256SUMS \
-  --repo zeroclaw-labs/zeroclaw \
-  --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \
+  --repo clawcrew-labs/clawcrew \
+  --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \
   --source-digest "$SOURCE_DIGEST"
 
 awk -v file="$VERIFY_ARCHIVE" '$2 == file { print }' SHA256SUMS | sha256sum -c -
@@ -92,8 +92,8 @@ No network request is required when both `--bundle` and
 
 ```bash
 gh attestation verify "$ASSET" \
-  --repo zeroclaw-labs/zeroclaw \
-  --signer-workflow zeroclaw-labs/zeroclaw/.github/workflows/release-stable-manual.yml \
+  --repo clawcrew-labs/clawcrew \
+  --signer-workflow clawcrew-labs/clawcrew/.github/workflows/release-stable-manual.yml \
   --source-digest "$SOURCE_DIGEST" \
   --bundle "verification/${ASSET}.attestation.jsonl" \
   --custom-trusted-root verification/trusted_root.jsonl
@@ -109,8 +109,8 @@ Two checksummed and attested SBOM files are published with each release:
 
 | File | Format |
 |---|---|
-| `zeroclaw-vX.Y.Z-sbom.spdx.json` | SPDX JSON |
-| `zeroclaw-vX.Y.Z-sbom.cdx.json` | CycloneDX JSON |
+| `clawcrew-vX.Y.Z-sbom.spdx.json` | SPDX JSON |
+| `clawcrew-vX.Y.Z-sbom.cdx.json` | CycloneDX JSON |
 
 Verify either SBOM with the same online or offline attestation command used for
 a binary asset. Tools such as Syft or Grype can then inspect the verified file.
@@ -121,12 +121,12 @@ GHCR container images remain signed by digest with cosign. This is independent
 of the GitHub-attestation path for downloadable release assets.
 
 ```bash
-IMAGE=ghcr.io/zeroclaw-labs/zeroclaw
+IMAGE=ghcr.io/clawcrew-labs/clawcrew
 TAG=vX.Y.Z
 
 cosign verify \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity-regexp "^https://github.com/zeroclaw-labs/zeroclaw/" \
+  --certificate-identity-regexp "^https://github.com/clawcrew-labs/clawcrew/" \
   "${IMAGE}:${TAG}"
 ```
 

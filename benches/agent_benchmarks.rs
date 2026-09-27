@@ -1,17 +1,17 @@
-//! Performance benchmarks for ZeroClaw hot paths.
+//! Performance benchmarks for ClawCrew hot paths.
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use std::sync::{Arc, Mutex};
 
-use zeroclaw::agent::agent::Agent;
-use zeroclaw::agent::dispatcher::{NativeToolDispatcher, ToolDispatcher, XmlToolDispatcher};
-use zeroclaw::config::MemoryConfig;
-use zeroclaw::memory;
-use zeroclaw::memory::{Memory, MemoryCategory};
-use zeroclaw::observability::{NoopObserver, Observer};
-use zeroclaw::providers::{ChatRequest, ChatResponse, ModelProvider, ToolCall};
-use zeroclaw::tools::{Tool, ToolOutput, ToolResult};
+use clawcrew::agent::agent::Agent;
+use clawcrew::agent::dispatcher::{NativeToolDispatcher, ToolDispatcher, XmlToolDispatcher};
+use clawcrew::config::MemoryConfig;
+use clawcrew::memory;
+use clawcrew::memory::{Memory, MemoryCategory};
+use clawcrew::observability::{NoopObserver, Observer};
+use clawcrew::providers::{ChatRequest, ChatResponse, ModelProvider, ToolCall};
+use clawcrew::tools::{Tool, ToolOutput, ToolResult};
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -61,11 +61,11 @@ impl BenchModelProvider {
     }
 }
 
-impl ::zeroclaw_api::attribution::Attributable for BenchModelProvider {
-    fn role(&self) -> ::zeroclaw_api::attribution::Role {
-        ::zeroclaw_api::attribution::Role::Provider(
-            ::zeroclaw_api::attribution::ProviderKind::Model(
-                ::zeroclaw_api::attribution::ModelProviderKind::Custom,
+impl ::clawcrew_api::attribution::Attributable for BenchModelProvider {
+    fn role(&self) -> ::clawcrew_api::attribution::Role {
+        ::clawcrew_api::attribution::Role::Provider(
+            ::clawcrew_api::attribution::ProviderKind::Model(
+                ::clawcrew_api::attribution::ModelProviderKind::Custom,
             ),
         )
     }
@@ -107,7 +107,7 @@ impl ModelProvider for BenchModelProvider {
 
 struct NoopTool;
 
-zeroclaw_api::mock_tool_attribution!(NoopTool);
+clawcrew_api::mock_tool_attribution!(NoopTool);
 
 #[async_trait]
 impl Tool for NoopTool {
@@ -160,7 +160,7 @@ fn bench_xml_parsing(c: &mut Criterion) {
         text: Some(
             r#"Here is my analysis.
 <tool_call>
-{"name": "search", "arguments": {"query": "zeroclaw architecture"}}
+{"name": "search", "arguments": {"query": "clawcrew architecture"}}
 </tool_call>
 Let me know if you need more."#
                 .into(),
@@ -210,7 +210,7 @@ fn bench_native_parsing(c: &mut Criterion) {
             ToolCall {
                 id: "tc1".into(),
                 name: "search".into(),
-                arguments: r#"{"query": "zeroclaw"}"#.into(),
+                arguments: r#"{"query": "clawcrew"}"#.into(),
                 extra_content: None,
             },
             ToolCall {
@@ -243,7 +243,7 @@ fn bench_memory_operations(c: &mut Criterion) {
         for i in 0..100 {
             mem.store(
                 &format!("key_{i}"),
-                &format!("Content entry number {i} about zeroclaw agent runtime"),
+                &format!("Content entry number {i} about clawcrew agent runtime"),
                 MemoryCategory::Core,
                 None,
             )
@@ -272,7 +272,7 @@ fn bench_memory_operations(c: &mut Criterion) {
     c.bench_function("memory_recall_top10", |b| {
         b.iter(|| {
             rt.block_on(async {
-                mem.recall(black_box("zeroclaw agent"), 10, None, None, None)
+                mem.recall(black_box("clawcrew agent"), 10, None, None, None)
                     .await
                     .unwrap()
             })
@@ -298,7 +298,7 @@ fn bench_agent_turn(c: &mut Criterion) {
                 let mut agent = Agent::builder()
                     .model_provider(model_provider)
                     .tools(
-                        zeroclaw::tools::scoped::ScopedToolRegistry::from_raw_for_test(vec![
+                        clawcrew::tools::scoped::ScopedToolRegistry::from_raw_for_test(vec![
                             Box::new(NoopTool) as Box<dyn Tool>,
                         ]),
                     )
@@ -320,7 +320,7 @@ fn bench_agent_turn(c: &mut Criterion) {
                 let mut agent = Agent::builder()
                     .model_provider(model_provider)
                     .tools(
-                        zeroclaw::tools::scoped::ScopedToolRegistry::from_raw_for_test(vec![
+                        clawcrew::tools::scoped::ScopedToolRegistry::from_raw_for_test(vec![
                             Box::new(NoopTool) as Box<dyn Tool>,
                         ]),
                     )

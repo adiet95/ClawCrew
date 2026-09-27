@@ -1,6 +1,6 @@
 # Skill: squash-merge
 
-Squash-merge a PR into `zeroclaw-labs/zeroclaw` `master` with fully preserved commit history in the squash message body. Use this skill when the user explicitly mentions squash-merging, merging a specific PR number, landing a PR, or 合入 — e.g. "squash-merge #123", "merge PR 456", "land #789", "合入 #123", "/squash-merge 123". Do **not** trigger on vague phrases like "ship it" or "merge it" without a PR number or clear upstream-merge context.
+Squash-merge a PR into `clawcrew-labs/clawcrew` `master` with fully preserved commit history in the squash message body. Use this skill when the user explicitly mentions squash-merging, merging a specific PR number, landing a PR, or 合入 — e.g. "squash-merge #123", "merge PR 456", "land #789", "合入 #123", "/squash-merge 123". Do **not** trigger on vague phrases like "ship it" or "merge it" without a PR number or clear upstream-merge context.
 
 ## Related Skills
 
@@ -49,13 +49,13 @@ Accept a PR number or URL from the user. If none is given, attempt auto-detectio
 Capture the PR number into `$NUMBER` for all subsequent steps:
 
 ```bash
-NUMBER=$(gh pr view <PR_NUMBER_OR_URL> --repo zeroclaw-labs/zeroclaw --json number --jq '.number')
+NUMBER=$(gh pr view <PR_NUMBER_OR_URL> --repo clawcrew-labs/clawcrew --json number --jq '.number')
 ```
 
 Then fetch PR metadata:
 
 ```bash
-gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json number,title,headRefName,baseRefName,headRefOid,state,author,mergeable,mergeStateStatus,reviewDecision,labels,milestone
 ```
 
@@ -75,7 +75,7 @@ Run pre-flight checks. **Stop at the first stop condition** and explain clearly:
 Then fetch the review decision:
 
 ```bash
-REVIEW_DECISION=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+REVIEW_DECISION=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json reviewDecision --jq '.reviewDecision // ""')
 ```
 
@@ -90,14 +90,14 @@ Read the live label names and milestone from the metadata fetched above. Treat t
 Always read the current PR body and closing-issue references before taking the fast path:
 
 ```bash
-gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json body,closingIssuesReferences
 ```
 
 Before accepting the fast path, fetch and classify every closing issue. A closing issue may carry release placement in its milestone, body, or linked tracker even when the PR does not mention it:
 
 ```bash
-gh issue view <CLOSING_ISSUE_NUMBER> --repo zeroclaw-labs/zeroclaw \
+gh issue view <CLOSING_ISSUE_NUMBER> --repo clawcrew-labs/clawcrew \
   --json number,title,body,state,labels,milestone
 ```
 
@@ -106,13 +106,13 @@ If classification depends on a linked release tracker, fetch that tracker and re
 If the PR has no milestone, carries none of `do-not-merge`, `status:blocked`, or `release-gate`, and neither its body nor any closing issue contains a future-release or release-tracker signal, record that bounded current state as `$RELEASE_LINE_DISPOSITION` and skip the deeper release-placement lookup. Otherwise, fetch only the additional public evidence needed to classify the current hold, milestone, or release signal:
 
 ```bash
-gh api --paginate 'repos/zeroclaw-labs/zeroclaw/milestones?state=open&per_page=100' \
+gh api --paginate 'repos/clawcrew-labs/clawcrew/milestones?state=open&per_page=100' \
   --jq '.[] | {title,description,due_on}'
 
-gh api --paginate "repos/zeroclaw-labs/zeroclaw/issues/$NUMBER/comments?per_page=100" \
+gh api --paginate "repos/clawcrew-labs/clawcrew/issues/$NUMBER/comments?per_page=100" \
   --jq '.[] | {author:.user.login,created_at,body}'
 
-gh issue view <LINKED_ISSUE_OR_TRACKER_NUMBER> --repo zeroclaw-labs/zeroclaw \
+gh issue view <LINKED_ISSUE_OR_TRACKER_NUMBER> --repo clawcrew-labs/clawcrew \
   --json number,title,body,state,labels,milestone
 ```
 
@@ -141,7 +141,7 @@ Label, milestone, and comment changes are separate public mutations. Show their 
 Save one evidence-backed `$RELEASE_LINE_DISPOSITION` for every PR and carry it into the mandatory confirmation packet: the selected future-release or holding-milestone outcome, the reconciled named gate for `release-gate`, or a statement that no future-line trigger applies with the live milestone or lack of one. Save the sorted closing-issue number set as `$RELEASE_CLOSING_ISSUES`. When the disposition depends on a fact from the PR body, a closing issue, a linked tracker, or a durable comment, save that source identity and the exact placement fact used as `$RELEASE_EVIDENCE_STATE`; do not copy unrelated body, issue, or comment content. Also save the current head, release labels, and milestone for the final pre-merge readback:
 
 ```bash
-if ! RELEASE_GUARD_STATE=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+if ! RELEASE_GUARD_STATE=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json headRefOid,labels,milestone \
   --jq '{headRefOid,releaseLabels: ([.labels[].name | select(. == "do-not-merge" or . == "status:blocked" or . == "release-gate")] | sort),milestone:(.milestone.title // null)}'); then
   echo "Failed to capture release guard state; stopping before confirmation." >&2
@@ -153,7 +153,7 @@ if [[ -z "$RELEASE_GUARD_STATE" ]]; then
   exit 1
 fi
 
-if ! RELEASE_CLOSING_ISSUES=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+if ! RELEASE_CLOSING_ISSUES=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json closingIssuesReferences \
   --jq '[.closingIssuesReferences[].number] | sort'); then
   echo "Failed to capture closing issue references; stopping before confirmation." >&2
@@ -168,13 +168,13 @@ Do not copy private maintainer ledgers or per-PR decision history into the repos
 Before asking the user to confirm the merge, verify CI status:
 
 ```bash
-gh pr checks "$NUMBER" --repo zeroclaw-labs/zeroclaw --required
+gh pr checks "$NUMBER" --repo clawcrew-labs/clawcrew --required
 ```
 
 Also fetch required checks for a machine-readable summary:
 
 ```bash
-gh pr checks "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+gh pr checks "$NUMBER" --repo clawcrew-labs/clawcrew \
   --required \
   --json name,state,bucket
 ```
@@ -231,7 +231,7 @@ Carry the selected freshness basis into the confirmation prompt in Step 4.
 ### Step 2: Get Commit History
 
 ```bash
-COMMITS=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+COMMITS=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json commits \
   --jq '[.commits[] | "- \(.oid[:7]) \(.messageHeadline)"] | join("\n")')
 ```
@@ -239,8 +239,8 @@ COMMITS=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
 If `gh` returns no commit data or hashes are missing, fall back to local git. This requires the contributor's branch to be locally available — fetch first:
 
 ```bash
-BASE_REF=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw --json baseRefName --jq '.baseRefName')
-HEAD_REF=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw --json headRefName --jq '.headRefName')
+BASE_REF=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew --json baseRefName --jq '.baseRefName')
+HEAD_REF=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew --json headRefName --jq '.headRefName')
 
 git fetch upstream
 git fetch origin
@@ -253,7 +253,7 @@ If `origin/${HEAD_REF}` doesn't exist (contributor's branch is on their own fork
 **Single-commit PRs:** If `$COMMITS` is exactly one line, use the full commit body instead of the bullet list. Get it with:
 
 ```bash
-SHA=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw --json commits --jq '.commits[-1].oid')
+SHA=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew --json commits --jq '.commits[-1].oid')
 COMMITS=$(git log -1 --format="%b" "$SHA")
 ```
 
@@ -277,7 +277,7 @@ If this prints anything, stop and strip the remaining bot attribution or
 generated footer before continuing.
 
 ```bash
-PR_TITLE=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw --json title --jq '.title')
+PR_TITLE=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew --json title --jq '.title')
 SUBJECT="${PR_TITLE} (#${NUMBER})"
 ```
 
@@ -295,7 +295,7 @@ their actual values — never show variable names or placeholder text:
 
 **About to run:**
 ```
-gh pr merge $NUMBER --repo zeroclaw-labs/zeroclaw --squash \
+gh pr merge $NUMBER --repo clawcrew-labs/clawcrew --squash \
   --match-head-commit "$HEAD_SHA" \
   --subject "$SUBJECT" \
   --body "$COMMITS"
@@ -327,7 +327,7 @@ Only after explicit confirmation in Step 4:
 Immediately before merge, reread the current PR body and closing references and rerun Step 1a's complete release-line classification from the refreshed body, every closing issue, labels, milestone, and any deeper public evidence it triggers. Set `$CURRENT_RELEASE_LINE_DISPOSITION` from that recomputation; merely fetching the sources is not sufficient. Stop if the recomputed disposition is absent or ambiguous. The no-signal fast path must satisfy its complete predicate again. If `$RELEASE_EVIDENCE_STATE` names a PR-body, closing-issue, linked-tracker, or comment fact, reread that source and compare the exact placement fact as well. Also reread the current head, `do-not-merge`, `status:blocked`, and `release-gate` labels and milestone, and save the current sorted closing-issue number set as `$CURRENT_RELEASE_CLOSING_ISSUES`. If the guard state, derived disposition, closing-issue set, or any relied-upon fact changed or became ambiguous, stop without merging, restart at Step 1, and build a new confirmation packet. Unrelated body or issue wording that leaves the release disposition and relied-upon facts unchanged does not invalidate the packet. This is a bounded last-moment consistency check, not an atomic lock: `--match-head-commit` protects the source head but does not detect concurrent metadata or evidence changes after the read.
 
 ```bash
-if ! CURRENT_RELEASE_GUARD_STATE=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+if ! CURRENT_RELEASE_GUARD_STATE=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json headRefOid,labels,milestone \
   --jq '{headRefOid,releaseLabels: ([.labels[].name | select(. == "do-not-merge" or . == "status:blocked" or . == "release-gate")] | sort),milestone:(.milestone.title // null)}'); then
   echo "Failed to refresh release guard state; stopping without merge." >&2
@@ -339,7 +339,7 @@ if [[ -z "$CURRENT_RELEASE_GUARD_STATE" || "$CURRENT_RELEASE_GUARD_STATE" != "$R
   exit 1
 fi
 
-if ! CURRENT_RELEASE_CLOSING_ISSUES=$(gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+if ! CURRENT_RELEASE_CLOSING_ISSUES=$(gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json closingIssuesReferences \
   --jq '[.closingIssuesReferences[].number] | sort'); then
   echo "Failed to refresh closing issue references; stopping without merge." >&2
@@ -355,7 +355,7 @@ fi
 Only then run the merge command:
 
 ```bash
-gh pr merge "$NUMBER" --repo zeroclaw-labs/zeroclaw --squash \
+gh pr merge "$NUMBER" --repo clawcrew-labs/clawcrew --squash \
   --match-head-commit "$HEAD_SHA" \
   --subject "$SUBJECT" \
   --body "$COMMITS"
@@ -366,7 +366,7 @@ If the command exits non-zero, stop and report the full error output verbatim. D
 ### Step 6: Verify
 
 ```bash
-gh pr view "$NUMBER" --repo zeroclaw-labs/zeroclaw \
+gh pr view "$NUMBER" --repo clawcrew-labs/clawcrew \
   --json state,mergedAt,mergeCommit \
   --jq '"State: \(.state) | Merged at: \(.mergedAt) | Commit: \(if .mergeCommit then .mergeCommit.oid[:7] else "N/A" end)"'
 ```

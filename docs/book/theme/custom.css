@@ -4,7 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ============================================================================
-   ZeroClaw docs reskin — Tier A (CSS-only)
+   ClawCrew docs reskin — Tier A (CSS-only)
    Ports the web dashboard's --pc-* design system onto mdBook's `ayu` theme.
    Tokens are copied from web/src/contexts/themes.json (default-dark /
    default-light) and web/src/index.css. Keep them in sync by hand if the

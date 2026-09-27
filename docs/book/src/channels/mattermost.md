@@ -127,7 +127,7 @@ The purpose is governed by Mattermost's `manage_public_channel_properties` /
 `manage_private_channel_properties` permissions, which on default schemes are
 granted to **every channel member**. That is usually a wider group than whoever
 controls this config, and it need not overlap with the alias's `peer_groups` at
-all: a member who is not an authorized ZeroClaw peer, and so cannot get the
+all: a member who is not an authorized ClawCrew peer, and so cannot get the
 agent to answer them directly, can still edit the room's purpose.
 
 The text reaches the system prompt. The framing around it tells the model the
@@ -184,7 +184,7 @@ Mattermost classifies channels by `type`:
 | `G` | Group direct message (multi-user DM). |
 | `D` | Direct message (1:1). |
 
-`G` and `D` are treated identically by ZeroClaw: both carry no `team_id`, both are gated by `discover_dms`, and both implicitly bypass `mention_only` (a private conversation has no ambient noise to filter against).
+`G` and `D` are treated identically by ClawCrew: both carry no `team_id`, both are gated by `discover_dms`, and both implicitly bypass `mention_only` (a private conversation has no ambient noise to filter against).
 
 Authorization for DM senders still goes through the channel's peer-group resolver, same as any other channel. `discover_dms` is a knob, not a security boundary; peer groups decide who is allowed to address the agent.
 
@@ -213,10 +213,10 @@ When `[transcription]` is configured and an inbound post has an audio attachment
 
 ## Setup
 
-1. In Mattermost: **System Console → Integrations → Bot Accounts → Add Bot Account**. Set a username (e.g. `zeroclaw`), enable the scopes you want.
-2. Copy the access token. Store it in your ZeroClaw secrets backend.
+1. In Mattermost: **System Console → Integrations → Bot Accounts → Add Bot Account**. Set a username (e.g. `clawcrew`), enable the scopes you want.
+2. Copy the access token. Store it in your ClawCrew secrets backend.
 3. Invite the bot to whichever teams you want it active in. For DM auto-discovery, no extra invites needed: any user can DM the bot.
-4. Create the `mattermost.<alias>` channel referencing the token through the gateway, zerocode, or `zeroclaw config set`.
+4. Create the `mattermost.<alias>` channel referencing the token through the gateway, zerocode, or `clawcrew config set`.
 5. Bind the channel to an agent in `[agents.<alias>]` via `channels = ["mattermost.<alias>"]`.
 
 ## Operational notes

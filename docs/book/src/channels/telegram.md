@@ -1,6 +1,6 @@
 # Telegram
 
-Run a ZeroClaw agent as a Telegram bot over long polling. No public URL or
+Run a ClawCrew agent as a Telegram bot over long polling. No public URL or
 webhook is required. This guide starts with the runtime wiring, then walks from
 bot creation through the first authorized conversation.
 
@@ -44,14 +44,14 @@ paste it into `config.toml`, logs, screenshots, or source control.
 ## 2. Configure an alias and attach it to an agent
 
 This guide uses `home` as the channel alias and `primary` as the agent alias.
-The alias is ZeroClaw's local name for this bot instance; it does not have to
+The alias is ClawCrew's local name for this bot instance; it does not have to
 match the Telegram bot username.
 
 Set the token through the masked secret prompt, then enable the channel:
 
 ```sh
-zeroclaw config set channels.telegram.home.bot_token
-zeroclaw config set channels.telegram.home.enabled true
+clawcrew config set channels.telegram.home.bot_token
+clawcrew config set channels.telegram.home.enabled true
 ```
 
 List your agent aliases, then add `telegram.home` to the intended agent's
@@ -59,8 +59,8 @@ existing channel list. Omitting the value opens the list editor, so you can add
 the new entry without discarding other channel bindings:
 
 ```sh
-zeroclaw agents list
-zeroclaw config set agents.primary.channels
+clawcrew agents list
+clawcrew config set agents.primary.channels
 ```
 
 Afterward, the relevant non-secret structure is equivalent to:
@@ -78,7 +78,7 @@ Replace `primary` with an existing agent that already has a working model
 provider and risk profile. Once any agent in the config declares a `channels`
 list, a channel that is enabled but not present in an enabled agent's
 `channels` list is not started. If no agent declares any channel bindings,
-ZeroClaw falls back to legacy routing instead: every enabled channel is
+ClawCrew falls back to legacy routing instead: every enabled channel is
 started and served by the resolved default enabled agent. Declare explicit
 bindings as shown above so an unlisted bot is genuinely inactive rather than
 silently running under the default agent.
@@ -131,26 +131,26 @@ Use the full daemon for normal operation, the channel-only process for a
 foreground diagnostic run, or the installed service for long-running use:
 
 ```sh
-zeroclaw daemon
+clawcrew daemon
 
 # Alternative foreground diagnostic: starts all configured channels.
-zeroclaw channel start
+clawcrew channel start
 
-# If ZeroClaw is installed as a managed service.
-zeroclaw service restart
+# If ClawCrew is installed as a managed service.
+clawcrew service restart
 ```
 
 Telegram uses `getUpdates` long polling, so it does not need an inbound port or
 public callback URL. In another terminal, check connectivity and follow logs:
 
 ```sh
-zeroclaw channel doctor
-zeroclaw service logs --follow
+clawcrew channel doctor
+clawcrew service logs --follow
 ```
 
 With an empty peer set, look for `Telegram pairing required; one-time bind code
 issued`. The structured event includes the channel alias and `pairing_code`.
-Foreground `zeroclaw daemon` and `zeroclaw channel start` runs also print the
+Foreground `clawcrew daemon` and `clawcrew channel start` runs also print the
 code directly. Treat the code and log output as sensitive until the code is
 consumed.
 
@@ -177,7 +177,7 @@ flowchart TD
     P --> W["Save config.toml and accept subsequent messages"]
 ```
 
-On success, ZeroClaw prefers the stable numeric sender ID, adds it to
+On success, ClawCrew prefers the stable numeric sender ID, adds it to
 `[peer_groups.telegram_home]` for `telegram.home`, and saves `config.toml`.
 The running channel's peer resolver reads that shared config, so the user can
 send the next message immediately without a restart.
@@ -190,17 +190,17 @@ fix the reported config permission or write error before restarting.
 ## 6. Bind another user from the operator CLI
 
 An unauthorized user can message the bot to receive a suggested operator
-command containing their numeric ID. Run that command on the ZeroClaw host.
+command containing their numeric ID. Run that command on the ClawCrew host.
 For the `home` alias it has this form:
 
 ```sh
-zeroclaw channel bind-telegram 111111111 --alias home
+clawcrew channel bind-telegram 111111111 --alias home
 ```
 
 You can also bind a Telegram username without its leading `@`:
 
 ```sh
-zeroclaw channel bind-telegram example_user --alias home
+clawcrew channel bind-telegram example_user --alias home
 ```
 
 `--alias` must match the key in `[channels.telegram.<alias>]`. The CLI defaults
@@ -208,7 +208,7 @@ to `default`, so only omit the flag when the configured channel really is
 `[channels.telegram.default]`:
 
 ```sh
-zeroclaw channel bind-telegram 111111111
+clawcrew channel bind-telegram 111111111
 ```
 
 The command rejects an unknown alias instead of creating a peer group that no
@@ -221,9 +221,9 @@ running channel would read. For a valid alias it creates or updates
 | Change | When the running channel sees it |
 |---|---|
 | Successful `/bind <code>` in Telegram | Immediately; the channel updates the shared in-process config and saves it. |
-| `zeroclaw channel bind-telegram ...` with a detected running systemd, OpenRC, or launchd service | The CLI saves the config and restarts the managed service automatically. |
-| `bind-telegram` while `zeroclaw daemon` or `zeroclaw channel start` is running in another terminal | After you stop and restart that foreground process. The CLI process changed the file, not the other process's in-memory config. |
-| Direct `config.toml` edit or standalone `zeroclaw config set` change | After a daemon reload or process restart. Saving alone does not rebuild long-running listeners. |
+| `clawcrew channel bind-telegram ...` with a detected running systemd, OpenRC, or launchd service | The CLI saves the config and restarts the managed service automatically. |
+| `bind-telegram` while `clawcrew daemon` or `clawcrew channel start` is running in another terminal | After you stop and restart that foreground process. The CLI process changed the file, not the other process's in-memory config. |
+| Direct `config.toml` edit or standalone `clawcrew config set` change | After a daemon reload or process restart. Saving alone does not rebuild long-running listeners. |
 | Restart with no matching peers | A new one-time pairing code is generated. |
 | Restart after a peer was saved | The peer remains authorized and startup pairing is not activated. |
 
@@ -231,8 +231,8 @@ If automatic reload fails, the bind command keeps the saved change and tells
 you to restart manually:
 
 ```sh
-zeroclaw service stop
-zeroclaw service start
+clawcrew service stop
+clawcrew service start
 ```
 
 ## Switching models from the chat (`/model`)
@@ -268,8 +268,8 @@ Telegram.
 For an installed service:
 
 ```sh
-zeroclaw service logs --lines 200
-zeroclaw service logs --follow
+clawcrew service logs --lines 200
+clawcrew service logs --follow
 ```
 
 For a foreground run, read the process output. When persistent structured
@@ -281,7 +281,7 @@ logging is enabled, events are also written under the install directory at
 | `Telegram channel alias 'default' is not configured` | The channel uses another alias. Re-run the bind with the matching `--alias`, such as `--alias home`. |
 | No pairing code appears | A matching peer group already resolves at least one peer, possibly `"*"`. Pairing is intentionally inactive; use the operator bind command or correct the peer group and restart. |
 | The bot still asks for operator approval after `bind-telegram` | The running foreground process has not reloaded, or the identity was bound to the wrong alias. Restart it and verify the `--alias` value. |
-| The bot is silent | Confirm `enabled = true`, confirm an enabled agent owns `telegram.<alias>`, run `zeroclaw channel doctor`, then inspect logs. |
+| The bot is silent | Confirm `enabled = true`, confirm an enabled agent owns `telegram.<alias>`, run `clawcrew channel doctor`, then inspect logs. |
 | `Telegram polling conflict (409)` | More than one process is using the same bot token. Stop the duplicate daemon or channel process. |
 | Group messages are ignored | With `mention_only = true`, mention the bot or reply directly to one of its messages. Direct messages are still processed. |
 | Draft edits report `Too Many Requests` | Increase `channels.telegram.<alias>.draft_update_interval_ms` or disable streaming. |

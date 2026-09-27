@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dry-run Project dashboard planner for ZeroClaw issues.
+"""Dry-run Project dashboard planner for ClawCrew issues.
 
 This script intentionally plans only issue-board Status values. It does not write to
 GitHub Projects, edit issues, or mutate labels. Live ProjectV2 writes require a

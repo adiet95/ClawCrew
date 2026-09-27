@@ -800,7 +800,7 @@ export function AgentProvider({
         // `resolved_model_provider_for_agent` logic the gateway uses to build
         // the Agent, so the fallback `status.model` is correct for THIS agent
         // rather than the install-wide default. (Ported from
-        // zeroclaw-labs/zeroclaw#7191.)
+        // clawcrew-labs/clawcrew#7191.)
         const status = await getStatus(agentAlias);
         if (cancelled) return;
 
@@ -905,7 +905,7 @@ export function AgentProvider({
     // that actually succeeded). Splitting the budget keeps the spinner bounded
     // against a hung request *and* a reconnect that never opens, without the
     // false positive. The `=== model` identity check stops a fired watchdog
-    // from clobbering a newer switch. (Ported from zeroclaw-labs/zeroclaw#7191.)
+    // from clobbering a newer switch. (Ported from clawcrew-labs/clawcrew#7191.)
     const armWatchdog = () => {
       if (switchTimeoutRef.current) clearTimeout(switchTimeoutRef.current);
       switchTimeoutRef.current = setTimeout(() => {

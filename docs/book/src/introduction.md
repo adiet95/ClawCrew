@@ -1,8 +1,8 @@
-# ZeroClaw
+# ClawCrew
 
 Personal AI assistant you own, written in Rust.
 
-ZeroClaw is an agent runtime: a single binary you configure and run. It talks to LLM providers (Anthropic, OpenAI, Ollama, and ~20 others), reaches the world through channels (Discord, Telegram, Matrix, email, voice, webhooks, your own CLI), and acts through tools (shell, browser, HTTP, hardware, custom MCP servers). Everything runs on your machine, with your keys, in your workspace.
+ClawCrew is an agent runtime: a single binary you configure and run. It talks to LLM providers (Anthropic, OpenAI, Ollama, and ~20 others), reaches the world through channels (Discord, Telegram, Matrix, email, voice, webhooks, your own CLI), and acts through tools (shell, browser, HTTP, hardware, custom MCP servers). Everything runs on your machine, with your keys, in your workspace.
 
 Read [Philosophy](./philosophy/index.md) to understand the opinions that shape it.
 
@@ -10,7 +10,7 @@ This site is the documentation. Everything under **Reference → CLI** and **Ref
 
 Where to start:
 
-- New to ZeroClaw? → [Quickstart](./getting-started/quickstart.md)
+- New to ClawCrew? → [Quickstart](./getting-started/quickstart.md)
 - Prefer a terminal UI? → [zerocode](./zerocode/overview.md)
 - Just want it running fast without safety prompts? → [YOLO mode](./getting-started/yolo.md)
 - Controlling what the agent is allowed to do? → [Security & Autonomy](./security/overview.md)
@@ -28,8 +28,8 @@ Where to start:
 
 Source:
 
-- Upstream: <https://github.com/zeroclaw-labs/zeroclaw>
-- Issues, discussions, and RFCs: [GitHub issues](https://github.com/zeroclaw-labs/zeroclaw/issues)
+- Upstream: <https://github.com/clawcrew-labs/clawcrew>
+- Issues, discussions, and RFCs: [GitHub issues](https://github.com/clawcrew-labs/clawcrew/issues)
 - Real-time chat: Discord (invite link in the repo README)
 
 See [Contributing → Communication](./contributing/communication.md) for the full list of places to reach the project.

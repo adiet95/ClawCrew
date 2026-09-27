@@ -14,18 +14,18 @@ malformed_json="${fixture_dir}/malformed.json"
 invalid_schema_json="${fixture_dir}/invalid-schema.json"
 
 cat > "$clean_json" <<'JSON'
-{"crate_name":"zeroclaw","dependencies":[]}
-{"crate_name":"zeroclaw-runtime","dependencies":[]}
+{"crate_name":"clawcrew","dependencies":[]}
+{"crate_name":"clawcrew-runtime","dependencies":[]}
 JSON
 
 cat > "$outdated_json" <<'JSON'
-{"crate_name":"zeroclaw","dependencies":[{"name":"serde","project":"1.0.0","compat":"1.0.1","latest":"1.1.0","kind":"Normal","platform":null}]}
-{"crate_name":"zeroclaw-runtime","dependencies":[]}
+{"crate_name":"clawcrew","dependencies":[{"name":"serde","project":"1.0.0","compat":"1.0.1","latest":"1.1.0","kind":"Normal","platform":null}]}
+{"crate_name":"clawcrew-runtime","dependencies":[]}
 JSON
 
 : > "$empty_json"
 printf '%s\n' 'error: failed to parse manifest' > "$malformed_json"
-printf '%s\n' '{"crate_name":"zeroclaw","dependencies":"not-an-array"}' > "$invalid_schema_json"
+printf '%s\n' '{"crate_name":"clawcrew","dependencies":"not-an-array"}' > "$invalid_schema_json"
 
 expect_state() {
     local expected="$1"
@@ -63,6 +63,6 @@ expect_failure 2 "$outdated_json"
 expect_failure not-a-number "$outdated_json"
 
 rendered="$(bash "$classifier" render "$outdated_json")"
-grep -F $'zeroclaw\tserde\t1.0.0\t1.0.1\t1.1.0\tNormal\t---' <<< "$rendered" >/dev/null
+grep -F $'clawcrew\tserde\t1.0.0\t1.0.1\t1.1.0\tNormal\t---' <<< "$rendered" >/dev/null
 
 echo "monthly outdated result tests passed"

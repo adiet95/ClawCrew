@@ -12,7 +12,7 @@ required_workflow = Path(sys.argv[1]).read_text()
 advisory_workflow = Path(sys.argv[2]).read_text()
 command = (
     "cargo nextest run --locked --no-fail-fast "
-    "-p zeroclaw-hardware --features hardware --lib"
+    "-p clawcrew-hardware --features hardware --lib"
 )
 
 

@@ -2,7 +2,7 @@
 
 Relationship memory is the opt-in graph side of the `knowledge` tool. Use it when an agent needs to remember how things connect, not only which text snippet matches a query.
 
-This is separate from ordinary long-term memory. The `knowledge` tool is backed by the `zeroclaw-memory` knowledge graph, while ordinary memory remains the `Memory` backend surfaced through `memory_*` tools.
+This is separate from ordinary long-term memory. The `knowledge` tool is backed by the `clawcrew-memory` knowledge graph, while ordinary memory remains the `Memory` backend surfaced through `memory_*` tools.
 
 Ordinary long-term memory answers questions like "what do we know about this topic?" Structured relationship memory answers questions like "which nodes are connected to this thing?", "who manages this client?", or "which skill workflows use this capability?"
 
@@ -145,7 +145,7 @@ Example `SKILL.md`:
 name: capability-map
 description: Capture and query the relationship between local skills, capabilities, and steward roles
 version: 0.1.0
-author: zeroclaw_operator
+author: clawcrew_operator
 tags: [knowledge, skills, capability-map]
 ---
 
@@ -208,7 +208,7 @@ Relationship memory is durable. Treat it like any other public or shared knowled
 - Use neutral placeholders in examples and tests.
 - Do not store secrets, tokens, personal email addresses, private URLs, account IDs, or session IDs.
 - Avoid storing personal contact details unless the operator's deployment policy explicitly allows it.
-- Prefer role labels such as `ZeroClawMaintainer`, `release-steward`, or `project-contact` over real names.
+- Prefer role labels such as `ClawCrewMaintainer`, `release-steward`, or `project-contact` over real names.
 - Keep autonomous ingestion off unless the data source, retention policy, and review path are clear.
 
 ## See also

@@ -10,14 +10,14 @@ import { generateUUID } from './uuid';
  * (`/api/sessions`), with `chatHistoryStorage` acting as a per-session cache —
  * neither is duplicated here.
  */
-const ACTIVE_SESSION_KEY_PREFIX = 'zeroclaw_active_session';
+const ACTIVE_SESSION_KEY_PREFIX = 'clawcrew_active_session';
 
 /**
  * Pre-multi-session key. It held one fixed session id per alias, which is
  * exactly what the pointer now holds, so it is adopted on first read and then
  * removed — the value moves, it is never mirrored in both places.
  */
-const LEGACY_SESSION_ID_KEY_PREFIX = 'zeroclaw_session_id';
+const LEGACY_SESSION_ID_KEY_PREFIX = 'clawcrew_session_id';
 
 function activeKey(agentAlias: string): string {
   return `${ACTIVE_SESSION_KEY_PREFIX}.${agentAlias}`;

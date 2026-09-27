@@ -84,4 +84,4 @@ On startup the channel mints an app JWT, exchanges it for an installation token,
 - **Back to the channel:** [Git channel](./git.md) for event routing, streaming, rate budget, and safety.
 - **Restrict who can reach the agent:** [Peer Groups](./peer-groups.md).
 - **Drive automation from forge events:** [Standard Operating Procedures](../sop/index.md) and the [Git SOP fan-in](../sop/fan-in/git.md).
-- **New to ZeroClaw?** [Quickstart](../getting-started/quickstart.md) and [Concepts](../getting-started/concepts.md).
+- **New to ClawCrew?** [Quickstart](../getting-started/quickstart.md) and [Concepts](../getting-started/concepts.md).

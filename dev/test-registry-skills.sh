@@ -1,6 +1,6 @@
 #!/bin/sh
 # test-registry-skills.sh — End-to-end test for registry-based skill installation
-# Installs every skill from zeroclaw-labs/zeroclaw-skills by bare name,
+# Installs every skill from clawcrew-labs/clawcrew-skills by bare name,
 # verifies metadata, and cleans up.
 # Must be run from repo root.
 set -eu
@@ -24,36 +24,36 @@ fail() { TESTS=$((TESTS + 1)); FAILURES=$((FAILURES + 1)); printf "  ${RED}✗${
 info() { printf "\n${BOLD}%s${RESET}\n" "$*"; }
 warn() { printf "  ${YELLOW}⚠${RESET} %s\n" "$*"; }
 
-# ── Resolve zeroclaw binary ─────────────────────────────────────
-ZEROCLAW=""
+# ── Resolve clawcrew binary ─────────────────────────────────────
+CLAWCREW=""
 for candidate in \
-  "$REPO_ROOT/target/debug/zeroclaw" \
-  "$REPO_ROOT/target/release/zeroclaw" \
-  "$(command -v zeroclaw 2>/dev/null || true)"; do
+  "$REPO_ROOT/target/debug/clawcrew" \
+  "$REPO_ROOT/target/release/clawcrew" \
+  "$(command -v clawcrew 2>/dev/null || true)"; do
   if [ -n "$candidate" ] && [ -x "$candidate" ]; then
-    ZEROCLAW="$candidate"
+    CLAWCREW="$candidate"
     break
   fi
 done
 
-if [ -z "$ZEROCLAW" ]; then
-  printf "${RED}Error: No zeroclaw binary found. Run 'cargo build' first.${RESET}\n"
+if [ -z "$CLAWCREW" ]; then
+  printf "${RED}Error: No clawcrew binary found. Run 'cargo build' first.${RESET}\n"
   exit 1
 fi
 
 printf "\n${BOLD}Registry Skills E2E Test${RESET}\n"
-printf "${DIM}Binary:  %s${RESET}\n" "$ZEROCLAW"
+printf "${DIM}Binary:  %s${RESET}\n" "$CLAWCREW"
 printf "${DIM}Branch:  %s${RESET}\n" "$(git branch --show-current 2>/dev/null || echo 'unknown')"
 
 # ── Discover skills from the registry cache ──────────────────────
-SKILLS_DIR="$HOME/.zeroclaw/workspace/skills"
-REGISTRY_DIR="$HOME/.zeroclaw/workspace/skills-registry"
+SKILLS_DIR="$HOME/.clawcrew/workspace/skills"
+REGISTRY_DIR="$HOME/.clawcrew/workspace/skills-registry"
 
 # Bootstrap the registry cache by attempting a dummy install (which
 # clones/pulls the registry even though it fails).
 if [ ! -d "$REGISTRY_DIR/skills" ]; then
   info "=== Bootstrap registry cache ==="
-  "$ZEROCLAW" skills install __bootstrap_probe__ 2>&1 || true
+  "$CLAWCREW" skills install __bootstrap_probe__ 2>&1 || true
 fi
 
 if [ -d "$REGISTRY_DIR/skills" ]; then
@@ -73,7 +73,7 @@ info "=== Install (bare name → registry) ==="
 
 INSTALLED_SKILLS=""
 for skill in $REGISTRY_SKILLS; do
-  OUTPUT=$("$ZEROCLAW" skills install "$skill" 2>&1) || true
+  OUTPUT=$("$CLAWCREW" skills install "$skill" 2>&1) || true
   if printf '%s' "$OUTPUT" | grep -q "✓"; then
     pass "install $skill"
     INSTALLED_SKILLS="$INSTALLED_SKILLS $skill"
@@ -118,7 +118,7 @@ done
 # ══════════════════════════════════════════════════════════════════
 info "=== Verify skills list ==="
 
-LIST_OUTPUT=$("$ZEROCLAW" skills list 2>&1)
+LIST_OUTPUT=$("$CLAWCREW" skills list 2>&1)
 INSTALLED_COUNT=$(printf '%s' "$LIST_OUTPUT" | grep -c "v[0-9]" || true)
 INSTALLED_COUNT=$(printf '%s' "$INSTALLED_COUNT" | tr -d ' ')
 
@@ -141,7 +141,7 @@ done
 # ══════════════════════════════════════════════════════════════════
 info "=== Error handling ==="
 
-ERR_OUTPUT=$("$ZEROCLAW" skills install nonexistent-skill-xyz 2>&1 || true)
+ERR_OUTPUT=$("$CLAWCREW" skills install nonexistent-skill-xyz 2>&1 || true)
 if printf '%s' "$ERR_OUTPUT" | grep -q "not found in the registry"; then
   pass "nonexistent skill gives clear error"
 else
@@ -159,7 +159,7 @@ fi
 # ══════════════════════════════════════════════════════════════════
 info "=== Duplicate install ==="
 
-DUP_OUTPUT=$("$ZEROCLAW" skills install auto-coder 2>&1 || true)
+DUP_OUTPUT=$("$CLAWCREW" skills install auto-coder 2>&1 || true)
 if printf '%s' "$DUP_OUTPUT" | grep -q "already exists"; then
   pass "duplicate install blocked"
 else
@@ -171,14 +171,14 @@ fi
 # ══════════════════════════════════════════════════════════════════
 info "=== Registry cache ==="
 
-REGISTRY_DIR="$HOME/.zeroclaw/workspace/skills-registry"
+REGISTRY_DIR="$HOME/.clawcrew/workspace/skills-registry"
 if [ -d "$REGISTRY_DIR" ]; then
   pass "registry cache exists at $REGISTRY_DIR"
 else
   fail "registry cache not found"
 fi
 
-if [ -f "$REGISTRY_DIR/.zeroclaw-skills-registry-sync" ]; then
+if [ -f "$REGISTRY_DIR/.clawcrew-skills-registry-sync" ]; then
   pass "sync marker present"
 else
   fail "sync marker missing"
@@ -197,7 +197,7 @@ fi
 info "=== Cleanup ==="
 
 for skill in $INSTALLED_SKILLS; do
-  REMOVE_OUTPUT=$("$ZEROCLAW" skills remove "$skill" 2>&1) || true
+  REMOVE_OUTPUT=$("$CLAWCREW" skills remove "$skill" 2>&1) || true
   if printf '%s' "$REMOVE_OUTPUT" | grep -q "removed"; then
     pass "removed $skill"
   else

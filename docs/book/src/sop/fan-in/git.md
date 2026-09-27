@@ -20,7 +20,7 @@ If nothing starts, confirm the event type is routed to `sop` (not left at the co
 
 ## Approve and observe
 
-Runs that hit a checkpoint pause as `WaitingApproval`. Clear or inspect them with the CLI (`zeroclaw sop list`, `zeroclaw sop approve`) or out-of-band over the [gateway API](../../gateway/api.md) approval endpoints (`GET /admin/sop/pending`, `POST /admin/sop/approve`, `POST /admin/sop/deny`).
+Runs that hit a checkpoint pause as `WaitingApproval`. Clear or inspect them with the CLI (`clawcrew sop list`, `clawcrew sop approve`) or out-of-band over the [gateway API](../../gateway/api.md) approval endpoints (`GET /admin/sop/pending`, `POST /admin/sop/approve`, `POST /admin/sop/deny`).
 
 ## See also
 

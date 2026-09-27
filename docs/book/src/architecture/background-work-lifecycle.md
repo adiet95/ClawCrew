@@ -1,6 +1,6 @@
 # Background work lifecycle
 
-ZeroClaw has several ways to continue work after the inbound request that started it. Cron jobs, SOP runs, delegated tasks, and runtime-spawned subagents share some execution machinery, but they do not share one lifecycle or one durable store. Goal mode defines a related target contract that is not yet wired end to end.
+ClawCrew has several ways to continue work after the inbound request that started it. Cron jobs, SOP runs, delegated tasks, and runtime-spawned subagents share some execution machinery, but they do not share one lifecycle or one durable store. Goal mode defines a related target contract that is not yet wired end to end.
 
 Use this page when a change adds scheduled or autonomous work, introduces a wait or approval state, changes cancellation or restart behavior, or connects child work to an owning task. The first design question is not "how does it run in the background?" but "which subsystem owns its lifecycle?"
 
@@ -80,9 +80,9 @@ For background-work changes, answer these before reviewer sign-off:
 
 ## Source pointers
 
-- Cron scheduler and persistence: `crates/zeroclaw-runtime/src/cron/scheduler.rs`, `crates/zeroclaw-runtime/src/cron/store.rs`
-- SOP engine and run stores: `crates/zeroclaw-runtime/src/sop/engine.rs`, `crates/zeroclaw-runtime/src/sop/store/`
-- Delegation and subagent behavior: [Delegation & SubAgents](../agents/delegation.md), `crates/zeroclaw-runtime/src/tools/delegate.rs`, `crates/zeroclaw-runtime/src/tools/spawn_subagent.rs`, `crates/zeroclaw-runtime/src/subagent/mod.rs`
-- Durable task control plane and recovery: `crates/zeroclaw-runtime/src/control_plane/`
+- Cron scheduler and persistence: `crates/clawcrew-runtime/src/cron/scheduler.rs`, `crates/clawcrew-runtime/src/cron/store.rs`
+- SOP engine and run stores: `crates/clawcrew-runtime/src/sop/engine.rs`, `crates/clawcrew-runtime/src/sop/store/`
+- Delegation and subagent behavior: [Delegation & SubAgents](../agents/delegation.md), `crates/clawcrew-runtime/src/tools/delegate.rs`, `crates/clawcrew-runtime/src/tools/spawn_subagent.rs`, `crates/clawcrew-runtime/src/subagent/mod.rs`
+- Durable task control plane and recovery: `crates/clawcrew-runtime/src/control_plane/`
 - Goal-mode decision: [ADR-008](./decisions/ADR-008-goal-mode-control-plane-and-usage-accounting.md)
 - SOP operator guide: [How SOPs run](../sop/how-it-works.md)

@@ -48,17 +48,17 @@ new_fixture() {
 
     cat > "${fixture}/bin/sudo" <<'EOF'
 #!/usr/bin/env bash
-printf 'sudo' >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '|%s' "$@" >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '\n' >> "$ZEROCLAW_APT_TEST_CALLS"
+printf 'sudo' >> "$CLAWCREW_APT_TEST_CALLS"
+printf '|%s' "$@" >> "$CLAWCREW_APT_TEST_CALLS"
+printf '\n' >> "$CLAWCREW_APT_TEST_CALLS"
 "$@"
 EOF
 
     cat > "${fixture}/bin/timeout" <<'EOF'
 #!/usr/bin/env bash
-printf 'timeout' >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '|%s' "$@" >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '\n' >> "$ZEROCLAW_APT_TEST_CALLS"
+printf 'timeout' >> "$CLAWCREW_APT_TEST_CALLS"
+printf '|%s' "$@" >> "$CLAWCREW_APT_TEST_CALLS"
+printf '\n' >> "$CLAWCREW_APT_TEST_CALLS"
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -69,7 +69,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 phase="${2:-unknown}"
-count_file="${ZEROCLAW_APT_TEST_STATE}/timeout-${phase}"
+count_file="${CLAWCREW_APT_TEST_STATE}/timeout-${phase}"
 count=0
 if [[ -f "$count_file" ]]; then
     count="$(cat "$count_file")"
@@ -77,8 +77,8 @@ fi
 count=$((count + 1))
 printf '%s\n' "$count" > "$count_file"
 
-if [[ "${ZEROCLAW_APT_TEST_TIMEOUT_PHASE:-}" == "$phase" ]] && \
-   [[ "$count" -le "${ZEROCLAW_APT_TEST_TIMEOUT_ATTEMPTS:-0}" ]]; then
+if [[ "${CLAWCREW_APT_TEST_TIMEOUT_PHASE:-}" == "$phase" ]] && \
+   [[ "$count" -le "${CLAWCREW_APT_TEST_TIMEOUT_ATTEMPTS:-0}" ]]; then
     exit 124
 fi
 
@@ -87,12 +87,12 @@ EOF
 
     cat > "${fixture}/bin/apt-get" <<'EOF'
 #!/usr/bin/env bash
-printf 'apt-get' >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '|%s' "$@" >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '\n' >> "$ZEROCLAW_APT_TEST_CALLS"
+printf 'apt-get' >> "$CLAWCREW_APT_TEST_CALLS"
+printf '|%s' "$@" >> "$CLAWCREW_APT_TEST_CALLS"
+printf '\n' >> "$CLAWCREW_APT_TEST_CALLS"
 
 phase="${1:-unknown}"
-count_file="${ZEROCLAW_APT_TEST_STATE}/apt-get-${phase}"
+count_file="${CLAWCREW_APT_TEST_STATE}/apt-get-${phase}"
 count=0
 if [[ -f "$count_file" ]]; then
     count="$(cat "$count_file")"
@@ -100,17 +100,17 @@ fi
 count=$((count + 1))
 printf '%s\n' "$count" > "$count_file"
 
-if [[ "${ZEROCLAW_APT_TEST_FAIL_PHASE:-}" == "$phase" ]] && \
-   [[ "$count" -le "${ZEROCLAW_APT_TEST_FAIL_ATTEMPTS:-0}" ]]; then
+if [[ "${CLAWCREW_APT_TEST_FAIL_PHASE:-}" == "$phase" ]] && \
+   [[ "$count" -le "${CLAWCREW_APT_TEST_FAIL_ATTEMPTS:-0}" ]]; then
     exit 42
 fi
 EOF
 
     cat > "${fixture}/bin/sleep" <<'EOF'
 #!/usr/bin/env bash
-printf 'sleep' >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '|%s' "$@" >> "$ZEROCLAW_APT_TEST_CALLS"
-printf '\n' >> "$ZEROCLAW_APT_TEST_CALLS"
+printf 'sleep' >> "$CLAWCREW_APT_TEST_CALLS"
+printf '|%s' "$@" >> "$CLAWCREW_APT_TEST_CALLS"
+printf '\n' >> "$CLAWCREW_APT_TEST_CALLS"
 EOF
 
     chmod +x "${fixture}/bin/sudo" "${fixture}/bin/timeout" \
@@ -119,13 +119,13 @@ EOF
 
 run_helper() {
     PATH="${fixture}/bin:${PATH}" \
-        ZEROCLAW_CI_APT_SOURCES_DIR="${fixture}/sources" \
-        ZEROCLAW_APT_TEST_CALLS="$calls" \
-        ZEROCLAW_APT_TEST_STATE="${fixture}/state" \
-        ZEROCLAW_APT_TEST_FAIL_PHASE="${fail_phase:-}" \
-        ZEROCLAW_APT_TEST_FAIL_ATTEMPTS="${fail_attempts:-0}" \
-        ZEROCLAW_APT_TEST_TIMEOUT_PHASE="${timeout_phase:-}" \
-        ZEROCLAW_APT_TEST_TIMEOUT_ATTEMPTS="${timeout_attempts:-0}" \
+        CLAWCREW_CI_APT_SOURCES_DIR="${fixture}/sources" \
+        CLAWCREW_APT_TEST_CALLS="$calls" \
+        CLAWCREW_APT_TEST_STATE="${fixture}/state" \
+        CLAWCREW_APT_TEST_FAIL_PHASE="${fail_phase:-}" \
+        CLAWCREW_APT_TEST_FAIL_ATTEMPTS="${fail_attempts:-0}" \
+        CLAWCREW_APT_TEST_TIMEOUT_PHASE="${timeout_phase:-}" \
+        CLAWCREW_APT_TEST_TIMEOUT_ATTEMPTS="${timeout_attempts:-0}" \
         bash "$helper" "$@" > "$output" 2>&1
 }
 

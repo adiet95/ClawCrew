@@ -58,7 +58,7 @@ const ZONE_LAYOUTS: [ZoneLayout; 12] = [
     ZoneLayout {
         zone: ZONE_SOURCE_DISPATCH_OPEN,
         range_start: "# ── Locate source ─────────────────────────────────────────────────",
-        range_end: "  printf \"%s\\n\" \"$(bold \"ZeroClaw — source install\")\"",
+        range_end: "  printf \"%s\\n\" \"$(bold \"ClawCrew — source install\")\"",
     },
     ZoneLayout {
         zone: ZONE_RUST_BOOTSTRAP,
@@ -83,7 +83,7 @@ const ZONE_LAYOUTS: [ZoneLayout; 12] = [
     ZoneLayout {
         zone: ZONE_SOURCE_DISPATCH_CLOSE,
         range_start: "  # ── Summary ───────────────────────────────────────────────────────",
-        range_end: "BIN=\"$CARGO_HOME/bin/zeroclaw\"\n\n# ── PATH setup",
+        range_end: "BIN=\"$CARGO_HOME/bin/clawcrew\"\n\n# ── PATH setup",
     },
     ZoneLayout {
         zone: ZONE_PATH_HANDOFF,
@@ -185,8 +185,8 @@ fn render_route_contract(routes: &[InstallRoute]) -> anyhow::Result<String> {
     );
     let mut quickstart_parts = guided.quickstart_command.split_whitespace();
     anyhow::ensure!(
-        quickstart_parts.next() == Some("zeroclaw"),
-        "guided Quickstart command must invoke zeroclaw"
+        quickstart_parts.next() == Some("clawcrew"),
+        "guided Quickstart command must invoke clawcrew"
     );
     let quickstart_subcommand = quickstart_parts
         .next()
@@ -233,7 +233,7 @@ if [ "$INSTALL_MODE" = "" ]; then
   if [ -n "$triple" ]; then
     if [ "$GUIDED_INSTALL_MODE" = "choice" ] && [ -t 0 ]; then
       echo
-      printf "  %s\n" "$(bold "How would you like to install ZeroClaw?")"
+      printf "  %s\n" "$(bold "How would you like to install ClawCrew?")"
       printf "  [P] Pre-built binary  — fast, no Rust required  %s\n" "$(bold "(default)")"
       printf "  [s] Build from source — custom features, latest code\n"
       printf "\n  Choice [P/s]: "
@@ -288,7 +288,7 @@ fn render_rust_bootstrap() -> &'static str {
   if [ "$DRY_RUN" != true ]; then
     RUST_VERSION=$(rustc --version | awk '{print $2}')
     if ! version_gte "$RUST_VERSION" "$MSRV"; then
-      die "Rust $RUST_VERSION is too old. ZeroClaw requires $MSRV+ (edition $EDITION). Run: rustup update stable"
+      die "Rust $RUST_VERSION is too old. ClawCrew requires $MSRV+ (edition $EDITION). Run: rustup update stable"
     fi
     info "Rust $RUST_VERSION (>= $MSRV)"
   fi"#
@@ -531,9 +531,9 @@ elif [ "$MODIFY_PATH" = true ] && [ "$PREFIX" = "$HOME" ]; then
   if [ "$DRY_RUN" = true ]; then
     info "[dry-run] Would add $CARGO_HOME/bin to PATH in $PROFILE"
   elif {
-    printf '\n# >>> zeroclaw >>>\n'
+    printf '\n# >>> clawcrew >>>\n'
     printf '%s\n' "$EXPORT_LINE"
-    printf '# <<< zeroclaw <<<\n'
+    printf '# <<< clawcrew <<<\n'
   } >>"$PROFILE" 2>/dev/null; then
     info "Added $CARGO_HOME/bin to PATH in $PROFILE"
     if [ "$UNIX_PATH_RELOAD" = true ]; then
@@ -552,9 +552,9 @@ fi"#
 fn render_quickstart_handoff() -> &'static str {
     r#"if [ "$SKIP_QUICKSTART" = false ] && [ "$DRY_RUN" != true ] && [ -f "$BIN" ]; then
   # Skip the prompt entirely when the operator already has a configured
-  # ZeroClaw — re-installs should not re-prompt.
+  # ClawCrew — re-installs should not re-prompt.
   if ! quickstart_needed; then
-    info "Existing ZeroClaw config detected at $PREFIX/.zeroclaw/config.toml — skipping setup prompt."
+    info "Existing ClawCrew config detected at $PREFIX/.clawcrew/config.toml — skipping setup prompt."
     info "Run '$QUICKSTART_COMMAND' to reconfigure."
   elif [ "$GUIDED_QUICKSTART_MODE" = "offer" ] && [ -t 0 ]; then
     # 3-way setup choice. Bare Enter accepts the [1] CLI quickstart default;
@@ -562,9 +562,9 @@ fn render_quickstart_handoff() -> &'static str {
     # browser and Ctrl+C to return; [3] skips and prints a follow-up hint.
     # Non-TTY runs fall through to the silent skip in the else branch.
     echo
-    printf "%s\n" "$(bold "ZeroClaw installed. How would you like to complete setup?")"
+    printf "%s\n" "$(bold "ClawCrew installed. How would you like to complete setup?")"
     printf "  [1] CLI quickstart  ($QUICKSTART_COMMAND)\n"
-    printf "  [2] Open gateway in browser (zeroclaw daemon + dashboard)\n"
+    printf "  [2] Open gateway in browser (clawcrew daemon + dashboard)\n"
     printf "  [3] Skip for now\n"
     printf "  Choice [1-3, default 1]: "
     read -r quickstart_choice
@@ -577,11 +577,11 @@ fn render_quickstart_handoff() -> &'static str {
       echo
       info "Starting gateway daemon for browser-based setup..."
       info "Open the dashboard in your browser; pair with the code shown in logs."
-      info "Stop the daemon with Ctrl+C when done; then run 'zeroclaw service install' for always-on."
-      "$BIN" daemon || warn "Daemon exited with an error — run 'zeroclaw daemon' manually"
+      info "Stop the daemon with Ctrl+C when done; then run 'clawcrew service install' for always-on."
+      "$BIN" daemon || warn "Daemon exited with an error — run 'clawcrew daemon' manually"
       ;;
     3)
-      info "Skipped setup. Run '$QUICKSTART_COMMAND' (CLI) or 'zeroclaw daemon' (browser) when ready."
+      info "Skipped setup. Run '$QUICKSTART_COMMAND' (CLI) or 'clawcrew daemon' (browser) when ready."
       ;;
     *)
       warn "Unknown choice '$quickstart_choice' — skipping. Run '$QUICKSTART_COMMAND' to configure."
@@ -732,7 +732,7 @@ mod tests {
         let contract = render_route_contract(&spec::install_routes().unwrap()).unwrap();
         assert!(contract.contains("DEFAULT_APPS=\"zerocode\""));
         assert!(contract.contains("PIPED_INSTALL_MODE=\"prebuilt\""));
-        assert!(contract.contains("QUICKSTART_COMMAND=\"zeroclaw quickstart\""));
+        assert!(contract.contains("QUICKSTART_COMMAND=\"clawcrew quickstart\""));
         assert!(contract.contains("QUICKSTART_SUBCOMMAND=\"quickstart\""));
         assert!(contract.contains("GUIDED_INSTALL_MODE=\"choice\""));
         assert!(contract.contains("GUIDED_QUICKSTART_MODE=\"offer\""));
@@ -745,7 +745,7 @@ mod tests {
         mutate_unix_variant(&mut divergent_defaults, RouteId::UnixGuided, |variant| {
             variant.apps = AppPolicy::ArchiveOptionalOrSourceDefaultsSelectable(&[
                 "zerocode",
-                "zeroclaw-desktop",
+                "clawcrew-desktop",
             ]);
         });
         assert!(render_route_contract(&divergent_defaults).is_err());
@@ -782,7 +782,7 @@ mod tests {
 
         let mut wrong_quickstart = spec::install_routes().unwrap();
         mutate_unix_variant(&mut wrong_quickstart, RouteId::UnixGuided, |variant| {
-            variant.quickstart_command = "zeroclaw configure";
+            variant.quickstart_command = "clawcrew configure";
         });
         assert!(render_route_contract(&wrong_quickstart).is_err());
     }
@@ -1000,7 +1000,7 @@ mod tests {
         let (guided, _) = guided_and_after
             .split_once("# Next-step hint")
             .expect("next-step marker");
-        assert!(!guided.contains("zeroclaw quickstart"));
+        assert!(!guided.contains("clawcrew quickstart"));
         assert!(guided.contains("$QUICKSTART_COMMAND"));
         assert!(guided.contains("\"$BIN\" \"$QUICKSTART_SUBCOMMAND\""));
     }

@@ -1,6 +1,6 @@
 # Raspberry Pi Setup
 
-This guide covers installing and running ZeroClaw on Raspberry Pi.
+This guide covers installing and running ClawCrew on Raspberry Pi.
 
 The runtime is small enough to run comfortably on any Pi. The only constraint is **building from source on the device**: Rust's linker is memory-hungry (fat LTO can OOM a low-RAM board), so the on-device build path needs swap and a lighter profile. Most users should take the **pre-built binary** and skip all of that.
 
@@ -18,7 +18,7 @@ Fastest path. No compiler, no swap, no OOM risk.
 
 {{#include ../_snippets/install.md:linux}}
 
-The script auto-detects your architecture (`aarch64`, `armv7`, or `armv6`) and installs the matching release binary into `$CARGO_HOME/bin/zeroclaw` (defaulting to `~/.cargo/bin/zeroclaw`). Make sure that directory is on your `PATH`.
+The script auto-detects your architecture (`aarch64`, `armv7`, or `armv6`) and installs the matching release binary into `$CARGO_HOME/bin/clawcrew` (defaulting to `~/.cargo/bin/clawcrew`). Make sure that directory is on your `PATH`.
 
 When the script builds from source instead of taking a prebuilt binary, it also adapts the build to the board's available memory:
 
@@ -26,7 +26,7 @@ When the script builds from source instead of taking a prebuilt binary, it also 
 
 ### Manual download
 
-Pick the matching tarball from the [latest release](https://github.com/zeroclaw-labs/zeroclaw/releases/latest):
+Pick the matching tarball from the [latest release](https://github.com/clawcrew-labs/clawcrew/releases/latest):
 
 <div class="os-tabs-src">
 
@@ -34,14 +34,14 @@ Pick the matching tarball from the [latest release](https://github.com/zeroclaw-
 
 ```sh
 # 64-bit (Pi 4/5 with 64-bit Raspberry Pi OS)
-curl -LO https://github.com/zeroclaw-labs/zeroclaw/releases/latest/download/zeroclaw-aarch64-unknown-linux-gnu.tar.gz
-tar xzf zeroclaw-aarch64-unknown-linux-gnu.tar.gz
-sudo install -m 0755 zeroclaw /usr/local/bin/
+curl -LO https://github.com/clawcrew-labs/clawcrew/releases/latest/download/clawcrew-aarch64-unknown-linux-gnu.tar.gz
+tar xzf clawcrew-aarch64-unknown-linux-gnu.tar.gz
+sudo install -m 0755 clawcrew /usr/local/bin/
 
 # 32-bit (Pi Zero 2 W, older Pi 3 with 32-bit OS)
-curl -LO https://github.com/zeroclaw-labs/zeroclaw/releases/latest/download/zeroclaw-armv7-unknown-linux-gnueabihf.tar.gz
-tar xzf zeroclaw-armv7-unknown-linux-gnueabihf.tar.gz
-sudo install -m 0755 zeroclaw /usr/local/bin/
+curl -LO https://github.com/clawcrew-labs/clawcrew/releases/latest/download/clawcrew-armv7-unknown-linux-gnueabihf.tar.gz
+tar xzf clawcrew-armv7-unknown-linux-gnueabihf.tar.gz
+sudo install -m 0755 clawcrew /usr/local/bin/
 ```
 
 </div>
@@ -83,7 +83,7 @@ CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-unknown-linux-gnu-gcc \
 cargo build --release --target aarch64-unknown-linux-gnu
 
 # Copy to your Pi
-scp target/aarch64-unknown-linux-gnu/release/zeroclaw pi@raspberrypi:~/
+scp target/aarch64-unknown-linux-gnu/release/clawcrew pi@raspberrypi:~/
 ```
 
 > **Note:** earlier drafts of this guide suggested `aarch64-elf-gcc` from Homebrew. That toolchain produces bare-metal ELF binaries and links against newlib, not glibc. It will not produce a working Raspberry Pi OS binary. Use the `messense/macos-cross-toolchains` tap above (a real Linux GNU/glibc toolchain), or fall back to Option 3 (build on the Pi).
@@ -105,7 +105,7 @@ rustup target add aarch64-unknown-linux-gnu
 cargo build --release --target aarch64-unknown-linux-gnu
 
 # Copy to Pi
-scp target/aarch64-unknown-linux-gnu/release/zeroclaw pi@raspberrypi:~/
+scp target/aarch64-unknown-linux-gnu/release/clawcrew pi@raspberrypi:~/
 ```
 
 </div>
@@ -160,16 +160,16 @@ Pick a profile by available RAM. `release` is fat LTO (best binary, heaviest lin
 #### sh
 
 ```sh
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
+git clone https://github.com/clawcrew-labs/clawcrew.git
+cd clawcrew
 
 cargo build --release           # higher-RAM board
 cargo build --profile release-fast   # mid-RAM board
 cargo build --profile ci        # low-RAM / constrained board
 
 # Install the binary you built:
-sudo install -m 0755 target/release/zeroclaw /usr/local/bin/
-# (or target/release-fast/zeroclaw, or target/ci/zeroclaw)
+sudo install -m 0755 target/release/clawcrew /usr/local/bin/
+# (or target/release-fast/clawcrew, or target/ci/clawcrew)
 ```
 
 </div>
@@ -180,7 +180,7 @@ To drive Pi GPIO from skills, build with the relevant `peripherals` feature flag
 
 ## Containerized deployment (Podman recommended over Docker)
 
-On a memory-constrained Pi, container runtime choice matters: everything you stack alongside ZeroClaw competes for the same fixed pool, so memory not spent on container infrastructure is memory the agent gets.
+On a memory-constrained Pi, container runtime choice matters: everything you stack alongside ClawCrew competes for the same fixed pool, so memory not spent on container infrastructure is memory the agent gets.
 
 **Why Podman over Docker on a Pi:**
 
@@ -188,7 +188,7 @@ On a memory-constrained Pi, container runtime choice matters: everything you sta
 2. **systemd-native via Quadlets.** `.container` unit files systemd manages directly, with no separate `docker.service` or logging layer.
 3. **No persistent daemon.** Docker keeps `dockerd` resident; Podman does not, freeing the largest single chunk of memory without losing isolation.
 
-The trade-off: Podman's rootless network (slirp4netns/pasta) is slower than Docker's bridge. For ZeroClaw's "one or two long-running agent containers" pattern that's negligible, and the daemon savings dominate on constrained hardware.
+The trade-off: Podman's rootless network (slirp4netns/pasta) is slower than Docker's bridge. For ClawCrew's "one or two long-running agent containers" pattern that's negligible, and the daemon savings dominate on constrained hardware.
 
 ### Quick install (Raspberry Pi OS Bookworm/Trixie)
 
@@ -204,7 +204,7 @@ sudo apt-get install -y podman-compose
 
 </div>
 
-### Running ZeroClaw under Podman
+### Running ClawCrew under Podman
 
 The published OCI image works under Podman without modification:
 
@@ -213,38 +213,38 @@ The published OCI image works under Podman without modification:
 #### sh
 
 ```sh
-podman pull ghcr.io/zeroclaw-labs/zeroclaw:latest
+podman pull ghcr.io/clawcrew-labs/clawcrew:latest
 
 podman run --rm -d \
-  --name zeroclaw \
+  --name clawcrew \
   -p 42617:42617 \
-  -v ~/.zeroclaw:/root/.zeroclaw \
-  ghcr.io/zeroclaw-labs/zeroclaw:latest \
+  -v ~/.clawcrew:/root/.clawcrew \
+  ghcr.io/clawcrew-labs/clawcrew:latest \
   daemon --host 0.0.0.0 --port 42617
 ```
 
 </div>
 
-> **Bind gotcha:** ZeroClaw defaults to `127.0.0.1` for the gateway. Inside a container that means the gateway is unreachable from the host. Always pass `--host 0.0.0.0` (or set `ZEROCLAW_BIND=0.0.0.0`) when running in a container.
+> **Bind gotcha:** ClawCrew defaults to `127.0.0.1` for the gateway. Inside a container that means the gateway is unreachable from the host. Always pass `--host 0.0.0.0` (or set `CLAWCREW_BIND=0.0.0.0`) when running in a container.
 
 ### Running as a systemd unit via Quadlet
 
 Drop a `.container` file in `/etc/containers/systemd/` (system) or `~/.config/containers/systemd/` (rootless user):
 
 ```ini
-# ~/.config/containers/systemd/zeroclaw.container
+# ~/.config/containers/systemd/clawcrew.container
 [Unit]
-Description=ZeroClaw gateway
+Description=ClawCrew gateway
 After=network-online.target
 Wants=network-online.target
 
 [Container]
-Image=ghcr.io/zeroclaw-labs/zeroclaw:latest
-ContainerName=zeroclaw
+Image=ghcr.io/clawcrew-labs/clawcrew:latest
+ContainerName=clawcrew
 PublishPort=42617:42617
-Environment=ZEROCLAW_BIND=0.0.0.0
+Environment=CLAWCREW_BIND=0.0.0.0
 Exec=daemon --host 0.0.0.0 --port 42617
-Volume=zeroclaw-data:/root/.zeroclaw
+Volume=clawcrew-data:/root/.clawcrew
 
 [Service]
 Restart=always
@@ -260,7 +260,7 @@ WantedBy=multi-user.target default.target
 
 ```sh
 systemctl --user daemon-reload
-systemctl --user start zeroclaw.service
+systemctl --user start clawcrew.service
 ```
 
 </div>
@@ -269,19 +269,19 @@ For rootless setups, also run `loginctl enable-linger $USER` so the service star
 
 ## Post-Install: Native (non-container) setup
 
-### 1. Initialize ZeroClaw
+### 1. Initialize ClawCrew
 
 <div class="os-tabs-src">
 
 #### sh
 
 ```sh
-zeroclaw quickstart
+clawcrew quickstart
 ```
 
 </div>
 
-This walks you through provider auth, gateway config, and creates your ZeroClaw config.
+This walks you through provider auth, gateway config, and creates your ClawCrew config.
 
 ### 2. Verify it works
 
@@ -290,8 +290,8 @@ This walks you through provider auth, gateway config, and creates your ZeroClaw 
 #### sh
 
 ```sh
-zeroclaw doctor
-zeroclaw agent -a assistant -m "what's 2+2?"
+clawcrew doctor
+clawcrew agent -a assistant -m "what's 2+2?"
 ```
 
 </div>
@@ -304,8 +304,8 @@ zeroclaw agent -a assistant -m "what's 2+2?"
 
 ```sh
 # Install and start the systemd user service
-zeroclaw service install
-systemctl --user enable --now zeroclaw
+clawcrew service install
+systemctl --user enable --now clawcrew
 
 # So it survives logout / reboot:
 loginctl enable-linger $USER
@@ -322,14 +322,14 @@ For dev / debugging:
 #### sh
 
 ```sh
-zeroclaw daemon --host 0.0.0.0 --port 42617
+clawcrew daemon --host 0.0.0.0 --port 42617
 ```
 
 </div>
 
 ### 5. Enable channels
 
-ZeroClaw can connect to chat platforms (Matrix, Mattermost, Discord, Telegram, etc.). See [Channels → Overview](../channels/overview.md). Most channel transports work fine on a Pi; the heaviest is the WebRTC stack used by some voice channels, which can spike CPU during call setup.
+ClawCrew can connect to chat platforms (Matrix, Mattermost, Discord, Telegram, etc.). See [Channels → Overview](../channels/overview.md). Most channel transports work fine on a Pi; the heaviest is the WebRTC stack used by some voice channels, which can spike CPU during call setup.
 
 ## GPIO and Hardware Peripherals
 
@@ -355,13 +355,13 @@ If you want skills to drive GPIO pins (LEDs, buttons, sensors, etc.):
 - **Pre-built binary "Exec format error":** architecture mismatch. `uname -m` and grab the matching binary (`aarch64` = 64-bit, `armv7l` = 32-bit).
 - **GPIO permission denied:** you are not in the `gpio` group; `sudo usermod -aG gpio $USER`, then re-login.
 - **Service won't start after reboot:** `loginctl enable-linger $USER` so the user service survives logout.
-- **Container can't reach gateway from host:** the gateway binds `127.0.0.1`; pass `--host 0.0.0.0` (or `ZEROCLAW_BIND=0.0.0.0`).
+- **Container can't reach gateway from host:** the gateway binds `127.0.0.1`; pass `--host 0.0.0.0` (or `CLAWCREW_BIND=0.0.0.0`).
 
 ## Performance tips
 
 - **Use an SSD or fast SD card.** Compilation is I/O-bound; a USB 3.0 SSD on a Pi 4/5 cuts build time significantly.
 - **Run headless:** `sudo systemctl set-default multi-user.target`.
-- **tmpfs for build artifacts** (with RAM + swap headroom): `export CARGO_TARGET_DIR=/tmp/zeroclaw-target`.
+- **tmpfs for build artifacts** (with RAM + swap headroom): `export CARGO_TARGET_DIR=/tmp/clawcrew-target`.
 - **Check `clk_ignore_unused`** isn't on the kernel cmdline if you use a custom image; it inhibits clock gating and raises idle power. Stock Raspberry Pi OS doesn't set it.
 
 ## Related

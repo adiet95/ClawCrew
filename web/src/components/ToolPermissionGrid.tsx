@@ -10,10 +10,10 @@
 // means *unrestricted* — and so does an explicit `[]`, which keeps its legacy
 // meaning. Deny-all is a distinct explicit state, `deny_all_tools = true`,
 // written when "Strict allowlist" is flipped on with nothing marked Allow.
-// See `RiskProfileConfig` in crates/zeroclaw-config/src/schema.rs.
+// See `RiskProfileConfig` in crates/clawcrew-config/src/schema.rs.
 //
 // Deny always wins its axis; Ask-every-time always wins over Auto-approve
-// when a tool is in both — see crates/zeroclaw-runtime/src/approval/mod.rs.
+// when a tool is in both — see crates/clawcrew-runtime/src/approval/mod.rs.
 //
 // The component is controlled — it owns no permission state, just reflects
 // `value` and fires `onChange(next)` with the full updated bundle.

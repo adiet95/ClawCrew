@@ -13,19 +13,19 @@ Configure `enabled`, `bot_username`, `oauth_token`, and the channels to join und
 ```toml
 [channels.twitch.default]
 enabled = true
-bot_username = "zeroclaw_bot"
+bot_username = "clawcrew_bot"
 oauth_token = "replace-with-twitch-token"
-channels = ["zeroclaw_channel"]
+channels = ["clawcrew_channel"]
 mention_only = true
 
 [peer_groups.twitch_default]
 channel = "twitch.default"
-external_peers = ["zeroclaw_user"]
+external_peers = ["clawcrew_user"]
 ```
 
-- **Auth:** use a Twitch user access token for the bot account with [`chat:read` and `chat:edit`](https://dev.twitch.tv/docs/chat/irc/#authenticating-with-the-twitch-irc-server). After configuring the [Twitch CLI](https://dev.twitch.tv/docs/cli/token-command/), generate it while signed in as that account with `twitch token -u -s 'chat:read chat:edit'`, then store it through a protected config surface. ZeroClaw trims the value and adds the required `oauth:` prefix when it is omitted.
-- **Channels:** entries in `channels` may include the leading `#`; ZeroClaw adds it when missing and normalizes channel names to lowercase.
-- **Inbound and outbound:** channel messages are answered in the same channel. `mention_only = true` ignores channel messages that do not mention `bot_username`. If Twitch delivers a non-channel IRC `PRIVMSG` to the bot login, ZeroClaw replies to that sender; the adapter does not configure a separate whisper transport.
+- **Auth:** use a Twitch user access token for the bot account with [`chat:read` and `chat:edit`](https://dev.twitch.tv/docs/chat/irc/#authenticating-with-the-twitch-irc-server). After configuring the [Twitch CLI](https://dev.twitch.tv/docs/cli/token-command/), generate it while signed in as that account with `twitch token -u -s 'chat:read chat:edit'`, then store it through a protected config surface. ClawCrew trims the value and adds the required `oauth:` prefix when it is omitted.
+- **Channels:** entries in `channels` may include the leading `#`; ClawCrew adds it when missing and normalizes channel names to lowercase.
+- **Inbound and outbound:** channel messages are answered in the same channel. `mention_only = true` ignores channel messages that do not mention `bot_username`. If Twitch delivers a non-channel IRC `PRIVMSG` to the bot login, ClawCrew replies to that sender; the adapter does not configure a separate whisper transport.
 - **Formatting:** Twitch replies use plain text and are split to fit IRC frames. Markdown formatting is not preserved.
 - **Rate limits:** the adapter writes IRC `PRIVMSG` frames directly and has no Twitch-specific rate limiter or HTTP `429` backoff. Keep the agent's posting cadence within Twitch Chat limits and throttle bursty workflows at their source.
 
@@ -54,7 +54,7 @@ worse than one it answers five seconds late.
 - **Auth:** raw private key (`nsec` bech32 or hex).
 - **Inbound:** kind-1 (text), kind-4 (DM, NIP-04), and kind-1059 (gift-wrap, NIP-17).
 - **Outbound:** same kinds. Zap handling is experimental.
-- **Relays:** the agent connects to all listed relays; use 3–5 for reliability. If `relays` is omitted, ZeroClaw connects to a built-in set of popular public relays.
+- **Relays:** the agent connects to all listed relays; use 3–5 for reliability. If `relays` is omitted, ClawCrew connects to a built-in set of popular public relays.
 
 ## Twitter / X
 

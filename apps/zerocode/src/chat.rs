@@ -1638,7 +1638,7 @@ impl Chat {
         // TodoWrite display is a ZeroCode UI concern owned by
         // `zerocode-config.toml` — the daemon holds no TodoWrite display schema
         // — so read it from the local config file (honoring `--config-dir` /
-        // `ZEROCLAW_CONFIG_DIR`), not over RPC. A fresh pane has no prior
+        // `CLAWCREW_CONFIG_DIR`), not over RPC. A fresh pane has no prior
         // tracker, so a load failure falls back to the built-in defaults.
         let todo_settings =
             Self::resolve_todo_settings(crate::todo_tracker::TodoTrackerSettings::default());
@@ -12712,9 +12712,9 @@ mod tests {
     struct ConfigDirGuard(Option<String>);
     impl ConfigDirGuard {
         fn set(dir: &std::path::Path) -> Self {
-            let prev = std::env::var("ZEROCLAW_CONFIG_DIR").ok();
+            let prev = std::env::var("CLAWCREW_CONFIG_DIR").ok();
             // SAFETY: these tests serialize on `config_dir_test_lock()`.
-            unsafe { std::env::set_var("ZEROCLAW_CONFIG_DIR", dir) };
+            unsafe { std::env::set_var("CLAWCREW_CONFIG_DIR", dir) };
             Self(prev)
         }
     }
@@ -12722,8 +12722,8 @@ mod tests {
         fn drop(&mut self) {
             // SAFETY: these tests serialize on `config_dir_test_lock()`.
             match &self.0 {
-                Some(v) => unsafe { std::env::set_var("ZEROCLAW_CONFIG_DIR", v) },
-                None => unsafe { std::env::remove_var("ZEROCLAW_CONFIG_DIR") },
+                Some(v) => unsafe { std::env::set_var("CLAWCREW_CONFIG_DIR", v) },
+                None => unsafe { std::env::remove_var("CLAWCREW_CONFIG_DIR") },
             }
         }
     }

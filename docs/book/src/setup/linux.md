@@ -16,7 +16,7 @@ That is the whole install. Run it from a clone, or pipe it from `curl`:
 
 <!-- >>> generated:unix-fast-command by `cargo generate installers` - do not edit <<< -->
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh
 ```
 <!-- >>> end generated:unix-fast-command <<< -->
 
@@ -31,19 +31,19 @@ The [canonical installation paths](../getting-started/quickstart.md#install) exp
 #### sh
 
 ```sh
-brew install zeroclaw
+brew install clawcrew
 ```
 
 </div>
 
-Homebrew-on-Linux installs follow Homebrew's service path convention, your workspace lives under `$HOMEBREW_PREFIX/var/zeroclaw/` instead of `~/.zeroclaw/`. See [Service management](./service.md) for why this matters.
+Homebrew-on-Linux installs follow Homebrew's service path convention, your workspace lives under `$HOMEBREW_PREFIX/var/clawcrew/` instead of `~/.clawcrew/`. See [Service management](./service.md) for why this matters.
 
 ### NixOS
 
-The upstream flake provides the ZeroClaw CLI. With Nix and flakes enabled:
+The upstream flake provides the ClawCrew CLI. With Nix and flakes enabled:
 
 ```sh
-nix run github:zeroclaw-labs/zeroclaw -- --version
+nix run github:clawcrew-labs/clawcrew -- --version
 ```
 
 See [NixOS](./nixos.md) for source builds, the Nixpkgs package, and the
@@ -73,9 +73,9 @@ Systemd is the default. OpenRC is detected and supported as a fallback.
 #### sh
 
 ```sh
-zeroclaw service install
-zeroclaw service start
-zeroclaw service status
+clawcrew service install
+clawcrew service start
+clawcrew service status
 ```
 
 </div>
@@ -87,7 +87,7 @@ Logs go to the systemd journal by default:
 #### sh
 
 ```sh
-journalctl --user -u zeroclaw -f
+journalctl --user -u clawcrew -f
 ```
 
 </div>
@@ -108,7 +108,7 @@ On a Raspberry Pi or similar SBC, build with the hardware feature:
 
 </div>
 
-For hardware access without running as root, the service user needs the `gpio`, `spi`, and `i2c` groups. The user-level unit that `zeroclaw service install` writes does not set these; use the system-level Pi unit template at [`scripts/zeroclaw.service`](https://github.com/zeroclaw-labs/zeroclaw/blob/master/scripts/zeroclaw.service), which includes `SupplementaryGroups=gpio spi i2c`. Either way, verify your user is in those groups:
+For hardware access without running as root, the service user needs the `gpio`, `spi`, and `i2c` groups. The user-level unit that `clawcrew service install` writes does not set these; use the system-level Pi unit template at [`scripts/clawcrew.service`](https://github.com/clawcrew-labs/clawcrew/blob/master/scripts/clawcrew.service), which includes `SupplementaryGroups=gpio spi i2c`. Either way, verify your user is in those groups:
 
 <div class="os-tabs-src">
 
@@ -131,7 +131,7 @@ Re-run the installer, it detects the existing install and upgrades in place:
 #### sh
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | sh -s -- --skip-quickstart
+curl -fsSL https://raw.githubusercontent.com/clawcrew-labs/clawcrew/master/install.sh | sh -s -- --skip-quickstart
 ```
 
 </div>
@@ -143,7 +143,7 @@ Or from a clone:
 #### sh
 
 ```sh
-cd /path/to/zeroclaw
+cd /path/to/clawcrew
 git pull
 ./install.sh --skip-quickstart
 ```
@@ -157,7 +157,7 @@ If installed via Homebrew instead:
 #### sh
 
 ```sh
-brew update && brew upgrade zeroclaw
+brew update && brew upgrade clawcrew
 ```
 
 </div>
@@ -169,7 +169,7 @@ After updating, restart the service:
 #### sh
 
 ```sh
-zeroclaw service restart
+clawcrew service restart
 ```
 
 </div>
@@ -195,8 +195,8 @@ Stop and remove the service:
 #### sh
 
 ```sh
-zeroclaw service stop
-zeroclaw service uninstall
+clawcrew service stop
+clawcrew service uninstall
 ```
 
 </div>
@@ -209,10 +209,10 @@ Remove the binary:
 
 ```sh
 # cargo install / bootstrap
-rm ~/.cargo/bin/zeroclaw
+rm ~/.cargo/bin/clawcrew
 
 # Homebrew
-brew uninstall zeroclaw
+brew uninstall clawcrew
 ```
 
 </div>
@@ -224,7 +224,7 @@ Remove config and workspace (optional: this deletes conversation history):
 #### sh
 
 ```sh
-rm -rf ~/.zeroclaw ~/.config/zeroclaw
+rm -rf ~/.clawcrew ~/.config/clawcrew
 ```
 
 </div>

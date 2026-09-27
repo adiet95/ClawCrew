@@ -1,6 +1,6 @@
 # Custom Providers
 
-Three ways to add a provider ZeroClaw doesn't ship with:
+Three ways to add a provider ClawCrew doesn't ship with:
 
 1. **Use the `custom` slot.** For any OpenAI-compatible endpoint not covered by an existing canonical slot.
 2. **Use the first-class local-server slots** (`lmstudio`, `llamacpp`, `sglang`, `vllm`, `osaurus`, `litellm`, `nine_router`). Thin wrappers with sensible defaults.
@@ -29,7 +29,7 @@ Chat-completion requests continue to use POST; warmup does not invoke inference 
 
 ## First-class local-inference servers
 
-ZeroClaw ships canonical slots for popular local-inference stacks. They're all OpenAI-compatible under the hood but with default `uri` values pre-applied so you can usually omit `uri` entirely.
+ClawCrew ships canonical slots for popular local-inference stacks. They're all OpenAI-compatible under the hood but with default `uri` values pre-applied so you can usually omit `uri` entirely.
 
 ### llama.cpp: slot `llamacpp`
 
@@ -82,7 +82,7 @@ Slots `lmstudio`, `osaurus`, `litellm`, `nine_router` follow the same pattern, s
 
 ## Wire protocol: `wire_api = "responses"`
 
-New **OpenAI** provider slots that are *written to config* (`providers.models.openai.<alias>`, as created by `zeroclaw quickstart` or the gateway/config UI) default to `wire_api = "responses"` because OpenAI's recent GPT models use `POST /v1/responses` as the primary wire. Other bring-your-own-endpoint slots (`custom`, `llamacpp`, and OpenAI-compatible vendors) still default to the chat-completions wire; an endpoint that only speaks the OpenAI **responses** wire (some self-hosted vLLM / TGI deployments) needs an explicit `wire_api = "responses"` opt-in on the alias entry.
+New **OpenAI** provider slots that are *written to config* (`providers.models.openai.<alias>`, as created by `clawcrew quickstart` or the gateway/config UI) default to `wire_api = "responses"` because OpenAI's recent GPT models use `POST /v1/responses` as the primary wire. Other bring-your-own-endpoint slots (`custom`, `llamacpp`, and OpenAI-compatible vendors) still default to the chat-completions wire; an endpoint that only speaks the OpenAI **responses** wire (some self-hosted vLLM / TGI deployments) needs an explicit `wire_api = "responses"` opt-in on the alias entry.
 
 When set to `"responses"`, the provider is built as an `OpenAiResponsesModelProvider` (full streaming tool calls over the responses protocol) instead of a chat-completions provider. Set `"chat_completions"` to force the legacy wire. Two cases keep chat-completions at runtime for backward compatibility, so no existing setup changes wire on upgrade:
 
@@ -105,7 +105,7 @@ Every inference request to an `opencode.ai` host carries an `x-opencode-session`
 
 The value is an opaque 128-bit hex token derived from the active conversation scope, so each conversation pins to its own backend and the same conversation keeps its backend across a daemon restart. The conversation's session key is **hashed, never sent**: session keys embed channel and user identifiers, and forwarding one verbatim would hand a third-party relay a per-user identifier. Inference requests made outside any conversation share one process-stable token instead.
 
-Nothing needs configuring. To pin the value yourself, for instance to share one affinity scope across replicas, set it explicitly and ZeroClaw leaves it alone:
+Nothing needs configuring. To pin the value yourself, for instance to share one affinity scope across replicas, set it explicitly and ClawCrew leaves it alone:
 
 ```toml
 [providers.models.opencode.default]
@@ -126,9 +126,9 @@ Regardless of approach:
 #### sh
 
 ```sh
-zeroclaw config list                          # loads config; any validation failures print to stderr
-zeroclaw models refresh --model-provider <type>.<alias>   # list models the endpoint advertises
-zeroclaw agent -a <alias> -m "hello"          # smoke-test against the agent at `[agents.<alias>]`
+clawcrew config list                          # loads config; any validation failures print to stderr
+clawcrew models refresh --model-provider <type>.<alias>   # list models the endpoint advertises
+clawcrew agent -a <alias> -m "hello"          # smoke-test against the agent at `[agents.<alias>]`
 ```
 
 </div>
@@ -137,7 +137,7 @@ zeroclaw agent -a <alias> -m "hello"          # smoke-test against the agent at 
 
 If the endpoint isn't OpenAI-compatible and isn't one of the local-server slots, you need code.
 
-The trait lives in `crates/zeroclaw-api/src/model_provider.rs`:
+The trait lives in `crates/clawcrew-api/src/model_provider.rs`:
 
 ```rust
 #[async_trait]
@@ -157,7 +157,7 @@ pub trait ModelProvider: Send + Sync {
 
 Implementation pattern:
 
-1. Define the typed config in `crates/zeroclaw-config/src/schema.rs`:
+1. Define the typed config in `crates/clawcrew-config/src/schema.rs`:
    ```rust
    pub struct MyProviderModelProviderConfig {
        #[serde(flatten)]
@@ -173,9 +173,9 @@ Implementation pattern:
        }
    }
    ```
-2. Add the slot to `for_each_model_provider_slot!` in `crates/zeroclaw-config/src/providers.rs`. Every helper picks up the new slot automatically.
-3. Add the runtime impl in `crates/zeroclaw-providers/src/myprovider.rs`. Translate `Vec<Message>` to the wire format, stream the response, emit `StreamEvent` values.
-4. Wire the factory branch in `crates/zeroclaw-providers/src/lib.rs::create_provider_with_url_and_options`.
+2. Add the slot to `for_each_model_provider_slot!` in `crates/clawcrew-config/src/providers.rs`. Every helper picks up the new slot automatically.
+3. Add the runtime impl in `crates/clawcrew-providers/src/myprovider.rs`. Translate `Vec<Message>` to the wire format, stream the response, emit `StreamEvent` values.
+4. Wire the factory branch in `crates/clawcrew-providers/src/lib.rs::create_provider_with_url_and_options`.
 5. Add a feature flag in `Cargo.toml` if the provider pulls heavy deps.
 
 See `anthropic.rs` as a reference for a provider with a fully custom wire format. See `compatible.rs` for the SSE-streaming OpenAI-compat pattern.
@@ -186,7 +186,7 @@ See `anthropic.rs` as a reference for a provider with a fully custom wire format
 
 - Verify the API key matches the endpoint (many vendors use key prefixes: `sk-`, `gsk_`, `sk-ant-`).
 - Check that `uri` includes the scheme (`http://` / `https://`) and the `/v1` path if the endpoint expects it.
-- Endpoints behind a VPN or proxy? Confirm routing from the ZeroClaw host.
+- Endpoints behind a VPN or proxy? Confirm routing from the ClawCrew host.
 
 ### Model not found
 
@@ -212,7 +212,7 @@ See `anthropic.rs` as a reference for a provider with a fully custom wire format
 ### Gateway rejects `temperature`
 
 Some gateways (e.g. a LiteLLM proxy fronting `claude-opus-4-7`) return an error
-when a `temperature` field is present at all. ZeroClaw honors the `Option`
+when a `temperature` field is present at all. ClawCrew honors the `Option`
 contract: if you leave `temperature` unset in config, the field is **omitted**
 from the request body entirely and the backend picks its own default. Only set
 `temperature` explicitly when the endpoint accepts it.

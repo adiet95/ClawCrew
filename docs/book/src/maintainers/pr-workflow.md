@@ -37,7 +37,7 @@ Every condition below must hold on the current head before proposing the excepti
 
 - The PR is non-draft, mergeable, and passing every required check.
 - One Core Team member other than the PR author has approved the current head.
-- `zeroclaw-reviewer[bot]` or an explicitly accepted equivalent advisory artifact has completed a clean exact-head review without tool failure, and a human has reconciled every finding. An equivalent artifact must identify its producer and link the durable public record that accepted it for this purpose.
+- `clawcrew-reviewer[bot]` or an explicitly accepted equivalent advisory artifact has completed a clean exact-head review without tool failure, and a human has reconciled every finding. An equivalent artifact must identify its producer and link the durable public record that accepted it for this purpose.
 - Five subsequent UTC business dates have been counted from the qualifying start for the active second-review request.
 - No `do-not-merge`, `needs-author-action`, stale-candidate status, release hold, unresolved human changes-requested review, unresolved review thread, unresolved human or automated finding, or other blocking condition remains.
 - The PR body, labels, linked work, validation, rollback, compatibility disposition, and follow-ups are current and truthful.
@@ -54,7 +54,7 @@ The Project board is an automated planning board, not the authoritative PR revie
 
 Use the board for issue readiness, routing evidence, roadmap grouping, dependencies, blocker state, and stale-exemption reasons. Those signals move slowly enough that a board field or planning lane can stay useful.
 
-The current automation is manual and report-only. [`project-dashboard-plan.yml`](https://github.com/zeroclaw-labs/zeroclaw/blob/master/.github/workflows/project-dashboard-plan.yml) runs on `workflow_dispatch` for a single issue number, reads the issue payload, and writes a step summary proposing the existing Project Status value that best matches the issue's live labels and state. It does not write Project fields, edit issues, add labels, post comments, or run automatically on issue events.
+The current automation is manual and report-only. [`project-dashboard-plan.yml`](https://github.com/clawcrew-labs/clawcrew/blob/master/.github/workflows/project-dashboard-plan.yml) runs on `workflow_dispatch` for a single issue number, reads the issue payload, and writes a step summary proposing the existing Project Status value that best matches the issue's live labels and state. It does not write Project fields, edit issues, add labels, post comments, or run automatically on issue events.
 
 A JSON summary of this planning split lives in [`project-board-contract.json`](./project-board-contract.json). Treat it as the contract for the report-only planner and future board refresh automation, not as approval for automatic issue-event runs or active GitHub Project mutation yet. Live ProjectV2 writes need an approved field mapping, a project-scoped credential or app installation, and readback that compares planned status with live Project state before maintainers rely on it.
 
@@ -157,7 +157,7 @@ Before requesting review, the PR has all of these:
 - Validation evidence attached, actual command output, not "CI will check."
 - Security & privacy, compatibility, and (for risky paths) rollback fields completed.
 - Privacy and data-hygiene rules satisfied, neutral, project-scoped test wording. See [Privacy](../contributing/privacy.md).
-- Identity-like wording, where unavoidable, uses ZeroClaw / project-native labels.
+- Identity-like wording, where unavoidable, uses ClawCrew / project-native labels.
 
 ## Definition of Done (DoD)
 
@@ -229,9 +229,9 @@ The reviewer-side queue management, backlog pruning order, stale handling, label
 
 Review these paths attentively because they often contain boundary-relevant behavior:
 
-- `crates/zeroclaw-runtime/` (including `src/security/`)
-- `crates/zeroclaw-gateway/` (ingress, authentication, pairing)
-- `crates/zeroclaw-tools/` (anything with execution capability)
+- `crates/clawcrew-runtime/` (including `src/security/`)
+- `crates/clawcrew-gateway/` (ingress, authentication, pairing)
+- `crates/clawcrew-tools/` (anything with execution capability)
 - `.github/workflows/` and the release pipeline
 
 Path location alone does not select `risk:high`. Classify the actual diff and consequence under [Labels → Risk labels](./labels.md#risk-labels). A trust, credential, compatibility, governance, release-authority, or cross-cutting security boundary receives deep review when the PR carries `risk:high` or `domain:security`.

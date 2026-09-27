@@ -55,7 +55,7 @@ struct LocalCommandDescriptor {
 
 /// Commands whose identity and execution are owned entirely by ZeroCode.
 /// Shared command names and aliases are intentionally absent: the daemon
-/// supplies those from `zeroclaw-commands` during the RPC handshake.
+/// supplies those from `clawcrew-commands` during the RPC handshake.
 const LOCAL_COMMANDS: &[LocalCommandDescriptor] = &[
     LocalCommandDescriptor {
         id: SlashCommandId::Attach,

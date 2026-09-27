@@ -2,11 +2,11 @@
 
 Converse with the agent through a git forge's issue and pull-request comments, and surface repository events, including PR lifecycle, review comments, CI outcomes, and releases, through a per-event routing table. The channel is built around a **provider seam**: a `provider` field selects the forge. GitHub, Gitea, and Forgejo are wired providers; additional forges drop in as sibling providers without changing the generic channel.
 
-> **New to ZeroClaw?** Start with the [Quickstart](../getting-started/quickstart.md) to get a running agent, then skim [Concepts](../getting-started/concepts.md) for the terms (agent, peer group, autonomy, SOP) this page assumes.
+> **New to ClawCrew?** Start with the [Quickstart](../getting-started/quickstart.md) to get a running agent, then skim [Concepts](../getting-started/concepts.md) for the terms (agent, peer group, autonomy, SOP) this page assumes.
 
-With the GitHub provider, ZeroClaw authenticates as a **GitHub App** and replies as the app's own bot identity (`your-app[bot]`), so it works on any repository the app is installed on. There is no personal access token and no shared user account.
+With the GitHub provider, ClawCrew authenticates as a **GitHub App** and replies as the app's own bot identity (`your-app[bot]`), so it works on any repository the app is installed on. There is no personal access token and no shared user account.
 
-With the Gitea/Forgejo provider, ZeroClaw authenticates with a personal access token against the instance's Gitea-compatible API and replies as the token owner.
+With the Gitea/Forgejo provider, ClawCrew authenticates with a personal access token against the instance's Gitea-compatible API and replies as the token owner.
 
 > **Build note:** the Git channel is included in standard distribution artifacts, but not in the lean Cargo default. Custom source builds must add `channel-git`; builds that disable default features must also add `agent-runtime`. The `channel-git` feature pulls in every wired forge provider, so a single binary serves all supported forges; there is no smaller per-provider build subset to select.
 
@@ -40,7 +40,7 @@ The full field reference, straight from the schema:
 
 {{#config-fields channels.git}}
 
-The `default` alias is the common first instance. It is also what one-off sends resolve: `zeroclaw channel send --channel-id git` looks up the `default` alias specifically, so name the instance `default` unless every send will come from an agent bound to a differently-named alias. Leave `repos` empty to poll every repository visible to the credential, or set it to an explicit repository list for lower rate usage. Set `listen_to_bots` only if comments from other bot accounts should be processed. An unknown `provider` value is a clear startup error rather than a silent fallback.
+The `default` alias is the common first instance. It is also what one-off sends resolve: `clawcrew channel send --channel-id git` looks up the `default` alias specifically, so name the instance `default` unless every send will come from an agent bound to a differently-named alias. Leave `repos` empty to poll every repository visible to the credential, or set it to an explicit repository list for lower rate usage. Set `listen_to_bots` only if comments from other bot accounts should be processed. An unknown `provider` value is a clear startup error rather than a silent fallback.
 
 Credential setup differs per provider and each has its own encrypted secret; both walkthroughs cover it end to end:
 

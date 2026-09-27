@@ -1,7 +1,7 @@
 //! Client-side crypto helpers for enrollment and relay outer-TLS pinning.
 //!
 //! This module intentionally stays inside zerocode so the TUI does not link
-//! backend `zeroclaw-*` crates. The wire contract is the generated CSR, the SAS
+//! backend `clawcrew-*` crates. The wire contract is the generated CSR, the SAS
 //! string, and the relay certificate fingerprint.
 
 use std::sync::Mutex;
@@ -24,7 +24,7 @@ pub fn cert_sha256_fingerprint(cert_der: &[u8]) -> String {
 
 pub fn enrollment_sas(pairing_code: &str, ca_fingerprint_hex: &str) -> String {
     let mut hasher = Sha256::new();
-    hasher.update(b"zeroclaw-enroll-sas-v1\0");
+    hasher.update(b"clawcrew-enroll-sas-v1\0");
     hasher.update(pairing_code.trim().as_bytes());
     hasher.update([0u8]);
     hasher.update(ca_fingerprint_hex.trim().to_lowercase().as_bytes());
@@ -148,7 +148,7 @@ pub(crate) mod test_pki {
     pub(crate) fn gen_ca() -> (String, rcgen::Certificate, rcgen::KeyPair) {
         let key = rcgen::KeyPair::generate().expect("generate CA key");
         let mut params = rcgen::CertificateParams::new(Vec::<String>::new()).expect("CA params");
-        params.distinguished_name = distinguished_name("ZeroClaw Test CA");
+        params.distinguished_name = distinguished_name("ClawCrew Test CA");
         params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Constrained(0));
         params.key_usages = vec![
             rcgen::KeyUsagePurpose::KeyCertSign,

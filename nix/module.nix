@@ -1,16 +1,16 @@
-# services.zeroclaw — multi-instance NixOS module for the ZeroClaw agent.
+# services.clawcrew — multi-instance NixOS module for the ClawCrew agent.
 #
 # Design memo: see ./README.md for usage; the upstream PR body links the full
 # design rationale.
 #
 # Layout:
-#   - `services.zeroclaw.instances.<name>` is an attrset of instances.
+#   - `services.clawcrew.instances.<name>` is an attrset of instances.
 #     Membership in the attrset is the activation signal — there is no
 #     top-level `enable`. Mirrors `services.restic.backups.<name>`.
 #   - Each instance gets:
-#       * a dedicated systemd unit          `zeroclaw-<name>.service`
-#       * a dedicated state directory       `/var/lib/zeroclaw-<name>`
-#       * a dedicated system user / group   `zeroclaw-<name>`
+#       * a dedicated systemd unit          `clawcrew-<name>.service`
+#       * a dedicated state directory       `/var/lib/clawcrew-<name>`
+#       * a dedicated system user / group   `clawcrew-<name>`
 #       * a rendered config file            `${dataDir}/config.toml`
 #   - `settings` is a TOML-typed attrset rendered via `pkgs.formats.toml`
 #     per RFC-42. `extraConfig` (raw TOML) is the documented escape hatch.
@@ -21,15 +21,15 @@
 #     start. The world-readable copy in `/nix/store` only ever contains the
 #     literal placeholders; the resolved file lives at `${dataDir}/config.toml`
 #     mode `0600`, owned by the per-instance user.
-#     This substitution is a property of *this module*, not of ZeroClaw —
-#     ZeroClaw itself reads `config.toml` verbatim plus a handful of named
-#     env-var overrides documented in `crates/zeroclaw-config/src/schema.rs`
-#     (e.g. `OPENROUTER_API_KEY`, `ZEROCLAW_PROVIDER`).
+#     This substitution is a property of *this module*, not of ClawCrew —
+#     ClawCrew itself reads `config.toml` verbatim plus a handful of named
+#     env-var overrides documented in `crates/clawcrew-config/src/schema.rs`
+#     (e.g. `OPENROUTER_API_KEY`, `CLAWCREW_PROVIDER`).
 #
 # Single-instance usage (laptop / single-host case):
 #
-#   services.zeroclaw.instances.me = {
-#     environmentFile = "/run/agenix/zeroclaw-bot-token";
+#   services.clawcrew.instances.me = {
+#     environmentFile = "/run/agenix/clawcrew-bot-token";
 #     settings = {
 #       default_provider = "anthropic";
 #       default_model = "claude-sonnet-4-6";
@@ -43,7 +43,7 @@
 #
 # Multi-instance usage (one box, N tenants — shape mirrors restic.backups):
 #
-#   services.zeroclaw.instances = lib.genAttrs slots (n: {
+#   services.clawcrew.instances = lib.genAttrs slots (n: {
 #     environmentFile = "/run/secrets/${n}/identity.env";
 #     settings = (import ./shared-settings.nix) { slot = n; };
 #   });
@@ -68,7 +68,7 @@ let
     literalExpression
     ;
 
-  cfg = config.services.zeroclaw;
+  cfg = config.services.clawcrew;
 
   # `pkgs.formats.toml` is the canonical RFC-42 shape: it both type-checks
   # the `settings` attrset at evaluation time and serialises it to TOML at
@@ -84,12 +84,12 @@ let
     { name, ... }:
     {
       options = {
-        package = mkPackageOption pkgs "zeroclaw" { };
+        package = mkPackageOption pkgs "clawcrew" { };
 
         user = mkOption {
           type = types.str;
-          default = "zeroclaw-${name}";
-          defaultText = literalExpression ''"zeroclaw-''${name}"'';
+          default = "clawcrew-${name}";
+          defaultText = literalExpression ''"clawcrew-''${name}"'';
           description = ''
             System user the instance runs as. Created by the module unless
             {option}`createUser` is `false`.
@@ -98,8 +98,8 @@ let
 
         group = mkOption {
           type = types.str;
-          default = "zeroclaw-${name}";
-          defaultText = literalExpression ''"zeroclaw-''${name}"'';
+          default = "clawcrew-${name}";
+          defaultText = literalExpression ''"clawcrew-''${name}"'';
           description = ''
             System group the instance runs as. Created by the module unless
             {option}`createUser` is `false`.
@@ -118,16 +118,16 @@ let
 
         dataDir = mkOption {
           type = types.path;
-          default = "/var/lib/zeroclaw-${name}";
-          defaultText = literalExpression ''"/var/lib/zeroclaw-''${name}"'';
+          default = "/var/lib/clawcrew-${name}";
+          defaultText = literalExpression ''"/var/lib/clawcrew-''${name}"'';
           description = ''
             State directory. Holds `config.toml`, the workspace at
-            `''${dataDir}/workspace`, and ZeroClaw's SQLite databases.
+            `''${dataDir}/workspace`, and ClawCrew's SQLite databases.
 
             Created by `systemd-tmpfiles` at activation time with mode `0750`
             owned by {option}`user`:{option}`group`, so any absolute path is
-            valid — `/var/lib/zeroclaw-me`, `/srv/zeroclaw-me`, or a nested
-            location like `/var/lib/zeroclaw/me` all work and are created
+            valid — `/var/lib/clawcrew-me`, `/srv/clawcrew-me`, or a nested
+            location like `/var/lib/clawcrew/me` all work and are created
             on a fresh machine before the unit's `ExecStartPre` runs.
           '';
         };
@@ -136,7 +136,7 @@ let
           type = types.submodule {
             # RFC-42 shape: typed options for the popular knobs go here later
             # once the surface stabilises; `freeformType` lets every other
-            # ZeroClaw config key flow through with TOML's value-model
+            # ClawCrew config key flow through with TOML's value-model
             # validation. No string-of-doom escape hatch needed for the
             # common case.
             freeformType = tomlFormat.type;
@@ -154,7 +154,7 @@ let
             }
           '';
           description = ''
-            ZeroClaw configuration as a Nix attrset. Rendered to TOML in the
+            ClawCrew configuration as a Nix attrset. Rendered to TOML in the
             Nix store at build time, then `envsubst`'d into
             `''${dataDir}/config.toml` (mode `0600`) by the unit's
             `ExecStartPre`.
@@ -167,15 +167,15 @@ let
             resolved file in `''${dataDir}/config.toml` is locked to
             {option}`user`:{option}`group` mode `0600`.
 
-            The substitution is performed by this module, not by ZeroClaw.
-            ZeroClaw reads `config.toml` verbatim and overlays a handful of
+            The substitution is performed by this module, not by ClawCrew.
+            ClawCrew reads `config.toml` verbatim and overlays a handful of
             named environment-variable overrides on top (e.g.
-            `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `ZEROCLAW_PROVIDER`,
-            `ZEROCLAW_MODEL`); any other secret-bearing field — Telegram
+            `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `CLAWCREW_PROVIDER`,
+            `CLAWCREW_MODEL`); any other secret-bearing field — Telegram
             `bot_token`, Discord `bot_token`, etc. — needs the
             `envsubst` path to avoid living in `/nix/store`.
 
-            See ZeroClaw's `config.toml.example` upstream for the full key
+            See ClawCrew's `config.toml.example` upstream for the full key
             surface; only the shape we render here is module-contractual.
           '';
         };
@@ -183,7 +183,7 @@ let
         environmentFile = mkOption {
           type = types.nullOr types.path;
           default = null;
-          example = "/run/agenix/zeroclaw-bot-token";
+          example = "/run/agenix/clawcrew-bot-token";
           description = ''
             Path to a file containing `KEY=VALUE` lines, loaded into the
             unit's environment via systemd `EnvironmentFile=` (see
@@ -209,7 +209,7 @@ let
           '';
           description = ''
             Raw TOML appended verbatim after the rendered {option}`settings`
-            block. Documented escape hatch (per RFC-42) for ZeroClaw config
+            block. Documented escape hatch (per RFC-42) for ClawCrew config
             keys whose shape isn't yet covered by the typed `settings`
             surface — most things should go through `settings` instead.
           '';
@@ -220,7 +220,7 @@ let
           default = { };
           example = literalExpression ''
             {
-              "/var/lib/zeroclaw-me/workspace/skills/git" = "/etc/zeroclaw-skills/git";
+              "/var/lib/clawcrew-me/workspace/skills/git" = "/etc/clawcrew-skills/git";
             }
           '';
           description = ''
@@ -236,7 +236,7 @@ let
   # If a caller needs an escape hatch beyond the typed options, the
   # standard NixOS pattern is:
   #
-  #   systemd.services."zeroclaw-myinstance".serviceConfig.MemoryMax =
+  #   systemd.services."clawcrew-myinstance".serviceConfig.MemoryMax =
   #     lib.mkForce "1G";
   #
   # We deliberately do NOT expose an `extraServiceConfig` option — it
@@ -247,17 +247,17 @@ let
   renderConfigFile =
     name: instanceCfg:
     let
-      base = tomlFormat.generate "zeroclaw-${name}-config.toml" instanceCfg.settings;
+      base = tomlFormat.generate "clawcrew-${name}-config.toml" instanceCfg.settings;
     in
     if instanceCfg.extraConfig == "" then
       base
     else
-      pkgs.runCommand "zeroclaw-${name}-config.toml" { } ''
+      pkgs.runCommand "clawcrew-${name}-config.toml" { } ''
         cat ${base} > $out
-        cat <<'ZEROCLAW_EXTRA_CONFIG_EOF' >> $out
+        cat <<'CLAWCREW_EXTRA_CONFIG_EOF' >> $out
 
         ${instanceCfg.extraConfig}
-        ZEROCLAW_EXTRA_CONFIG_EOF
+        CLAWCREW_EXTRA_CONFIG_EOF
       '';
 
   # Build one systemd service from one instance entry. Mirrors the shape of
@@ -273,14 +273,14 @@ let
       # a single quoted argument, and a multi-line script keeps the
       # readable error-handling around the empty-output guard.
       configResolveScript = pkgs.writeShellApplication {
-        name = "zeroclaw-${name}-resolve-config";
+        name = "clawcrew-${name}-resolve-config";
         runtimeInputs = [ pkgs.envsubst ];
         text = ''
           set -euo pipefail
           tmp="${instanceCfg.dataDir}/.config.toml.tmp"
           envsubst < ${configFile} > "$tmp"
           if [ ! -s "$tmp" ]; then
-            echo "zeroclaw-${name}: rendered config.toml is empty after envsubst" >&2
+            echo "clawcrew-${name}: rendered config.toml is empty after envsubst" >&2
             rm -f "$tmp"
             exit 1
           fi
@@ -289,8 +289,8 @@ let
         '';
       };
     in
-    nameValuePair "zeroclaw-${name}" {
-      description = "ZeroClaw agent (instance ${name})";
+    nameValuePair "clawcrew-${name}" {
+      description = "ClawCrew agent (instance ${name})";
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
@@ -304,8 +304,8 @@ let
       };
 
       environment = {
-        ZEROCLAW_CONFIG_DIR = instanceCfg.dataDir;
-        ZEROCLAW_WORKSPACE = "${instanceCfg.dataDir}/workspace";
+        CLAWCREW_CONFIG_DIR = instanceCfg.dataDir;
+        CLAWCREW_WORKSPACE = "${instanceCfg.dataDir}/workspace";
       };
 
       serviceConfig = {
@@ -314,7 +314,7 @@ let
         Group = instanceCfg.group;
 
         # Resolve the rendered config from /nix/store into
-        # ${dataDir}/config.toml so ZeroClaw reads it at a stable path
+        # ${dataDir}/config.toml so ClawCrew reads it at a stable path
         # *and* `$VAR` / `${VAR}` references inside `settings` strings
         # expand against the unit environment (populated by
         # `EnvironmentFile=`). We use a tiny shell wrapper rather than
@@ -332,10 +332,10 @@ let
 
         # `dataDir` is created by `systemd.tmpfiles.settings` (see the
         # host config block below) so that arbitrary paths — not just
-        # the `/var/lib/zeroclaw-<name>` default — are valid. We deliberately
+        # the `/var/lib/clawcrew-<name>` default — are valid. We deliberately
         # don't use `StateDirectory=`: it derives the on-disk path from
         # the unit's basename under `/var/lib/`, so a caller-supplied
-        # `dataDir = "/srv/zeroclaw-me"` would create `/var/lib/zeroclaw-me`
+        # `dataDir = "/srv/clawcrew-me"` would create `/var/lib/clawcrew-me`
         # (wrong) instead of the path the rest of the unit references.
 
         EnvironmentFile = mkIf (instanceCfg.environmentFile != null) [ instanceCfg.environmentFile ];
@@ -343,13 +343,13 @@ let
         # Hardening defaults — modelled after `services.atticd` in
         # nixpkgs (a comparable Rust server). Tuned conservatively;
         # callers who need to relax a specific knob should do so via
-        # `systemd.services."zeroclaw-<name>".serviceConfig.X = mkForce ...`
+        # `systemd.services."clawcrew-<name>".serviceConfig.X = mkForce ...`
         # rather than via a module escape hatch.
         NoNewPrivileges = true;
         PrivateTmp = true;
         PrivateDevices = true;
         # Closed device policy + empty allow-list — matches `atticd`.
-        # ZeroClaw doesn't need /dev/* nodes for normal operation.
+        # ClawCrew doesn't need /dev/* nodes for normal operation.
         DeviceAllow = "";
         DevicePolicy = "closed";
         ProtectSystem = "strict";
@@ -363,7 +363,7 @@ let
         ProtectProc = "invisible";
         ProcSubset = "pid";
         # MemoryDenyWriteExecute=yes blocks W+X mappings; safe for a
-        # Rust binary with no JIT. ZeroClaw 0.7.x has no JIT path.
+        # Rust binary with no JIT. ClawCrew 0.7.x has no JIT path.
         MemoryDenyWriteExecute = true;
         # PrivateUsers=yes runs the unit in its own user namespace. The
         # StateDirectory= bind-mount happens in the host namespace
@@ -371,7 +371,7 @@ let
         # the host's view. Matches `atticd`.
         PrivateUsers = true;
         # RemoveIPC=yes wipes any sysvipc/posix IPC objects the unit
-        # leaves behind on stop. ZeroClaw doesn't use SysV IPC, so this
+        # leaves behind on stop. ClawCrew doesn't use SysV IPC, so this
         # is essentially a belt-and-braces cleanup.
         RemoveIPC = true;
         RestrictNamespaces = true;
@@ -403,13 +403,13 @@ let
 
 in
 {
-  options.services.zeroclaw = {
+  options.services.clawcrew = {
     instances = mkOption {
       type = types.attrsOf (types.submodule instanceModule);
       default = { };
       description = ''
-        ZeroClaw instances to run on this host. Each entry produces a
-        `zeroclaw-<name>.service` systemd unit with its own state
+        ClawCrew instances to run on this host. Each entry produces a
+        `clawcrew-<name>.service` systemd unit with its own state
         directory, system user, and rendered `config.toml`.
 
         Membership IS the activation signal — there is no top-level
@@ -420,7 +420,7 @@ in
       example = literalExpression ''
         {
           me = {
-            environmentFile = "/run/agenix/zeroclaw-bot-token";
+            environmentFile = "/run/agenix/clawcrew-bot-token";
             settings = {
               default_provider = "anthropic";
               default_model = "claude-sonnet-4-6";
@@ -445,7 +445,7 @@ in
         group = instanceCfg.group;
         home = instanceCfg.dataDir;
         createHome = false; # dataDir is created by systemd-tmpfiles.
-        description = "ZeroClaw instance ${name}";
+        description = "ClawCrew instance ${name}";
       }
     ) (filterAttrs (_: i: i.createUser) cfg.instances);
 
@@ -460,10 +460,10 @@ in
     # per-instance user/group, mode 0750. We do this via systemd-tmpfiles
     # (rather than systemd's `StateDirectory=`) because `StateDirectory=`
     # forces the directory under `/var/lib/<basename>`; a caller who sets
-    # `dataDir = "/srv/zeroclaw-me"` would otherwise see `/var/lib/zeroclaw-me`
+    # `dataDir = "/srv/clawcrew-me"` would otherwise see `/var/lib/clawcrew-me`
     # created and the unit would then fail at `WorkingDirectory=/srv/...`.
     # tmpfiles handles arbitrary absolute paths uniformly.
-    systemd.tmpfiles.settings."10-zeroclaw" = mapAttrs' (
+    systemd.tmpfiles.settings."10-clawcrew" = mapAttrs' (
       _: instanceCfg:
       nameValuePair instanceCfg.dataDir {
         d = {
@@ -492,7 +492,7 @@ in
         {
           assertion = badNames == [ ];
           message = ''
-            services.zeroclaw.instances: instance name(s) ${toString badNames}
+            services.clawcrew.instances: instance name(s) ${toString badNames}
             contain characters outside [A-Za-z0-9._-]. Rename them — the
             instance name appears verbatim in the systemd unit name,
             user name, and state directory.
@@ -501,7 +501,7 @@ in
         {
           assertion = lib.length dirs == lib.length (lib.unique dirs);
           message = ''
-            services.zeroclaw.instances: two or more instances declare the
+            services.clawcrew.instances: two or more instances declare the
             same dataDir. Each instance needs a unique state directory or
             its SQLite databases will corrupt under concurrent access.
           '';
@@ -509,7 +509,7 @@ in
         {
           assertion = lib.length createdUsers == lib.length (lib.unique createdUsers);
           message = ''
-            services.zeroclaw.instances: two or more instances declare the
+            services.clawcrew.instances: two or more instances declare the
             same `user` while also setting `createUser = true`. If you intend
             to share a user across instances, set `createUser = false` on all
             but one.
@@ -520,7 +520,7 @@ in
 
   meta = {
     # Filled in by the upstream maintainer when this module lands in the
-    # ZeroClaw repository. `[]` rather than a guess so `meta.maintainers`
+    # ClawCrew repository. `[]` rather than a guess so `meta.maintainers`
     # doesn't claim ownership we don't have.
     maintainers = [ ];
   };

@@ -3445,8 +3445,8 @@ dependencies = [
  "tokio",
  "toml 0.8.23",
  "xtask",
- "zeroclaw-api",
- "zeroclaw-providers",
+ "clawcrew-api",
+ "clawcrew-providers",
 ]
 
 [[package]]
@@ -13766,12 +13766,12 @@ dependencies = [
  "tokio",
  "toml 0.8.23",
  "tower-http",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-gateway",
- "zeroclaw-hardware",
- "zeroclaw-providers",
- "zeroclaw-runtime",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-gateway",
+ "clawcrew-hardware",
+ "clawcrew-providers",
+ "clawcrew-runtime",
  "zerocode",
 ]
 
@@ -13899,7 +13899,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw"
+name = "clawcrew"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -13944,28 +13944,28 @@ dependencies = [
  "uuid",
  "which",
  "wiremock",
- "zeroclaw-api",
- "zeroclaw-channels",
- "zeroclaw-config",
- "zeroclaw-eval",
- "zeroclaw-gateway",
- "zeroclaw-hardware",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-macros",
- "zeroclaw-memory",
- "zeroclaw-plugins",
- "zeroclaw-providers",
- "zeroclaw-runtime",
- "zeroclaw-spawn",
- "zeroclaw-tls",
- "zeroclaw-tool-call-parser",
- "zeroclaw-tools",
+ "clawcrew-api",
+ "clawcrew-channels",
+ "clawcrew-config",
+ "clawcrew-eval",
+ "clawcrew-gateway",
+ "clawcrew-hardware",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-macros",
+ "clawcrew-memory",
+ "clawcrew-plugins",
+ "clawcrew-providers",
+ "clawcrew-runtime",
+ "clawcrew-spawn",
+ "clawcrew-tls",
+ "clawcrew-tool-call-parser",
+ "clawcrew-tools",
  "zip",
 ]
 
 [[package]]
-name = "zeroclaw-api"
+name = "clawcrew-api"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -13984,7 +13984,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-channel-egress-plugin-fixture"
+name = "clawcrew-channel-egress-plugin-fixture"
 version = "0.0.0"
 dependencies = [
  "wasi 0.14.7+wasi-0.2.4",
@@ -13992,7 +13992,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-channel-plugin-fixture"
+name = "clawcrew-channel-plugin-fixture"
 version = "0.0.0"
 dependencies = [
  "serde_json",
@@ -14000,7 +14000,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-channels"
+name = "clawcrew-channels"
 version = "0.8.5"
 dependencies = [
  "aes 0.8.4",
@@ -14073,27 +14073,27 @@ dependencies = [
  "whatsapp-rust-tokio-transport",
  "whatsapp-rust-ureq-http-client",
  "wiremock",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-memory",
- "zeroclaw-providers",
- "zeroclaw-runtime",
- "zeroclaw-spawn",
- "zeroclaw-tool-call-parser",
- "zeroclaw-tools",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-memory",
+ "clawcrew-providers",
+ "clawcrew-runtime",
+ "clawcrew-spawn",
+ "clawcrew-tool-call-parser",
+ "clawcrew-tools",
 ]
 
 [[package]]
-name = "zeroclaw-commands"
+name = "clawcrew-commands"
 version = "0.8.5"
 dependencies = [
  "serde",
 ]
 
 [[package]]
-name = "zeroclaw-config"
+name = "clawcrew-config"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14131,14 +14131,14 @@ dependencies = [
  "uuid",
  "webpki-roots 1.0.9",
  "windows",
- "zeroclaw-api",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-macros",
+ "clawcrew-api",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-macros",
 ]
 
 [[package]]
-name = "zeroclaw-desktop"
+name = "clawcrew-desktop"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14159,11 +14159,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-dist"
+name = "clawcrew-dist"
 version = "0.8.5"
 
 [[package]]
-name = "zeroclaw-egress-plugin-fixture"
+name = "clawcrew-egress-plugin-fixture"
 version = "0.0.0"
 dependencies = [
  "wasi 0.14.7+wasi-0.2.4",
@@ -14171,7 +14171,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-eval"
+name = "clawcrew-eval"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14181,14 +14181,14 @@ dependencies = [
  "serde_json",
  "tempfile",
  "tokio",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-memory",
- "zeroclaw-runtime",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-memory",
+ "clawcrew-runtime",
 ]
 
 [[package]]
-name = "zeroclaw-gateway"
+name = "clawcrew-gateway"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14228,23 +14228,23 @@ dependencies = [
  "tower-http",
  "uuid",
  "wiremock",
- "zeroclaw-api",
- "zeroclaw-channels",
- "zeroclaw-config",
- "zeroclaw-hardware",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-memory",
- "zeroclaw-plugins",
- "zeroclaw-providers",
- "zeroclaw-runtime",
- "zeroclaw-spawn",
- "zeroclaw-tls",
- "zeroclaw-tools",
+ "clawcrew-api",
+ "clawcrew-channels",
+ "clawcrew-config",
+ "clawcrew-hardware",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-memory",
+ "clawcrew-plugins",
+ "clawcrew-providers",
+ "clawcrew-runtime",
+ "clawcrew-spawn",
+ "clawcrew-tls",
+ "clawcrew-tools",
 ]
 
 [[package]]
-name = "zeroclaw-hardware"
+name = "clawcrew-hardware"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14271,15 +14271,15 @@ dependencies = [
  "toml 1.1.2+spec-1.1.0",
  "tracing-subscriber",
  "uuid",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-log",
- "zeroclaw-spawn",
- "zeroclaw-tools",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-log",
+ "clawcrew-spawn",
+ "clawcrew-tools",
 ]
 
 [[package]]
-name = "zeroclaw-infra"
+name = "clawcrew-infra"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14293,13 +14293,13 @@ dependencies = [
  "tempfile",
  "tokio",
  "url",
- "zeroclaw-api",
- "zeroclaw-log",
- "zeroclaw-spawn",
+ "clawcrew-api",
+ "clawcrew-log",
+ "clawcrew-spawn",
 ]
 
 [[package]]
-name = "zeroclaw-log"
+name = "clawcrew-log"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14317,26 +14317,26 @@ dependencies = [
  "tracing-log",
  "tracing-subscriber",
  "uuid",
- "zeroclaw-api",
+ "clawcrew-api",
 ]
 
 [[package]]
-name = "zeroclaw-log-attribution-macro-consumer"
+name = "clawcrew-log-attribution-macro-consumer"
 version = "0.8.5"
 dependencies = [
- "zeroclaw-log",
- "zeroclaw-log-attribution-macro-support",
+ "clawcrew-log",
+ "clawcrew-log-attribution-macro-support",
 ]
 
 [[package]]
-name = "zeroclaw-log-attribution-macro-support"
+name = "clawcrew-log-attribution-macro-support"
 version = "0.8.5"
 dependencies = [
- "zeroclaw-api",
+ "clawcrew-api",
 ]
 
 [[package]]
-name = "zeroclaw-macros"
+name = "clawcrew-macros"
 version = "0.8.5"
 dependencies = [
  "proc-macro2",
@@ -14345,7 +14345,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-memory"
+name = "clawcrew-memory"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14364,15 +14364,15 @@ dependencies = [
  "tokio",
  "toml 1.1.2+spec-1.1.0",
  "uuid",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-log",
- "zeroclaw-providers",
- "zeroclaw-spawn",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-log",
+ "clawcrew-providers",
+ "clawcrew-spawn",
 ]
 
 [[package]]
-name = "zeroclaw-plugins"
+name = "clawcrew-plugins"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14398,15 +14398,15 @@ dependencies = [
  "wasmtime-wasi",
  "wasmtime-wasi-http",
  "webpki-roots 1.0.9",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-spawn",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-spawn",
 ]
 
 [[package]]
-name = "zeroclaw-providers"
+name = "clawcrew-providers"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14440,14 +14440,14 @@ dependencies = [
  "tokio-util",
  "tracing-subscriber",
  "uuid",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-log",
- "zeroclaw-spawn",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-log",
+ "clawcrew-spawn",
 ]
 
 [[package]]
-name = "zeroclaw-relay-proto"
+name = "clawcrew-relay-proto"
 version = "0.8.5"
 dependencies = [
  "serde",
@@ -14455,7 +14455,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-runtime"
+name = "clawcrew-runtime"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14527,27 +14527,27 @@ dependencies = [
  "which",
  "windows",
  "wiremock",
- "zeroclaw-api",
- "zeroclaw-commands",
- "zeroclaw-config",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-macros",
- "zeroclaw-memory",
- "zeroclaw-plugins",
- "zeroclaw-providers",
- "zeroclaw-relay-proto",
- "zeroclaw-sop-graph",
- "zeroclaw-spawn",
- "zeroclaw-tls",
- "zeroclaw-tool-call-parser",
- "zeroclaw-tools",
+ "clawcrew-api",
+ "clawcrew-commands",
+ "clawcrew-config",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-macros",
+ "clawcrew-memory",
+ "clawcrew-plugins",
+ "clawcrew-providers",
+ "clawcrew-relay-proto",
+ "clawcrew-sop-graph",
+ "clawcrew-spawn",
+ "clawcrew-tls",
+ "clawcrew-tool-call-parser",
+ "clawcrew-tools",
  "zeroize",
  "zerorelay",
 ]
 
 [[package]]
-name = "zeroclaw-sop-graph"
+name = "clawcrew-sop-graph"
 version = "0.8.5"
 dependencies = [
  "schemars 1.2.2",
@@ -14558,18 +14558,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-spawn"
+name = "clawcrew-spawn"
 version = "0.8.5"
 dependencies = [
  "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",
- "zeroclaw-log",
+ "clawcrew-log",
 ]
 
 [[package]]
-name = "zeroclaw-tls"
+name = "clawcrew-tls"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14587,23 +14587,23 @@ dependencies = [
  "time",
  "tokio-rustls",
  "x509-parser 0.16.0",
- "zeroclaw-log",
+ "clawcrew-log",
  "zeroize",
 ]
 
 [[package]]
-name = "zeroclaw-tool-call-parser"
+name = "clawcrew-tool-call-parser"
 version = "0.8.5"
 dependencies = [
  "regex",
  "serde",
  "serde_json",
- "zeroclaw-api",
- "zeroclaw-log",
+ "clawcrew-api",
+ "clawcrew-log",
 ]
 
 [[package]]
-name = "zeroclaw-tool-plugin-fixture"
+name = "clawcrew-tool-plugin-fixture"
 version = "0.0.0"
 dependencies = [
  "serde",
@@ -14612,7 +14612,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-tool-secret-plugin-fixture"
+name = "clawcrew-tool-secret-plugin-fixture"
 version = "0.0.0"
 dependencies = [
  "serde_json",
@@ -14620,16 +14620,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-tool-sequential-fixture"
-version = "0.0.0"
-dependencies = [
- "serde_json",
- "waki",
- "wit-bindgen 0.51.0",
-]
-
-[[package]]
-name = "zeroclaw-tool-timeout-fixture"
+name = "clawcrew-tool-sequential-fixture"
 version = "0.0.0"
 dependencies = [
  "serde_json",
@@ -14638,7 +14629,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "zeroclaw-tools"
+name = "clawcrew-tool-timeout-fixture"
+version = "0.0.0"
+dependencies = [
+ "serde_json",
+ "waki",
+ "wit-bindgen 0.51.0",
+]
+
+[[package]]
+name = "clawcrew-tools"
 version = "0.8.5"
 dependencies = [
  "anyhow",
@@ -14686,13 +14686,13 @@ dependencies = [
  "webpki-roots 1.0.9",
  "which",
  "wiremock",
- "zeroclaw-api",
- "zeroclaw-config",
- "zeroclaw-infra",
- "zeroclaw-log",
- "zeroclaw-memory",
- "zeroclaw-providers",
- "zeroclaw-spawn",
+ "clawcrew-api",
+ "clawcrew-config",
+ "clawcrew-infra",
+ "clawcrew-log",
+ "clawcrew-memory",
+ "clawcrew-providers",
+ "clawcrew-spawn",
 ]
 
 [[package]]
@@ -14730,7 +14730,7 @@ dependencies = [
  "unicode-width 0.2.2",
  "url",
  "webpki-roots 0.26.11",
- "zeroclaw-api",
+ "clawcrew-api",
  "zeroize",
 ]
 
@@ -14816,10 +14816,10 @@ dependencies = [
  "tokio-tungstenite 0.29.0",
  "tokio-util",
  "toml 1.1.2+spec-1.1.0",
- "zeroclaw-config",
- "zeroclaw-relay-proto",
- "zeroclaw-runtime",
- "zeroclaw-tls",
+ "clawcrew-config",
+ "clawcrew-relay-proto",
+ "clawcrew-runtime",
+ "clawcrew-tls",
  "zeroize",
 ]
 

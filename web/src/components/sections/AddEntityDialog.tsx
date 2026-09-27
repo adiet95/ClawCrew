@@ -12,7 +12,7 @@
 // On success it calls onCreated(url) with the new entity's form URL so the
 // parent can navigate (the existing dispatch then renders the right
 // editor). Alias validation matches the wizard's rules verbatim — kept in
-// sync with `zeroclaw_config::helpers::validate_alias_key`.
+// sync with `clawcrew_config::helpers::validate_alias_key`.
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, X } from "lucide-react";

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ZeroClaw</title>
+    <title>ClawCrew</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -84,11 +84,11 @@
   </head>
   <body>
     <div class="mark">🦀</div>
-    <h1>ZeroClaw</h1>
+    <h1>ClawCrew</h1>
     <div class="spinner" id="spinner"></div>
-    <p class="status" id="status">Starting ZeroClaw…</p>
+    <p class="status" id="status">Starting ClawCrew…</p>
     <p class="hint" id="hint">
-      Connecting to your ZeroClaw daemon. This usually takes a moment.
+      Connecting to your ClawCrew daemon. This usually takes a moment.
     </p>
 
     <script>
@@ -103,11 +103,11 @@
       }
 
       // The backend tells us when it's starting its own daemon, or when it
-      // can't (e.g. the `zeroclaw` binary is missing). Once a status arrives it
+      // can't (e.g. the `clawcrew` binary is missing). Once a status arrives it
       // owns the message, so the polling loop stops overwriting it.
       let statusLocked = false;
       window.__TAURI__?.event
-        ?.listen("zeroclaw://splash-status", (event) => {
+        ?.listen("clawcrew://splash-status", (event) => {
           const { kind, message } = event.payload ?? {};
           if (!message) return;
           statusLocked = true;
@@ -155,7 +155,7 @@
           return;
         }
 
-        if (!statusLocked) statusEl.textContent = "Starting ZeroClaw…";
+        if (!statusLocked) statusEl.textContent = "Starting ClawCrew…";
         // After several seconds with no daemon, surface a fallback hint (in
         // case the status event was missed).
         if (attempts >= 6 && !statusLocked) hintEl.classList.add("show");

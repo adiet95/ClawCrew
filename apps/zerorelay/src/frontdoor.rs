@@ -2,7 +2,7 @@
 //! frontdoor served from it.
 //!
 //! Two responsibilities, deliberately in one place because they share the same
-//! first read: decide whether an accepted connection is a `zeroclaw.relay.v1`
+//! first read: decide whether an accepted connection is a `clawcrew.relay.v1`
 //! WebSocket upgrade, and - only when `[frontdoor]` is enabled - serve the
 //! browser pairing page and its enrollment routes to everything else.
 //!
@@ -33,7 +33,7 @@ use std::task::{Context as TaskContext, Poll};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, ReadBuf};
 use tokio::time::{Duration, timeout};
 use tokio_tungstenite::WebSocketStream;
-use zeroclaw_relay_proto::SUBPROTOCOL;
+use clawcrew_relay_proto::SUBPROTOCOL;
 
 const MAX_HTTP_HEAD: usize = 16 * 1024;
 
@@ -106,8 +106,8 @@ where
     }
 
     if !frontdoor_enabled {
-        let body = "this is a ZeroClaw relay endpoint; it speaks only the \
-                    zeroclaw.relay.v1 WebSocket protocol. Enroll with zerocode, or \
+        let body = "this is a ClawCrew relay endpoint; it speaks only the \
+                    clawcrew.relay.v1 WebSocket protocol. Enroll with zerocode, or \
                     opt in via [frontdoor] enabled = true (see relay.example.toml \
                     for the trust implications).\n";
         let response = http_response("404 Not Found", "text/plain; charset=utf-8", body);
@@ -650,12 +650,12 @@ where
 }
 
 /// WebSocket parser limits for the relay plane, derived from the protocol
-/// budget in `zeroclaw-relay-proto` so the transport and application bounds
+/// budget in `clawcrew-relay-proto` so the transport and application bounds
 /// cannot drift apart.
 pub(crate) fn relay_ws_config() -> tokio_tungstenite::tungstenite::protocol::WebSocketConfig {
     let mut cfg = tokio_tungstenite::tungstenite::protocol::WebSocketConfig::default();
-    cfg.max_message_size = Some(zeroclaw_relay_proto::MAX_WS_MESSAGE);
-    cfg.max_frame_size = Some(zeroclaw_relay_proto::MAX_WS_MESSAGE);
+    cfg.max_message_size = Some(clawcrew_relay_proto::MAX_WS_MESSAGE);
+    cfg.max_frame_size = Some(clawcrew_relay_proto::MAX_WS_MESSAGE);
     cfg
 }
 
@@ -745,7 +745,7 @@ mod tests {
         );
         assert!(lower.contains("connection: close"), "must close: {text}");
         assert!(
-            !text.contains("ZeroClaw browser enrollment"),
+            !text.contains("ClawCrew browser enrollment"),
             "the smuggled request must never be answered: {text}"
         );
         assert_eq!(
@@ -795,7 +795,7 @@ mod tests {
         // The smuggled body must never have been routed: the enrollment page is
         // what `GET /` would have returned.
         assert!(
-            !text.contains("ZeroClaw browser enrollment"),
+            !text.contains("ClawCrew browser enrollment"),
             "desync: the smuggled body was answered as a request: {text}"
         );
         // Both REAL requests were answered, so the body was drained and the
@@ -917,8 +917,8 @@ mod tests {
         client.read_to_end(&mut buf).await.unwrap();
         let text = String::from_utf8_lossy(&buf);
         assert!(text.starts_with("HTTP/1.1 404 Not Found"), "got: {text}");
-        assert!(text.contains("zeroclaw.relay.v1"), "got: {text}");
-        assert!(!text.contains("ZeroClaw Relay"), "must not serve the page");
+        assert!(text.contains("clawcrew.relay.v1"), "got: {text}");
+        assert!(!text.contains("ClawCrew Relay"), "must not serve the page");
         assert!(matches!(task.await.unwrap(), Ok(Accepted::Rejected)));
     }
 

@@ -1,8 +1,8 @@
 # Feature and support matrix
 
-A high-level inventory of selected ZeroClaw capability sets, compared against [OpenClaw](https://github.com/openclaw/openclaw) and [Hermes](https://github.com/NousResearch/hermes-agent). It provides a quick starting point; feature-gated, non-default, and runtime-only capabilities may require the linked subsystem documentation.
+A high-level inventory of selected ClawCrew capability sets, compared against [OpenClaw](https://github.com/openclaw/openclaw) and [Hermes](https://github.com/NousResearch/hermes-agent). It provides a quick starting point; feature-gated, non-default, and runtime-only capabilities may require the linked subsystem documentation.
 
-The generated **ZeroClaw** sections below each reflect a specific source: the curated `ChannelsConfig::channels()` metadata list, canonical provider slots, or the minimal default tool set. They stay aligned with those inputs, but they are not exhaustive inventories of every compile-time channel or conditionally registered tool. The **OpenClaw** and **Hermes** columns come from `docs/book/feature-matrix-parity.toml`, the reviewable source for parity facts the binary has no knowledge of.
+The generated **ClawCrew** sections below each reflect a specific source: the curated `ChannelsConfig::channels()` metadata list, canonical provider slots, or the minimal default tool set. They stay aligned with those inputs, but they are not exhaustive inventories of every compile-time channel or conditionally registered tool. The **OpenClaw** and **Hermes** columns come from `docs/book/feature-matrix-parity.toml`, the reviewable source for parity facts the binary has no knowledge of.
 
 ## Status legend
 
@@ -19,7 +19,7 @@ The generated **ZeroClaw** sections below each reflect a specific source: the cu
 
 | Mode | Status | Reference |
 |---|---|---|
-| Local CLI (`zeroclaw agent`) | ✅ | [Quickstart](../getting-started/quickstart.md) |
+| Local CLI (`clawcrew agent`) | ✅ | [Quickstart](../getting-started/quickstart.md) |
 | Daemon / OS service | ✅ | [Service](../ops/service.md) |
 | Gateway HTTP + web dashboard | ✅ | [Gateway HTTP API](../gateway/api.md), [Web dashboard](../gateway/web-dashboard.md) |
 | ZeroCode terminal UI | ✅ | [ZeroCode](../getting-started/zerocode.md) |
@@ -57,11 +57,11 @@ procedures run by the `SopEngine` with approval gates and auditable run state
 hand-recorded rather than code-walked: SOP is not part of the channel, provider,
 or tool registries the tables above are generated from.
 
-| Capability | ZeroClaw | OpenClaw | Hermes |
+| Capability | ClawCrew | OpenClaw | Hermes |
 |---|---|---|---|
 | Deterministic SOP engine (trigger match, approval gates, audited runs) | 🧪 | ❌ | 🟡 |
 
-ZeroClaw's `SopEngine` is present but still maturing: authenticated webhooks,
+ClawCrew's `SopEngine` is present but still maturing: authenticated webhooks,
 MQTT, filesystem, AMQP, and the daemon's cron maintenance tick are wired live
 fan-in sources, while peripheral and calendar triggers are defined and matched
 but not yet routed to a live source, so the capability is **experimental**.
@@ -71,9 +71,9 @@ it is **none**. Hermes ships cron and webhook "routines" that pair a trigger wit
 a free-form agent prompt but no deterministic multi-step engine, approval gates,
 or audited run state, so it is **partial** on the trigger side only.
 
-## ZeroClaw, OpenClaw, and Hermes
+## ClawCrew, OpenClaw, and Hermes
 
-ZeroClaw is a from-scratch runtime, not a fork. The comparison columns state
+ClawCrew is a from-scratch runtime, not a fork. The comparison columns state
 factual support status per runtime; they are not a marketing scorecard. Where a
 concept maps onto OpenClaw or Hermes, the migration and parity notes live with
 the relevant feature page rather than in a standalone comparison.

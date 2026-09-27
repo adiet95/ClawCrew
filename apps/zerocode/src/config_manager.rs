@@ -139,7 +139,7 @@ enum FilterEditAction {
 
 // ── Config section sub-tabs ──────────────────────────────────────
 
-/// Which pane of the zeroclaw split holds keyboard focus. The section list
+/// Which pane of the clawcrew split holds keyboard focus. The section list
 /// (left) eagerly loads the highlighted section into the right pane for a live
 /// preview; focus moves to the detail (right) on the inward chord.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -148,7 +148,7 @@ enum ZeroclawPane {
     Detail,
 }
 
-/// Top-level Config sub-tab: the daemon RPC editor (`zeroclaw`) first,
+/// Top-level Config sub-tab: the daemon RPC editor (`clawcrew`) first,
 /// the local client config (`zerocode`) second.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ConfigSection {
@@ -161,7 +161,7 @@ const CONFIG_SECTIONS: [ConfigSection; 2] = [ConfigSection::Zeroclaw, ConfigSect
 impl ConfigSection {
     fn label(self) -> &'static str {
         match self {
-            Self::Zeroclaw => "zeroclaw",
+            Self::Zeroclaw => "clawcrew",
             Self::Zerocode => "zerocode",
         }
     }
@@ -381,7 +381,7 @@ pub(crate) struct App {
     zerocode: crate::zerocode_pane::ZerocodePane,
     section_tab_area: Option<Rect>,
     screen: Screen,
-    zeroclaw_pane: ZeroclawPane,
+    clawcrew_pane: ZeroclawPane,
     /// Section index currently loaded into the right pane, so re-previewing the
     /// same section preserves its cursor instead of resetting to the top.
     loaded_section: Option<usize>,
@@ -463,7 +463,7 @@ impl App {
             zerocode: crate::zerocode_pane::ZerocodePane::new(config_dir),
             section_tab_area: None,
             screen: Screen::SectionList,
-            zeroclaw_pane: ZeroclawPane::Sections,
+            clawcrew_pane: ZeroclawPane::Sections,
             loaded_section: None,
             section_top_cursor: std::collections::HashMap::new(),
             sections: Vec::new(),
@@ -532,7 +532,7 @@ impl App {
     }
 
     /// Draw the current screen into the given area, beneath the Config
-    /// section sub-tab bar (`zeroclaw` / `zerocode`).
+    /// section sub-tab bar (`clawcrew` / `zerocode`).
     pub(crate) fn draw_into(&mut self, frame: &mut Frame, area: Rect) {
         use ratatui::layout::{Constraint, Direction, Layout};
         let chunks = Layout::default()
@@ -569,7 +569,7 @@ impl App {
         let left = panes[0];
         let right = panes[1];
 
-        let on_sections = self.zeroclaw_pane == ZeroclawPane::Sections;
+        let on_sections = self.clawcrew_pane == ZeroclawPane::Sections;
         self.draw_sections_pane(frame, left, on_sections);
         self.last_section_pane_area = left;
 
@@ -622,7 +622,7 @@ impl App {
         let default = || format!(" ?={}", crate::i18n::t("zc-config-footer-action-help"));
 
         match &self.screen {
-            Screen::FieldList { .. } if self.zeroclaw_pane == ZeroclawPane::Detail => {
+            Screen::FieldList { .. } if self.clawcrew_pane == ZeroclawPane::Detail => {
                 if self.filter.is_some() {
                     let help = crate::i18n::t("zc-config-footer-action-help");
                     format!(
@@ -729,7 +729,7 @@ impl App {
     /// are here" marker when focus has stepped back to the section list.
     fn detail_highlight(&self) -> (ratatui::style::Style, &'static str) {
         let focused = matches!(
-            (&self.screen, self.zeroclaw_pane),
+            (&self.screen, self.clawcrew_pane),
             (Screen::FieldEdit { .. }, _) | (_, ZeroclawPane::Detail)
         );
         let symbol = if focused { "\u{203a} " } else { "  " };
@@ -758,7 +758,7 @@ impl App {
         }
         // Surface the active config directory so the user can tell which
         // on-disk state the displayed values came from when running with
-        // --config-dir, $ZEROCLAW_CONFIG_DIR, or a daemon backed by a
+        // --config-dir, $CLAWCREW_CONFIG_DIR, or a daemon backed by a
         // different config source.
         spans.push(Span::styled("   ", theme::dim_style()));
         spans.push(Span::styled(
@@ -773,7 +773,7 @@ impl App {
     pub(crate) async fn handle_key(&mut self, key: KeyEvent, term: &mut Term) -> Result<bool> {
         self.status_msg = None;
 
-        // Tab / Shift+Tab cycle the outer Config section (zeroclaw ↔
+        // Tab / Shift+Tab cycle the outer Config section (clawcrew ↔
         // zerocode) from anywhere — neither is bound inside the daemon
         // editor or the zerocode pane, so there is no shadowing.
         if let Some(action) = crate::keymap::ConfigTabAction::from_chord(&key) {
@@ -793,7 +793,7 @@ impl App {
         if self.section == ConfigSection::Zerocode {
             if !self.zerocode.handle_key(key) {
                 // Left/Back at the zerocode section level was not consumed:
-                // cross back to the outer left (zeroclaw) pane.
+                // cross back to the outer left (clawcrew) pane.
                 self.cycle_section(-1);
             }
             self.sync_zerocode_locales().await;
@@ -803,7 +803,7 @@ impl App {
         // Focus on the section list: keys drive the list (which eagerly loads
         // the highlighted section into the right pane for preview). Focus on the
         // detail: keys drive whatever drill screen is loaded.
-        if self.zeroclaw_pane == ZeroclawPane::Sections {
+        if self.clawcrew_pane == ZeroclawPane::Sections {
             return self.handle_section_list(key).await;
         }
 
@@ -817,7 +817,7 @@ impl App {
                 Some(ConfigTabAction::Back | ConfigTabAction::TabLeft)
             ) && self.at_section_top_level()
             {
-                self.zeroclaw_pane = ZeroclawPane::Sections;
+                self.clawcrew_pane = ZeroclawPane::Sections;
                 return Ok(false);
             }
         }
@@ -836,7 +836,7 @@ impl App {
         // translate that into "focus returns to the left pane" and reload the
         // highlighted section so the right pane keeps previewing it.
         if matches!(self.screen, Screen::SectionList) {
-            self.zeroclaw_pane = ZeroclawPane::Sections;
+            self.clawcrew_pane = ZeroclawPane::Sections;
             self.load_section_content(self.section_cursor).await?;
         }
         Ok(false)
@@ -960,7 +960,7 @@ impl App {
                     {
                         self.section_cursor = orig;
                     }
-                    self.zeroclaw_pane = ZeroclawPane::Sections;
+                    self.clawcrew_pane = ZeroclawPane::Sections;
                     self.preview_section(self.section_cursor).await?;
                     self.status_msg = None;
                     return Ok(());
@@ -1814,7 +1814,7 @@ impl App {
             self.load_section_content(idx).await?;
         }
         if !matches!(self.screen, Screen::SectionList) {
-            self.zeroclaw_pane = ZeroclawPane::Detail;
+            self.clawcrew_pane = ZeroclawPane::Detail;
         }
         Ok(false)
     }
@@ -1871,7 +1871,7 @@ impl App {
     async fn enter_section(&mut self, idx: usize) -> Result<bool> {
         self.load_section_content(idx).await?;
         if !matches!(self.screen, Screen::SectionList) {
-            self.zeroclaw_pane = ZeroclawPane::Detail;
+            self.clawcrew_pane = ZeroclawPane::Detail;
         }
         Ok(false)
     }
@@ -3542,7 +3542,7 @@ impl App {
         } else {
             frame.render_widget(
                 Paragraph::new(Span::styled(
-                    format!("ZeroClaw v{}", self.rpc.server_version),
+                    format!("ClawCrew v{}", self.rpc.server_version),
                     theme::dim_style(),
                 )),
                 rows[0],
@@ -4465,7 +4465,7 @@ impl App {
 
     pub(crate) fn claims_pane_navigation(&self, key: &KeyEvent) -> bool {
         self.section == ConfigSection::Zeroclaw
-            && self.zeroclaw_pane == ZeroclawPane::Detail
+            && self.clawcrew_pane == ZeroclawPane::Detail
             && self.is_scalar_field_edit()
             && matches!(
                 crate::keymap::ConfigEditorAction::from_chord(key),
@@ -4510,14 +4510,14 @@ impl crate::widgets::HelpContext for App {
             node.entries.insert(0, section_nav);
             return node;
         }
-        let mut node = self.zeroclaw_help_context();
+        let mut node = self.clawcrew_help_context();
         node.entries.insert(0, section_nav);
         node
     }
 }
 
 impl App {
-    fn zeroclaw_help_context(&self) -> crate::widgets::HelpNode {
+    fn clawcrew_help_context(&self) -> crate::widgets::HelpNode {
         use crate::keymap::ConfigTabAction as A;
         use crate::widgets::{HelpEntry as E, HelpNode};
 
@@ -4995,7 +4995,7 @@ mod tests {
             breadcrumb: vec!["example".into()],
             field_idx: 0,
         };
-        manager.zeroclaw_pane = ZeroclawPane::Detail;
+        manager.clawcrew_pane = ZeroclawPane::Detail;
         let word_left = KeyEvent::new(KeyCode::Left, KeyModifiers::ALT);
 
         assert!(manager.claims_pane_navigation(&word_left));
@@ -5004,10 +5004,10 @@ mod tests {
         assert!(!manager.claims_pane_navigation(&word_left));
 
         manager.section = ConfigSection::Zeroclaw;
-        manager.zeroclaw_pane = ZeroclawPane::Sections;
+        manager.clawcrew_pane = ZeroclawPane::Sections;
         assert!(!manager.claims_pane_navigation(&word_left));
 
-        manager.zeroclaw_pane = ZeroclawPane::Detail;
+        manager.clawcrew_pane = ZeroclawPane::Detail;
         manager.select_items = vec!["first".into(), "second".into()];
         assert!(!manager.claims_pane_navigation(&word_left));
 
