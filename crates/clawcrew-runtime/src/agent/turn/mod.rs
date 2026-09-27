@@ -3255,6 +3255,7 @@ async fn drive_live_sop_actions(
                                             temperature: eff_temperature,
                                         },
                                         ResolvedIo {
+    app_registry: None,
                                             tools_registry: eff_registry,
                                             observer,
                                             silent,
@@ -5227,6 +5228,7 @@ vision_model_provider = "custom.vision"
                     temperature: None,
                 },
                 ResolvedIo {
+    app_registry: None,
                     tools_registry: &tools_registry,
                     observer: &observer,
                     silent: true,

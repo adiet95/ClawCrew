@@ -961,6 +961,7 @@ async fn agent_turn_with_sop_reassembly(
                 temperature,
             },
             ResolvedIo {
+    app_registry: None,
                 tools_registry,
                 observer,
                 silent,
@@ -1996,6 +1997,7 @@ pub async fn run(
                                         temperature: effective_temperature,
                                     },
                                     ResolvedIo {
+    app_registry: None,
                                         tools_registry: &tools_registry,
                                         observer: observer.as_ref(),
                                         silent: !interactive,
@@ -2573,6 +2575,7 @@ pub async fn run(
                                             temperature: turn_temperature,
                                         },
                                         ResolvedIo {
+    app_registry: None,
                                             tools_registry: &tools_registry,
                                             observer: observer.as_ref(),
                                             silent: true,

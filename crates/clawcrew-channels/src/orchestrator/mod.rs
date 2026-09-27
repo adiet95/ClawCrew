@@ -9641,6 +9641,7 @@ async fn process_channel_message_body(
                         // uses for provider construction.
                         config: Some(ctx.prompt_config.as_ref()),
                         hooks: ctx.hooks.as_deref(),
+                        app_registry: None,
                         activated_tools: ctx.activated_tools.as_ref(),
                         model_switch_callback: None,
                         receipt_generator: ctx.receipt_generator.as_ref(),

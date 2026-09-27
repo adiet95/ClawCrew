@@ -597,6 +597,30 @@ pub async fn run(
         ));
     }
 
+    // Finish any journaled restore that crashed mid-flight (P3.2 recovery
+    // procedure). Must run before any store is opened so the swapped files
+    // are in place when the control plane and app registry read them.
+    match crate::platform::backup::recover_pending_restore(&config.data_dir) {
+        Ok(0) => {} // no pending journal — common case
+        Ok(_) => {
+            ::clawcrew_log::record!(
+                WARN,
+                ::clawcrew_log::Event::new(module_path!(), ::clawcrew_log::Action::Note)
+                    .with_outcome(::clawcrew_log::EventOutcome::Success),
+                "completed a pending journaled restore from a previous crash"
+            );
+        }
+        Err(e) => {
+            ::clawcrew_log::record!(
+                WARN,
+                ::clawcrew_log::Event::new(module_path!(), ::clawcrew_log::Action::Note)
+                    .with_outcome(::clawcrew_log::EventOutcome::Failure)
+                    .with_attrs(::serde_json::json!({ "error": format!("{e:#}") })),
+                "failed to recover pending journaled restore; stores may be inconsistent"
+            );
+        }
+    }
+
     if crate::control_plane::control_plane().is_none()
         && let Err(e) = crate::control_plane::ControlPlaneRecoveryOwner::start(&config.data_dir)
             .await

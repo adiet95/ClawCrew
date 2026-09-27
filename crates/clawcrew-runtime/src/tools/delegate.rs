@@ -4012,6 +4012,7 @@ impl DelegateTool {
                         temperature: effective_temperature,
                     },
                     ResolvedIo {
+    app_registry: None,
                         tools_registry: &sub_tools,
                         observer: &noop_observer,
                         silent: true,

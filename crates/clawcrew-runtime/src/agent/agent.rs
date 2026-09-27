@@ -3752,6 +3752,7 @@ impl Agent {
                                     temperature: self.temperature,
                                 },
                                 crate::agent::loop_::ResolvedIo {
+    app_registry: None,
                                     tools_registry: &self.tools,
                                     observer: self.observer.as_ref(),
                                     silent: true,

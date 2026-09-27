@@ -9,6 +9,7 @@ pub mod a2a;
 pub mod acp;
 pub mod agent_owned_state;
 pub mod api;
+pub mod api_backup;
 pub mod api_browse;
 pub mod api_config;
 pub mod api_logs;
@@ -2150,6 +2151,10 @@ pub async fn run_gateway_with_plugin_webhooks(
             get(api_providers::handle_provider_capabilities),
         )
         .route("/api/audit", get(api_audit::handle_api_audit))
+        .route("/api/backup/schema-versions", get(api_backup::handle_schema_versions))
+        .route("/api/backup/create", post(api_backup::handle_create_backup))
+        .route("/api/backup/plan-restore", post(api_backup::handle_plan_restore))
+        .route("/api/backup/restore", post(api_backup::handle_restore))
         .route("/api/tuis", get(api::handle_api_tuis))
         .route("/api/sessions", get(api::handle_api_sessions_list))
         .route("/api/sessions/running", get(api::handle_api_sessions_running))

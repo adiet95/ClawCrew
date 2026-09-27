@@ -588,6 +588,7 @@ async fn safety_net_thinking_never_leaks_into_draft_or_chunks() {
                 temperature: None,
             },
             crate::agent::loop_::ResolvedIo {
+    app_registry: None,
                 tools_registry: &tools_registry,
                 observer: &observability::NoopObserver {},
                 silent: true,
@@ -1002,6 +1003,7 @@ async fn safety_net_task_locals_probe_per_entry_path() {
                         temperature: None,
                     },
                     crate::agent::loop_::ResolvedIo {
+    app_registry: None,
                         tools_registry: &tools_registry,
                         observer: &observability::NoopObserver {},
                         silent: true,
@@ -2654,6 +2656,7 @@ async fn safety_net_narration_reaches_both_draft_and_event_channels_once() {
                 temperature: None,
             },
             crate::agent::loop_::ResolvedIo {
+    app_registry: None,
                 tools_registry: &tools_registry,
                 observer: &observability::NoopObserver {},
                 silent: true,
@@ -3854,6 +3857,7 @@ async fn poisoned_model_switch_callback_still_raises_model_switch_requested() {
                 temperature: None,
             },
             ResolvedIo {
+    app_registry: None,
                 tools_registry: &tools_registry,
                 observer: &observability::NoopObserver {},
                 silent: true,
