@@ -66,6 +66,7 @@ pub(crate) fn resolved_tool_provenance(
 pub(crate) struct ToolDispatchContext<'a> {
     pub tools_registry: &'a [Box<dyn Tool>],
     pub activated_tools: Option<&'a std::sync::Arc<std::sync::Mutex<ActivatedToolSet>>>,
+    pub app_registry: Option<&'a std::sync::Arc<std::sync::RwLock<crate::platform::app_registry::AppRegistry>>>,
     pub excluded_tools: &'a [String],
     pub model_switch_callback: Option<&'a ModelSwitchCallback>,
 }
@@ -729,6 +730,7 @@ mod tests {
                     vec![],
                 ), // no static tools - force activated-tools path
                 activated_tools: Some(&activated),
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -787,6 +789,7 @@ mod tests {
                     vec![],
                 ),
                 activated_tools: Some(&activated),
+                app_registry: None,
                 excluded_tools: &excluded,
                 model_switch_callback: None,
             },
@@ -927,6 +930,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -977,6 +981,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -1071,6 +1076,7 @@ mod tests {
                 ToolDispatchContext {
                     tools_registry: &tools,
                     activated_tools: None,
+                app_registry: None,
                     excluded_tools: &[],
                     model_switch_callback: None,
                 },
@@ -1166,6 +1172,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -1251,6 +1258,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -1324,6 +1332,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -1449,6 +1458,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -1631,6 +1641,7 @@ mod tests {
                 ToolDispatchContext {
                     tools_registry: &tools,
                     activated_tools: None,
+                app_registry: None,
                     excluded_tools: &[],
                     model_switch_callback: None,
                 },
@@ -1749,6 +1760,7 @@ mod tests {
                 ToolDispatchContext {
                     tools_registry: &tools,
                     activated_tools: None,
+                app_registry: None,
                     excluded_tools: &[],
                     model_switch_callback: None,
                 },
@@ -1864,6 +1876,7 @@ mod tests {
                 ToolDispatchContext {
                     tools_registry: &tools,
                     activated_tools: None,
+                app_registry: None,
                     excluded_tools: &[],
                     model_switch_callback: None,
                 },
@@ -1932,6 +1945,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -1978,6 +1992,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },
@@ -2029,6 +2044,7 @@ mod tests {
             ToolDispatchContext {
                 tools_registry: &tools,
                 activated_tools: None,
+                app_registry: None,
                 excluded_tools: &[],
                 model_switch_callback: None,
             },

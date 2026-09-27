@@ -211,6 +211,7 @@ pub struct ResolvedAgentExecution<'a> {
     /// Activation set for on-demand (tool_search) MCP tools; shared so activated
     /// tools persist across iterations.
     pub activated_tools: Option<&'a Arc<Mutex<ActivatedToolSet>>>,
+    pub app_registry: Option<&'a Arc<std::sync::RwLock<crate::platform::app_registry::AppRegistry>>>,
     /// Back-channel for the `model_switch` tool.
     pub model_switch_callback: Option<ModelSwitchCallback>,
     /// Loop-detection / ignore-tools / timing policy.
@@ -250,6 +251,7 @@ pub struct ResolvedIo<'a> {
     pub config: Option<&'a clawcrew_config::schema::Config>,
     pub hooks: Option<&'a HookRunner>,
     pub activated_tools: Option<&'a Arc<Mutex<ActivatedToolSet>>>,
+    pub app_registry: Option<&'a Arc<std::sync::RwLock<crate::platform::app_registry::AppRegistry>>>,
     pub model_switch_callback: Option<ModelSwitchCallback>,
     pub receipt_generator: Option<&'a ReceiptGenerator>,
 }
@@ -290,6 +292,7 @@ impl<'a> ResolvedAgentExecution<'a> {
             excluded_tools: runtime.excluded_tools,
             dedup_exempt_tools: runtime.dedup_exempt_tools,
             activated_tools: io.activated_tools,
+            app_registry: io.app_registry,
             model_switch_callback: io.model_switch_callback,
             pacing: runtime.pacing,
             strict_tool_parsing: runtime.strict_tool_parsing,

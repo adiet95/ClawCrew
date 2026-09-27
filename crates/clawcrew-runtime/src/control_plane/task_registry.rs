@@ -22,7 +22,8 @@ pub enum TaskKind {
     Sop,
     /// A2A (agent-to-agent) task.
     A2a,
-    // EPIC E: RemoteTurn
+    /// Remote turn task.
+    RemoteTurn,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -462,6 +463,7 @@ mod tests {
             (TaskKind::Cron, "cron"),
             (TaskKind::Sop, "sop"),
             (TaskKind::A2a, "a2a"),
+            (TaskKind::RemoteTurn, "remote_turn"),
         ] {
             let encoded = serde_json::to_string(&kind).unwrap();
             assert_eq!(encoded, format!("\"{wire}\""));

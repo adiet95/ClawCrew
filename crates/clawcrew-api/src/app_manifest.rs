@@ -45,6 +45,21 @@ pub struct AppManifest {
     /// Lifecycle hook names routed through the core runtime.
     #[serde(default)]
     pub lifecycle_hooks: Vec<String>,
+    /// Optional MCP server configuration if this App represents an MCP server.
+    #[serde(default)]
+    pub mcp_server: Option<McpServerDefinition>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpServerDefinition {
+    /// Command to start the MCP server.
+    pub command: String,
+    /// Arguments to pass to the command.
+    #[serde(default)]
+    pub args: Vec<String>,
+    /// Environment variables.
+    #[serde(default)]
+    pub env: HashMap<String, String>,
 }
 
 fn default_config() -> serde_json::Value {
